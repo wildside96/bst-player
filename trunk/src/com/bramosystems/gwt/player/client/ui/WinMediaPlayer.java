@@ -19,6 +19,7 @@ import com.bramosystems.gwt.player.client.*;
 import com.bramosystems.gwt.player.client.impl.WinMediaPlayerImpl;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.DOM;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.HTML;
 
 /**
@@ -62,7 +63,9 @@ public class WinMediaPlayer extends AbstractMediaPlayer {
      * {@code width} to playback media located at {@code mediaURL}. Media playback
      * begins automatically if {@code autoplay} is {@code true}.
      *
-     * <p> {@code height} and {@code width} are specified as CSS units.
+     * <p> {@code height} and {@code width} are specified as CSS units. A value of {@code null}
+     * for {@code height} or {@code width} renders the player invisible on the page.  This is
+     * desired especially when used with custom controls.
      *
      * @param mediaURL the URL of the media to playback
      * @param autoplay {@code true} to start playing automatically, {@code false} otherwise
@@ -75,65 +78,15 @@ public class WinMediaPlayer extends AbstractMediaPlayer {
      * @throws com.bramosystems.gwt.player.client.PluginNotFoundException if the Windows Media
      * Player plugin is not installed on the client.
      */
-    public WinMediaPlayer(String mediaURL, boolean autoplay, String height, String width) 
+    public WinMediaPlayer(String mediaURL, boolean autoplay, String height, String width)
             throws LoadException, PluginNotFoundException, PluginVersionException {
-        PluginVersion v = PlayerUtil.getFlashPlayerVersion();
+        PluginVersion v = PlayerUtil.getWindowsMediaPlayerPluginVersion();
         if (v.compareTo(1, 1, 1) < 0) {
             throw new PluginVersionException("1, 1, 1", v.toString());
         }
 
-        playerId = DOM.createUniqueId();
-        impl.init(playerId);
-        playerDiv = new HTML(impl.getPlayerScript(mediaURL, playerId, autoplay, height, width));
-        playerDiv.setStyleName("");
-        playerDiv.setSize("100%", "100%");
-        playerDiv.setHorizontalAlignment(HTML.ALIGN_CENTER);
-        initWidget(playerDiv);
-    }
-
-    /**
-     * Constructs <code>WinMediaPlayer</code> to automatically playback media located at
-     * {@code mediaURL} using the default height of 50px and width of 100%.
-     *
-     * <p> This is the same as calling {@code WinMediaPlayer(mediaURL, true, "50", "100%")}
-     *
-     * @param mediaURL the URL of the media to playback
-     *
-     * @throws com.bramosystems.gwt.player.client.LoadException if an error occurs while loading the media.
-     * @throws com.bramosystems.gwt.player.client.PluginVersionException if the required
-     * Windows Media Player plugin version is not installed on the client.
-     * @throws com.bramosystems.gwt.player.client.PluginNotFoundException if the Windows Media
-     * Player plugin is not installed on the client.
-     */
-    public WinMediaPlayer(String mediaURL) throws LoadException,
-            PluginNotFoundException, PluginVersionException {
-        this(mediaURL, true, "50", "100%");
-    }
-
-    /**
-     * Constructs <code>WinMediaPlayer</code> to playback media located at {@code mediaURL} using
-     * the default height of 50px and width of 100%. Media playback begins automatically if
-     * {@code autoplay} is {@code true}.
-     *
-     * <p> This is the same as calling {@code WinMediaPlayer(mediaURL, autoplay, "50", "100%")}
-     *
-     * @param mediaURL the URL of the media to playback
-     * @param autoplay {@code true} to start playing automatically, {@code false} otherwise
-     *
-     * @throws com.bramosystems.gwt.player.client.LoadException if an error occurs while loading the media.
-     * @throws com.bramosystems.gwt.player.client.PluginVersionException if the required
-     * Windows Media Player plugin version is not installed on the client.
-     * @throws com.bramosystems.gwt.player.client.PluginNotFoundException if the Windows Media
-     * Player plugin is not installed on the client.
-     */
-    public WinMediaPlayer(String mediaURL, boolean autoplay) throws LoadException,
-            PluginNotFoundException, PluginVersionException {
-        this(mediaURL, autoplay, "50", "100%");
-    }
-
-    @Override
-    protected void onLoad() {
-        impl.setMediaStateListener(playerId, new MediaStateListener() {
+        playerId = DOM.createUniqueId().replace("-", "");
+        impl.init(playerId, new MediaStateListener() {
 
             public void onPlayStarted() {
                 firePlayStarted();
@@ -151,16 +104,73 @@ public class WinMediaPlayer extends AbstractMediaPlayer {
                 fireLoadingProgress(progress);
             }
 
-            public void onIOError() {
-                fireIOError();
+            public void onError(String description) {
+                Window.alert(description);
+                fireError(description);
             }
 
             public void onDebug(String message) {
                 fireDebug(message);
             }
+
+            public void onPlayerReady() {
+                firePlayerReady();
+            }
         });
+        playerDiv = new HTML(impl.getPlayerScript(mediaURL, playerId, autoplay, height, width));
+        playerDiv.setStyleName("");
+        playerDiv.setSize("100%", "100%");
+        playerDiv.setHorizontalAlignment(HTML.ALIGN_CENTER);
+        initWidget(playerDiv);
     }
 
+    /**
+     * Constructs <code>WinMediaPlayer</code> to automatically playback media located at
+     * {@code mediaURL} using the default height of 50px and width of 100%.
+     *
+     * <p> This is the same as calling {@code WinMediaPlayer(mediaURL, true, "50px", "100%")}
+     *
+     * @param mediaURL the URL of the media to playback
+     *
+     * @throws com.bramosystems.gwt.player.client.LoadException if an error occurs while loading the media.
+     * @throws com.bramosystems.gwt.player.client.PluginVersionException if the required
+     * Windows Media Player plugin version is not installed on the client.
+     * @throws com.bramosystems.gwt.player.client.PluginNotFoundException if the Windows Media
+     * Player plugin is not installed on the client.
+     */
+    public WinMediaPlayer(String mediaURL) throws LoadException,
+            PluginNotFoundException, PluginVersionException {
+        this(mediaURL, true, "50px", "100%");
+    }
+
+    /**
+     * Constructs <code>WinMediaPlayer</code> to playback media located at {@code mediaURL} using
+     * the default height of 50px and width of 100%. Media playback begins automatically if
+     * {@code autoplay} is {@code true}.
+     *
+     * <p> This is the same as calling {@code WinMediaPlayer(mediaURL, autoplay, "50px", "100%")}
+     *
+     * @param mediaURL the URL of the media to playback
+     * @param autoplay {@code true} to start playing automatically, {@code false} otherwise
+     *
+     * @throws com.bramosystems.gwt.player.client.LoadException if an error occurs while loading the media.
+     * @throws com.bramosystems.gwt.player.client.PluginVersionException if the required
+     * Windows Media Player plugin version is not installed on the client.
+     * @throws com.bramosystems.gwt.player.client.PluginNotFoundException if the Windows Media
+     * Player plugin is not installed on the client.
+     */
+    public WinMediaPlayer(String mediaURL, boolean autoplay) throws LoadException,
+            PluginNotFoundException, PluginVersionException {
+        this(mediaURL, autoplay, "50px", "100%");
+    }
+
+    /**
+     * Overridden to register player for plugin DOM events
+     */
+    @Override
+    protected final void onLoad() {
+        impl.registerMediaStateListener(playerId);
+    }
 
     /**
      * Subclasses that override this method should call <code>super.onUnload()</code>
@@ -168,23 +178,28 @@ public class WinMediaPlayer extends AbstractMediaPlayer {
      */
     @Override
     protected void onUnload() {
+        impl.stop(playerId);
         impl.close(playerId);
         playerDiv.setText("");
     }
 
     public void loadMedia(String mediaURL) throws LoadException {
+        checkAvailable();
         impl.loadSound(playerId, mediaURL);
     }
 
     public void playMedia() throws PlayException {
+        checkAvailable();
         impl.play(playerId);
     }
 
     public void stopMedia() {
+        checkAvailable();
         impl.stop(playerId);
     }
 
     public void pauseMedia() {
+        checkAvailable();
         impl.pause(playerId);
     }
 
@@ -196,23 +211,34 @@ public class WinMediaPlayer extends AbstractMediaPlayer {
     }
 
     public long getMediaDuration() {
-        return (long)impl.getDuration(playerId);
+        checkAvailable();
+        return (long) impl.getDuration(playerId);
     }
 
     public double getPlayPosition() {
+        checkAvailable();
         return impl.getCurrentPosition(playerId);
     }
 
     public void setPlayPosition(double position) {
+        checkAvailable();
         impl.setCurrentPosition(playerId, position);
     }
 
     public double getVolume() {
-        return impl.getVolume(playerId) / (double)100;
+        checkAvailable();
+        return impl.getVolume(playerId) / (double) 100;
     }
 
     public void setVolume(double volume) {
-        impl.setVolume(playerId, (int)(volume * 100));
+        checkAvailable();
+        impl.setVolume(playerId, (int) (volume * 100));
+    }
+
+    private void checkAvailable() {
+        if(!impl.isPlayerAvailable(playerId))
+            throw new IllegalStateException("Player closed already, create" +
+                    " another instance.");
     }
 
 }

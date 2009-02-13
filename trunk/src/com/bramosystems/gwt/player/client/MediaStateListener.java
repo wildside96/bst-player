@@ -25,6 +25,11 @@ import java.util.EventListener;
 public interface MediaStateListener extends EventListener {
 
     /**
+     * Invoked when player can start media playback.
+     */
+    public void onPlayerReady();
+
+    /**
      * Invoked when media playback has started.
      *
      * @see #onPlayFinished()
@@ -52,10 +57,12 @@ public interface MediaStateListener extends EventListener {
      */
     public void onLoadingProgress(double progress);
 
-    /**
-     * Invoked when an IO error occurs.
+   /**
+     * Invoked when an error occurs.
+     *
+     * @param description describes the error
      */
-    public void onIOError();
+    public void onError(String description);
 
     /**
      * Invoked to send messages to debugging consoles.

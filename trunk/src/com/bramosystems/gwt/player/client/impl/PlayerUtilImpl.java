@@ -34,12 +34,17 @@ public class PlayerUtilImpl {
         "wma", "wax", "wav", "mp3", "midi"};
     protected final static String[] swfPool = {"swf", "spl", "mp3"};
 
+    public PlayerUtilImpl() {
+        Arrays.sort(swfPool);
+        Arrays.sort(qtPool);
+        Arrays.sort(wmpPool);
+    }
+
     public Plugin suggestPlayer(String ext) throws PluginNotFoundException {
         // suggest player with preference for SWF and QT...
         PluginVersion pv = new PluginVersion();
         Plugin pg = Plugin.Auto;
 
-        Arrays.sort(swfPool);
         if (Arrays.binarySearch(swfPool, ext.toLowerCase()) >= 0) {
             getFlashPluginVersion(pv);          // SWF plugin supported ext....
             if (pv.compareTo(9, 0, 0) >= 0) {   // req SWF plugin found...
@@ -48,7 +53,6 @@ public class PlayerUtilImpl {
         }
 
         if (pg.equals(Plugin.Auto)) {    // supported player not found yet, try QT...
-            Arrays.sort(qtPool);
             if (Arrays.binarySearch(qtPool, ext.toLowerCase()) >= 0) {
                 // check if plugin is available...
                 pv = new PluginVersion();
@@ -60,7 +64,6 @@ public class PlayerUtilImpl {
         }
 
         if (pg.equals(Plugin.Auto)) {    // supported player not found yet, try WMP...
-            Arrays.sort(wmpPool);
             if (Arrays.binarySearch(wmpPool, ext.toLowerCase()) >= 0) {
                 // check if plugin is available...
                 pv = new PluginVersion();

@@ -19,8 +19,8 @@ import com.bramosystems.gwt.player.client.*;
 import com.bramosystems.gwt.player.client.ui.FlashMP3Player;
 import com.bramosystems.gwt.player.client.ui.QuickTimePlayer;
 import com.bramosystems.gwt.player.client.ui.WinMediaPlayer;
-import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.SimplePanel;
+import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 
 /**
@@ -60,23 +60,24 @@ public abstract class CustomPlayer extends AbstractMediaPlayer {
     public CustomPlayer(Plugin playerPlugin, String mediaURL, boolean autoplay)
             throws PluginNotFoundException, PluginVersionException, LoadException {
         switch (playerPlugin) {
+            // make players 1 x 1px, so the player can be active
             case FlashMP3Player:
-                engine = new FlashMP3Player(mediaURL, autoplay, "0", "0");
+                engine = new FlashMP3Player(mediaURL, autoplay, null, null);
                 break;
             case QuickTimePlayer:
-                engine = new QuickTimePlayer(mediaURL, autoplay, "0", "0");
+                engine = new QuickTimePlayer(mediaURL, autoplay, null, null);
                 break;
             case WinMediaPlayer:
-                engine = new WinMediaPlayer(mediaURL, autoplay, "0", "0");
+                engine = new WinMediaPlayer(mediaURL, autoplay, null, null);
                 break;
             case Auto:
-                engine = PlayerUtil.getPlayer(mediaURL, autoplay, "0", "0");
+                engine = PlayerUtil.getPlayer(mediaURL, autoplay, null, null);
                 break;
         }
         engine.addMediaStateListener(new MediaStateListener() {
 
-            public void onIOError() {
-                fireIOError();
+            public void onError(String description) {
+                fireError(description);
             }
 
             public void onLoadingComplete() {
@@ -98,13 +99,17 @@ public abstract class CustomPlayer extends AbstractMediaPlayer {
             public void onPlayStarted() {
                 firePlayStarted();
             }
+
+            public void onPlayerReady() {
+                firePlayerReady();
+            }
         });
 
         container = new SimplePanel();
 
-        HorizontalPanel hp = new HorizontalPanel();
+        VerticalPanel hp = new VerticalPanel();
         hp.setSize("100%", "100%");
-        hp.setVerticalAlignment(HorizontalPanel.ALIGN_MIDDLE);
+        hp.setVerticalAlignment(VerticalPanel.ALIGN_MIDDLE);
         hp.add(engine);
         hp.add(container);
         super.initWidget(hp);
@@ -131,39 +136,39 @@ public abstract class CustomPlayer extends AbstractMediaPlayer {
         container.setWidget(widget);
     }
 
-    public final void close() {
+    public void close() {
         engine.close();
     }
 
-    public final void ejectMedia() {
+    public void ejectMedia() {
         engine.ejectMedia();
     }
 
-    public final long getMediaDuration() {
+    public long getMediaDuration() {
         return engine.getMediaDuration();
     }
 
-    public final double getPlayPosition() {
+    public double getPlayPosition() {
         return engine.getPlayPosition();
     }
 
-    public final void setPlayPosition(double position) {
+    public void setPlayPosition(double position) {
         engine.setPlayPosition(position);
     }
 
-    public final void loadMedia(String mediaURL) throws LoadException {
+    public void loadMedia(String mediaURL) throws LoadException {
         engine.loadMedia(mediaURL);
     }
 
-    public final void pauseMedia() {
+    public void pauseMedia() {
         engine.pauseMedia();
     }
 
-    public final void playMedia() throws PlayException {
+    public void playMedia() throws PlayException {
         engine.playMedia();
     }
 
-    public final void stopMedia() {
+    public void stopMedia() {
         engine.stopMedia();
     }
 

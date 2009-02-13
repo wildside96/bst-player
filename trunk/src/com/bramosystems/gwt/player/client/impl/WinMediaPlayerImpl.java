@@ -32,41 +32,47 @@ public class WinMediaPlayerImpl {
     WinMediaPlayerImpl() {
     }
 
-    public void init(String playerId) {
+    public void init(String playerId, MediaStateListener listener) {
         if (jso == null) {
             jso = JavaScriptObject.createObject();
             initGlobalEventListeners(jso);
         }
 
         initPlayerImpl(jso, playerId);
+        createMediaStateListenerImpl(jso, playerId, listener);
     }
 
     public String getPlayerScript(String mediaURL, String playerId, boolean autoplay,
             String height, String width) {
-        return "<object id='" + playerId + "' type='" + getPluginType() + "' data='' " +
-                "width='" + width + "' height='" + height + "' autoplay='" + autoplay + "'>" +
+        String h = height == null ? "1px" : height;
+        String w = width == null ? "1px" : width;
+        return "<object id='" + playerId + "' type='" + getPluginType() + "' " +
+                "width='" + w + "' height='" + h + "' >" +
                 "<param name='autostart' value='" + autoplay + "' />" +
                 "<param name='URL' value='" + mediaURL + "' />" +
                 "</object>";
     }
 
-    public void setMediaStateListener(String playerId, MediaStateListener listener) {
-        createMediaStateListenerImpl(jso, playerId, listener);
-        registerMediaStateListenerImpl(jso, playerId);
+   public void registerMediaStateListener(String playerId){
+       registerMediaStateListenerImpl(jso, playerId);
+   }
+
+    public final boolean isPlayerAvailable(String playerId) {
+        return isPlayerAvailableImpl(jso, playerId);
     }
 
     protected native void initGlobalEventListeners(JavaScriptObject jso) /*-{
-    jso['gEvtListnrId'] = new Array();
+    jso['geId'] = new Array();
     $wnd.OnDSPlayStateChangeEvt = function(NewState) {
-        for(i = 0; i < jso['gEvtListnrId'].length; i++) {
-            var pid = jso['gEvtListnrId'][i];
+     for(i = 0; i < jso['geId'].length; i++) {
+            var pid = jso['geId'][i];
             jso[pid].playStateChange(NewState);
         }
      }
-    $wnd.OnDSBufferingEvt = function(Start) {
-        for(i = 0; i < jso['gEvtListnrId'].length; i++) {
-            var pid = jso['gEvtListnrId'][i];
-            jso[pid].buffering(Start);
+    $wnd.OnDSErrorEvt = function() {
+        for(i = 0; i < jso['geId'].length; i++) {
+            var pid = jso['geId'][i];
+            jso[pid].errorr();
         }
      }
     }-*/;
@@ -79,34 +85,61 @@ public class WinMediaPlayerImpl {
     }
     }-*/;
 
-    private native void createMediaStateListenerImpl(JavaScriptObject jso, String playerId,
+    /**
+     * Create native MediaStateListener functions
+     * @param jso function wrapper
+     * @param playerId player ID
+     * @param listener callback
+     */
+    protected native void createMediaStateListenerImpl(JavaScriptObject jso, String playerId,
             MediaStateListener listener) /*-{
-    jso[playerId].error = function() {
-        listener.@com.bramosystems.gwt.player.client.MediaStateListener::onIOError()();
+    jso[playerId].errorr = function() {
+        var playr = $doc.getElementById(playerId);
+        var err = playr.error;
+        if(err == undefined)
+           return;
+
+        var desc = err.item(0).errorDescription;
+        listener.@com.bramosystems.gwt.player.client.MediaStateListener::onError(Ljava/lang/String;)(desc);
     };
     jso[playerId].playStateChange = function(NewState) {
-        switch(NewState) {
+        var playr = $doc.getElementById(playerId);
+        var state = playr.playState;
+        if(state == undefined)
+           return;
+
+        switch(state) {
             case 3:    // playing..
                 listener.@com.bramosystems.gwt.player.client.MediaStateListener::onPlayStarted()();
+                break;
+            case 6:    // buffering ...
+                if(playr.network.downloadProgress >=  0) {
+                    jso[playerId].progTimerId = $wnd.setInterval(function() {
+                        if(playr.network) {
+                            var prog = playr.network.downloadProgress / 100;
+                            if(prog < 1) {
+                                listener.@com.bramosystems.gwt.player.client.MediaStateListener::onLoadingProgress(D)(prog);
+                            } else {
+                                listener.@com.bramosystems.gwt.player.client.MediaStateListener::onLoadingComplete()();
+                                $wnd.clearInterval(jso[playerId].progTimerId);
+                                delete jso[playerId].progTimerId;
+                            }
+                        } else {
+                            $wnd.clearInterval(jso[playerId].progTimerId);
+                            delete jso[playerId].progTimerId;
+                        }
+                     }, 1000);
+                }
                 break;
             case 8:    // media ended...
                 listener.@com.bramosystems.gwt.player.client.MediaStateListener::onPlayFinished()();
                 break;
+            case 10:    // player ready...
+             listener.@com.bramosystems.gwt.player.client.MediaStateListener::onPlayerReady()();
+             break;
         }
     };
-    jso[playerId].loadingProgress = function() {
-        plyr = $doc.getElementById(playerId);
-        var prog = plyr.network.downloadProgress / 100;
-        listener.@com.bramosystems.gwt.player.client.MediaStateListener::onLoadingProgress(D)(prog);
-    };
-    jso[playerId].buffering = function(Start) {
-        if(Start == true) { // downloading started...
-            jso[playerId].progTimerId = $wnd.setInterval(jso[playerId].loadingProgress(), 1000);
-        } else {    // downloading stoped...
-            $wnd.clearInterval(jso[playerId].progTimerId);
-            listener.@com.bramosystems.gwt.player.client.MediaStateListener::onLoadingComplete()();
-        }
-    };
+    jso['geId'].push(playerId);
     }-*/;
 
     /**
@@ -115,7 +148,6 @@ public class WinMediaPlayerImpl {
      * @param playerId player ID
      */
     protected native void registerMediaStateListenerImpl(JavaScriptObject jso, String playerId) /*-{
-        jso['gEvtListnrId'].push(playerId);
     }-*/;
 
     /**
@@ -123,12 +155,20 @@ public class WinMediaPlayerImpl {
      * @return
      */
     private native String getPluginType() /*-{
-    if (navigator.mimeTypes && navigator.mimeTypes['application/x-ms-wmp']) {
-    return "application/x-ms-wmp"; // wmp plugin for firefox
-    } else {
-    return "application/x-mplayer2"; // generic wmp
-    }
+        if (navigator.mimeTypes && navigator.mimeTypes['application/x-ms-wmp']) {
+            return "application/x-ms-wmp"; // wmp plugin for firefox
+        } else {
+            return "application/x-mplayer2"; // generic wmp
+        }
     }-*/;
+
+    private native boolean isPlayerAvailableImpl(JavaScriptObject jso, String playerId) /*-{
+        return (jso[playerId] != undefined) || (jso[playerId] != null);
+     }-*/;
+
+    public void close(String playerId) {
+        closeImpl(jso, playerId);
+    }
 
     public native void loadSound(String playerId, String mediaURL) /*-{
     var player = $doc.getElementById(playerId);
@@ -167,9 +207,8 @@ public class WinMediaPlayerImpl {
     player.controls.currentPosition = position / 1000;
     }-*/;
 
-    public native void close(String playerId) /*-{
-    var player = $doc.getElementById(playerId);
-    player.close();
+    protected native void closeImpl(JavaScriptObject jso, String playerId) /*-{
+     delete jso[playerId];
     }-*/;
 
     public native int getVolume(String playerId) /*-{

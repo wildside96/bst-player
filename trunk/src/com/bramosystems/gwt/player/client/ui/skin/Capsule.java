@@ -94,7 +94,30 @@ public class Capsule extends CustomPlayer {
      */
     public Capsule(String mediaURL, boolean autoplay) throws PluginNotFoundException,
             PluginVersionException, LoadException {
-        super(Plugin.Auto, mediaURL, autoplay);
+        this(Plugin.Auto, mediaURL, autoplay);
+    }
+
+    /**
+     * Constructs <code>Capsule</code> player to automatically playback the
+     * media located at {@code mediaURL}, if {@code autoplay} is {@code true} using
+     * the specified {@code plugin}.
+     *
+     * @param plugin plugin to use for playback.
+     * @param mediaURL the URL of the media to playback
+     * @param autoplay {@code true} to start playing automatically, {@code false} otherwise
+     *
+     * @throws com.bramosystems.gwt.player.client.LoadException if an error occurs while
+     * loading the media.
+     * @throws com.bramosystems.gwt.player.client.PluginVersionException if the required
+     * plugin version is not installed on the client.
+     * @throws com.bramosystems.gwt.player.client.PluginNotFoundException if the
+     * plugin is not installed on the client.
+     *
+     * @see Plugin
+     */
+    public Capsule(Plugin plugin, String mediaURL, boolean autoplay) throws PluginNotFoundException,
+            PluginVersionException, LoadException {
+        super(plugin, mediaURL, autoplay);
 
         progress = new ProgressBar();
         progress.setWidth("95%");
@@ -132,10 +155,10 @@ public class Capsule extends CustomPlayer {
         stop = new ToggleButton(imgPack.stop().createImage(), imgPack.stop().createImage(),
                 new ClickListener() {
 
-            public void onClick(Widget sender) {
-                doStopState();
-            }
-        });
+                    public void onClick(Widget sender) {
+                        stopMedia();
+                    }
+                });
         stop.getUpDisabledFace().setImage(imgPack.stopDisabled().createImage());
         stop.getUpHoveringFace().setImage(imgPack.stopHover().createImage());
         stop.getDownDisabledFace().setImage(imgPack.stopDisabled().createImage());
@@ -157,8 +180,8 @@ public class Capsule extends CustomPlayer {
 
         addMediaStateListener(new MediaStateListener() {
 
-            public void onIOError() {
-                onDebug("An IO Error has occured");
+            public void onError(String description) {
+                onDebug(description);
             }
 
             public void onLoadingComplete() {
@@ -166,12 +189,11 @@ public class Capsule extends CustomPlayer {
                 progress.setLoadingProgress(1);
                 progress.setDuration(getMediaDuration());
                 progress.setTime(0);
-                play.setEnabled(true);
                 vc.setVolume(getVolume());
             }
 
             public void onPlayFinished() {
-                doStopState();
+                stopMedia();
                 progress.setFinishedState();
             }
 
@@ -185,9 +207,16 @@ public class Capsule extends CustomPlayer {
             }
 
             public void onPlayStarted() {
+                progress.setDuration(getMediaDuration());
                 playTimer.scheduleRepeating(1000);
                 play.setDown(true);
                 stop.setEnabled(true);
+                vc.setVolume(getVolume());
+            }
+
+            public void onPlayerReady() {
+                play.setEnabled(true);
+                vc.setVolume(getVolume());
             }
         });
 
@@ -223,8 +252,9 @@ public class Capsule extends CustomPlayer {
         ta.setHTML(ta.getHTML() + "<br/>" + report);
     }
 
-    private void doStopState() {
-        stopMedia();
+    @Override
+    public void stopMedia() {
+        super.stopMedia();
         playTimer.cancel();
         play.setDown(false);
         stop.setEnabled(false);

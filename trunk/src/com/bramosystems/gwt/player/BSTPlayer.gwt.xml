@@ -18,7 +18,6 @@
 <module>
     <inherits name="com.google.gwt.user.User"/>
     <public path="publicc" />
-    <script src="FABridge.js" />
     <stylesheet src="skin/capsule/style.css" />
 
 	<!-- WinMediaPlayer mapping for IE6 & IE7 -->

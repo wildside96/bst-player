@@ -29,10 +29,11 @@ public class FlashMP3PlayerImplIE extends FlashMP3PlayerImpl {
     }
 
     @Override
-    public String getPlayerScript(String playerId, boolean visible) {
+    protected String getPlayerScript(String playerId, String mediaURL, boolean autoplay, boolean visible) {
         String ht = "<object id='" + playerId + "' classid='CLSID:D27CDB6E-AE6D-11cf-96B8-444553540000' " +
-                (visible ? "" : "width='0' height='0'") + " >" +
-                "<param value='bridgeName=" + playerId + "' name='FlashVars' />" +
+                (visible ? "" : "width='1px' height='1px'") + " >" +
+                "<param name='FlashVars' value='bridgeName=" + playerId + "&playerId=" + playerId +
+                "&mediaSrc=" + mediaURL + "&autoplay=" + autoplay + "' />" +
                 "<param value='" + SWF_URL + "' name='Movie' />" +
                 "<param value='SameDomain' name='AllowScriptAccess' />" +
                 "</object>";

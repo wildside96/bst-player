@@ -26,7 +26,7 @@ import com.bramosystems.gwt.player.client.PluginVersionException;
 import com.bramosystems.gwt.player.client.impl.QuickTimePlayerImpl;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.DOM;
-import com.google.gwt.user.client.ui.HTML;
+import com.google.gwt.user.client.ui.SimplePanel;
 
 /**
  * Widget to embed QuickTime plugin.
@@ -60,16 +60,25 @@ import com.google.gwt.user.client.ui.HTML;
  */
 public class QuickTimePlayer extends AbstractMediaPlayer {
 
-    private static QuickTimePlayerImpl impl = GWT.create(QuickTimePlayerImpl.class);
-    private String playerId;
-    private HTML playerDiv;
+    private static QuickTimePlayerImpl impl;
+    private String playerId, playerDivId, mediaUrl, height, width;
+    private boolean autoplay;
+    private SimplePanel playerDiv;
+
+    QuickTimePlayer() {
+        if (impl == null) {
+            impl = GWT.create(QuickTimePlayerImpl.class);
+        }
+    }
 
     /**
      * Constructs <code>QuickTimePlayer</code> with the specified {@code height} and
      * {@code width} to playback media located at {@code mediaURL}. Media playback
      * begins automatically if {@code autoplay} is {@code true}.
      *
-     * <p> {@code height} and {@code width} are specified as CSS units.
+     * <p> {@code height} and {@code width} are specified as CSS units. A value of {@code null}
+     * for {@code height} or {@code width} renders the player invisible on the page.  This is
+     * desired especially when used with custom controls.
      *
      * @param mediaURL the URL of the media to playback
      * @param autoplay {@code true} to start playing automatically, {@code false} otherwise
@@ -82,74 +91,21 @@ public class QuickTimePlayer extends AbstractMediaPlayer {
      * @throws com.bramosystems.gwt.player.client.PluginNotFoundException if the QuickTime plugin is not
      * installed on the client.
      */
-    public QuickTimePlayer(String mediaURL, boolean autoplay, String height, String width) 
+    public QuickTimePlayer(String mediaURL, boolean autoplay, String height, String width)
             throws LoadException, PluginVersionException, PluginNotFoundException {
+        this();
 
-        PluginVersion v = PlayerUtil.getFlashPlayerVersion();
+        PluginVersion v = PlayerUtil.getQuickTimePluginVersion();
         if (v.compareTo(7, 2, 1) < 0) {
             throw new PluginVersionException("7, 2, 1", v.toString());
         }
 
-        playerId = DOM.createUniqueId();
-        impl.init(playerId);
-        playerDiv = new HTML(impl.getEventSourceScript() +
-                impl.getPlayerScript(mediaURL, playerId, autoplay, height, width));
-        playerDiv.setStyleName("");
-        playerDiv.setSize("100%", "100%");
-        playerDiv.setHorizontalAlignment(HTML.ALIGN_CENTER);
-
-        initWidget(playerDiv);
-    }
-
-    /**
-     * Constructs <code>QuickTimePlayer</code> to automatically playback media located at
-     * {@code mediaURL} using the default height of 25px and width of 300px.
-     *
-     * <p> This is the same as calling {@code QuickTimePlayer(mediaURL, true, "25", "300")}
-     *
-     * @param mediaURL the URL of the media to playback
-     *
-     * @throws com.bramosystems.gwt.player.client.LoadException if an error occurs while loading the media.
-     * @throws com.bramosystems.gwt.player.client.PluginVersionException if the required
-     * QuickTime plugin version is not installed on the client.
-     * @throws com.bramosystems.gwt.player.client.PluginNotFoundException if the QuickTime plugin is not
-     * installed on the client.
-     *
-     */
-    public QuickTimePlayer(String mediaURL) throws LoadException, PluginVersionException,
-            PluginNotFoundException {
-        this(mediaURL, true, "25", "300");
-    }
-
-    /**
-     * Constructs <code>QuickTimePlayer</code> to playback media located at {@code mediaURL}
-     * using the default height of 25px and width of 300px. Media playback begins
-     * automatically if {@code autoplay} is {@code true}.
-     *
-     * <p> This is the same as calling {@code QuickTimePlayer(mediaURL, autoplay, "25", "300")}
-     *
-     * @param mediaURL the URL of the media to playback
-     * @param autoplay {@code true} to start playing automatically, {@code false} otherwise
-     *
-     * @throws com.bramosystems.gwt.player.client.LoadException if an error occurs while loading the media.
-     * @throws com.bramosystems.gwt.player.client.PluginVersionException if the required
-     * QuickTime plugin version is not installed on the client.
-     * @throws com.bramosystems.gwt.player.client.PluginNotFoundException if the QuickTime plugin is not
-     * installed on the client.
-     */
-    public QuickTimePlayer(String mediaURL, boolean autoplay) throws LoadException,
-            PluginVersionException, PluginNotFoundException {
-        this(mediaURL, autoplay, "25", "300");
-    }
-
-    /**
-     * Overridden to register player for plugin DOM events
-     *
-     * @see "JavaScript Scripting Guide for QuickTime"
-     */
-    @Override
-    protected final void onLoad() {
-        impl.addMediaStateListener(playerId, new MediaStateListener() {
+        playerId = DOM.createUniqueId().replace("-", "");
+        mediaUrl = mediaURL;
+        this.width = width;
+        this.height = height;
+        this.autoplay = autoplay;
+        impl.init(playerId, new MediaStateListener() {
 
             public void onPlayFinished() {
                 firePlayFinished();
@@ -159,8 +115,8 @@ public class QuickTimePlayer extends AbstractMediaPlayer {
                 fireLoadingComplete();
             }
 
-            public void onIOError() {
-                fireIOError();
+            public void onError(String description) {
+                fireError(description);
             }
 
             public void onDebug(String message) {
@@ -175,57 +131,133 @@ public class QuickTimePlayer extends AbstractMediaPlayer {
                 firePlayStarted();
             }
 
+            public void onPlayerReady() {
+                firePlayerReady();
+            }
         });
+
+        playerDivId = playerId + "_div";
+        playerDiv = new SimplePanel();
+        playerDiv.getElement().setId(playerDivId);
+
+        initWidget(playerDiv);
+    }
+
+    /**
+     * Constructs <code>QuickTimePlayer</code> to automatically playback media located at
+     * {@code mediaURL} using the default height of 25px and width of 300px.
+     *
+     * <p> This is the same as calling {@code QuickTimePlayer(mediaURL, true, "25px", "300px")}
+     *
+     * @param mediaURL the URL of the media to playback
+     *
+     * @throws com.bramosystems.gwt.player.client.LoadException if an error occurs while loading the media.
+     * @throws com.bramosystems.gwt.player.client.PluginVersionException if the required
+     * QuickTime plugin version is not installed on the client.
+     * @throws com.bramosystems.gwt.player.client.PluginNotFoundException if the QuickTime plugin is not
+     * installed on the client.
+     *
+     */
+    public QuickTimePlayer(String mediaURL) throws LoadException, PluginVersionException,
+            PluginNotFoundException {
+        this(mediaURL, true, "25px", "300px");
+    }
+
+    /**
+     * Constructs <code>QuickTimePlayer</code> to playback media located at {@code mediaURL}
+     * using the default height of 25px and width of 300px. Media playback begins
+     * automatically if {@code autoplay} is {@code true}.
+     *
+     * <p> This is the same as calling {@code QuickTimePlayer(mediaURL, autoplay, "25px", "300px")}
+     *
+     * @param mediaURL the URL of the media to playback
+     * @param autoplay {@code true} to start playing automatically, {@code false} otherwise
+     *
+     * @throws com.bramosystems.gwt.player.client.LoadException if an error occurs while loading the media.
+     * @throws com.bramosystems.gwt.player.client.PluginVersionException if the required
+     * QuickTime plugin version is not installed on the client.
+     * @throws com.bramosystems.gwt.player.client.PluginNotFoundException if the QuickTime plugin is not
+     * installed on the client.
+     */
+    public QuickTimePlayer(String mediaURL, boolean autoplay) throws LoadException,
+            PluginVersionException, PluginNotFoundException {
+        this(mediaURL, autoplay, "25px", "300px");
+    }
+
+    /**
+     * Overridden to register player for plugin DOM events
+     *
+     */
+    @Override
+    protected final void onLoad() {
+       impl.injectScript(playerDivId, mediaUrl, playerId, autoplay, height, width);
     }
 
     /**
      * Subclasses that override this method should call <code>super.onUnload()</code>
      * to ensure the player is properly removed from the browser's DOM.
-     */
+     *
     @Override
     protected void onUnload() {
-        playerDiv.setText("");
+//        playerDiv.setText("");
     }
+     */
 
     public void loadMedia(String mediaURL) throws LoadException {
+        checkAvailable();
         impl.loadSound(playerId, mediaURL);
     }
 
     public void playMedia() throws PlayException {
-        impl.play(playerId);
+        checkAvailable();
+        impl.playMedia(playerId);
     }
 
     public void stopMedia() {
+        checkAvailable();
         impl.stop(playerId);
     }
 
     public void pauseMedia() {
+        checkAvailable();
         impl.pause(playerId);
     }
 
     public void ejectMedia() {
+        checkAvailable();
     }
 
     public void close() {
     }
 
     public long getMediaDuration() {
-        return impl.getDuration(playerId);
+        checkAvailable();
+        return (long) impl.getDuration(playerId);
     }
 
     public double getPlayPosition() {
+        checkAvailable();
         return impl.getTime(playerId);
     }
 
     public void setPlayPosition(double position) {
-        impl.setTime(playerId, (int)position);
+        checkAvailable();
+        impl.setTime(playerId, position);
     }
 
     public double getVolume() {
-        return impl.getVolume(playerId) / (double)255;
+        checkAvailable();
+        return impl.getVolume(playerId) / 255.0;
     }
 
     public void setVolume(double volume) {
-        impl.setVolume(playerId, (int)(volume * 255));
+        checkAvailable();
+        impl.setVolume(playerId, (int) (volume * 255));
+    }
+
+    private void checkAvailable() {
+        if(!impl.isPlayerAvailable(playerId))
+            throw new IllegalStateException("Player closed already, create" +
+                    " another instance.");
     }
 }

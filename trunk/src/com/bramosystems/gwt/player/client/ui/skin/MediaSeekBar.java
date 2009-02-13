@@ -42,7 +42,7 @@ public abstract class MediaSeekBar extends Composite implements MouseListener {
      */
     public MediaSeekBar(int height) {
         seekTrack = new AbsolutePanel();
-        seekTrack.setSize("100%", String.valueOf(height));
+        seekTrack.setSize("100%", height + "px");
         super.initWidget(seekTrack);
 
         seekListeners = new ArrayList<SeekChangeListener>();
