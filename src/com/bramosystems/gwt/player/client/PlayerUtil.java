@@ -21,7 +21,10 @@ import com.bramosystems.gwt.player.client.ui.QuickTimePlayer;
 import com.bramosystems.gwt.player.client.ui.WinMediaPlayer;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.i18n.client.NumberFormat;
+import com.google.gwt.user.client.DOM;
+import com.google.gwt.user.client.Event;
 import com.google.gwt.user.client.Window;
+import com.google.gwt.user.client.ui.*;
 
 /**
  * Utility class for various media player related functions.
@@ -93,9 +96,8 @@ public class PlayerUtil {
             boolean autoplay, String height, String width)
             throws LoadException, PluginNotFoundException, PluginVersionException {
         AbstractMediaPlayer player = null;
-        
-        switch(impl.suggestPlayer(mediaURL.substring(mediaURL.lastIndexOf(".") + 1))) {
-//        switch(impl.suggestPlayer(mediaURL)) {
+
+        switch (impl.suggestPlayer(mediaURL.substring(mediaURL.lastIndexOf(".") + 1))) {
             case FlashMP3Player:
                 player = new FlashMP3Player(mediaURL, autoplay, height, width);
                 break;
@@ -165,5 +167,72 @@ public class PlayerUtil {
         }
 
         return v;
+    }
+
+    public static Widget getMissingPluginNotice(Plugin plugin, String title, String message, boolean asHTML) {
+        final StringBuffer link = new StringBuffer();
+        DockPanel dp = new DockPanel() {
+
+            @Override
+            public void onBrowserEvent(Event event) {
+                switch(event.getTypeInt()) {
+                    case Event.ONCLICK:
+                        Window.Location.replace(link.toString());
+                }
+            }
+        };
+        dp.setHorizontalAlignment(DockPanel.ALIGN_LEFT);
+        dp.sinkEvents(Event.ONCLICK);
+        dp.setWidth("200px");
+
+        switch (plugin) {
+            case WinMediaPlayer:
+                link.append("http://www.microsoft.com/windowsmedia");
+                break;
+            case QuickTimePlayer:
+                link.append("http://www.apple.com/quicktime/download");
+                break;
+            case FlashMP3Player:
+                link.append("http://www.adobe.com/go/getflash");
+                break;
+        }
+
+        Label titleLb = null, msgLb = null;
+        if (asHTML) {
+            titleLb = new HTML(title);
+            msgLb = new HTML(message);
+        } else {
+            titleLb = new Label(title);
+            msgLb = new Label(message);
+        }
+
+        dp.add(titleLb, DockPanel.NORTH);
+        dp.add(msgLb, DockPanel.CENTER);
+
+        titleLb.setStylePrimaryName("player-MissingPlugin-title");
+        msgLb.setStylePrimaryName("player-MissingPlugin-message");
+        dp.setStylePrimaryName("player-MissingPlugin");
+
+        DOM.setStyleAttribute(dp.getElement(), "cursor", "pointer");
+        return dp;
+    }
+
+    public static Widget getMissingPluginNotice(Plugin plugin) {
+        String title = "Missing Plugin", message = "";
+        switch(plugin) {
+            case WinMediaPlayer:
+                message = "Windows Media Player 7 or later is required to play " +
+                        "this file. Click here to install.";
+                break;
+            case FlashMP3Player:
+                message = "This media requires Adobe Flash Player 9 or later. " +
+                        "Click here to get Flash";
+                break;
+            case QuickTimePlayer:
+                message = "QuickTime Player 7.2.1 plugin or later is required to play " +
+                        "this media. Click here to get QuickTime";
+                break;
+        }
+        return getMissingPluginNotice(plugin, title, message, false);
     }
 }

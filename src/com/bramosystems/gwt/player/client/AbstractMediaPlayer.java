@@ -67,6 +67,17 @@ public abstract class AbstractMediaPlayer extends Composite implements EmbeddedM
     }
 
     /**
+     * Calls <code>onPlayerReady</code> on registered MediaStateListeners.
+     *
+     * @see com.bramosystems.gwt.player.client.MediaStateListener#onPlayerReady()
+     */
+    public final void firePlayerReady() {
+        for (int i = 0; i < callbacks.size(); i++) {
+            callbacks.get(i).onPlayerReady();
+        }
+    }
+
+    /**
      * Calls <code>onLoadingComplete</code> on registered MediaStateListeners.
      *
      * @see com.bramosystems.gwt.player.client.MediaStateListener#onLoadingComplete()
@@ -78,13 +89,13 @@ public abstract class AbstractMediaPlayer extends Composite implements EmbeddedM
     }
 
     /**
-     * Calls <code>onIOError</code> on registered MediaStateListeners.
+     * Calls <code>onError</code> on registered MediaStateListeners.
      *
-     * @see com.bramosystems.gwt.player.client.MediaStateListener#onIOError()
+     * @see com.bramosystems.gwt.player.client.MediaStateListener#onError()
      */
-    public final void fireIOError() {
+    public final void fireError(String description) {
         for (int i = 0; i < callbacks.size(); i++) {
-            callbacks.get(i).onIOError();
+            callbacks.get(i).onError(description);
         }
     }
 

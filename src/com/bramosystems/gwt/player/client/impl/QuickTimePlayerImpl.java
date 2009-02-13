@@ -17,10 +17,7 @@
 package com.bramosystems.gwt.player.client.impl;
 
 import com.bramosystems.gwt.player.client.MediaStateListener;
-import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.JavaScriptObject;
-import com.google.gwt.user.client.DOM;
-import com.google.gwt.user.client.Element;
 
 /**
  * Native implementation of the QuickTimePlayer class. It is not recommended to
@@ -31,52 +28,52 @@ import com.google.gwt.user.client.Element;
  */
 public class QuickTimePlayerImpl {
     private JavaScriptObject jso;
-    protected final String EVENT_SOURCE_ID = "bst_qt_event";
 
     // Make package private....
     QuickTimePlayerImpl() {
     }
 
-    public void init(String playerId) {
+    public void init(String playerId, MediaStateListener listener) {
         if(jso == null) {
             jso = JavaScriptObject.createObject();
-
-            // inject DOM event source object...
-            Element e = DOM.createDiv();
-            e.setInnerHTML(getEventSourceScript());
- //           RootPanel.getBodyElement().appendChild(e);
         }
 
         initImpl(jso, playerId);
-    }
-
-    public String getEventSourceScript() {
-        // This is required only for IE...
-        return "";
-    }
-
-    public void addMediaStateListener(String playerId, MediaStateListener listener) {
         createMediaStateListenerImpl(jso, playerId, listener);
+    }
+
+    public void injectScript(String divId, String mediaSrc, String playerId, boolean autoplay,
+            String height, String width) {
+        injectScriptImpl(divId, getPlayerScript(mediaSrc, playerId, autoplay, height, width));
         registerMediaStateListenerImpl(jso, playerId);
     }
-    
-    public String getPlayerScript(String qtSrc, String playerId, boolean autoplay,
+
+    protected String getPlayerScript(String mediaSrc, String playerId, boolean autoplay,
             String height, String width) {
-        boolean useQtSrc = (qtSrc != null) && (qtSrc.length() != 0);
+        String h = height == null ? "0px" : height;
+        String w = width == null ? "0px" : width;
         return "<embed id='" + playerId + "' name='" + playerId + "' " +
                 "type='video/quicktime' postdomevents='true' kioskmode='true' " +
-                "autoplay='" + autoplay + "' src='" + GWT.getModuleBaseURL() + "qtmov.mov' " +
-                "width='" + width + "' height='" + height + "' EnableJavaScript='true' " +
-                (useQtSrc ? "QTSrc='" + qtSrc + "' " : "") +
-                "/> ";
+                "autoplay='" + autoplay + "' src='" + mediaSrc + "' " +
+                "width='" + w + "' height='" + h + "' EnableJavaScript='true'></embed> ";
     }
 
-    private native void initImpl(JavaScriptObject jso, String playerId) /*-{
-    if(jso[playerId] != null) {
-    return;
-    } else {
-    jso[playerId] = new Object();
+    public final boolean isPlayerAvailable(String playerId) {
+        return isPlayerAvailableImpl(jso, playerId);
     }
+
+    protected native void initImpl(JavaScriptObject jso, String playerId) /*-{
+        if(jso[playerId] != null) {
+            return;
+        } else {
+            jso[playerId] = new Object();
+            jso[playerId].qtInit = false;
+            jso[playerId].initComplete = function() {
+                if(jso[playerId].qtInit == false) {
+                    jso[playerId].qtInit = true;
+                }
+            };
+        }
     }-*/;
 
     /**
@@ -87,13 +84,17 @@ public class QuickTimePlayerImpl {
      *
      * @see "JavaScript Scripting Guide for QuickTime"
      */
-    private native void createMediaStateListenerImpl(JavaScriptObject jso, String playerId,
+    protected native void createMediaStateListenerImpl(JavaScriptObject jso, String playerId,
             MediaStateListener listener) /*-{
-    jso[playerId].ioError = function() {
-    listener.@com.bramosystems.gwt.player.client.MediaStateListener::onIOError()();
+    jso[playerId].errorr = function() {
+    listener.@com.bramosystems.gwt.player.client.MediaStateListener::onError(Ljava/lang/String;)("An" +
+             " error occured while loading media");
     };
     jso[playerId].playStarted = function() {
     listener.@com.bramosystems.gwt.player.client.MediaStateListener::onPlayStarted()();
+    };
+    jso[playerId].playerReady = function() {
+    listener.@com.bramosystems.gwt.player.client.MediaStateListener::onPlayerReady()();
     };
     jso[playerId].soundComplete = function() {
     listener.@com.bramosystems.gwt.player.client.MediaStateListener::onPlayFinished()();
@@ -103,8 +104,7 @@ public class QuickTimePlayerImpl {
     };
     jso[playerId].loadingProgress = function() {
     var plyr = $doc.getElementById(playerId);
-//    $wnd.alert("loaded : " + plyr.GetMaxTimeLoaded() + ", duratioo : " + plyr.GetDuration());
-    var prog = plyr.GetMaxTimeLoaded() / parseDouble(plyr.GetDuration());
+    var prog = plyr.GetMaxTimeLoaded() / plyr.GetDuration();
     listener.@com.bramosystems.gwt.player.client.MediaStateListener::onLoadingProgress(D)(prog);
     };
    }-*/;
@@ -119,56 +119,156 @@ public class QuickTimePlayerImpl {
      */
     protected native void registerMediaStateListenerImpl(JavaScriptObject jso, String playerId) /*-{
     var playr = $doc.getElementById(playerId);
+    playr.addEventListener('qt_begin', jso[playerId].initComplete, false);
     playr.addEventListener('qt_load', jso[playerId].loadingComplete, false);
     playr.addEventListener('qt_ended', jso[playerId].soundComplete, false);
-    playr.addEventListener('qt_error', jso[playerId].ioError, false);
+    playr.addEventListener('qt_error', jso[playerId].errorr, false);
     playr.addEventListener('qt_progress', jso[playerId].loadingProgress, false);
     playr.addEventListener('qt_play', jso[playerId].playStarted, false);
+    playr.addEventListener('qt_canplay', jso[playerId].playerReady, false);
     }-*/;
 
-    public native void play(String playerId) /*-{
-    $doc.getElementById(playerId).Play();
+    private native boolean isPlayerAvailableImpl(JavaScriptObject jso, String playerId) /*-{
+        return (jso[playerId] != undefined) || (jso[playerId] != null);
+     }-*/;
+
+    private native void injectScriptImpl(String divId, String script) /*-{
+        var e = $doc.getElementById(divId);
+        e.innerHTML = script;
     }-*/;
 
-    public native void stop(String playerId) /*-{
-    $doc.getElementById(playerId).Rewind();
-    $doc.getElementById(playerId).Stop();
+    public void playMedia(String playerId){
+        playImpl(jso, playerId);
+    }
+
+    public void stop(String playerId){
+        stopImpl(jso, playerId);
+    }
+
+    public void pause(String playerId) {
+        pauseImpl(jso, playerId);
+    }
+
+    public void close(String playerId) {
+        closeImpl(jso, playerId);
+    }
+
+    public void loadSound(String playerId, String mediaURL){
+        loadImpl(jso, playerId, mediaURL);
+    }
+
+    public double getTime(String playerId) {
+        return getTimeImpl(jso, playerId);
+    }
+
+    public void setTime(String playerId, double time){
+        setTimeImpl(jso, playerId, time);
+    }
+
+    public double getDuration(String playerId) {
+        return getDurationImpl(jso, playerId);
+    }
+
+    public int getMovieSize(String playerId) {
+        return getMovieSizeImpl(jso, playerId);
+    }
+
+    public int getMaxBytesLoaded(String playerId) {
+        return getMaxBytesLoadedImpl(jso, playerId);
+    }
+
+    public int getVolume(String playerId) {
+        return getVolumeImpl(jso, playerId);
+    }
+
+    public void setVolume(String playerId, int volume) {
+        setVolumeImpl(jso, playerId, volume);
+    }
+
+    private native void playImpl(JavaScriptObject jso, String playerId) /*-{
+    if(jso[playerId].qtInit == true) {
+        var plyr = $doc.getElementById(playerId);
+        plyr.Play();
+    }
     }-*/;
 
-    public native void pause(String playerId) /*-{
-    $doc.getElementById(playerId).Stop();
+    private native void stopImpl(JavaScriptObject jso, String playerId) /*-{
+    if(jso[playerId].qtInit == true) {
+        var plyr = $doc.getElementById(playerId);
+        plyr.Rewind();
+        plyr.Stop();
+    }
     }-*/;
 
-    public native void loadSound(String playerId, String mediaURL) /*-{
-    $doc.getElementById(playerId).SetURL(mediaURL);
+    private native void pauseImpl(JavaScriptObject jso, String playerId) /*-{
+    if(jso[playerId].qtInit == true) {
+        var plyr = $doc.getElementById(playerId);
+        plyr.Stop();
+    }
     }-*/;
 
-    public native int getTime(String playerId) /*-{
-    return $doc.getElementById(playerId).GetTime();
+    private native void closeImpl(JavaScriptObject jso, String playerId) /*-{
+        delete jso[playerId];
     }-*/;
 
-    public native void setTime(String playerId, int time) /*-{
-    $doc.getElementById(playerId).SetTime(time);
+    private native void loadImpl(JavaScriptObject jso, String playerId, String mediaURL) /*-{
+    if(jso[playerId].qtInit == true) {
+        var plyr = $doc.getElementById(playerId);
+        plyr.SetURL(mediaURL);
+    }
     }-*/;
 
-    public native int getDuration(String playerId) /*-{
-    return $doc.getElementById(playerId).GetDuration();
+    private native double getTimeImpl(JavaScriptObject jso, String playerId) /*-{
+    if(jso[playerId].qtInit == true) {
+        var plyr = $doc.getElementById(playerId);
+        return parseFloat(plyr.GetTime() / plyr.GetTimeScale()) * 1000;
+    }
+    return 0;
     }-*/;
 
-    public native int getMovieSize(String playerId) /*-{
-    return $doc.getElementById(playerId).GetMovieSize();
+    private native void setTimeImpl(JavaScriptObject jso, String playerId, double time) /*-{
+    if(jso[playerId].qtInit == true) {
+        var plyr = $doc.getElementById(playerId);
+        plyr.SetTime(parseInt(time / 1000 * plyr.GetTimeScale()));
+    }
     }-*/;
 
-    public native int getMaxBytesLoaded(String playerId) /*-{
-    return $doc.getElementById(playerId).GetMaxBytesLoaded();
+    private native double getDurationImpl(JavaScriptObject jso, String playerId) /*-{
+    if(jso[playerId].qtInit == true) {
+        var plyr = $doc.getElementById(playerId);
+        return parseFloat(plyr.GetDuration() / plyr.GetTimeScale() * 1000);
+    }
+    return 0;
     }-*/;
 
-    public native int getVolume(String playerId) /*-{
-    return $doc.getElementById(playerId).GetVolume();
+    private native int getMovieSizeImpl(JavaScriptObject jso, String playerId) /*-{
+    if(jso[playerId].qtInit == true) {
+        var plyr = $doc.getElementById(playerId);
+        return $doc.getElementById(playerId).GetMovieSize();
+    }
+    return 0;
     }-*/;
 
-    public native void setVolume(String playerId, int volume) /*-{
-    $doc.getElementById(playerId).SetVolume(volume);
+    private native int getMaxBytesLoadedImpl(JavaScriptObject jso, String playerId) /*-{
+    if(jso[playerId].qtInit == true) {
+        var plyr = $doc.getElementById(playerId);
+        return $doc.getElementById(playerId).GetMaxBytesLoaded();
+    }
+    return 0;
     }-*/;
 
+    private native int getVolumeImpl(JavaScriptObject jso, String playerId) /*-{
+    if(jso[playerId].qtInit == true) {
+        var plyr = $doc.getElementById(playerId);
+        return plyr.GetVolume();
+    }
+    return 0;
+    }-*/;
+
+    private native void setVolumeImpl(JavaScriptObject jso, String playerId, int volume) /*-{
+    if(jso[playerId].qtInit == true) {
+        var plyr = $doc.getElementById(playerId);
+        plyr.SetVolume(volume);
+    }
+    }-*/;
 }

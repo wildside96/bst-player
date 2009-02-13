@@ -38,11 +38,11 @@ public class CSSSeekBar extends MediaSeekBar {
     public CSSSeekBar(int height) {
         super(height);
         playing = new Label();
-        playing.setHeight(String.valueOf(height));
+        playing.setHeight(height + "px");
         playing.addMouseListener(this);
 
         loading = new Label();
-        loading.setHeight(String.valueOf(height));
+        loading.setHeight(height + "px");
         loading.addMouseListener(this);
 
         DOM.setStyleAttribute(playing.getElement(), "cursor", "pointer");

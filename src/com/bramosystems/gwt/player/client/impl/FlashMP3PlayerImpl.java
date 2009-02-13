@@ -27,34 +27,38 @@ import com.google.gwt.core.client.JavaScriptObject;
  * @see com.bramosystems.gwt.player.client.ui.FlashMP3Player
  */
 public class FlashMP3PlayerImpl {
-    protected final static String SWF_URL = GWT.getModuleBaseURL() + "MP3Player-fab.swf";
+    protected final static String SWF_URL = GWT.getModuleBaseURL() + "MP3Player.swf";
     private JavaScriptObject jso;
 
-    public final void init(String playerId, MediaStateListener listener, boolean debug) {
+    public final void init(String playerId, MediaStateListener listener) {
         // check if player object exists...
         if (jso == null) {
             jso = JavaScriptObject.createObject();
+            initGlobalCallbacks(jso);
         }
-        initImpl(jso, playerId, listener, debug);
+        initImpl(jso, playerId, listener);
     }
 
-    public String getPlayerScript(String playerId, boolean visible) {
-        return "<embed src='" + SWF_URL + "' id='" + playerId + "' " +
-                "name='" + playerId + "' flashVars='bridgeName=" + playerId + "' " +
-                "allowScriptAccess='sameDomain' type='application/x-shockwave-flash' " +
-                (visible ? "" : "width='0' height='0'") + " ></embed>";
+    public void injectScript(String divId, String playerId, String mediaURL,
+            boolean autoplay, boolean visible) {
+        cacheParamsImpl(jso, playerId, mediaURL, autoplay);
+        injectScriptImpl(divId, getPlayerScript(playerId, mediaURL, autoplay, visible));
     }
 
-    private String getDownloadFlashNotice() {
-        return "This content requires the Adobe Flash Player. " +
-                "<a href=http://www.adobe.com/go/getflash/>Get Flash</a>";
+    protected String getPlayerScript(String playerId, String mediaURL, boolean autoplay, boolean visible) {
+        return "<embed src='" + SWF_URL + "' id='" + playerId + "' name='" + playerId + "' " +
+                "flashVars='bridgeName=" + playerId + "&playerId=" + playerId + "&mediaSrc=" + mediaURL +
+                "&autoplay=" + autoplay + "' allowScriptAccess='sameDomain' " +
+                "type='application/x-shockwave-flash' " +
+                (visible ? "" : "width='1px' height='1px'") + " ></embed>";
+    }
+    
+    public final boolean isPlayerAvailable(String playerId) {
+        return isPlayerAvailableImpl(jso, playerId);
     }
 
-    public final void loadMedia(String playerId, String url, boolean autoplay) {
+    public final void loadMedia(String playerId, String url) {
         loadMediaImpl(jso, playerId, url);
-        if (autoplay) {
-            playMedia(playerId);
-        }
     }
 
     public final void playMedia(String playerId) {
@@ -62,11 +66,11 @@ public class FlashMP3PlayerImpl {
     }
 
     public final void pauseMedia(String playerId) {
-        pauseMediaImpl(jso, playerId);
+        stopMediaImpl(jso, playerId, false);
     }
 
     public final void stopMedia(String playerId) {
-        stopMediaImpl(jso, playerId);
+        stopMediaImpl(jso, playerId, true);
     }
 
     public final void ejectMedia(String playerId) {
@@ -97,102 +101,139 @@ public class FlashMP3PlayerImpl {
         return Double.parseDouble(getMediaDurationImpl(jso, playerId));
     }
 
-    public final boolean isPlayerInit(String playerId) {
-        return isPlayerInit(jso, playerId);
-    }
+    protected native void initGlobalCallbacks(JavaScriptObject jso) /*-{
+        $wnd.bstSwfSndMediaStateChanged = function(playerId, state){
+            switch(state) {
+                case 1: // loading started...
+                     jso[playerId].playerReady();
+                     break;
+                case 2: // play started...
+                    jso[playerId].playStarted();
+                     break;
+                case 9: // play finished...
+                    jso[playerId].playFinished();
+                     break;
+                case 10: // loading complete ...
+                    jso[playerId].loaded();
+                    break;
+            }
+        }
+        $wnd.bstSwfSndInit = function(playerId){
+            var player = $doc.getElementById(playerId);
+            player.loadSnd(jso[playerId]._mediaURL);
+            if(jso[playerId]._autoplay == true) {
+                player.playSnd(jso[playerId].playPosition);
+            }
+        }
+        $wnd.bstSwfSndLoadingProgress = function(playerId, progress){
+            jso[playerId].progress(progress);
+        }
+        $wnd.bstSwfSndError = function(playerId, error){
+            jso[playerId].errorr(error);
+        }
+        $wnd.bstSwfSndDebug = function(playerId, message){
+            jso[playerId].doDebug(message);
+        }
+     }-*/;
 
-    private native boolean isPlayerInit(JavaScriptObject jso, String playerId) /*-{
-    return jso[playerId].init;
-    }-*/;
-
-    protected native void initImpl(JavaScriptObject jso, String playerId,
-            MediaStateListener listener, boolean debug) /*-{
+    protected native void initImpl(JavaScriptObject jso, String playerId, MediaStateListener listener) /*-{
     jso[playerId] = new Object();
-    jso[playerId].init = false;
+    jso[playerId].playPosition = 0;
 
     // add callbacks...
-    jso[playerId].error = function(event) {
-    listener.@com.bramosystems.gwt.player.client.MediaStateListener::onIOError()();
-//    listener.@com.bramosystems.gwt.player.client.MediaStateListener::onDebug(Ljava/lang/String;)(event.text);
+    jso[playerId].errorr = function(message) {
+    listener.@com.bramosystems.gwt.player.client.MediaStateListener::onError(Ljava/lang/String;)(message);
     };
     jso[playerId].playStarted = function() {
     listener.@com.bramosystems.gwt.player.client.MediaStateListener::onPlayStarted()();
     };
-    jso[playerId].playFinished = function(event) {
+    jso[playerId].playerReady = function() {
+    listener.@com.bramosystems.gwt.player.client.MediaStateListener::onPlayerReady()();
+    };
+    jso[playerId].playFinished = function() {
+    jso[playerId].playPosition = 0;
     listener.@com.bramosystems.gwt.player.client.MediaStateListener::onPlayFinished()();
     };
-    jso[playerId].loaded = function(event) {
+    jso[playerId].loaded = function() {
         listener.@com.bramosystems.gwt.player.client.MediaStateListener::onLoadingComplete()();
     };
-    jso[playerId].progress = function(event) {
-    var prog = event.getBytesLoaded() / event.getBytesTotal();
-    listener.@com.bramosystems.gwt.player.client.MediaStateListener::onLoadingProgress(D)(prog);
+    jso[playerId].progress = function(progress) {
+    listener.@com.bramosystems.gwt.player.client.MediaStateListener::onLoadingProgress(D)(progress);
     };
     jso[playerId].doDebug = function(report) {
     listener.@com.bramosystems.gwt.player.client.MediaStateListener::onDebug(Ljava/lang/String;)(report);
     };
-    jso[playerId].initCallback = function() {
-        jso[playerId].init = true;
-        jso[playerId].player = $wnd.FABridge[playerId].root().initPlayer(debug);
-    };
-    $wnd.FABridge.addInitializationCallback(playerId, jso[playerId].initCallback);
+    }-*/;
+
+    private native boolean isPlayerAvailableImpl(JavaScriptObject jso, String playerId) /*-{
+        return (jso[playerId] != undefined) || (jso[playerId] != null);
+     }-*/;
+
+    private native void cacheParamsImpl(JavaScriptObject jso, String playerId, String mediaURL,
+            boolean autoplay) /*-{
+        jso[playerId]._mediaURL = mediaURL;
+        jso[playerId]._autoplay = autoplay;
+     }-*/;
+
+    private native void injectScriptImpl(String divId, String script) /*-{
+        var e = $doc.getElementById(divId);
+        e.innerHTML = script;
     }-*/;
 
     private native void loadMediaImpl(JavaScriptObject jso, String playerId, String url) /*-{
-        jso[playerId].player.loadSound(url, jso[playerId].progress,
-             jso[playerId].loaded, jso[playerId].error);
+        var player = $doc.getElementById(playerId);
+        player.loadSnd(url);
     }-*/;
 
     private native void playMediaImpl(JavaScriptObject jso, String playerId) /*-{
-        jso[playerId].player.play(jso[playerId].playFinished);
-        jso[playerId].playStarted();
+        var player = $doc.getElementById(playerId);
+        player.playSnd(jso[playerId].playPosition);
      }-*/;
 
-    private native void pauseMediaImpl(JavaScriptObject jso, String playerId) /*-{
+    private native void stopMediaImpl(JavaScriptObject jso, String playerId, boolean rewind) /*-{
     try {
-        jso[playerId].player.pause();
-    } catch(err) {
-        jso[playerId].doDebug(err.message);
-    }
-    }-*/;
-
-    private native void stopMediaImpl(JavaScriptObject jso, String playerId) /*-{
-    try {
-        jso[playerId].player.stop();
+        var player = $doc.getElementById(playerId);
+        jso[playerId].playPosition = rewind ? 0 : player.getPlayPosition();
+        player.stopSnd();
     } catch(err) {
         jso[playerId].doDebug(err.message);
     }
     }-*/;
 
     private native void ejectMediaImpl(JavaScriptObject jso, String playerId) /*-{
-        jso[playerId].player.eject();
+//        jso[playerId].player.eject();
     }-*/;
 
     private native void closeMediaImpl(JavaScriptObject jso, String playerId) /*-{
-        jso[playerId] = null;
-        $wnd.FABridge[playerId].root().closePlayer();
+        var player = $doc.getElementById(playerId);
+        player.closeSnd();
+        delete jso[playerId];
     }-*/;
 
+
     private native String getPlayPositionImpl(JavaScriptObject jso, String playerId) /*-{
-        return jso[playerId].player.getPlayPosition().toString();
+        var player = $doc.getElementById(playerId);
+        return player.getSndPlayPosition().toString();
     }-*/;
 
     private native void setPlayPositionImpl(JavaScriptObject jso, String playerId, double position) /*-{
-        jso[playerId].player.setPlayPosition(position);
-    }-*/;
+        var player = $doc.getElementById(playerId);
+        player.playSnd(position);
+        jso[playerId].playPosition = position;
+     }-*/;
 
     private native String getMediaDurationImpl(JavaScriptObject jso, String playerId) /*-{
-     var duration = jso[playerId].player.getTotalDuration();
-     return duration.toString();
+        var player = $doc.getElementById(playerId);
+        return player.getSndDuration().toString();
     }-*/;
 
     private native String getVolumeImpl(JavaScriptObject jso, String playerId) /*-{
-        var vol = jso[playerId].player.getVolume();
-        return vol.toString();
+        var player = $doc.getElementById(playerId);
+        return player.getSndVolume().toString();
     }-*/;
 
     private native void setVolumeImpl(JavaScriptObject jso, String playerId, double volume) /*-{
-        jso[playerId].player.setVolume(volume);
+        var player = $doc.getElementById(playerId);
+        player.setSndVolume(volume);
     }-*/;
-
 }

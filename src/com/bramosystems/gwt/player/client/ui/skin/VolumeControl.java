@@ -79,11 +79,11 @@ public class VolumeControl extends Composite implements MouseListener {
         volumePanel.setWidget(seekTrack);
         DOM.setStyleAttribute(volumePanel.getElement(), "padding", "1px");
 
-        String sizze = String.valueOf(sliderHeight);
-        seekTrack.setSize("50", sizze);
-        track.setSize("50", sizze);
+        String sizze = String.valueOf(sliderHeight) + "px";
+        seekTrack.setSize("50px", sizze);
+        track.setSize("50px", sizze);
         volume.setHeight(sizze);
-        volumePanel.setWidth("50");
+        volumePanel.setWidth("50px");
 
         seekTrack.add(track, 0, 0);
         seekTrack.add(volume, 0, 0);

@@ -18,7 +18,6 @@ package com.bramosystems.gwt.player.client.impl;
 import com.bramosystems.gwt.player.client.Plugin;
 import com.bramosystems.gwt.player.client.PluginNotFoundException;
 import com.bramosystems.gwt.player.client.PluginVersion;
-import com.google.gwt.user.client.Window;
 import java.util.Arrays;
 
 /**
@@ -36,27 +35,24 @@ public class PlayerUtilImplIE extends PlayerUtilImpl {
         PluginVersion pv = new PluginVersion();
         Plugin pg = Plugin.Auto;
 
-        Arrays.sort(wmpPool);
-        if (Arrays.binarySearch(wmpPool, ext) >= 0) { // supported player not found yet, try WMP...
-            getWindowsMediaPlayerVersion(pv);
-            if (pv.compareTo(1, 1, 1) >= 0) {   // req WMP plugin found...
-                pg = Plugin.WinMediaPlayer;
+        if (Arrays.binarySearch(swfPool, ext) >= 0) {
+            pv = new PluginVersion();
+            getFlashPluginVersion(pv);          // SWF plugin supported ext....
+            if (pv.compareTo(9, 0, 0) >= 0) {   // req SWF plugin found...
+                pg = Plugin.FlashMP3Player;
             }
         }
 
         if (pg.equals(Plugin.Auto)) {
-            Arrays.sort(swfPool);
-            if (Arrays.binarySearch(swfPool, ext) >= 0) {
-                pv = new PluginVersion();
-                getFlashPluginVersion(pv);          // SWF plugin supported ext....
-                if (pv.compareTo(9, 0, 0) >= 0) {   // req SWF plugin found...
-                    pg = Plugin.FlashMP3Player;
+            if (Arrays.binarySearch(wmpPool, ext) >= 0) { // supported player not found yet, try WMP...
+                getWindowsMediaPlayerVersion(pv);
+                if (pv.compareTo(1, 1, 1) >= 0) {   // req WMP plugin found...
+                    pg = Plugin.WinMediaPlayer;
                 }
             }
         }
 
         if (pg.equals(Plugin.Auto)) {    // supported player not found yet, try QT...
-            Arrays.sort(qtPool);
             if (Arrays.binarySearch(qtPool, ext) >= 0) {
                 // check if plugin is available...
                 pv = new PluginVersion();

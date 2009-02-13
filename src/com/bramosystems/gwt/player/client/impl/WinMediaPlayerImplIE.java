@@ -15,6 +15,7 @@
  */
 package com.bramosystems.gwt.player.client.impl;
 
+import com.bramosystems.gwt.player.client.MediaStateListener;
 import com.google.gwt.core.client.JavaScriptObject;
 
 /**
@@ -32,15 +33,74 @@ public class WinMediaPlayerImplIE extends WinMediaPlayerImpl {
     @Override
     public String getPlayerScript(String mediaURL, String playerId, boolean autoplay,
             String height, String width) {
-        String uiMode = (height.equals("0") && width.equals("0")) ? "invisible" : "full";
+        String uiMode = (height == null || width == null) ? "invisible" : "full";
+        String h = height == null ? "0px" : height;
+        String w = width == null ? "0px" : width;
         return "<object id='" + playerId + "' classid='CLSID:6BF52A52-394A-11d3-B153-00C04F79FAA6' " +
-                "width='" + width + "' height='" + height + "' >" +
-                "<param name='showControls' value='false' />" +
+                "width='" + w + "' height='" + h + "' >" +
                 "<param name='autoStart' value='" + autoplay + "' />" +
                 "<param name='uiMode' value='" + uiMode + "' /> " +
                 "<param name='URL' value='" + mediaURL + "' />" +
                 "</object>";
     }
+
+    @Override
+    protected void initGlobalEventListeners(JavaScriptObject jso) {
+        // override this and do nothing to avoid IE errors. Method is just a
+        // workaround for non IE browsers.
+    }
+
+    /**
+     * Create native MediaStateListener functions
+     * @param jso function wrapper
+     * @param playerId player ID
+     * @param listener callback
+     */
+    @Override
+    protected native void createMediaStateListenerImpl(JavaScriptObject jso, String playerId,
+            MediaStateListener listener) /*-{
+    jso[playerId].errorr = function() {
+        var playr = $doc.getElementById(playerId);
+        var desc = playr.error.item(0).errorDescription;
+        listener.@com.bramosystems.gwt.player.client.MediaStateListener::onError(Ljava/lang/String;)(desc);
+    };
+    jso[playerId].buffering = function(Start) {
+        var playr = $doc.getElementById(playerId);
+        if(Start == true) {
+            jso[playerId].progTimerId = $wnd.setInterval(function() {
+                  var prog = playr.network.downloadProgress / 100;
+                  listener.@com.bramosystems.gwt.player.client.MediaStateListener::onLoadingProgress(D)(prog);
+            }, 1000);
+        } else {
+           $wnd.clearInterval(jso[playerId].progTimerId);
+           listener.@com.bramosystems.gwt.player.client.MediaStateListener::onLoadingComplete()();
+        }
+    };
+    jso[playerId].playStateChange = function(NewState) {
+        switch(NewState) {
+            case 3:    // playing..
+                listener.@com.bramosystems.gwt.player.client.MediaStateListener::onPlayStarted()();
+                break;
+            case 8:    // media ended...
+                listener.@com.bramosystems.gwt.player.client.MediaStateListener::onPlayFinished()();
+                break;
+            case 10:    // player ready...
+              listener.@com.bramosystems.gwt.player.client.MediaStateListener::onPlayerReady()();
+              break;
+        }
+    };
+    }-*/;
+
+    @Override
+    protected native void registerMediaStateListenerImpl(JavaScriptObject jso, String playerId) /*-{
+        var playr = $doc.getElementById(playerId);
+        playr.attachEvent('playStateChange', jso[playerId].playStateChange);
+        playr.attachEvent('buffering', jso[playerId].buffering);
+        playr.attachEvent('error', jso[playerId].errorr);
+        if(playr.playState) {
+             jso[playerId].playStateChange(playr.playState);
+        }
+     }-*/;
 
 //    @Override
 //    public native void loadSound(String playerId, String mediaURL) /*-{
@@ -49,15 +109,9 @@ public class WinMediaPlayerImplIE extends WinMediaPlayerImpl {
 //    }-*/;
 
     @Override
-    protected void initGlobalEventListeners(JavaScriptObject jso) {
-        // override this and do nothing to avoid IE errors. Method is just a
-        // workaround for Mozilla browsers.
-    }
-
-    @Override
-    protected native void registerMediaStateListenerImpl(JavaScriptObject jso, String playerId) /*-{
-    var playr = $doc.getElementById(playerId);
-    playr.attachEvent('buffering', jso[playerId].buffering);
-    playr.attachEvent('playStateChange', jso[playerId].playStateChange);
+    protected native void closeImpl(JavaScriptObject jso, String playerId) /*-{
+    var player = $doc.getElementById(playerId);
+//    player.close();
+    delete jso[playerId];
     }-*/;
 }

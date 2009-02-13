@@ -15,7 +15,6 @@
  */
 package com.bramosystems.gwt.player.client.impl;
 
-import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.JavaScriptObject;
 
 /**
@@ -32,13 +31,17 @@ public class QuickTimePlayerImplIE extends QuickTimePlayerImpl {
     }
 
     @Override
-    public String getPlayerScript(String qtSrc, String playerId, boolean autoplay, String height, String width) {
-        boolean useQtSrc = (qtSrc != null) && (qtSrc.length() != 0);
-        return "<object id='" + playerId + "' classid='clsid:02BF25D5-8C17-4B23-BC80-D3488ABDDC6B' " +
-                "width='" + width + "' height='" + height + "' style='behavior:url(#bst_qt_event);'> " +
-                "<param name='src' value='" + GWT.getModuleBaseURL() + "qtmov.mov' >" +
-                "<param name='AutoPlay' value='" + autoplay + "' >" +
-                (useQtSrc ? "<param name='QTSrc' value='" + qtSrc + "'>" : "") +
+    public String getPlayerScript(String mediaSrc, String playerId, boolean autoplay,
+            String height, String width) {
+        String h = height == null ? "0px" : height;
+        String w = width == null ? "0px" : width;
+        return "<object id='" + playerId + "_evtSrc' " +
+                "classid='clsid:CB927D12-4FF7-4A9E-A169-56E4B8A75598'></object>" +
+                "<object id='" + playerId + "' classid='clsid:02BF25D5-8C17-4B23-BC80-D3488ABDDC6B' " +
+                "width='" + w + "' height='" + h + "' style='behavior:url(#" + playerId + "_EvtSrc);' > " +
+//                "<param name='src' value='" + GWT.getModuleBaseURL() + "qtmov.mov' >" +
+                "<param name='src' value='" + mediaSrc + "' />" +
+                "<param name='AutoPlay' value='" + autoplay + "' />" +
                 "<param name='EnableJavaScript' value='true' >" +
                 "<param name='KioskMode' value='true' >" +
                 "<param name='PostDomEvents' value='true' >" +
@@ -46,19 +49,28 @@ public class QuickTimePlayerImplIE extends QuickTimePlayerImpl {
     }
 
     @Override
-    public String getEventSourceScript() {
-        // This is required only for IE...
-        return "<object id='" + EVENT_SOURCE_ID + "' width='0' height='0' " +
-                "classid='clsid:CB927D12-4FF7-4a9e-A169-56E4B8A75598'></object>";
-    }
-
-    @Override
     protected native void registerMediaStateListenerImpl(JavaScriptObject jso, String playerId) /*-{
     var playr = $doc.getElementById(playerId);
-    playr.attachEvent('onqt_load', jso[playerId].loadingComplete);
-    playr.attachEvent('onqt_ended', jso[playerId].soundComplete);
-    playr.attachEvent('onqt_error', jso[playerId].ioError);
-    playr.attachEvent('onqt_progress', jso[playerId].loadingProgress);
-    playr.attachEvent('onqt_play', jso[playerId].playStarted);
+    playr.attachEvent('onqt_begin', function(event) {
+        jso[playerId].initComplete();
+     });
+    playr.attachEvent('onqt_load', function(event) {
+        jso[playerId].loadingComplete();
+     });
+    playr.attachEvent('onqt_ended', function(event) {
+        jso[playerId].soundComplete();
+    });
+    playr.attachEvent('onqt_error', function(event) {
+        jso[playerId].errorr();
+    });
+    playr.attachEvent('onqt_progress', function(event) {
+        jso[playerId].loadingProgress();
+    });
+    playr.attachEvent('onqt_canplay', function(event) {
+        jso[playerId].playerReady();
+    });
+    playr.attachEvent('onqt_play', function(event) {
+        jso[playerId].playStarted();
+    });
     }-*/;
 }

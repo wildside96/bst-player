@@ -50,6 +50,8 @@ public interface EmbeddedMediaPlayer {
      *
      * @param mediaURL the URL of the media to load into the player.
      * @throws LoadException if an error occurs while loading the media
+     * @throws IllegalStateException if the player is not available, this is the case
+     * after the <code>{@link #close()}</code> method has been called on this player.
      */
     public void loadMedia(String mediaURL) throws LoadException;
 
@@ -58,16 +60,24 @@ public interface EmbeddedMediaPlayer {
      *
      * @throws com.bramosystems.gwt.player.client.PlayException if an error occurs
      * during media playback.
+     * @throws IllegalStateException if the player is not available, this is the case
+     * after the <code>{@link #close()}</code> method has been called on this player.
      */
     public void playMedia() throws PlayException;
 
     /**
      * Stops the media playback.
+     *
+     * @throws IllegalStateException if the player is not available, this is the case
+     * after the <code>{@link #close()}</code> method has been called on this player.
      */
     public void stopMedia();
 
     /**
      * Pause the media playback
+     *
+     * @throws IllegalStateException if the player is not available, this is the case
+     * after the <code>{@link #close()}</code> method has been called on this player.
      */
     public void pauseMedia();
 
@@ -75,18 +85,29 @@ public interface EmbeddedMediaPlayer {
      * Ejects the media loaded into player. After this method is called, the
      * <code>loadMedia(String mediaURL)</code> method should be called first
      * before any other media playback methods are called
+     *
+     * @throws IllegalStateException if the player is not available, this is the case
+     * after the <code>{@link #close()}</code> method has been called on this player.
      */
     public void ejectMedia();
 
     /**
-     * Closes the player and all associated resources such as the media stream.
+     * Closes the player and all associated resources such as removing the media player
+     * plugin from the page.
+     *
+     * Note: The player will remain unavailable after this method returns.  A new
+     * instance will have to created.
      */
     public void close();
 
     /**
-     * Returns the duration of the loaded media in milliseconds.
+     * Returns the duration of the loaded media in milliseconds. An IllegalStateException is
+     * thrown is the player is not available
      *
      * @return the duration of the loaded media in milliseconds.
+     *
+     * @throws IllegalStateException if the player is not available, this is the case
+     * after the <code>{@link #close()}</code> method has been called on this player.
      */
     public long getMediaDuration();
 
@@ -94,6 +115,9 @@ public interface EmbeddedMediaPlayer {
      * Gets the current position in the media that is being played.
      *
      * @return the current position of the media being played.
+     *
+     * @throws IllegalStateException if the player is not available, this is the case
+     * after the <code>{@link #close()}</code> method has been called on this player.
      */
     public double getPlayPosition();
 
@@ -101,6 +125,9 @@ public interface EmbeddedMediaPlayer {
      * Sets the playback position of the current media
      *
      * @param position the new position from where to start playback
+     *
+     * @throws IllegalStateException if the player is not available, this is the case
+     * after the <code>{@link #close()}</code> method has been called on this player.
      */
     public void setPlayPosition(double position);
 
@@ -108,6 +135,9 @@ public interface EmbeddedMediaPlayer {
      * Gets the volume ranging from {@code 0} (silent) to {@code 1} (full volume).
      *
      * @return volume.
+     *
+     * @throws IllegalStateException if the player is not available, this is the case
+     * after the <code>{@link #close()}</code> method has been called on this player.
      */
     public double getVolume();
 
@@ -115,6 +145,9 @@ public interface EmbeddedMediaPlayer {
      * Sets the volume.
      *
      * @param volume {@code 0} (silent) to {@code 1} (full volume).
+     *
+     * @throws IllegalStateException if the player is not available, this is the case
+     * after the <code>{@link #close()}</code> method has been called on this player.
      */
     public void setVolume(double volume);
 }
