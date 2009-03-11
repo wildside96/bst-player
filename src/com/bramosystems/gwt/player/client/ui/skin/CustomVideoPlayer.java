@@ -25,7 +25,7 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 
 /**
- * Abstract base class for HTML based custom vidoe players.
+ * Abstract base class for HTML based custom video players.
  * 
  * <p>The actual player plugin used to playback media files is wrapped by
  * this player and hidden on the browser.  This ensures that the player
@@ -199,11 +199,17 @@ public abstract class CustomVideoPlayer extends AbstractMediaPlayer {
         engine.setVolume(volume);
     }
 
+    /**
+     * Returns the remaining number of times this player loops playback before stopping.
+     */
     @Override
     public int getLoopCount() {
         return engine.getLoopCount();
     }
 
+    /**
+     * Sets the number of times the current media file should loop playback before stopping.
+     */
     @Override
     public void setLoopCount(int loop) {
         engine.setLoopCount(loop);
