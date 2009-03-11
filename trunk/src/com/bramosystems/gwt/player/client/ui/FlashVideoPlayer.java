@@ -39,7 +39,7 @@ import com.google.gwt.user.client.ui.*;
  * } catch(PluginVersionException e) {
  *      // catch plugin version exception and alert user to download plugin first.
  *      // An option is to use the utility method in PlayerUtil class.
- *      player = PlayerUtil.getMissingPluginNotice(Plugin.SWFWidget, "Missing Plugin",
+ *      player = PlayerUtil.getMissingPluginNotice(Plugin.FlashVideoPlayer, "Missing Plugin",
  *              ".. some nice message telling the user to click and download plugin first ..",
  *              false);
  * } catch(PluginNotFoundException e) {

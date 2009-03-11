@@ -186,11 +186,17 @@ public abstract class CustomAudioPlayer extends AbstractMediaPlayer {
         engine.setVolume(volume);
     }
 
+    /**
+     * Returns the remaining number of times this player loops playback before stopping.
+     */
     @Override
     public int getLoopCount() {
         return engine.getLoopCount();
     }
 
+    /**
+     * Sets the number of times the current media file should loop playback before stopping.
+     */
     @Override
     public void setLoopCount(int loop) {
         engine.setLoopCount(loop);

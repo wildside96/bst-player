@@ -65,7 +65,7 @@ public class Capsule extends CustomAudioPlayer {
     private PlayState playState;
     private VolumeControl vc;
     private MediaInfo mInfo;
-    private ArrayList<MediaInfo.MediaItem> mItems;
+    private ArrayList<MediaInfo.MediaInfoKey> mItems;
     private int infoIndex;
 
     /**
@@ -128,7 +128,7 @@ public class Capsule extends CustomAudioPlayer {
         super(plugin, mediaURL, autoplay);
 
         playState = PlayState.Stop;
-        mItems = new ArrayList<MediaInfo.MediaItem>();
+        mItems = new ArrayList<MediaInfo.MediaInfoKey>();
 
         progress = new ProgressBar();
         progress.setWidth("95%");
@@ -145,8 +145,8 @@ public class Capsule extends CustomAudioPlayer {
             @Override
             public void run() {
                 if (mItems.size() > 0) {
-                    MediaInfo.MediaItem item = mItems.get(infoIndex);
-                    progress.setInfo(item.getItemName() + ": " + mInfo.getItem(item));
+                    MediaInfo.MediaInfoKey item = mItems.get(infoIndex);
+                    progress.setInfo(item.toString() + ": " + mInfo.getItem(item));
                     infoIndex++;
                     infoIndex %= mItems.size();
                 } else {
@@ -245,9 +245,9 @@ public class Capsule extends CustomAudioPlayer {
             public void onMediaInfoAvailable(MediaInfo info) {
                 mInfo = info;
                 mItems = mInfo.getAvailableItems();
-                mItems.remove(MediaInfo.MediaItem.Comment);
-                mItems.remove(MediaInfo.MediaItem.Duration);
-                mItems.remove(MediaInfo.MediaItem.HardwareSoftwareRequirements);
+                mItems.remove(MediaInfo.MediaInfoKey.Comment);
+                mItems.remove(MediaInfo.MediaInfoKey.Duration);
+                mItems.remove(MediaInfo.MediaInfoKey.HardwareSoftwareRequirements);
                 logger.log(info.asHTMLString(), true);
             }
         });

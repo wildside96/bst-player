@@ -19,8 +19,11 @@ import java.util.ArrayList;
 import java.util.Collections;
 
 /**
+ * Wraps media metadata information for a media file (such as ID3 tag entries
+ * for MP3 files)
  *
  * @author Sikirulai Braheem <sbraheem at gmail.com>
+ * @since 0.6
  */
 public class MediaInfo {
 
@@ -45,6 +48,12 @@ public class MediaInfo {
                 ", Comment : " + comment;
     }
 
+    /**
+     * Returns an HTML table containing all {@code MediaInfoKey}s and their
+     * values for this object.  Useful during debugging operations.
+     *
+     * @return all {@code MediaInfoKey}s values as an HTML table.
+     */
     public String asHTMLString() {
         return "========== Media Info Details ========" +
                 "<style>.info_odd{background-color:#ccc}</style>" +
@@ -68,55 +77,67 @@ public class MediaInfo {
         return (value == null) || (value.length() == 0);
     }
 
-    public ArrayList<MediaItem> getAvailableItems() {
-        ArrayList<MediaItem> items = new ArrayList<MediaItem>();
+    /**
+     * Returns a list of {@link MediaInfoKey}s that have metadata entries in a media
+     * file.
+     *
+     * @return list containing the keys of available media metadata.
+     */
+    public ArrayList<MediaInfoKey> getAvailableItems() {
+        ArrayList<MediaInfoKey> items = new ArrayList<MediaInfoKey>();
         if (!isEmpty(albumTitle)) {
-            items.add(MediaItem.AlbumTitle);
+            items.add(MediaInfoKey.AlbumTitle);
         }
         if (!isEmpty(artists)) {
-            items.add(MediaItem.Artists);
+            items.add(MediaInfoKey.Artists);
         }
         if (!isEmpty(contentProviders)) {
-            items.add(MediaItem.ContentProviders);
+            items.add(MediaInfoKey.ContentProviders);
         }
         if (!isEmpty(comment)) {
-            items.add(MediaItem.Comment);
+            items.add(MediaInfoKey.Comment);
         }
         if (!isEmpty(genre)) {
-            items.add(MediaItem.Genre);
+            items.add(MediaInfoKey.Genre);
         }
         if (!isEmpty(publisher)) {
-            items.add(MediaItem.Publisher);
+            items.add(MediaInfoKey.Publisher);
         }
         if (!isEmpty(internetStationName)) {
-            items.add(MediaItem.StationName);
+            items.add(MediaInfoKey.StationName);
         }
         if (!isEmpty(internetStationOwner)) {
-            items.add(MediaItem.StationOwner);
+            items.add(MediaInfoKey.StationOwner);
         }
         if (!isEmpty(title)) {
-            items.add(MediaItem.Title);
+            items.add(MediaInfoKey.Title);
         }
         if (!isEmpty(year)) {
-            items.add(MediaItem.Year);
+            items.add(MediaInfoKey.Year);
         }
         if (!isEmpty(copyright)) {
-            items.add(MediaItem.Copyright);
+            items.add(MediaInfoKey.Copyright);
         }
         if (!isEmpty(hardwareSoftwareRequirements)) {
-            items.add(MediaItem.HardwareSoftwareRequirements);
+            items.add(MediaInfoKey.HardwareSoftwareRequirements);
         }
         if (duration > 0) {
-            items.add(MediaItem.Duration);
+            items.add(MediaInfoKey.Duration);
         }
 
         Collections.sort(items);
         return items;
     }
 
-    public String getItem(MediaItem item) {
+    /**
+     * Return the value associated with the specified {@code MediaInfoKey}.
+     *
+     * @param key the metadata key whose value is required.
+     * @return the value associated with specified metadata key.
+     */
+    public String getItem(MediaInfoKey key) {
         String value = "";
-        switch (item) {
+        switch (key) {
             case AlbumTitle:
                 value = albumTitle;
                 break;
@@ -160,21 +181,38 @@ public class MediaInfo {
         return value;
     }
 
-    public enum MediaItem {
+    /**
+     * An enum of supported media metadata keys
+     */
+    public enum MediaInfoKey {
 
-        Title("Title"), Artists("Artists"), AlbumTitle("Album Title"), Genre("Genre"),
-        Year("Year"), Publisher("Publisher"),
-        ContentProviders("Content Providers"), StationName("Station Name"),
-        StationOwner("Station Owner"), Comment("Comment"),
-        Duration("Duration"), HardwareSoftwareRequirements("Hardware/Software Requirements"),
+        Title("Title"),
+        Artists("Artists"),
+        AlbumTitle("Album Title"),
+        Genre("Genre"),
+        Year("Year"),
+        Publisher("Publisher"),
+        ContentProviders("Content Providers"),
+        StationName("Station Name"),
+        StationOwner("Station Owner"),
+        Comment("Comment"),
+        Duration("Duration"),
+        HardwareSoftwareRequirements("Hardware/Software Requirements"),
         Copyright("Copyright");
+
         private String itemName;
 
-        MediaItem(String itemName) {
+        MediaInfoKey(String itemName) {
             this.itemName = itemName;
         }
 
-        public String getItemName() {
+        /**
+         * Returns a "friendly" name for this metadata key
+         *
+         * @return "friendly" name for this key object
+         */
+        @Override
+        public String toString() {
             return itemName;
         }
     }
