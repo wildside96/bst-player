@@ -15,18 +15,13 @@
  */
 package com.bramosystems.gwt.player.client.ui;
 
-import com.bramosystems.gwt.player.client.AbstractMediaPlayer;
-import com.bramosystems.gwt.player.client.LoadException;
-import com.bramosystems.gwt.player.client.MediaStateListener;
-import com.bramosystems.gwt.player.client.PlayException;
-import com.bramosystems.gwt.player.client.PlayerUtil;
-import com.bramosystems.gwt.player.client.PluginNotFoundException;
-import com.bramosystems.gwt.player.client.PluginVersion;
-import com.bramosystems.gwt.player.client.PluginVersionException;
+import com.bramosystems.gwt.player.client.*;
 import com.bramosystems.gwt.player.client.impl.QuickTimePlayerImpl;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.DOM;
-import com.google.gwt.user.client.ui.SimplePanel;
+import com.google.gwt.user.client.Timer;
+import com.google.gwt.user.client.Window;
+import com.google.gwt.user.client.ui.*;
 
 /**
  * Widget to embed QuickTime plugin.
@@ -58,12 +53,13 @@ import com.google.gwt.user.client.ui.SimplePanel;
  *
  * @author Sikirulai Braheem
  */
-public class QuickTimePlayer extends AbstractMediaPlayer {
+public final class QuickTimePlayer extends AbstractMediaPlayer {
 
     private static QuickTimePlayerImpl impl;
-    private String playerId, playerDivId, mediaUrl, height, width;
-    private boolean autoplay;
+    private String playerId,  playerDivId,  mediaUrl;
     private SimplePanel playerDiv;
+    private Logger logger;
+    private boolean isEmbedded,  autoplay,  isLoaded,  showControls;
 
     QuickTimePlayer() {
         if (impl == null) {
@@ -77,8 +73,11 @@ public class QuickTimePlayer extends AbstractMediaPlayer {
      * begins automatically if {@code autoplay} is {@code true}.
      *
      * <p> {@code height} and {@code width} are specified as CSS units. A value of {@code null}
-     * for {@code height} or {@code width} renders the player invisible on the page.  This is
-     * desired especially when used with custom controls.
+     * for {@code height} or {@code width} puts the player in embedded mode.  When in embedded mode,
+     * the player is made invisible on the page and media state events are propagated to registered 
+     * listeners only.  This is desired especially when used with custom sound controls.  For custom
+     * video control, specify valid CSS values for {@code height} and {@code width} but hide the
+     * player controls with {@code setControllerVisible(false)}.
      *
      * @param mediaURL the URL of the media to playback
      * @param autoplay {@code true} to start playing automatically, {@code false} otherwise
@@ -101,10 +100,11 @@ public class QuickTimePlayer extends AbstractMediaPlayer {
         }
 
         playerId = DOM.createUniqueId().replace("-", "");
+        isLoaded = false;
+        showControls = true;
         mediaUrl = mediaURL;
-        this.width = width;
-        this.height = height;
         this.autoplay = autoplay;
+
         impl.init(playerId, new MediaStateListener() {
 
             public void onPlayFinished() {
@@ -134,20 +134,58 @@ public class QuickTimePlayer extends AbstractMediaPlayer {
             public void onPlayerReady() {
                 firePlayerReady();
             }
+
+            public void onMediaInfoAvailable(MediaInfo info) {
+                fireMediaInfoAvailable(info);
+            }
         });
 
         playerDivId = playerId + "_div";
         playerDiv = new SimplePanel();
         playerDiv.getElement().setId(playerDivId);
 
-        initWidget(playerDiv);
+        DockPanel dp = new DockPanel();
+
+        isEmbedded = (height == null) || (width == null);
+        if (!isEmbedded) {
+            logger = new Logger();
+            logger.setVisible(false);
+            addMediaStateListener(new MediaStateListenerAdapter() {
+
+                @Override
+                public void onError(String description) {
+                    Window.alert(description);
+                    logger.log(description, false);
+                }
+
+                @Override
+                public void onDebug(String message) {
+                    logger.log(message, false);
+                }
+
+                @Override
+                public void onMediaInfoAvailable(MediaInfo info) {
+                    logger.log(info.asHTMLString(), true);
+                }
+            });
+            dp.add(logger, DockPanel.SOUTH);
+        } else {
+            height = "0px";
+            width = "0px";
+        }
+
+        dp.add(playerDiv, DockPanel.CENTER);
+        initWidget(dp);
+
+        playerDiv.setHeight(height);
+        setWidth(width);
     }
 
     /**
      * Constructs <code>QuickTimePlayer</code> to automatically playback media located at
-     * {@code mediaURL} using the default height of 25px and width of 300px.
+     * {@code mediaURL} using the default height of 16px and width of 100%.
      *
-     * <p> This is the same as calling {@code QuickTimePlayer(mediaURL, true, "25px", "300px")}
+     * <p> This is the same as calling {@code QuickTimePlayer(mediaURL, true, "16px", "100%")}
      *
      * @param mediaURL the URL of the media to playback
      *
@@ -160,15 +198,15 @@ public class QuickTimePlayer extends AbstractMediaPlayer {
      */
     public QuickTimePlayer(String mediaURL) throws LoadException, PluginVersionException,
             PluginNotFoundException {
-        this(mediaURL, true, "25px", "300px");
+        this(mediaURL, true, "16px", "100%");
     }
 
     /**
      * Constructs <code>QuickTimePlayer</code> to playback media located at {@code mediaURL}
-     * using the default height of 25px and width of 300px. Media playback begins
+     * using the default height of 16px and width of 100%. Media playback begins
      * automatically if {@code autoplay} is {@code true}.
      *
-     * <p> This is the same as calling {@code QuickTimePlayer(mediaURL, autoplay, "25px", "300px")}
+     * <p> This is the same as calling {@code QuickTimePlayer(mediaURL, autoplay, "16px", "100%")}
      *
      * @param mediaURL the URL of the media to playback
      * @param autoplay {@code true} to start playing automatically, {@code false} otherwise
@@ -181,7 +219,7 @@ public class QuickTimePlayer extends AbstractMediaPlayer {
      */
     public QuickTimePlayer(String mediaURL, boolean autoplay) throws LoadException,
             PluginVersionException, PluginNotFoundException {
-        this(mediaURL, autoplay, "25px", "300px");
+        this(mediaURL, autoplay, "16px", "100%");
     }
 
     /**
@@ -190,18 +228,29 @@ public class QuickTimePlayer extends AbstractMediaPlayer {
      */
     @Override
     protected final void onLoad() {
-       impl.injectScript(playerDivId, mediaUrl, playerId, autoplay, height, width);
+        Timer t = new Timer() {
+
+            @Override
+            public void run() {
+                impl.injectScript(playerDivId, mediaUrl, playerId, autoplay, showControls,
+                        playerDiv.getOffsetHeight(), playerDiv.getOffsetWidth());
+                isLoaded = true;
+            }
+        };
+        t.schedule(200);            // IE workarround...
     }
 
     /**
      * Subclasses that override this method should call <code>super.onUnload()</code>
      * to ensure the player is properly removed from the browser's DOM.
      *
+     * Overridden to remove player from browsers' DOM.
+     */
     @Override
     protected void onUnload() {
-//        playerDiv.setText("");
+        impl.close(playerId);
+        playerDiv.getElement().setInnerText("");
     }
-     */
 
     public void loadMedia(String mediaURL) throws LoadException {
         checkAvailable();
@@ -224,10 +273,11 @@ public class QuickTimePlayer extends AbstractMediaPlayer {
     }
 
     public void ejectMedia() {
-        checkAvailable();
+//        checkAvailable();
     }
 
     public void close() {
+        impl.close(playerId);
     }
 
     public long getMediaDuration() {
@@ -256,8 +306,54 @@ public class QuickTimePlayer extends AbstractMediaPlayer {
     }
 
     private void checkAvailable() {
-        if(!impl.isPlayerAvailable(playerId))
-            throw new IllegalStateException("Player closed already, create" +
-                    " another instance.");
+        if (!impl.isPlayerAvailable(playerId)) {
+            String message = "Player closed already, create another instance";
+            fireDebug(message);
+            throw new IllegalStateException(message);
+        }
     }
+
+    @Override
+    public void showLogger(boolean enable) {
+        if (!isEmbedded) {
+            logger.setVisible(enable);
+        }
+    }
+
+    /**
+     * Displays or hides the player controls.
+     */
+    @Override
+    public void setControllerVisible(boolean show) {
+        showControls = show;
+        if (isLoaded) {
+            impl.showController(playerId, show);
+        }
+    }
+
+    /**
+     * Checks whether the player controls are visible.
+     */
+    @Override
+    public boolean isControllerVisible() {
+        return showControls;
+    }
+
+    /**
+     * Returns the remaining number of times this player loops playback before stopping.
+     */
+    @Override
+    public int getLoopCount() {
+        return impl.getLoopCount(playerId);
+    }
+
+    /**
+     * Sets the number of times the current media file should loop playback before stopping.
+     */
+    @Override
+    public void setLoopCount(int loop) {
+        impl.setLoopCount(playerId, loop);
+    }
+
+
 }

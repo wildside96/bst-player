@@ -49,6 +49,20 @@ public class PluginVersion implements IsSerializable, Serializable, Comparable<P
     }
 
     /**
+     * Static method to create a <code>PluginVersion</code> with the specified minor,
+     * major and revision numbers.
+     *
+     * @param major major version number
+     * @param minor minor version number
+     * @param revision revision number
+     *
+     * @return <code>PluginVersion</code> object with specified version numbers.
+     */
+    public static PluginVersion get(int major, int minor, int revision) {
+        return new PluginVersion(major, minor, revision);
+    }
+
+    /**
      * Gets minor version number
      * @return minor version number
      */

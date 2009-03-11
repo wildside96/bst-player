@@ -30,21 +30,35 @@ import java.util.Arrays;
 public class PlayerUtilImplIE extends PlayerUtilImpl {
 
     @Override
-    public Plugin suggestPlayer(String ext) throws PluginNotFoundException {
+    public Plugin suggestPlayer(String protocol, String ext) throws PluginNotFoundException {
         // suggest player with preference for WMP, SWF, QT...
-        PluginVersion pv = new PluginVersion();
+        PluginVersion pv = null;
         Plugin pg = Plugin.Auto;
 
-        if (Arrays.binarySearch(swfPool, ext) >= 0) {
-            pv = new PluginVersion();
-            getFlashPluginVersion(pv);          // SWF plugin supported ext....
-            if (pv.compareTo(9, 0, 0) >= 0) {   // req SWF plugin found...
-                pg = Plugin.FlashMP3Player;
+        if (protocol != null) {  // check for special streaming media...
+            if (Arrays.binarySearch(wmpProt, protocol.toLowerCase()) >= 0) {
+                // check if plugin is available...
+                pv = new PluginVersion();
+                getWindowsMediaPlayerVersion(pv);
+                if (pv.compareTo(1, 1, 1) >= 0) {   // req WMP plugin found...
+                    pg = Plugin.WinMediaPlayer;
+                }
+            }
+
+            if (pg.equals(Plugin.Auto)) {    // supported player not found yet, try WMP...
+                if (Arrays.binarySearch(qtProt, protocol.toLowerCase()) >= 0) {
+                    pv = new PluginVersion();
+                    getQuickTimePluginVersion(pv);
+                    if (pv.compareTo(7, 2, 1) >= 0) {   // req QT plugin found...
+                        pg = Plugin.QuickTimePlayer;
+                    }
+                }
             }
         }
 
         if (pg.equals(Plugin.Auto)) {
             if (Arrays.binarySearch(wmpPool, ext) >= 0) { // supported player not found yet, try WMP...
+                pv = new PluginVersion();
                 getWindowsMediaPlayerVersion(pv);
                 if (pv.compareTo(1, 1, 1) >= 0) {   // req WMP plugin found...
                     pg = Plugin.WinMediaPlayer;
@@ -52,17 +66,40 @@ public class PlayerUtilImplIE extends PlayerUtilImpl {
             }
         }
 
-        if (pg.equals(Plugin.Auto)) {    // supported player not found yet, try QT...
-            if (Arrays.binarySearch(qtPool, ext) >= 0) {
-                // check if plugin is available...
+        if (pg.equals(Plugin.Auto)) {    // supported player not found yet, try flash sound ...
+            if (Arrays.binarySearch(flsPool, ext.toLowerCase()) >= 0) {
                 pv = new PluginVersion();
-                getQuickTimePluginVersion(pv);
-                if (pv.compareTo(7, 2, 1) >= 0) {   // req QT plugin found...
-                    pg = Plugin.QuickTimePlayer;
+                getFlashPluginVersion(pv);          // SWF plugin supported ext....
+                if (pv.compareTo(9, 0, 0) >= 0) {   // req SWF plugin found...
+                    pg = Plugin.FlashMP3Player;
                 }
             }
         }
 
+        if (pg.equals(Plugin.Auto)) {    // supported player not found yet, try flash video ...
+            if (Arrays.binarySearch(flvPool, ext.toLowerCase()) >= 0) {
+                // check if plugin is available...
+                pv = new PluginVersion();
+                getFlashPluginVersion(pv);          // SWF plugin supported ext....
+                if (pv.compareTo(9, 0, 0) >= 0) {   // req SWF plugin found...
+                    pg = Plugin.FlashVideoPlayer;
+                }
+            }
+        }
+
+        /*
+         * TODO: Fix QT control in IE and enable this...
+        if (pg.equals(Plugin.Auto)) {    // supported player not found yet, try QT...
+        if (Arrays.binarySearch(qtPool, ext) >= 0) {
+        // check if plugin is available...
+        pv = new PluginVersion();
+        getQuickTimePluginVersion(pv);
+        if (pv.compareTo(7, 2, 1) >= 0) {   // req QT plugin found...
+        pg = Plugin.QuickTimePlayer;
+        }
+        }
+        }
+         */
         if (pg.equals(Plugin.Auto)) {    // plugin not found
             throw new PluginNotFoundException();
         } else {
@@ -74,9 +111,7 @@ public class PlayerUtilImplIE extends PlayerUtilImpl {
     public native void getFlashPluginVersion(PluginVersion version) /*-{
     try {
     ax = new ActiveXObject("ShockwaveFlash.ShockwaveFlash");
-    //            ax.AllowScriptAccess = "always";   // required for 6.0r47
     ver = ax.GetVariable("$version");   // "WIN A,B,CCC,DD
-
     ver = ver.split(" ")[1].split(",");
     version.@com.bramosystems.gwt.player.client.PluginVersion::setMajor(I)(parseInt(ver[0]));
     version.@com.bramosystems.gwt.player.client.PluginVersion::setMinor(I)(parseInt(ver[1]));

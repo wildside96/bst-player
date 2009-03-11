@@ -16,6 +16,7 @@
 package com.bramosystems.gwt.player.client.ui.skin;
 
 import com.bramosystems.gwt.player.client.*;
+import com.bramosystems.gwt.player.client.ui.FlashVideoPlayer;
 import com.bramosystems.gwt.player.client.ui.FlashMP3Player;
 import com.bramosystems.gwt.player.client.ui.QuickTimePlayer;
 import com.bramosystems.gwt.player.client.ui.WinMediaPlayer;
@@ -24,57 +25,64 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 
 /**
- * Abstract base class for HTML based custom players.
+ * Abstract base class for HTML based custom vidoe players.
  * 
  * <p>The actual player plugin used to playback media files is wrapped by
  * this player and hidden on the browser.  This ensures that the player
  * is controlled via the HTML controls provided by implementation classes.
  *
  * @author Sikirulai Braheem
- *
- * @deprecated Replaced with {@link CustomAudioPlayer} and {@link CustomVideoPlayer}
- * for sound and video playback respectively.  Will be removed in a future release.
  */
-public abstract class CustomPlayer extends AbstractMediaPlayer {
+public abstract class CustomVideoPlayer extends AbstractMediaPlayer {
 
     private AbstractMediaPlayer engine;
     private SimplePanel container;
 
     /**
-     * Constructs <code>CustomPlayer</code> with the specified {@code playerPlugin}
-     * to playback media located at {@code mediaURL}. Media playback
-     * begins automatically if {@code autoplay} is {@code true}.
+     * Constructs <code>CustomVideoPlayer</code> with the specified {@code height} and
+     * {@code width} using the specified {@code playerPlugin} to playback media located
+     * at {@code mediaURL}. Media playback begins automatically if {@code autoplay} is {@code true}.
      *
      * @param playerPlugin the plugin to use for playback.
      * @param mediaURL the URL of the media to playback
      * @param autoplay {@code true} to start playing automatically, {@code false} otherwise
+     * @param height the height of the player
+     * @param width the width of the player.
      *
      * @throws com.bramosystems.gwt.player.client.LoadException if an error occurs while loading the media.
      * @throws com.bramosystems.gwt.player.client.PluginVersionException if the required
      * player plugin version is not installed on the client.
      * @throws com.bramosystems.gwt.player.client.PluginNotFoundException if the player plugin is not
      * installed on the client.
+     * @throws NullPointerException if {@code height} or {@code width} is {@code null}
      *
      * @see Plugin
      * @see QuickTimePlayer
      * @see WinMediaPlayer
      * @see FlashMP3Player
      */
-    public CustomPlayer(Plugin playerPlugin, String mediaURL, boolean autoplay)
+    public CustomVideoPlayer(Plugin playerPlugin, String mediaURL, boolean autoplay,
+            String height, String width)
             throws PluginNotFoundException, PluginVersionException, LoadException {
+        if (height == null) {
+            throw new NullPointerException("height cannot be null");
+        }
+        if (width == null) {
+            throw new NullPointerException("width cannot be null");
+        }
+
         switch (playerPlugin) {
-            // make players 1 x 1px, so the player can be active
-            case FlashMP3Player:
-                engine = new FlashMP3Player(mediaURL, autoplay, null, null);
+            case FlashVideoPlayer:
+                engine = new FlashVideoPlayer(mediaURL, autoplay, height, "100%");
                 break;
             case QuickTimePlayer:
-                engine = new QuickTimePlayer(mediaURL, autoplay, null, null);
+                engine = new QuickTimePlayer(mediaURL, autoplay, height, "100%");
                 break;
             case WinMediaPlayer:
-                engine = new WinMediaPlayer(mediaURL, autoplay, null, null);
+                engine = new WinMediaPlayer(mediaURL, autoplay, height, "100%");
                 break;
-            case Auto:
-                engine = PlayerUtil.getPlayer(mediaURL, autoplay, null, null);
+            default:
+                engine = PlayerUtil.getPlayer(mediaURL, autoplay, height, "100%");
                 break;
         }
 
@@ -112,22 +120,25 @@ public abstract class CustomPlayer extends AbstractMediaPlayer {
                 fireMediaInfoAvailable(info);
             }
         });
+        engine.setControllerVisible(false);
+        engine.showLogger(false);
 
         container = new SimplePanel();
+        container.setWidth("100%");
 
         VerticalPanel hp = new VerticalPanel();
-        hp.setSize("100%", "100%");
         hp.setVerticalAlignment(VerticalPanel.ALIGN_MIDDLE);
         hp.add(engine);
         hp.add(container);
         super.initWidget(hp);
+        setSize(width, height);
     }
 
     /**
      * Overridden to prevent subclasses from changing the wrapped widget.
-     * Subclass should call <code>setPlayerWidget</code> instead.
+     * Subclass should call <code>setPlayerControlWidget</code> instead.
      *
-     * @see #setPlayerWidget(com.google.gwt.user.client.ui.Widget)
+     * @see #setPlayerControlWidget(com.google.gwt.user.client.ui.Widget)
      */
     @Override
     protected final void initWidget(Widget widget) {
@@ -140,7 +151,7 @@ public abstract class CustomPlayer extends AbstractMediaPlayer {
      *
      * @param widget the player control widget
      */
-    protected final void setPlayerWidget(Widget widget) {
+    protected final void setPlayerControlWidget(Widget widget) {
         container.setWidget(widget);
     }
 
@@ -187,4 +198,15 @@ public abstract class CustomPlayer extends AbstractMediaPlayer {
     public void setVolume(double volume) {
         engine.setVolume(volume);
     }
+
+    @Override
+    public int getLoopCount() {
+        return engine.getLoopCount();
+    }
+
+    @Override
+    public void setLoopCount(int loop) {
+        engine.setLoopCount(loop);
+    }
+
 }

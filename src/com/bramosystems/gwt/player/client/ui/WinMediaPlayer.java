@@ -19,8 +19,9 @@ import com.bramosystems.gwt.player.client.*;
 import com.bramosystems.gwt.player.client.impl.WinMediaPlayerImpl;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.DOM;
+import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.Window;
-import com.google.gwt.user.client.ui.HTML;
+import com.google.gwt.user.client.ui.*;
 
 /**
  * Widget to embed Windows Media Player.
@@ -52,11 +53,19 @@ import com.google.gwt.user.client.ui.HTML;
  *
  * @author Sikirulai Braheem
  */
-public class WinMediaPlayer extends AbstractMediaPlayer {
+public final class WinMediaPlayer extends AbstractMediaPlayer {
 
-    private static WinMediaPlayerImpl impl = GWT.create(WinMediaPlayerImpl.class);
-    private String playerId;
+    private static WinMediaPlayerImpl impl;
+    private String playerId,  uiMode = "full",  mediaURL;
     private HTML playerDiv;
+    private Logger logger;
+    private boolean isEmbedded,  isLoaded,  autoplay;
+
+    WinMediaPlayer() {
+        if (impl == null) {
+            impl = GWT.create(WinMediaPlayerImpl.class);
+        }
+    }
 
     /**
      * Constructs <code>WinMediaPlayer</code> with the specified {@code height} and
@@ -64,8 +73,11 @@ public class WinMediaPlayer extends AbstractMediaPlayer {
      * begins automatically if {@code autoplay} is {@code true}.
      *
      * <p> {@code height} and {@code width} are specified as CSS units. A value of {@code null}
-     * for {@code height} or {@code width} renders the player invisible on the page.  This is
-     * desired especially when used with custom controls.
+     * for {@code height} or {@code width} puts the player in embedded mode.  When in embedded mode,
+     * the player is made invisible on the page and media state events are propagated to registered
+     * listeners only.  This is desired especially when used with custom sound controls.  For custom
+     * video control, specify valid CSS values for {@code height} and {@code width} but hide the
+     * player controls with {@code setControllerVisible(false)}.
      *
      * @param mediaURL the URL of the media to playback
      * @param autoplay {@code true} to start playing automatically, {@code false} otherwise
@@ -80,12 +92,18 @@ public class WinMediaPlayer extends AbstractMediaPlayer {
      */
     public WinMediaPlayer(String mediaURL, boolean autoplay, String height, String width)
             throws LoadException, PluginNotFoundException, PluginVersionException {
+        this();
+
         PluginVersion v = PlayerUtil.getWindowsMediaPlayerPluginVersion();
         if (v.compareTo(1, 1, 1) < 0) {
             throw new PluginVersionException("1, 1, 1", v.toString());
         }
 
+        this.autoplay = autoplay;
+        this.mediaURL = mediaURL;
+        isLoaded = false;
         playerId = DOM.createUniqueId().replace("-", "");
+
         impl.init(playerId, new MediaStateListener() {
 
             public void onPlayStarted() {
@@ -105,7 +123,6 @@ public class WinMediaPlayer extends AbstractMediaPlayer {
             }
 
             public void onError(String description) {
-                Window.alert(description);
                 fireError(description);
             }
 
@@ -116,12 +133,52 @@ public class WinMediaPlayer extends AbstractMediaPlayer {
             public void onPlayerReady() {
                 firePlayerReady();
             }
+
+            public void onMediaInfoAvailable(MediaInfo info) {
+                fireMediaInfoAvailable(info);
+            }
         });
-        playerDiv = new HTML(impl.getPlayerScript(mediaURL, playerId, autoplay, height, width));
+
+        playerDiv = new HTML();
         playerDiv.setStyleName("");
-        playerDiv.setSize("100%", "100%");
         playerDiv.setHorizontalAlignment(HTML.ALIGN_CENTER);
-        initWidget(playerDiv);
+
+        isEmbedded = (height == null) || (width == null);
+        if (!isEmbedded) {
+            logger = new Logger();
+            logger.setVisible(false);
+            addMediaStateListener(new MediaStateListenerAdapter() {
+
+                @Override
+                public void onError(String description) {
+                    Window.alert(description);
+                    logger.log(description, false);
+                }
+
+                @Override
+                public void onDebug(String message) {
+                    logger.log(message, false);
+                }
+
+                @Override
+                public void onMediaInfoAvailable(MediaInfo info) {
+                    logger.log(info.asHTMLString(), true);
+                }
+            });
+        } else {
+            width = "0px";
+            height = "0px";
+        }
+
+        DockPanel dp = new DockPanel();
+        if (!isEmbedded) {
+            dp.add(logger, DockPanel.SOUTH);
+        }
+        dp.add(playerDiv, DockPanel.CENTER);
+
+        initWidget(dp);
+        playerDiv.setHeight(height);
+        setWidth(width);
     }
 
     /**
@@ -169,16 +226,24 @@ public class WinMediaPlayer extends AbstractMediaPlayer {
      */
     @Override
     protected final void onLoad() {
-        impl.registerMediaStateListener(playerId);
+        Timer t = new Timer() {
+
+            @Override
+            public void run() {
+                isLoaded = true;
+                playerDiv.setHTML(impl.getPlayerScript(mediaURL, playerId, autoplay,
+                        uiMode, playerDiv.getOffsetHeight(), playerDiv.getOffsetWidth()));
+                impl.registerMediaStateListener(playerId);
+            }
+        };
+        t.schedule(200);            // IE workarround...
     }
 
     /**
-     * Subclasses that override this method should call <code>super.onUnload()</code>
-     * to ensure the player is properly removed from the browser's DOM.
+     * Overridden to remove player from browsers' DOM.
      */
     @Override
     protected void onUnload() {
-        impl.stop(playerId);
         impl.close(playerId);
         playerDiv.setText("");
     }
@@ -232,13 +297,68 @@ public class WinMediaPlayer extends AbstractMediaPlayer {
 
     public void setVolume(double volume) {
         checkAvailable();
-        impl.setVolume(playerId, (int) (volume * 100));
+        volume *= 100;
+        impl.setVolume(playerId, (int) volume);
+        fireDebug("Volume set to " + ((int) volume) + "%");
     }
 
     private void checkAvailable() {
-        if(!impl.isPlayerAvailable(playerId))
-            throw new IllegalStateException("Player closed already, create" +
-                    " another instance.");
+        if (!impl.isPlayerAvailable(playerId)) {
+            String message = "Player closed already, create another instance";
+            fireDebug(message);
+            throw new IllegalStateException(message);
+        }
     }
 
+    @Override
+    public void showLogger(boolean enable) {
+        if (!isEmbedded) {
+            logger.setVisible(enable);
+        }
+    }
+
+    /**
+     * Displays or hides the player controls.
+     */
+    @Override
+    public void setControllerVisible(boolean show) {
+        if (show) {
+            uiMode = isEmbedded ? UI_MODE_INVISIBLE : UI_MODE_FULL;
+        } else {
+            uiMode = isEmbedded ? UI_MODE_INVISIBLE : UI_MODE_NONE;
+        }
+
+        if (isLoaded) {
+            impl.setUIMode(playerId, uiMode);
+        }
+    }
+
+    /**
+     * Checks whether the player controls are visible.
+     */
+    @Override
+    public boolean isControllerVisible() {
+        return uiMode.equals(UI_MODE_FULL);
+    }
+
+    /**
+     * Returns the remaining number of times this player loops playback before stopping.
+     */
+    @Override
+    public int getLoopCount() {
+        return impl.getLoopCount(playerId);
+    }
+
+    /**
+     * Sets the number of times the current media file should loop playback before stopping.
+     */
+    @Override
+    public void setLoopCount(int loop) {
+        impl.setLoopCount(playerId, loop);
+    }
+
+
+    private final String UI_MODE_FULL = "full";
+    private final String UI_MODE_NONE = "none";
+    private final String UI_MODE_INVISIBLE = "invisible";
 }

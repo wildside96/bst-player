@@ -32,12 +32,9 @@ public class WinMediaPlayerImplIE extends WinMediaPlayerImpl {
 
     @Override
     public String getPlayerScript(String mediaURL, String playerId, boolean autoplay,
-            String height, String width) {
-        String uiMode = (height == null || width == null) ? "invisible" : "full";
-        String h = height == null ? "0px" : height;
-        String w = width == null ? "0px" : width;
+            String uiMode, int height, int width) {
         return "<object id='" + playerId + "' classid='CLSID:6BF52A52-394A-11d3-B153-00C04F79FAA6' " +
-                "width='" + w + "' height='" + h + "' >" +
+                "width='" + width + "px' height='" + height + "px' >" +
                 "<param name='autoStart' value='" + autoplay + "' />" +
                 "<param name='uiMode' value='" + uiMode + "' /> " +
                 "<param name='URL' value='" + mediaURL + "' />" +
@@ -63,6 +60,7 @@ public class WinMediaPlayerImplIE extends WinMediaPlayerImpl {
         var playr = $doc.getElementById(playerId);
         var desc = playr.error.item(0).errorDescription;
         listener.@com.bramosystems.gwt.player.client.MediaStateListener::onError(Ljava/lang/String;)(desc);
+        jso[playerId].debug(desc);
     };
     jso[playerId].buffering = function(Start) {
         var playr = $doc.getElementById(playerId);
@@ -74,19 +72,47 @@ public class WinMediaPlayerImplIE extends WinMediaPlayerImpl {
         } else {
            $wnd.clearInterval(jso[playerId].progTimerId);
            listener.@com.bramosystems.gwt.player.client.MediaStateListener::onLoadingComplete()();
+           jso[playerId].debug('Media loading complete');
         }
     };
     jso[playerId].playStateChange = function(NewState) {
         switch(NewState) {
+            case 1:    // stopped..
+                jso[playerId].debug('Media playback stopped');
+                if(jso[playerId].doLoop == true) {
+                    jso[playerId].statPlay();
+                }
+                break;
+            case 2:    // paused..
+                jso[playerId].debug('Media playback paused');
+                break;
             case 3:    // playing..
                 listener.@com.bramosystems.gwt.player.client.MediaStateListener::onPlayStarted()();
+                var playr = $doc.getElementById(playerId);
+                jso[playerId].debug('Playing media at ' + playr.URL);
+                jso[playerId].doWMPMetadata();
                 break;
             case 8:    // media ended...
-                listener.@com.bramosystems.gwt.player.client.MediaStateListener::onPlayFinished()();
+                if (jso[playerId].loopCount < 0) {
+                    jso[playerId].doLoop = true;
+                } else {
+                    if (jso[playerId].loopCount > 0) {
+                        jso[playerId].doLoop = true;
+                        jso[playerId].loopCount--;
+                    } else {
+                        jso[playerId].doLoop = false;
+                        listener.@com.bramosystems.gwt.player.client.MediaStateListener::onPlayFinished()();
+                        jso[playerId].debug('Media playback finished');
+                    }
+                }
                 break;
             case 10:    // player ready...
-              listener.@com.bramosystems.gwt.player.client.MediaStateListener::onPlayerReady()();
-              break;
+                listener.@com.bramosystems.gwt.player.client.MediaStateListener::onPlayerReady()();
+                var playr = $doc.getElementById(playerId);
+                var versn = playr.versionInfo;
+                jso[playerId].debug('Windows Media Player plugin ready');
+                jso[playerId].debug('Version ' + versn);
+                break;
         }
     };
     }-*/;
@@ -110,7 +136,7 @@ public class WinMediaPlayerImplIE extends WinMediaPlayerImpl {
 
     @Override
     protected native void closeImpl(JavaScriptObject jso, String playerId) /*-{
-    var player = $doc.getElementById(playerId);
+//    var player = $doc.getElementById(playerId);
 //    player.close();
     delete jso[playerId];
     }-*/;

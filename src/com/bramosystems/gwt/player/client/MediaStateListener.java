@@ -70,4 +70,12 @@ public interface MediaStateListener extends EventListener {
      * @param message detailed message sent to the console
      */
     public void onDebug(String message);
+
+    /**
+     * Invoked when metadata information (such as MP3's ID3) about the media is available.
+     *
+     * @param info metadata information of the media
+     * @since 0.6
+     */
+    public void onMediaInfoAvailable(MediaInfo info);
 }

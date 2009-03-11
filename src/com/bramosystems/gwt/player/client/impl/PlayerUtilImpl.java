@@ -27,28 +27,70 @@ import java.util.Arrays;
  */
 public class PlayerUtilImpl {
 
-    protected final static String[] qtPool = {"wav", "bwf", "midi", "au", "snd", "aiff",
-        "aif", "aifc", "cdda", "ac3", "aac", "amr", "gsm", "3gp", "3gpp", "3g2",
-        "3gp2", "mp4", "mov", "qt", "mqv", "mp3", "mpeg", "mpg", "mp4"};
+    protected final static String[] qtPool = {"wav", "bwf", "mid", "midi", "smf", "au", "snd", "aiff",
+        "aif", "aifc", "cdda", "ac3","caf", "aac","adts", "amr", "amc", "gsm", "3gp", "3gpp", "3g2",
+        "3gp2","mp2", "mp3", "mp4", "mov", "qt", "mqv", "mpeg", "mpg",
+        "sdv", "m1s", "m1a", "m1v", "mpm", "mpv", "mpa", "m2a", "m4a", "m4p", "m4b"};
     protected final static String[] wmpPool = {"asf", "asx", "wmv", "wvx", "wm",
-        "wma", "wax", "wav", "mp3", "midi"};
-    protected final static String[] swfPool = {"swf", "spl", "mp3"};
+        "wma", "wax", "wav", "mp3", "mid", "midi", "smf"};
+    protected final static String[] flvPool = {"flv", "mp4", "f4v", "m4a", "mov", "mp4v"}; // "3gp", "3g2"
+    protected final static String[] flsPool = {"mp3"};  // "spl",
+    protected final static String[] qtProt = {"rtsp", "rts"};
+//    protected final static String[] flsProt = {};
+    protected final static String[] wmpProt = {"mms"};
 
     public PlayerUtilImpl() {
-        Arrays.sort(swfPool);
+        Arrays.sort(flvPool);
+//        Arrays.sort(flsPool);
         Arrays.sort(qtPool);
+        Arrays.sort(qtProt);
         Arrays.sort(wmpPool);
     }
 
-    public Plugin suggestPlayer(String ext) throws PluginNotFoundException {
-        // suggest player with preference for SWF and QT...
-        PluginVersion pv = new PluginVersion();
+    public Plugin suggestPlayer(String protocol, String ext) throws PluginNotFoundException {
+        // suggest player with preference for SWF, QT then WMP ...
+        PluginVersion pv = null;
         Plugin pg = Plugin.Auto;
 
-        if (Arrays.binarySearch(swfPool, ext.toLowerCase()) >= 0) {
-            getFlashPluginVersion(pv);          // SWF plugin supported ext....
-            if (pv.compareTo(9, 0, 0) >= 0) {   // req SWF plugin found...
-                pg = Plugin.FlashMP3Player;
+        if(protocol != null) {  // check for special streaming media...
+            if (Arrays.binarySearch(qtProt, protocol.toLowerCase()) >= 0) {
+                pv = new PluginVersion();
+                getQuickTimePluginVersion(pv);
+                if (pv.compareTo(7, 2, 1) >= 0) {   // req QT plugin found...
+                    pg = Plugin.QuickTimePlayer;
+                }
+            }
+
+            if (pg.equals(Plugin.Auto)) {    // supported player not found yet, try WMP...
+                if (Arrays.binarySearch(wmpProt, protocol.toLowerCase()) >= 0) {
+                    // check if plugin is available...
+                    pv = new PluginVersion();
+                    getWindowsMediaPlayerVersion(pv);
+                    if (pv.compareTo(1, 1, 1) >= 0) {   // req WMP plugin found...
+                        pg = Plugin.WinMediaPlayer;
+                    }
+                }
+            }
+        }
+
+        if (pg.equals(Plugin.Auto)) {    // supported player not found yet, try flash sound ...
+            if (Arrays.binarySearch(flsPool, ext.toLowerCase()) >= 0) {
+                pv = new PluginVersion();
+                getFlashPluginVersion(pv);          // SWF plugin supported ext....
+                if (pv.compareTo(9, 0, 0) >= 0) {   // req SWF plugin found...
+                    pg = Plugin.FlashMP3Player;
+                }
+            }
+        }
+
+        if (pg.equals(Plugin.Auto)) {    // supported player not found yet, try flash video...
+            if (Arrays.binarySearch(flvPool, ext.toLowerCase()) >= 0) {
+                // check if plugin is available...
+                pv = new PluginVersion();
+                getFlashPluginVersion(pv);          // SWF plugin supported ext....
+                if (pv.compareTo(9, 0, 0) >= 0) {   // req SWF plugin found...
+                    pg = Plugin.FlashVideoPlayer;
+                }
             }
         }
 

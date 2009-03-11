@@ -18,17 +18,10 @@
 <module>
     <inherits name="com.google.gwt.user.User"/>
     <public path="publicc" />
-    <stylesheet src="skin/capsule/style.css" />
 
 	<!-- WinMediaPlayer mapping for IE6 & IE7 -->
     <replace-with class="com.bramosystems.gwt.player.client.impl.WinMediaPlayerImplIE">
         <when-type-is class="com.bramosystems.gwt.player.client.impl.WinMediaPlayerImpl"/>
-        <when-property-is name="user.agent" value="ie6"/>
-    </replace-with>
-
-	<!-- FlashMP3Player mapping for IE6 & IE7 -->
-    <replace-with class="com.bramosystems.gwt.player.client.impl.FlashMP3PlayerImplIE">
-        <when-type-is class="com.bramosystems.gwt.player.client.impl.FlashMP3PlayerImpl"/>
         <when-property-is name="user.agent" value="ie6"/>
     </replace-with>
 
@@ -41,7 +34,12 @@
     <!-- PluginUtilImpl mapping for IE6 & IE7 -->
     <replace-with class="com.bramosystems.gwt.player.client.impl.PlayerUtilImplIE">
         <when-type-is class="com.bramosystems.gwt.player.client.impl.PlayerUtilImpl"/>
-        <when-property-is name="user.agent" value="ie6"/>
+        <when-property-is name="user.agent" value="ie6" />
     </replace-with>
 
+    <!-- SWFObjectImpl mapping for IE6 & IE7 -->
+    <replace-with class="com.bramosystems.gwt.player.client.impl.SWFWidgetImplIE">
+        <when-type-is class="com.bramosystems.gwt.player.client.impl.SWFWidgetImpl"/>
+        <when-property-is name="user.agent" value="ie6" />
+    </replace-with>
 </module>

@@ -29,17 +29,42 @@ public enum Plugin {
      *
      * @see PlayerUtil#getPlayer(java.lang.String, boolean, java.lang.String, java.lang.String)
      */
-    Auto,
+    Auto(""),
+
     /**
      * The Window Media Player plugin
      */
-    WinMediaPlayer,
+    WinMediaPlayer("http://www.microsoft.com/windowsmedia"),
+
     /**
      * The QuickTime plugin
      */
-    QuickTimePlayer,
+    QuickTimePlayer("http://www.apple.com/quicktime/download"),
+
     /**
-     * Specifies the Flash Player plugin
+     * Specifies the Flash Player plugin for MP3 sound
      */
-    FlashMP3Player;
+    FlashMP3Player("http://www.adobe.com/go/getflash"),
+    
+    /**
+     * Specifies the Flash Player plugin for Flash Videos
+     */
+    FlashVideoPlayer("http://www.adobe.com/go/getflash");
+    
+
+    private String downloadURL;
+
+    Plugin(String downloadURL) {
+        this.downloadURL = downloadURL;
+    }
+
+    /**
+     * Gets the URL of the plugins' download page
+     *
+     * @return the plugin download URL
+     * @since 0.6
+     */
+    public String getDownloadURL() {
+        return downloadURL;
+    }
 }
