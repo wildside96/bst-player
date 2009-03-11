@@ -38,13 +38,16 @@ public class PlayerUtilImplTest extends GWTTestCase {
         System.out.println("suggestPlayer");
         PlayerUtilImpl instance = GWT.create(PlayerUtilImpl.class);
 
-        Plugin result = instance.suggestPlayer("swf");
-        assertEquals(Plugin.FlashMP3Player, result);
+        Plugin result = instance.suggestPlayer(null, "flv");
+        assertEquals(Plugin.FlashVideoPlayer, result);
 
-        result = instance.suggestPlayer("mov");
+//        result = instance.suggestPlayer(null, "mov");
+//        assertEquals(Plugin.QuickTimePlayer, result);
+
+        result = instance.suggestPlayer(null, "m4a");
         assertEquals(Plugin.QuickTimePlayer, result);
 
-        result = instance.suggestPlayer("wma");
+        result = instance.suggestPlayer(null, "wma");
         assertEquals(Plugin.WinMediaPlayer, result);
     }
 

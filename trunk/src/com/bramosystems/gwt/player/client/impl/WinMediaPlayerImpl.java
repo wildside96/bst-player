@@ -15,6 +15,7 @@
  */
 package com.bramosystems.gwt.player.client.impl;
 
+import com.bramosystems.gwt.player.client.MediaInfo;
 import com.bramosystems.gwt.player.client.MediaStateListener;
 import com.google.gwt.core.client.JavaScriptObject;
 
@@ -38,18 +39,17 @@ public class WinMediaPlayerImpl {
             initGlobalEventListeners(jso);
         }
 
-        initPlayerImpl(jso, playerId);
+        initPlayerImpl(jso, playerId, new MediaInfo(), listener);
         createMediaStateListenerImpl(jso, playerId, listener);
     }
 
     public String getPlayerScript(String mediaURL, String playerId, boolean autoplay,
-            String height, String width) {
-        String h = height == null ? "1px" : height;
-        String w = width == null ? "1px" : width;
+            String uiMode, int height, int width) {
         return "<object id='" + playerId + "' type='" + getPluginType() + "' " +
-                "width='" + w + "' height='" + h + "' >" +
+                "width='" + width + "px' height='" + height + "px' >" +
                 "<param name='autostart' value='" + autoplay + "' />" +
                 "<param name='URL' value='" + mediaURL + "' />" +
+                "<param name='uiMode' value='" + uiMode + "' /> " +
                 "</object>";
     }
 
@@ -59,6 +59,26 @@ public class WinMediaPlayerImpl {
 
     public final boolean isPlayerAvailable(String playerId) {
         return isPlayerAvailableImpl(jso, playerId);
+    }
+
+    public void play(String playerId) {
+        playImpl(jso, playerId);
+    }
+
+    public void stop(String playerId) {
+        stopImpl(jso, playerId);
+    }
+
+    public void close(String playerId) {
+        closeImpl(jso, playerId);
+    }
+
+    public final int getLoopCount(String playerId) {
+        return getLoopCountImpl(jso, playerId);
+    }
+
+    public final void setLoopCount(String playerId, int count) {
+        setLoopCountImpl(jso, playerId, count);
     }
 
     protected native void initGlobalEventListeners(JavaScriptObject jso) /*-{
@@ -77,11 +97,48 @@ public class WinMediaPlayerImpl {
      }
     }-*/;
 
-    private native void initPlayerImpl(JavaScriptObject jso, String playerId) /*-{
+    private native void initPlayerImpl(JavaScriptObject jso, String playerId, 
+            MediaInfo mData, MediaStateListener listener) /*-{
     if(jso[playerId] != null) {
         return;
     } else {
         jso[playerId] = new Object();
+        jso[playerId].initd = false;
+        jso[playerId].doLoop = false;
+        jso[playerId].loopCount = 0;
+        jso[playerId].playing = false;
+        jso[playerId].doWMPMetadata = function() {
+            try {
+                var plyrMedia = $doc.getElementById(playerId).currentMedia;
+                mData.@com.bramosystems.gwt.player.client.MediaInfo::title = plyrMedia.getItemInfo('Title');
+                mData.@com.bramosystems.gwt.player.client.MediaInfo::copyright = plyrMedia.getItemInfo('Copyright');
+                mData.@com.bramosystems.gwt.player.client.MediaInfo::duration = parseFloat(plyrMedia.getItemInfo('Duration')) * 1000;
+                mData.@com.bramosystems.gwt.player.client.MediaInfo::publisher = plyrMedia.getItemInfo('WM/Publisher');
+                mData.@com.bramosystems.gwt.player.client.MediaInfo::comment = plyrMedia.getItemInfo('Description');
+                mData.@com.bramosystems.gwt.player.client.MediaInfo::year = plyrMedia.getItemInfo('WM/Year');
+                mData.@com.bramosystems.gwt.player.client.MediaInfo::albumTitle = plyrMedia.getItemInfo('WM/AlbumTitle');
+                mData.@com.bramosystems.gwt.player.client.MediaInfo::artists = plyrMedia.getItemInfo('WM/AlbumArtist');
+                mData.@com.bramosystems.gwt.player.client.MediaInfo::contentProviders = plyrMedia.getItemInfo('WM/Provider');
+                mData.@com.bramosystems.gwt.player.client.MediaInfo::genre = plyrMedia.getItemInfo('WM/Genre');
+                mData.@com.bramosystems.gwt.player.client.MediaInfo::internetStationOwner = plyrMedia.getItemInfo('WM/RadioStationOwner');
+                mData.@com.bramosystems.gwt.player.client.MediaInfo::internetStationName = plyrMedia.getItemInfo('WM/RadioStationName');
+                mData.@com.bramosystems.gwt.player.client.MediaInfo::hardwareSoftwareRequirements = plyrMedia.getItemInfo('WM/EncodingSettings');
+                listener.@com.bramosystems.gwt.player.client.MediaStateListener::onMediaInfoAvailable(Lcom/bramosystems/gwt/player/client/MediaInfo;)(mData);
+            } catch(e) {
+                jso[playerId].debug(e);
+            }
+        };
+        jso[playerId].debug = function(message) {
+            listener.@com.bramosystems.gwt.player.client.MediaStateListener::onDebug(Ljava/lang/String;)(message);
+        };
+        jso[playerId].statPlay = function() {
+             try {
+                var playr = $doc.getElementById(playerId);
+                playr.controls.play();
+             } catch(e) {
+                jso[playerId].errorr()
+             }
+        };
     }
     }-*/;
 
@@ -109,8 +166,26 @@ public class WinMediaPlayerImpl {
            return;
 
         switch(state) {
+            case 1:    // stopped..
+                jso[playerId].playing = false;
+                jso[playerId].debug('Media playback stopped');
+                if(jso[playerId].doLoop == true) {
+                    jso[playerId].statPlay();
+                }
+                break;
+            case 2:    // paused..
+                jso[playerId].playing = false;
+                jso[playerId].debug('Media playback paused');
+                break;
             case 3:    // playing..
-                listener.@com.bramosystems.gwt.player.client.MediaStateListener::onPlayStarted()();
+                if(jso[playerId].playing == false) {
+                    jso[playerId].playing = true;
+                    listener.@com.bramosystems.gwt.player.client.MediaStateListener::onPlayStarted()();
+                    jso[playerId].debug('Playing media at ' + playr.URL);
+                    jso[playerId].doWMPMetadata();
+                }
+                break;
+            case 11:    // reconnecting to stream  ...
                 break;
             case 6:    // buffering ...
                 if(playr.network.downloadProgress >=  0) {
@@ -123,6 +198,7 @@ public class WinMediaPlayerImpl {
                                 listener.@com.bramosystems.gwt.player.client.MediaStateListener::onLoadingComplete()();
                                 $wnd.clearInterval(jso[playerId].progTimerId);
                                 delete jso[playerId].progTimerId;
+                                jso[playerId].debug('Media loading complete');
                             }
                         } else {
                             $wnd.clearInterval(jso[playerId].progTimerId);
@@ -132,11 +208,28 @@ public class WinMediaPlayerImpl {
                 }
                 break;
             case 8:    // media ended...
-                listener.@com.bramosystems.gwt.player.client.MediaStateListener::onPlayFinished()();
+                if (jso[playerId].loopCount < 0) {
+                    jso[playerId].doLoop = true;
+                } else {
+                    if (jso[playerId].loopCount > 0) {
+                        jso[playerId].doLoop = true;
+                        jso[playerId].loopCount--;
+                    } else {
+                        jso[playerId].doLoop = false;
+                        listener.@com.bramosystems.gwt.player.client.MediaStateListener::onPlayFinished()();
+                        jso[playerId].debug('Media playback finished');
+                    }
+                }
                 break;
             case 10:    // player ready...
-             listener.@com.bramosystems.gwt.player.client.MediaStateListener::onPlayerReady()();
-             break;
+                if(jso[playerId].initd == false) {
+                    jso[playerId].initd = true;
+                    listener.@com.bramosystems.gwt.player.client.MediaStateListener::onPlayerReady()();
+                    var versn = playr.versionInfo;
+                    jso[playerId].debug('Windows Media Player plugin');
+                    jso[playerId].debug('Version : ' + versn);
+             }
+                break;
         }
     };
     jso['geId'].push(playerId);
@@ -166,28 +259,14 @@ public class WinMediaPlayerImpl {
         return (jso[playerId] != undefined) || (jso[playerId] != null);
      }-*/;
 
-    public void close(String playerId) {
-        closeImpl(jso, playerId);
-    }
-
     public native void loadSound(String playerId, String mediaURL) /*-{
     var player = $doc.getElementById(playerId);
     player.URL = mediaURL;
     }-*/;
 
-    public native void play(String playerId) /*-{
-    var player = $doc.getElementById(playerId);
-    player.controls.play();
-    }-*/;
-
     public native void pause(String playerId) /*-{
     var player = $doc.getElementById(playerId);
     player.controls.pause();
-    }-*/;
-
-    public native void stop(String playerId) /*-{
-    var player = $doc.getElementById(playerId);
-    player.controls.stop();
     }-*/;
 
     public native double getDuration(String playerId) /*-{
@@ -207,10 +286,6 @@ public class WinMediaPlayerImpl {
     player.controls.currentPosition = position / 1000;
     }-*/;
 
-    protected native void closeImpl(JavaScriptObject jso, String playerId) /*-{
-     delete jso[playerId];
-    }-*/;
-
     public native int getVolume(String playerId) /*-{
     var player = $doc.getElementById(playerId);
     return player.settings.volume;
@@ -219,5 +294,40 @@ public class WinMediaPlayerImpl {
     public native void setVolume(String playerId, int volume) /*-{
     var player = $doc.getElementById(playerId);
     player.settings.volume = volume;
+    }-*/;
+
+    public native void setUIMode(String playerId, String uiMode) /*-{
+    var player = $doc.getElementById(playerId);
+    player.uiMode = uiMode;
+    }-*/;
+
+    protected native void closeImpl(JavaScriptObject jso, String playerId) /*-{
+    delete jso[playerId];
+    var index = jso['geId'].indexOf(playerId);
+    delete jso['geId'][index];
+    jso['geId'].splice(index, 1);
+    }-*/;
+
+    private native void setLoopCountImpl(JavaScriptObject jso, String playerId, int count) /*-{
+        jso[playerId].loopCount = count;
+    }-*/;
+
+    private native int getLoopCountImpl(JavaScriptObject jso, String playerId) /*-{
+        return jso[playerId].loopCount;
+    }-*/;
+
+    private native void playImpl(JavaScriptObject jso, String playerId) /*-{
+    try {
+     var playr = $doc.getElementById(playerId);
+     playr.controls.play();
+    } catch(e) {
+     jso[playerId].errorr()
+    }
+    }-*/;
+
+    private native void stopImpl(JavaScriptObject jso, String playerId) /*-{
+    jso[playerId].doLoop = false;
+    var player = $doc.getElementById(playerId);
+    player.controls.stop();
     }-*/;
 }

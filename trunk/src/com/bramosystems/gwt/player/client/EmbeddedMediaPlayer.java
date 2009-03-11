@@ -18,6 +18,9 @@ package com.bramosystems.gwt.player.client;
 /**
  * Interface defining methods required of an embedded sound player.
  *
+ * @deprecated Deprecated with no replacement.  Will be removed in a future release.
+ * Implementation classes should extend AbstractMediaPlayer instead.
+ *
  * @author Sikirulai Braheem
  */
 public interface EmbeddedMediaPlayer {

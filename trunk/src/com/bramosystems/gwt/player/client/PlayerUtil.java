@@ -17,6 +17,7 @@ package com.bramosystems.gwt.player.client;
 
 import com.bramosystems.gwt.player.client.impl.PlayerUtilImpl;
 import com.bramosystems.gwt.player.client.ui.FlashMP3Player;
+import com.bramosystems.gwt.player.client.ui.FlashVideoPlayer;
 import com.bramosystems.gwt.player.client.ui.QuickTimePlayer;
 import com.bramosystems.gwt.player.client.ui.WinMediaPlayer;
 import com.google.gwt.core.client.GWT;
@@ -38,7 +39,7 @@ public class PlayerUtil {
 
     /**
      * Formats the specified time (in milliseconds) into time string in the
-     * format <code>hh:mm;ss</code>.
+     * format <code>hh:mm:ss</code>.
      *
      * <p>The hours part of the formatted time is omitted if {@code milliseconds} time
      * is less than 60 minutes.
@@ -73,18 +74,20 @@ public class PlayerUtil {
     /**
      * Utility method to get a player that best supports the specified {@code mediaURL}.
      *
-     * <p>
-     * A suitable player is determined based on the plugin
-     * available on the browser as well as its suitability to playback
-     * the specified media.
+     * <p>A suitable player is determined based on the plugin available on the
+     * browser as well as its suitability to playback the specified media.
      *
-     * <p><b>Note:</b> {@code mediaURL} should end in a standard media format extension e.g.
-     * {@code .mp3, .wma, .mov, ...}
+     * <p><b>NOTE:</b> If the media is served with a special streaming protocol such as
+     * MMS and RTSP, {@code mediaURL} should be specified in its absolute form. Otherwise
+     * {@code mediaURL} should end in a standard media format extension e.g.
+     * {@code .mp3, .wma, .mov, .flv ...}
      *
      * @param mediaURL the URL of the media to playback
      * @param autoplay {@code true} to start playing automatically, {@code false} otherwise
      * @param height the height of the player
      * @param width the width of the player.
+     *
+     * @return a suitable player implementation
      *
      * @throws com.bramosystems.gwt.player.client.LoadException if an error occurs while loading the media.
      * @throws com.bramosystems.gwt.player.client.PluginVersionException if the required
@@ -97,7 +100,17 @@ public class PlayerUtil {
             throws LoadException, PluginNotFoundException, PluginVersionException {
         AbstractMediaPlayer player = null;
 
-        switch (impl.suggestPlayer(mediaURL.substring(mediaURL.lastIndexOf(".") + 1))) {
+        String protocol = null;
+        if (mediaURL.contains("://")) {
+            protocol = mediaURL.substring(0, mediaURL.indexOf("://"));
+        }
+
+        String ext = mediaURL.substring(mediaURL.lastIndexOf(".") + 1);
+
+        switch (impl.suggestPlayer(protocol, ext)) {
+            case FlashVideoPlayer:
+                player = new FlashVideoPlayer(mediaURL, autoplay, height, width);
+                break;
             case FlashMP3Player:
                 player = new FlashMP3Player(mediaURL, autoplay, height, width);
                 break;
@@ -169,33 +182,43 @@ public class PlayerUtil {
         return v;
     }
 
-    public static Widget getMissingPluginNotice(Plugin plugin, String title, String message, boolean asHTML) {
-        final StringBuffer link = new StringBuffer();
+    /**
+     * Returns a widget that may be used to notify the user when a required plugin
+     * is not available.  The widget provides a link to the plugin download page.
+     *
+     * <h4>CSS Style Rules</h4>
+     * <ul>
+     * <li>.player-MissingPlugin { the missing plugin widget }</li>
+     * <li>.player-MissingPlugin-title { the title section }</li>
+     * <li>.player-MissingPlugin-message { the message section }</li>
+     * </ul>
+     *
+     * @param plugin the missing plugin
+     * @param title the title of the message
+     * @param message descriptive message to notify user about the missing plugin
+     * @param asHTML {@code true} if {@code message} should be interpreted as HTML,
+     *          {@code false} otherwise.
+     *
+     * @return missing plugin widget.
+     * @since 0.6
+     */
+    public static Widget getMissingPluginNotice(final Plugin plugin, String title, String message,
+            boolean asHTML) {
         DockPanel dp = new DockPanel() {
 
             @Override
             public void onBrowserEvent(Event event) {
-                switch(event.getTypeInt()) {
+                switch (event.getTypeInt()) {
                     case Event.ONCLICK:
-                        Window.Location.replace(link.toString());
+                        if (plugin.getDownloadURL().length() > 0) {
+                            Window.open(plugin.getDownloadURL(), "dwnload", "");
+                        }
                 }
             }
         };
         dp.setHorizontalAlignment(DockPanel.ALIGN_LEFT);
         dp.sinkEvents(Event.ONCLICK);
         dp.setWidth("200px");
-
-        switch (plugin) {
-            case WinMediaPlayer:
-                link.append("http://www.microsoft.com/windowsmedia");
-                break;
-            case QuickTimePlayer:
-                link.append("http://www.apple.com/quicktime/download");
-                break;
-            case FlashMP3Player:
-                link.append("http://www.adobe.com/go/getflash");
-                break;
-        }
 
         Label titleLb = null, msgLb = null;
         if (asHTML) {
@@ -217,21 +240,77 @@ public class PlayerUtil {
         return dp;
     }
 
-    public static Widget getMissingPluginNotice(Plugin plugin) {
+    /**
+     * Convinience method to get a widget that may be used to notify the user when
+     * a required plugin is not available.
+     *
+     * <p>This is same as calling {@code getMissingPluginNotice(plugin, "Missing Plugin",
+     *      "<<message>>", false) }
+     * <br/>
+     * {@literal <<message>>} => [Plugin Name] [version] or later is required to play this media.
+     * Click here to get [Plugin Name]
+     *
+     * @param plugin the required plugin
+     * @param version the minimum version of the required plugin
+     *
+     * @return missing plugin widget.
+     * @see #getMissingPluginNotice(Plugin, String, String, boolean)
+     * @since 0.6
+     */
+    public static Widget getMissingPluginNotice(Plugin plugin, String version) {
         String title = "Missing Plugin", message = "";
-        switch(plugin) {
+        switch (plugin) {
             case WinMediaPlayer:
-                message = "Windows Media Player 7 or later is required to play " +
-                        "this file. Click here to install.";
+                message = "Windows Media Player " + version + " or later is required to play " +
+                        "this media. Click here to get Windows Media Player.";
                 break;
             case FlashMP3Player:
-                message = "This media requires Adobe Flash Player 9 or later. " +
-                        "Click here to get Flash";
+            case FlashVideoPlayer:
+                message = "Adobe Flash Player " + version + " or later is required to play" +
+                        "this media. Click here to get Flash";
                 break;
             case QuickTimePlayer:
-                message = "QuickTime Player 7.2.1 plugin or later is required to play " +
+                message = "QuickTime Player " + version + " plugin or later is required to play " +
                         "this media. Click here to get QuickTime";
                 break;
+        }
+        return getMissingPluginNotice(plugin, title, message, false);
+    }
+
+    /**
+     * Convinience method to get a widget that may be used to notify the user when
+     * a required plugin is not available.
+     *
+     * <p>This is same as calling {@code getMissingPluginNotice(plugin, "Missing Plugin",
+     *      "<<message>>", false) }
+     * <br/>
+     * {@literal <<message>>} => [Plugin Name] is required to play this media.
+     * Click here to get [Plugin Name]
+     *
+     * @param plugin the required plugin
+     *
+     * @return missing plugin widget.
+     * @see #getMissingPluginNotice(Plugin, String, String, boolean)
+     * @since 0.6
+     */
+    public static Widget getMissingPluginNotice(Plugin plugin) {
+        String title = "Missing Plugin", message = "";
+        switch (plugin) {
+            case WinMediaPlayer:
+                message = "Windows Media Player is required to play " +
+                        "this media. Click here to get Windows Media Player.";
+                break;
+            case FlashMP3Player:
+            case FlashVideoPlayer:
+                message = "Adobe Flash Player is required to play" +
+                        "this media. Click here to get Flash";
+                break;
+            case QuickTimePlayer:
+                message = "QuickTime Player is required to play " +
+                        "this media. Click here to get QuickTime";
+                break;
+            default:
+                message = "A compatible plugin could not be found";
         }
         return getMissingPluginNotice(plugin, title, message, false);
     }

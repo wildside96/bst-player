@@ -17,6 +17,7 @@ package com.bramosystems.gwt.player.client.ui.skin;
 
 import com.bramosystems.gwt.player.client.*;
 import com.bramosystems.gwt.player.client.ui.FlashMP3Player;
+import com.bramosystems.gwt.player.client.ui.FlashVideoPlayer;
 import com.bramosystems.gwt.player.client.ui.QuickTimePlayer;
 import com.bramosystems.gwt.player.client.ui.WinMediaPlayer;
 import com.google.gwt.user.client.ui.SimplePanel;
@@ -24,24 +25,22 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 
 /**
- * Abstract base class for HTML based custom players.
+ * Abstract base class for HTML based custom audio players.
  * 
  * <p>The actual player plugin used to playback media files is wrapped by
  * this player and hidden on the browser.  This ensures that the player
  * is controlled via the HTML controls provided by implementation classes.
  *
  * @author Sikirulai Braheem
- *
- * @deprecated Replaced with {@link CustomAudioPlayer} and {@link CustomVideoPlayer}
- * for sound and video playback respectively.  Will be removed in a future release.
+ * @since 0.6
  */
-public abstract class CustomPlayer extends AbstractMediaPlayer {
+public abstract class CustomAudioPlayer extends AbstractMediaPlayer {
 
     private AbstractMediaPlayer engine;
     private SimplePanel container;
 
     /**
-     * Constructs <code>CustomPlayer</code> with the specified {@code playerPlugin}
+     * Constructs <code>CustomAudioPlayer</code> with the specified {@code playerPlugin}
      * to playback media located at {@code mediaURL}. Media playback
      * begins automatically if {@code autoplay} is {@code true}.
      *
@@ -60,10 +59,9 @@ public abstract class CustomPlayer extends AbstractMediaPlayer {
      * @see WinMediaPlayer
      * @see FlashMP3Player
      */
-    public CustomPlayer(Plugin playerPlugin, String mediaURL, boolean autoplay)
+    public CustomAudioPlayer(Plugin playerPlugin, String mediaURL, boolean autoplay)
             throws PluginNotFoundException, PluginVersionException, LoadException {
         switch (playerPlugin) {
-            // make players 1 x 1px, so the player can be active
             case FlashMP3Player:
                 engine = new FlashMP3Player(mediaURL, autoplay, null, null);
                 break;
@@ -73,11 +71,13 @@ public abstract class CustomPlayer extends AbstractMediaPlayer {
             case WinMediaPlayer:
                 engine = new WinMediaPlayer(mediaURL, autoplay, null, null);
                 break;
+            case FlashVideoPlayer:
+                engine = new FlashVideoPlayer(mediaURL, autoplay, null, null);
+                break;
             case Auto:
                 engine = PlayerUtil.getPlayer(mediaURL, autoplay, null, null);
                 break;
         }
-
         engine.addMediaStateListener(new MediaStateListener() {
 
             public void onError(String description) {
@@ -112,11 +112,9 @@ public abstract class CustomPlayer extends AbstractMediaPlayer {
                 fireMediaInfoAvailable(info);
             }
         });
-
         container = new SimplePanel();
 
         VerticalPanel hp = new VerticalPanel();
-        hp.setSize("100%", "100%");
         hp.setVerticalAlignment(VerticalPanel.ALIGN_MIDDLE);
         hp.add(engine);
         hp.add(container);
@@ -125,9 +123,9 @@ public abstract class CustomPlayer extends AbstractMediaPlayer {
 
     /**
      * Overridden to prevent subclasses from changing the wrapped widget.
-     * Subclass should call <code>setPlayerWidget</code> instead.
+     * Subclass should call <code>setPlayerControlWidget</code> instead.
      *
-     * @see #setPlayerWidget(com.google.gwt.user.client.ui.Widget)
+     * @see #setPlayerControlWidget(com.google.gwt.user.client.ui.Widget)
      */
     @Override
     protected final void initWidget(Widget widget) {
@@ -140,7 +138,7 @@ public abstract class CustomPlayer extends AbstractMediaPlayer {
      *
      * @param widget the player control widget
      */
-    protected final void setPlayerWidget(Widget widget) {
+    protected final void setPlayerControlWidget(Widget widget) {
         container.setWidget(widget);
     }
 
@@ -187,4 +185,15 @@ public abstract class CustomPlayer extends AbstractMediaPlayer {
     public void setVolume(double volume) {
         engine.setVolume(volume);
     }
+
+    @Override
+    public int getLoopCount() {
+        return engine.getLoopCount();
+    }
+
+    @Override
+    public void setLoopCount(int loop) {
+        engine.setLoopCount(loop);
+    }
+
 }

@@ -16,13 +16,14 @@
 
 package com.bramosystems.gwt.player.client.impl;
 
+import com.bramosystems.gwt.player.client.MediaInfo;
 import com.bramosystems.gwt.player.client.MediaStateListener;
 import com.google.gwt.core.client.JavaScriptObject;
 
 /**
  * Native implementation of the QuickTimePlayer class. It is not recommended to
  * interact with this class directly.
-
+ *
  * @author Sikirulai Braheem
  * @see com.bramosystems.gwt.player.client.ui.QuickTimePlayer
  */
@@ -39,23 +40,23 @@ public class QuickTimePlayerImpl {
         }
 
         initImpl(jso, playerId);
-        createMediaStateListenerImpl(jso, playerId, listener);
+        createMediaStateListenerImpl(jso, playerId, listener, new MediaInfo());
     }
 
     public void injectScript(String divId, String mediaSrc, String playerId, boolean autoplay,
-            String height, String width) {
-        injectScriptImpl(divId, getPlayerScript(mediaSrc, playerId, autoplay, height, width));
+            boolean showControls, int height, int width) {
+        injectScriptImpl(divId, getPlayerScript(mediaSrc, playerId, autoplay, 
+                showControls, height + "px", width + "px"));
         registerMediaStateListenerImpl(jso, playerId);
     }
 
     protected String getPlayerScript(String mediaSrc, String playerId, boolean autoplay,
-            String height, String width) {
-        String h = height == null ? "0px" : height;
-        String w = width == null ? "0px" : width;
+            boolean showControls, String height, String width) {
         return "<embed id='" + playerId + "' name='" + playerId + "' " +
                 "type='video/quicktime' postdomevents='true' kioskmode='true' " +
                 "autoplay='" + autoplay + "' src='" + mediaSrc + "' " +
-                "width='" + w + "' height='" + h + "' EnableJavaScript='true'></embed> ";
+                "controller='" + showControls + "' EnableJavaScript='true' " +
+                "width='" + width + "' height='" + height + "'></embed>";
     }
 
     public final boolean isPlayerAvailable(String playerId) {
@@ -67,10 +68,14 @@ public class QuickTimePlayerImpl {
             return;
         } else {
             jso[playerId] = new Object();
+            jso[playerId].loopCount = 0;
             jso[playerId].qtInit = false;
             jso[playerId].initComplete = function() {
                 if(jso[playerId].qtInit == false) {
                     jso[playerId].qtInit = true;
+                    jso[playerId].debug('QuickTime Player plugin');
+                    var plyr = $doc.getElementById(playerId);
+                    jso[playerId].debug('Version : ' + plyr.GetPluginVersion());
                 }
             };
         }
@@ -84,28 +89,75 @@ public class QuickTimePlayerImpl {
      *
      * @see "JavaScript Scripting Guide for QuickTime"
      */
-    protected native void createMediaStateListenerImpl(JavaScriptObject jso, String playerId,
-            MediaStateListener listener) /*-{
+    private native void createMediaStateListenerImpl(JavaScriptObject jso, String playerId,
+            MediaStateListener listener, MediaInfo id3) /*-{
     jso[playerId].errorr = function() {
-    listener.@com.bramosystems.gwt.player.client.MediaStateListener::onError(Ljava/lang/String;)("An" +
+        listener.@com.bramosystems.gwt.player.client.MediaStateListener::onError(Ljava/lang/String;)("An" +
              " error occured while loading media");
     };
+    jso[playerId].debug = function(message) {
+        listener.@com.bramosystems.gwt.player.client.MediaStateListener::onDebug(Ljava/lang/String;)(message);
+    };
     jso[playerId].playStarted = function() {
-    listener.@com.bramosystems.gwt.player.client.MediaStateListener::onPlayStarted()();
+        listener.@com.bramosystems.gwt.player.client.MediaStateListener::onPlayStarted()();
+        var plyr = $doc.getElementById(playerId);
+        jso[playerId].debug('Playing media at ' + plyr.GetURL());
+        jso[playerId].doMetadata();
     };
     jso[playerId].playerReady = function() {
-    listener.@com.bramosystems.gwt.player.client.MediaStateListener::onPlayerReady()();
+        listener.@com.bramosystems.gwt.player.client.MediaStateListener::onPlayerReady()();
+        jso[playerId].debug('Plugin ready for media playback');
+    };
+    jso[playerId].statPlay = function() {
+        var plyr = $doc.getElementById(playerId);
+        plyr.Play();
     };
     jso[playerId].soundComplete = function() {
-    listener.@com.bramosystems.gwt.player.client.MediaStateListener::onPlayFinished()();
+        if (jso[playerId].loopCount < 0) {
+            jso[playerId].statPlay();
+        } else {
+            if (jso[playerId].loopCount > 0) {
+                jso[playerId].statPlay();
+                jso[playerId].loopCount--;
+            } else {
+                listener.@com.bramosystems.gwt.player.client.MediaStateListener::onPlayFinished()();
+                jso[playerId].debug('Media playback complete');
+            }
+        }
     };
     jso[playerId].loadingComplete = function() {
-    listener.@com.bramosystems.gwt.player.client.MediaStateListener::onLoadingComplete()();
+        listener.@com.bramosystems.gwt.player.client.MediaStateListener::onLoadingComplete()();
+        jso[playerId].debug('Media loading complete');
     };
     jso[playerId].loadingProgress = function() {
-    var plyr = $doc.getElementById(playerId);
-    var prog = plyr.GetMaxTimeLoaded() / plyr.GetDuration();
-    listener.@com.bramosystems.gwt.player.client.MediaStateListener::onLoadingProgress(D)(prog);
+        var plyr = $doc.getElementById(playerId);
+        var prog = plyr.GetMaxTimeLoaded() / plyr.GetDuration();
+        listener.@com.bramosystems.gwt.player.client.MediaStateListener::onLoadingProgress(D)(prog);
+    };
+    jso[playerId].volumeChange = function() {
+        var plyr = $doc.getElementById(playerId);
+        var vol = (plyr.GetVolume() / 255 * 100).toFixed(0);
+        jso[playerId].debug('Volume changed to ' + vol + '%');
+    };
+    jso[playerId].doMetadata = function() {
+        try {
+            var plyr = $doc.getElementById(playerId);
+            id3.@com.bramosystems.gwt.player.client.MediaInfo::year = plyr.GetUserData("&#xA9;day");
+            id3.@com.bramosystems.gwt.player.client.MediaInfo::albumTitle = plyr.GetUserData("name");
+            id3.@com.bramosystems.gwt.player.client.MediaInfo::artists = plyr.GetUserData('©prf');
+            id3.@com.bramosystems.gwt.player.client.MediaInfo::comment = plyr.GetUserData('info');
+            id3.@com.bramosystems.gwt.player.client.MediaInfo::title = plyr.GetUserData('name');
+            id3.@com.bramosystems.gwt.player.client.MediaInfo::contentProviders = plyr.GetUserData('©src');
+            id3.@com.bramosystems.gwt.player.client.MediaInfo::copyright = plyr.GetUserData('cprt');
+            id3.@com.bramosystems.gwt.player.client.MediaInfo::hardwareSoftwareRequirements = plyr.GetUserData('©req');
+            id3.@com.bramosystems.gwt.player.client.MediaInfo::publisher = plyr.GetUserData('©prd');
+            id3.@com.bramosystems.gwt.player.client.MediaInfo::genre = '';
+            id3.@com.bramosystems.gwt.player.client.MediaInfo::internetStationOwner = '';
+            id3.@com.bramosystems.gwt.player.client.MediaInfo::internetStationName = '';
+            listener.@com.bramosystems.gwt.player.client.MediaStateListener::onMediaInfoAvailable(Lcom/bramosystems/gwt/player/client/MediaInfo;)(id3);
+        } catch(e) {
+            jso[playerId].debug(e);
+        }
     };
    }-*/;
 
@@ -126,6 +178,8 @@ public class QuickTimePlayerImpl {
     playr.addEventListener('qt_progress', jso[playerId].loadingProgress, false);
     playr.addEventListener('qt_play', jso[playerId].playStarted, false);
     playr.addEventListener('qt_canplay', jso[playerId].playerReady, false);
+    playr.addEventListener('qt_volumechange', jso[playerId].volumeChange, false);
+//    playr.addEventListener('qt_loadedmetadata', jso[playerId].doMetadata, false);
     }-*/;
 
     private native boolean isPlayerAvailableImpl(JavaScriptObject jso, String playerId) /*-{
@@ -133,7 +187,7 @@ public class QuickTimePlayerImpl {
      }-*/;
 
     private native void injectScriptImpl(String divId, String script) /*-{
-        var e = $doc.getElementById(divId);
+     var e = $doc.getElementById(divId);
         e.innerHTML = script;
     }-*/;
 
@@ -185,10 +239,21 @@ public class QuickTimePlayerImpl {
         setVolumeImpl(jso, playerId, volume);
     }
 
+    public void showController(String playerId, boolean show) {
+        showControllerImpl(jso, playerId, show);
+    }
+
+    public final int getLoopCount(String playerId) {
+        return getLoopCountImpl(jso, playerId);
+    }
+
+    public final void setLoopCount(String playerId, int count) {
+        setLoopCountImpl(jso, playerId, count);
+    }
+
     private native void playImpl(JavaScriptObject jso, String playerId) /*-{
     if(jso[playerId].qtInit == true) {
-        var plyr = $doc.getElementById(playerId);
-        plyr.Play();
+        jso[playerId].statPlay();
     }
     }-*/;
 
@@ -197,6 +262,7 @@ public class QuickTimePlayerImpl {
         var plyr = $doc.getElementById(playerId);
         plyr.Rewind();
         plyr.Stop();
+        jso[playerId].debug('Media playback stoped');
     }
     }-*/;
 
@@ -204,6 +270,7 @@ public class QuickTimePlayerImpl {
     if(jso[playerId].qtInit == true) {
         var plyr = $doc.getElementById(playerId);
         plyr.Stop();
+        jso[playerId].debug('Media playback paused');
     }
     }-*/;
 
@@ -269,6 +336,21 @@ public class QuickTimePlayerImpl {
     if(jso[playerId].qtInit == true) {
         var plyr = $doc.getElementById(playerId);
         plyr.SetVolume(volume);
+    }
+    }-*/;
+
+    private native void setLoopCountImpl(JavaScriptObject jso, String playerId, int count) /*-{
+        jso[playerId].loopCount = count;
+    }-*/;
+
+    private native int getLoopCountImpl(JavaScriptObject jso, String playerId) /*-{
+        return jso[playerId].loopCount;
+    }-*/;
+
+    private native void showControllerImpl(JavaScriptObject jso, String playerId, boolean show) /*-{
+    if(jso[playerId].qtInit == true) {
+        var plyr = $doc.getElementById(playerId);
+        plyr.SetControllerVisible(show);
     }
     }-*/;
 }

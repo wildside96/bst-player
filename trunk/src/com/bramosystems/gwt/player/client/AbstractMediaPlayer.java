@@ -19,11 +19,10 @@ import com.google.gwt.user.client.ui.Composite;
 import java.util.ArrayList;
 
 /**
- * Abstract implementation of an EmbeddedMediaPlayer.  It implements the
+ * Abstract implementation of a media player.  It implements the
  * handling of MediaStateListeners.
  *
  * @author Sikiru Braheem
- * @see EmbeddedMediaPlayer
  */
 public abstract class AbstractMediaPlayer extends Composite implements EmbeddedMediaPlayer {
 
@@ -32,11 +31,11 @@ public abstract class AbstractMediaPlayer extends Composite implements EmbeddedM
     /**
      * Constructor method.
      */
-    public AbstractMediaPlayer () {
+    public AbstractMediaPlayer() {
         callbacks = new ArrayList<MediaStateListener>();
     }
 
-    public final void addMediaStateListener(MediaStateListener listener) {
+   public final void addMediaStateListener(MediaStateListener listener) {
         callbacks.add(listener);
     }
 
@@ -91,7 +90,7 @@ public abstract class AbstractMediaPlayer extends Composite implements EmbeddedM
     /**
      * Calls <code>onError</code> on registered MediaStateListeners.
      *
-     * @see com.bramosystems.gwt.player.client.MediaStateListener#onError()
+     * @see com.bramosystems.gwt.player.client.MediaStateListener#onError(java.lang.String) 
      */
     public final void fireError(String description) {
         for (int i = 0; i < callbacks.size(); i++) {
@@ -123,4 +122,71 @@ public abstract class AbstractMediaPlayer extends Composite implements EmbeddedM
         }
     }
 
+    /**
+     * Calls <code>onMediaInfoAvailable</code> on registered MediaStateListeners.
+     *
+     * @param info the metadata of the loaded media
+     * @see com.bramosystems.gwt.player.client.MediaStateListener#onMediaInfoAvailable(MediaInfo)
+     * @since 0.6
+     */
+    public final void fireMediaInfoAvailable(MediaInfo info) {
+        for (int i = 0; i < callbacks.size(); i++) {
+            callbacks.get(i).onMediaInfoAvailable(info);
+        }
+    }
+
+    /**
+     * Displays or hides the players' logger widget.  The logger widget logs debug messages which can
+     * be useful during development.
+     *
+     * @param show <code>true</code> to make the logger widget visible, <code>false</code> otherwise.
+     * @see com.bramosystems.gwt.player.client.ui.Logger
+     * @since 0.6
+     */
+    public void showLogger(boolean show) {
+    }
+    
+
+    /**
+     * Displays or hides the player controls.  This implementation does nothing.  Subclasses that
+     * permit showing/hiding of controls should override this method and implement accordingly.
+     *
+     * @param show <code>true</code> to make the player controls visible, <code>false</code> otherwise.
+     * @since 0.6
+     */
+    public void setControllerVisible(boolean show) {
+    }
+    
+    /**
+     * Checks whether the player controls are visible.  This implementation return true.  Subclasses that
+     * permit showing/hiding of controls should override this method and implement accordingly.
+     *
+     * @return <code>true</code> if player controls are visible, <code>false</code> otherwise.
+     * @since 0.6
+     */
+    public boolean isControllerVisible() {
+        return true;
+    }
+
+    /**
+     * Sets the number of times the current media file should loop playback before stopping.
+     * This implementation does nothing, subclasses should override and implement accordingly.
+     *
+     * @param loop number of times to loop playback. A negative value makes playback loop forever.
+     * @since 0.6
+     */
+    public void setLoopCount(int loop) {
+    }
+
+    /**
+     * Returns the remaining number of times this player loops playback before stopping. This
+     * implementation returns <code>0</code>, subclasses should override and implement
+     * accordingly.
+     *
+     * @return the remaining number of times this player will loop playback before stopping.
+     * @since 0.6
+     */
+    public int getLoopCount() {
+        return 0;
+    }
 }

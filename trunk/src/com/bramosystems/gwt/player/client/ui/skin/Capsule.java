@@ -16,11 +16,14 @@
 package com.bramosystems.gwt.player.client.ui.skin;
 
 import com.bramosystems.gwt.player.client.*;
+import com.bramosystems.gwt.player.client.ui.Logger;
 import com.bramosystems.gwt.player.client.ui.images.capsule.CapsuleImages;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Timer;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
+import java.util.ArrayList;
 
 /**
  * Sample custom sound player.
@@ -52,13 +55,18 @@ import com.google.gwt.user.client.ui.*;
  *
  * @author Sikirulai Braheem
  */
-public class Capsule extends CustomPlayer {
+public class Capsule extends CustomAudioPlayer {
 
     private CapsuleImages imgPack = GWT.create(CapsuleImages.class);
     private ProgressBar progress;
-    private ToggleButton play,  stop;
-    private HTML ta;
-    private Timer playTimer;
+    private PushButton play,  stop;
+    private Timer playTimer,  infoTimer;
+    private Logger logger;
+    private PlayState playState;
+    private VolumeControl vc;
+    private MediaInfo mInfo;
+    private ArrayList<MediaInfo.MediaItem> mItems;
+    private int infoIndex;
 
     /**
      * Constructs <code>Capsule</code> player to automatically playback the
@@ -119,6 +127,9 @@ public class Capsule extends CustomPlayer {
             PluginVersionException, LoadException {
         super(plugin, mediaURL, autoplay);
 
+        playState = PlayState.Stop;
+        mItems = new ArrayList<MediaInfo.MediaItem>();
+
         progress = new ProgressBar();
         progress.setWidth("95%");
 
@@ -129,58 +140,75 @@ public class Capsule extends CustomPlayer {
                 progress.setTime(getPlayPosition());
             }
         };
+        infoTimer = new Timer() {
 
-        play = new ToggleButton(imgPack.play().createImage(), imgPack.pause().createImage(),
-                new ClickListener() {
+            @Override
+            public void run() {
+                if (mItems.size() > 0) {
+                    MediaInfo.MediaItem item = mItems.get(infoIndex);
+                    progress.setInfo(item.getItemName() + ": " + mInfo.getItem(item));
+                    infoIndex++;
+                    infoIndex %= mItems.size();
+                } else {
+                    cancel();
+                }
+            }
 
-                    public void onClick(Widget sender) {
-                        if (play.isDown()) {  // play media...
-                            try {
-                                playMedia();
-                            } catch (PlayException ex) {
-                                doReport(ex.getMessage());
-                            }
-                        } else { // pause media...
-                            pauseMedia();
-                            stop.setEnabled(true);
+            @Override
+            public void cancel() {
+                super.cancel();
+                progress.setInfo("");
+            }
+        };
+
+        play = new PushButton(imgPack.play().createImage(), new ClickListener() {
+
+            public void onClick(Widget sender) {
+                switch (playState) {
+                    case Stop:
+                    case Pause:
+                        try { // play media...
+                            playMedia();
+                        } catch (PlayException ex) {
+                            fireError(ex.getMessage());
                         }
-                    }
-                });
-        play.getDownDisabledFace().setImage(imgPack.pauseDisabled().createImage());
-        play.getDownHoveringFace().setImage(imgPack.pauseHover().createImage());
+                        break;
+                    case Playing:
+                        pauseMedia();
+                        toPlayState(PlayState.Pause);
+                }
+            }
+        });
+
         play.getUpDisabledFace().setImage(imgPack.playDisabled().createImage());
-        play.getUpHoveringFace().setImage(imgPack.playHover().createImage());
         play.setEnabled(false);
 
-        stop = new ToggleButton(imgPack.stop().createImage(), imgPack.stop().createImage(),
-                new ClickListener() {
+        stop = new PushButton(imgPack.stop().createImage(), new ClickListener() {
 
-                    public void onClick(Widget sender) {
-                        stopMedia();
-                    }
-                });
+            public void onClick(Widget sender) {
+                stopMedia();
+                toPlayState(PlayState.Stop);
+            }
+        });
         stop.getUpDisabledFace().setImage(imgPack.stopDisabled().createImage());
         stop.getUpHoveringFace().setImage(imgPack.stopHover().createImage());
-        stop.getDownDisabledFace().setImage(imgPack.stopDisabled().createImage());
-        stop.getDownHoveringFace().setImage(imgPack.stopHover().createImage());
         stop.setEnabled(false);
 
-        ta = new HTML();
-
-        final VolumeControl vc = new VolumeControl(imgPack.spk().createImage(), 5);
+        vc = new VolumeControl(imgPack.spk().createImage(), 5);
         vc.addVolumeChangeListener(new VolumeChangeListener() {
 
             public void onVolumeChanged(double newValue) {
                 setVolume(newValue);
             }
         });
-        vc.setPopupStyle("background", "url(" +
-                GWT.getModuleBaseURL() + "skin/capsule/background.png) repeat-x");
+        vc.setPopupStyle("background", "url(" + GWT.getModuleBaseURL() +
+                "skin/capsule/background.png) repeat-x");
         vc.setPopupStyle("padding", "3px");
 
         addMediaStateListener(new MediaStateListener() {
 
             public void onError(String description) {
+                Window.alert(description);
                 onDebug(description);
             }
 
@@ -193,12 +221,11 @@ public class Capsule extends CustomPlayer {
             }
 
             public void onPlayFinished() {
-                stopMedia();
-                progress.setFinishedState();
+                toPlayState(PlayState.Stop);
             }
 
             public void onDebug(String report) {
-                doReport(report);
+                logger.log(report, false);
             }
 
             public void onLoadingProgress(double progrezz) {
@@ -207,16 +234,21 @@ public class Capsule extends CustomPlayer {
             }
 
             public void onPlayStarted() {
-                progress.setDuration(getMediaDuration());
-                playTimer.scheduleRepeating(1000);
-                play.setDown(true);
-                stop.setEnabled(true);
-                vc.setVolume(getVolume());
+                toPlayState(PlayState.Playing);
             }
 
             public void onPlayerReady() {
                 play.setEnabled(true);
                 vc.setVolume(getVolume());
+            }
+
+            public void onMediaInfoAvailable(MediaInfo info) {
+                mInfo = info;
+                mItems = mInfo.getAvailableItems();
+                mItems.remove(MediaInfo.MediaItem.Comment);
+                mItems.remove(MediaInfo.MediaItem.Duration);
+                mItems.remove(MediaInfo.MediaItem.HardwareSoftwareRequirements);
+                logger.log(info.asHTMLString(), true);
             }
         });
 
@@ -239,26 +271,18 @@ public class Capsule extends CustomPlayer {
         DOM.setStyleAttribute(main.getElement(), "background", "url(" +
                 GWT.getModuleBaseURL() + "skin/capsule/background.png) repeat-x");
 
-        HorizontalPanel hp = new HorizontalPanel();
-        hp.setVerticalAlignment(HorizontalPanel.ALIGN_MIDDLE);
-        hp.setHorizontalAlignment(HorizontalPanel.ALIGN_CENTER);
+        logger = new Logger();
+        logger.setVisible(false);
+
+        VerticalPanel hp = new VerticalPanel();
+        hp.setVerticalAlignment(VerticalPanel.ALIGN_MIDDLE);
         hp.setWidth("100%");
         hp.add(main);
+        hp.add(logger);
+        hp.setCellHorizontalAlignment(main, VerticalPanel.ALIGN_CENTER);
 
-        setPlayerWidget(hp);
-    }
-
-    private void doReport(String report) {
-        ta.setHTML(ta.getHTML() + "<br/>" + report);
-    }
-
-    @Override
-    public void stopMedia() {
-        super.stopMedia();
-        playTimer.cancel();
-        play.setDown(false);
-        stop.setEnabled(false);
-        progress.setTime(0);
+        setPlayerControlWidget(hp);
+        setWidth("100%");
     }
 
     /**
@@ -267,6 +291,46 @@ public class Capsule extends CustomPlayer {
     @Override
     protected void onUnload() {
         playTimer.cancel();
+        infoTimer.cancel();
+    }
+
+    @Override
+    public void showLogger(boolean show) {
+        logger.setVisible(show);
+    }
+
+    private void toPlayState(PlayState state) {
+        switch (state) {
+            case Playing:
+//                progress.setDuration(getMediaDuration());
+                play.setEnabled(true);
+                stop.setEnabled(true);
+                vc.setVolume(getVolume());
+//                isPlaying = true;
+//                if (loadingComplete && isPlaying) {
+                playTimer.scheduleRepeating(1000);
+//                }
+
+//              playTimer.scheduleRepeating(1000);
+                infoTimer.scheduleRepeating(3000);
+
+                play.getUpFace().setImage(imgPack.pause().createImage());
+                play.getUpHoveringFace().setImage(imgPack.pauseHover().createImage());
+                break;
+            case Stop:
+//                playTimer.cancel();
+                progress.setTime(0);
+                progress.setFinishedState();
+                stop.setEnabled(false);
+                playTimer.cancel();
+                infoTimer.cancel();
+            case Pause:
+//                            stop.setEnabled(true);
+                play.getUpFace().setImage(imgPack.play().createImage());
+                play.getUpHoveringFace().setImage(imgPack.playHover().createImage());
+                break;
+        }
+        playState = state;
     }
 
     private class ProgressBar extends Composite {
@@ -335,5 +399,10 @@ public class Capsule extends CustomPlayer {
             setTime(0);
             seekBar.setPlayingProgress(0);
         }
+    }
+
+    private enum PlayState {
+
+        Playing, Pause, Stop;
     }
 }

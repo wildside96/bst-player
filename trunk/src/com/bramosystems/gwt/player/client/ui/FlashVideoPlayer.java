@@ -16,13 +16,13 @@
 package com.bramosystems.gwt.player.client.ui;
 
 import com.bramosystems.gwt.player.client.*;
-import com.bramosystems.gwt.player.client.impl.FlashMP3PlayerImpl;
+import com.bramosystems.gwt.player.client.impl.FlashVideoPlayerImpl;
 import com.bramosystems.gwt.player.client.ui.skin.FlatCustomControl;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.ui.*;
 
 /**
- * Widget to embed MP3 media using Flash Plugin
+ * Widget to embed Flash plugin for FLV flash video playback
  *
  * <h3>Usage Example</h3>
  *
@@ -32,14 +32,14 @@ import com.google.gwt.user.client.ui.*;
  * Widget player = null;
  * try {
  *      // create the player
- *      player = new FlashMP3Player("www.example.com/mediafile.mp3");
+ *      player = new FlashVideoPlayer("www.example.com/mediafile.flv", false, "200px", "250px");
  * } catch(LoadException e) {
  *      // catch loading exception and alert user
  *      Window.alert("An error occured while loading");
  * } catch(PluginVersionException e) {
  *      // catch plugin version exception and alert user to download plugin first.
  *      // An option is to use the utility method in PlayerUtil class.
- *      player = PlayerUtil.getMissingPluginNotice(Plugin.FlashMP3Player, "Missing Plugin",
+ *      player = PlayerUtil.getMissingPluginNotice(Plugin.SWFWidget, "Missing Plugin",
  *              ".. some nice message telling the user to click and download plugin first ..",
  *              false);
  * } catch(PluginNotFoundException e) {
@@ -52,24 +52,27 @@ import com.google.gwt.user.client.ui.*;
  * </pre></code>
  *
  * @author Sikirulai Braheem
+ * @since 0.6
  */
-public class FlashMP3Player extends AbstractMediaPlayer {
+public class FlashVideoPlayer extends AbstractMediaPlayer {
 
-    private static FlashMP3PlayerImpl impl = new FlashMP3PlayerImpl();
-    private String playerId;
-    private boolean isEmbedded;
+    private static FlashVideoPlayerImpl impl = new FlashVideoPlayerImpl();
+    private String playerId,  mediaURL;
+    private boolean autoplay,  isEmbedded;
     private Logger logger;
+    private FlatCustomControl control;
 
     /**
-     * Constructs <code>FlashMP3Player</code> with the specified {@code height} and
-     * {@code width} to playback media located at {@code mediaURL}. Media playback
+     * Constructs <code>FlashVideoPlayer</code> with the specified {@code height} and
+     * {@code width} to playback an FLV media located at {@code mediaURL}. Media playback
      * begins automatically if {@code autoplay} is {@code true}.
      *
      * <p> {@code height} and {@code width} are specified as CSS units. A value of {@code null}
      * for {@code height} or {@code width} puts the player in embedded mode.  When in embedded mode,
-     * the player is made invisible on the page and media state events are never handled by this player
-     * but rather propagated to registered listeners only.  This is desired especially when used
-     * with custom controls.
+     * the player is made invisible on the page and media state events are propagated to registered
+     * listeners only.  This is desired especially when used with custom sound controls.  For custom
+     * video control, specify valid CSS values for {@code height} and {@code width} but hide the
+     * player controls with {@code setControllerVisible(false)}.
      *
      * @param mediaURL the URL of the media to playback
      * @param autoplay {@code true} to start playing automatically, {@code false} otherwise
@@ -82,14 +85,22 @@ public class FlashMP3Player extends AbstractMediaPlayer {
      * @throws com.bramosystems.gwt.player.client.PluginNotFoundException if the Flash plugin is not
      * installed on the client.
      */
-    public FlashMP3Player(String mediaURL, boolean autoplay, String height, String width)
+    public FlashVideoPlayer(String mediaURL, boolean autoplay, String height, String width)
             throws PluginNotFoundException, PluginVersionException, LoadException {
 
-        SWFWidget swf = new SWFWidget(GWT.getModuleBaseURL() + "MP3Player.swf",
-                "0px", "0px", PluginVersion.get(9, 0, 0));
+        this.autoplay = autoplay;
+        this.mediaURL = mediaURL;
+        isEmbedded = (height == null) || (width == null);
+
+        if (isEmbedded) {
+            height = "0px";
+            width = "0px";
+        }
+
+        SWFWidget swf = new SWFWidget(GWT.getModuleBaseURL() + "VideoPlayer.swf",
+                width, height, PluginVersion.get(9, 0, 0));
         playerId = swf.getId();
         swf.addProperty("flashVars", "playerId=" + playerId);
-        swf.addProperty("allowScriptAccess", "sameDomain");
 
         impl.init(playerId, mediaURL, autoplay, new MediaStateListener() {
 
@@ -129,75 +140,33 @@ public class FlashMP3Player extends AbstractMediaPlayer {
         VerticalPanel hp = new VerticalPanel();
         hp.add(swf);
 
-        isEmbedded = (height == null) || (width == null);
         if (!isEmbedded) {
-            // placed to bypass UI setup in embedded cases especially
-            // when used with CustomPlayer.
+            control = new FlatCustomControl(this);
+            hp.add(control);
+
             logger = new Logger();
             logger.setVisible(false);
-            hp.add(new FlatCustomControl(this));
             hp.add(logger);
             addMediaStateListener(new MediaStateListenerAdapter() {
 
                 @Override
                 public void onError(String description) {
-                    logger.log(description, false);
+                    log(description, false);
                 }
 
                 @Override
                 public void onDebug(String message) {
-                    logger.log(message, false);
+                    log(message, false);
                 }
 
                 @Override
                 public void onMediaInfoAvailable(MediaInfo info) {
-                    logger.log(info.asHTMLString(), true);
+                    log(info.asHTMLString(), true);
                 }
             });
         }
         initWidget(hp);
-        setWidth(isEmbedded ? "0px" : width);
-    }
-
-    /**
-     * Constructs <code>FlashMP3Player</code> to automatically playback media located at
-     * {@code mediaURL} using the default height of 20px and width of 100%.
-     *
-     * <p> This is the same as calling {@code FlashMP3Player(mediaURL, true, "20px", "100%")}
-     *
-     * @param mediaURL the URL of the media to playback
-     *
-     * @throws com.bramosystems.gwt.player.client.LoadException if an error occurs while loading the media.
-     * @throws com.bramosystems.gwt.player.client.PluginVersionException if the required
-     * Flash plugin version is not installed on the client.
-     * @throws com.bramosystems.gwt.player.client.PluginNotFoundException if the Flash plugin is not
-     * installed on the client.
-     *
-     */
-    public FlashMP3Player(String mediaURL) throws PluginNotFoundException,
-            PluginVersionException, LoadException {
-        this(mediaURL, true, "20px", "100%");
-    }
-
-    /**
-     * Constructs <code>FlashMP3Player</code> to playback media located at {@code mediaURL}
-     * using the default height of 20px and width of 100%. Media playback begins
-     * automatically if {@code autoplay} is {@code true}.
-     *
-     * <p> This is the same as calling {@code FlashMP3Player(mediaURL, autoplay, "20px", "100%")}
-     *
-     * @param mediaURL the URL of the media to playback
-     * @param autoplay {@code true} to start playing automatically, {@code false} otherwise
-     *
-     * @throws com.bramosystems.gwt.player.client.LoadException if an error occurs while loading the media.
-     * @throws com.bramosystems.gwt.player.client.PluginVersionException if the required
-     * Flash plugin version is not installed on the client.
-     * @throws com.bramosystems.gwt.player.client.PluginNotFoundException if the Flash plugin is not
-     * installed on the client.
-     */
-    public FlashMP3Player(String mediaURL, boolean autoplay) throws PluginNotFoundException,
-            PluginVersionException, LoadException {
-        this(mediaURL, autoplay, "20px", "100%");
+        setWidth(width);
     }
 
     public void close() {
@@ -269,13 +238,28 @@ public class FlashMP3Player extends AbstractMediaPlayer {
         }
     }
 
+    private void log(String message, boolean asHTML) {
+        if (!isEmbedded && logger.isVisible()) {
+            logger.log(message, asHTML);
+        }
+    }
 
     /**
-     * Returns the remaining number of times this player loops playback before stopping.
+     * Displays or hides the player controls.
      */
     @Override
-    public int getLoopCount() {
-        return impl.getLoopCount(playerId);
+    public void setControllerVisible(boolean show) {
+        if (!isEmbedded) {
+            control.setVisible(show);
+        }
+    }
+
+    /**
+     * Checks whether the player controls are visible.
+     */
+    @Override
+    public boolean isControllerVisible() {
+        return control.isVisible();
     }
 
     /**
@@ -285,4 +269,14 @@ public class FlashMP3Player extends AbstractMediaPlayer {
     public void setLoopCount(int loop) {
         impl.setLoopCount(playerId, loop);
     }
+
+    /**
+     * Returns the remaining number of times this player loops playback before stopping.
+     */
+    @Override
+    public int getLoopCount() {
+        return impl.getLoopCount(playerId);
+    }
+
+
 }
