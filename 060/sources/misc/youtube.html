@@ -1,0 +1,27 @@
+<html>
+    <head>
+        <title></title>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    </head>
+    <body>
+        <div class="section-desc">Embedding YouTube video (online)</div>
+        <div class="media-desc">President Barack Obama on election night</div>
+        <pre><code>Widget mp = null;
+try {
+    SWFWidget swf = new SWFWidget(
+     "http://www.youtube.com/v/HfHbw3n0EIM" +
+     "&hl=en&fs=1", "100%", "350px",
+     PluginVersion.get(9, 0, 0));
+    swf.addProperty("bgcolor", "#000000");
+    mp = swf;
+} catch (PluginVersionException ex) {
+    mp = SWFWidget.getMissingPluginNotice(
+            PluginVersion.get(9, 0, 0));
+} catch (PluginNotFoundException ex) {
+    mp = SWFWidget.getMissingPluginNotice(
+            PluginVersion.get(9, 0, 0));
+}
+panel.add(mp);
+        </code></pre>
+    </body>
+</html>

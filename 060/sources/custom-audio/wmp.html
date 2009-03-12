@@ -1,0 +1,27 @@
+<html>
+    <head>
+        <title></title>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    </head>
+    <body>
+        <div class="section-desc">Playing sound with Windows Media Player plugin</div>
+        <div class="media-desc"></div>
+        <pre><code>Widget c = null;
+try {
+    c = new Capsule(Plugin.WinMediaPlayer,
+            GWT.getHostPageBaseURL() +
+            "media/o-na-som.mp3", false);
+} catch (LoadException ex) {
+    Window.alert("Load exp");
+} catch (PluginVersionException ex) {
+    c = PlayerUtil.getMissingPluginNotice(
+            Plugin.WinMediaPlayer,
+            ex.getRequiredVersion());
+} catch (PluginNotFoundException ex) {
+    c = PlayerUtil.getMissingPluginNotice(
+            Plugin.WinMediaPlayer);
+}
+panel.add(c);
+        </code></pre>
+    </body>
+</html>

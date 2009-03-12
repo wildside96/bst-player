@@ -1,0 +1,28 @@
+<html>
+    <head>
+        <title></title>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    </head>
+    <body>
+        <div class="section-desc">Playing with Flash Player plugin</div>
+        <pre><code>Widget v = null;
+try {
+    v = new FlatVideoPlayer(
+            Plugin.FlashVideoPlayer,
+            GWT.getHostPageBaseURL() +
+            "media/sample.mov",
+            false, "300px", "100%");
+} catch (LoadException ex) {
+    Window.alert("Load exp");
+} catch (PluginVersionException ex) {
+    v = PlayerUtil.getMissingPluginNotice(
+            Plugin.QuickTimePlayer,
+            ex.getRequiredVersion());
+} catch (PluginNotFoundException ex) {
+    v = PlayerUtil.getMissingPluginNotice(
+            Plugin.QuickTimePlayer);
+}
+panel.add(v);
+        </code></pre>
+    </body>
+</html>

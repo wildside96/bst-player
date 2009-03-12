@@ -1,0 +1,29 @@
+<html>
+    <head>
+        <title></title>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    </head>
+    <body>
+        <div class="section-desc">Just play my file!</div>
+        <div class="media-desc"></div>
+        <pre><code>Widget w = null;
+try {
+    AbstractMediaPlayer mp = PlayerUtil.getPlayer(
+            GWT.getHostPageBaseURL() +
+            "media/o-na-som.mp3",
+            false, "50px", "100%");
+    mp.showLogger(true);
+    w = mp;
+} catch (LoadException ex) {
+    Window.alert("Load Exp");
+} catch (PluginVersionException ex) {
+    w = PlayerUtil.getMissingPluginNotice(
+            Plugin.Auto);
+} catch (PluginNotFoundException ex) {
+    w = PlayerUtil.getMissingPluginNotice(
+            Plugin.Auto);
+}
+panel.add(w);
+        </code></pre>
+    </body>
+</html>

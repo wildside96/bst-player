@@ -1,0 +1,29 @@
+<html>
+    <head>
+        <title></title>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    </head>
+    <body>
+        <div class="section-desc">Embedding video</div>
+        <div class="media-desc">Islamic Jihad (online)</div>
+            <pre><code>Widget wmp = null;
+try {
+   WinMediaPlayer p = new WinMediaPlayer(
+        "http://bst-player.googlecode.com/" +
+        "svn/tags/showcase/media/" +
+        "islamic-jihad.wmv", false,
+        "350px", "100%");
+    p.showLogger(true);
+    wmp = p;
+} catch (LoadException ex) {
+    Window.alert("Load exp");
+} catch (PluginVersionException ex) {
+    wmp = PlayerUtil.getMissingPluginNotice(
+            Plugin.WinMediaPlayer);
+} catch (PluginNotFoundException ex) {
+    wmp = PlayerUtil.getMissingPluginNotice(
+            Plugin.WinMediaPlayer);
+}
+panel.add(wmp);</code></pre>
+    </body>
+</html>

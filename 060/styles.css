@@ -1,0 +1,90 @@
+/* 
+Document   : styles
+Created on : Jan 29, 2009, 10:50:07 PM
+Author     : Sikirulai Braheem <sbraheem at gmail.com>
+Description:
+Purpose of the stylesheet follows.
+*/
+
+body {
+    font-family: Georgia,'Times New Roman',times,serif;
+    font-size: 12pt;
+    padding: 10px;
+}
+
+pre code {
+    display: block;
+	background-color: #f5f5f5;
+	padding-left: 10px;
+	border-left: solid 1px #ccc;
+    font-size: 11pt;
+    color: #4b4b93;
+}
+
+.section-desc {
+	background-color: #f5f5f5;
+    font-weight: bold;
+    color: #4b4b93;
+
+}
+
+.showcase-Banner {
+    margin-bottom: 20px;
+    font-size: 24pt;
+    color: #4b4b93;
+    font-weight: bold;
+    border-bottom-style: solid;
+    border-bottom-width: 5px;
+    border-bottom-color: #4b4b93;
+}
+
+.showcase-Summary {
+    background-color: #b1b1db;
+    font-size: 16pt;
+    padding: 10px;
+}
+
+.showcase-Case {
+    border-style: solid;
+    border-width: 3px;
+    border-color: #b1b1db;
+    margin-bottom: 20px;
+}
+
+.player-MissingPlugin {
+    border-style: solid;
+    border-width: 3px;
+    border-color: #b1b1db;
+    font-size: 10pt;
+}
+
+.player-MissingPlugin-title {
+    background-color: #b1b1db;
+    text-indent: 5px;
+    font-weight: bold;
+}
+
+.player-MissingPlugin-message {
+    padding: 5px;
+}
+
+.gwt-TabBar .gwt-TabBarItem {
+    padding: 5px;
+    margin-right: 5px;
+    font-weight: bold;
+    color: #4b4b93;
+    border: thin groove #cccccc;
+    background-color: #b1b1b1;
+    cursor: pointer;
+ }
+
+.gwt-TabBar .gwt-TabBarItem-selected {
+    background-color: #b1b1db;
+    border-bottom: none;
+}
+
+.gwt-TabBar {}
+.gwt-TabBar .gwt-TabBarFirst {}
+.gwt-TabBar .gwt-TabBarRest { }
+.gwt-TabBar .gwt-TabBarItem-wrapper {}
+.gwt-TabBar .gwt-TabBarItem-wrapper-selected {}
