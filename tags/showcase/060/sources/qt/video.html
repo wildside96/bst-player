@@ -1,0 +1,29 @@
+<html>
+    <head>
+        <title></title>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    </head>
+    <body>
+        <div class="section-desc">Embedding video</div>
+        <div class="media-desc">17 Again movie trailer (Online)</div>
+            <pre><code>Widget qt = null;
+try {
+    QuickTimePlayer p = new QuickTimePlayer(
+       "http://movies.apple.com/movies/wb/" +
+       "17again/17again-tlr2_h.480.mov",
+       false, "220px", "100%");
+    p.showLogger(true);
+    qt = p;
+} catch (LoadException ex) {
+    Window.alert("Load exp");
+} catch (PluginVersionException ex) {
+    qt = PlayerUtil.getMissingPluginNotice(
+            Plugin.QuickTimePlayer,
+            ex.getRequiredVersion());
+} catch (PluginNotFoundException ex) {
+    qt = PlayerUtil.getMissingPluginNotice(
+            Plugin.QuickTimePlayer);
+}
+panel.add(qt);</code></pre>
+    </body>
+</html>

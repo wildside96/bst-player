@@ -1,0 +1,28 @@
+<html>
+    <head>
+        <title></title>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    </head>
+    <body>
+        <div class="section-desc">Playing sound with logger widget visible</div>
+        <div class="media-desc"></div>
+        <pre><code>Widget qt = null;
+try {
+    QuickTimePlayer p = new QuickTimePlayer(
+        GWT.getHostPageBaseURL() +
+        "media/o-na-som.mp3", false);
+    p.showLogger(true);
+    qt = p;
+} catch (LoadException ex) {
+    Window.alert("Load exp");
+} catch (PluginVersionException ex) {
+    qt = PlayerUtil.getMissingPluginNotice(
+            Plugin.QuickTimePlayer);
+} catch (PluginNotFoundException ex) {
+    qt = PlayerUtil.getMissingPluginNotice(
+            Plugin.QuickTimePlayer);
+}
+panel.add(qt);
+        </code></pre>
+    </body>
+</html>

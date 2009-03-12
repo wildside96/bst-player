@@ -1,0 +1,27 @@
+<html>
+    <head>
+        <title></title>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    </head>
+    <body>
+        <div class="section-desc">Embedding Google Video (online)</div>
+        <div class="media-desc">Bill Clinton at the Nigerian National Assembly</div>
+        <pre><code>Widget mp = null;
+try {
+    SWFWidget swf = new SWFWidget(
+     "http://video.google.com/googleplayer.swf?" +
+     "docid=-8228484564915781123&hl=en&fs=true",
+     "100%", "350px", PluginVersion.get(9, 0, 0));
+    swf.addProperty("bgcolor", "#000000");
+    mp = swf;
+} catch (PluginVersionException ex) {
+    mp = SWFWidget.getMissingPluginNotice(
+            PluginVersion.get(9, 0, 0));
+} catch (PluginNotFoundException ex) {
+    mp = SWFWidget.getMissingPluginNotice(
+            PluginVersion.get(9, 0, 0));
+}
+panel.add(mp);
+        </code></pre>
+    </body>
+</html>
