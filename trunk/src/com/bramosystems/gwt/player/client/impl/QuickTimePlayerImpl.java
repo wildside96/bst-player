@@ -55,8 +55,9 @@ public class QuickTimePlayerImpl {
         return "<embed id='" + playerId + "' name='" + playerId + "' " +
                 "type='video/quicktime' postdomevents='true' kioskmode='true' " +
                 "autoplay='" + autoplay + "' src='" + mediaSrc + "' " +
-                "controller='" + showControls + "' EnableJavaScript='true' " +
-                "width='" + width + "' height='" + height + "'></embed>";
+                "CONTROLLER='" + showControls + "' EnableJavaScript='true' " +
+                "width='" + width + "' height='" + height + "' " +
+                "bgcolor='#000000' showlogo='false'></embed>";
     }
 
     public final boolean isPlayerAvailable(String playerId) {
@@ -116,7 +117,7 @@ public class QuickTimePlayerImpl {
         if (jso[playerId].loopCount < 0) {
             jso[playerId].statPlay();
         } else {
-            if (jso[playerId].loopCount > 0) {
+            if (jso[playerId].loopCount > 1) {
                 jso[playerId].statPlay();
                 jso[playerId].loopCount--;
             } else {

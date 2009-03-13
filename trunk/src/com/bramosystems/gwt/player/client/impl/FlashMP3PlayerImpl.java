@@ -157,7 +157,7 @@ public class FlashMP3PlayerImpl {
         if (jso[playerId].loopCount < 0) {
             jso[playerId].statPlay();
         } else {
-            if (jso[playerId].loopCount > 0) {
+            if (jso[playerId].loopCount > 1) {
                 jso[playerId].statPlay();
                 jso[playerId].loopCount--;
             } else {
