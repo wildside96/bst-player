@@ -5,11 +5,12 @@
     </head>
     <body>
         <div class="section-desc">Embedding Flash video</div>
-        <pre><code>Widget mp = null;
+        <div class="media-desc">vixy.net Podcaster Demo (online)</div>
+<pre><code>Widget mp = null;
 try {
     FlashVideoPlayer v1 = new FlashVideoPlayer(
-        GWT.getHostPageBaseURL() +
-        "media/cafe.flv",
+        "http://vixy.net/flv/vixy_net_" +
+        "podcaster_demo_director.flv",
         false, "350px", "100%");
     v1.showLogger(true);
     mp = v1;

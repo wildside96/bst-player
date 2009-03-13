@@ -5,13 +5,13 @@
     </head>
     <body>
         <div class="section-desc">Embedding video</div>
-        <div class="media-desc">17 Again movie trailer (Online)</div>
+        <div class="media-desc">Star Trek Movie Trailer (online)</div>
             <pre><code>Widget qt = null;
 try {
     QuickTimePlayer p = new QuickTimePlayer(
-       "http://movies.apple.com/movies/wb/" +
-       "17again/17again-tlr2_h.480.mov",
-       false, "220px", "100%");
+       "http://movies.apple.com/movies/" +
+       "paramount/star_trek/startrek-" +
+       "tlr3_h.640.mov", false, "220px", "100%");
     p.showLogger(true);
     qt = p;
 } catch (LoadException ex) {
