@@ -4,15 +4,15 @@
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     </head>
     <body>
-        <div class="section-desc">Playing forever!</div>
+        <div class="section-desc">Play media twice!</div>
         <div class="media-desc"></div>
         <pre><code>Widget w = null;
 try {
     AbstractMediaPlayer mp = PlayerUtil.getPlayer(
             GWT.getHostPageBaseURL() +
-            "media/applause.mp3",
+            "media/o-na-som.mp3",
             false, "50px", "100%");
-    mp.setLoopCount(-1);
+    mp.setLoopCount(2);
     mp.showLogger(true);
     w = mp;
 } catch (LoadException ex) {
