@@ -40,6 +40,8 @@ public class QuickTimePlayerImplIE extends QuickTimePlayerImpl {
                 "<param name='src' value='" + mediaSrc + "' />" +
                 "<param name='autoplay' value='" + autoplay + "' />" +
                 "<param name='controller' value='" + showControls + "' />" +
+                "<param name='bgcolor' value='#000000' />" +
+                "<param name='showlogo' value='false' />" +
                 "<param name='KioskMode' value='true' >" +
                 "<param name='postdomevents' value='true' >" +
                 "</object>";
@@ -60,21 +62,21 @@ public class QuickTimePlayerImplIE extends QuickTimePlayerImpl {
         playr.attachEvent("onqt_begin", qtbegin);
         playr.attachEvent("onqt_load", qtload);
 
-//        playr.attachEvent('onqt_ended', function(evt) {
-//            jso[playerId].soundComplete();
-//        });
-//        playr.attachEvent('onqt_error', function(evt) {
-//            jso[playerId].errorr();
-//        });
-//        playr.attachEvent('onqt_progress', function(evt) {
-//            jso[playerId].loadingProgress();
-//        });
-//        playr.attachEvent('onqt_canplay', function(evt) {
-//            jso[playerId].playerReady();
-//        });
-//        playr.attachEvent('onqt_play', function(evt) {
-//            $wnd.alert('qt play');
-//            jso[playerId].playStarted();
-//        });
+        playr.attachEvent('onqt_ended', function(evt) {
+            jso[playerId].soundComplete();
+        });
+        playr.attachEvent('onqt_error', function(evt) {
+            jso[playerId].errorr();
+        });
+        playr.attachEvent('onqt_progress', function(evt) {
+            jso[playerId].loadingProgress();
+        });
+        playr.attachEvent('onqt_canplay', function(evt) {
+            jso[playerId].playerReady();
+        });
+        playr.attachEvent('onqt_play', function(evt) {
+            $wnd.alert('qt play');
+            jso[playerId].playStarted();
+        });
     }-*/;
 }

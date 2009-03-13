@@ -211,7 +211,7 @@ public class WinMediaPlayerImpl {
                 if (jso[playerId].loopCount < 0) {
                     jso[playerId].doLoop = true;
                 } else {
-                    if (jso[playerId].loopCount > 0) {
+                    if (jso[playerId].loopCount > 1) {
                         jso[playerId].doLoop = true;
                         jso[playerId].loopCount--;
                     } else {
@@ -319,7 +319,7 @@ public class WinMediaPlayerImpl {
     private native void playImpl(JavaScriptObject jso, String playerId) /*-{
     try {
      var playr = $doc.getElementById(playerId);
-     playr.controls.play();
+        playr.controls.play();
     } catch(e) {
      jso[playerId].errorr()
     }

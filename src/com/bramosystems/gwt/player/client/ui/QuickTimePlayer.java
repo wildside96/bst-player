@@ -237,7 +237,7 @@ public final class QuickTimePlayer extends AbstractMediaPlayer {
                 isLoaded = true;
             }
         };
-        t.schedule(200);            // IE workarround...
+        t.schedule(500);            // IE workarround...
     }
 
     /**

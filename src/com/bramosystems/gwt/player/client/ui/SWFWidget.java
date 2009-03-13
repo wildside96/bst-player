@@ -156,7 +156,7 @@ public class SWFWidget extends Composite {
                 impl.injectScript(playerId, swfURL, getOffsetWidth(), getOffsetHeight(), params);
             }
         };
-        t.schedule(200);            // IE workarround...
+        t.schedule(500);   // IE & Opera workarround...
     }
 
     /**
