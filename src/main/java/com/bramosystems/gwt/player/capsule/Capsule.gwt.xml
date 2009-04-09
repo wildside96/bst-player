@@ -16,5 +16,6 @@
 <!--                                                                        -->
 
 <module>
-    <inherits name="com.bramosystems.gwt.player.capsule.Capsule"/>
+    <inherits name="com.bramosystems.gwt.player.core.Core"/>
+    <public path="publicc" />
 </module>
