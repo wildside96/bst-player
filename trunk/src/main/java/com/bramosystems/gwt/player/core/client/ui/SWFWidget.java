@@ -79,11 +79,8 @@ public class SWFWidget extends Composite {
      * @param width the width of the player.
      * @param minFlashVersion minimum version of the required Flash plugin
      *
-     * @throws com.bramosystems.gwt.player.client.LoadException if an error occurs while loading the media.
-     * @throws com.bramosystems.gwt.player.client.PluginVersionException if the required
-     * Flash plugin version is not installed on the client.
-     * @throws com.bramosystems.gwt.player.client.PluginNotFoundException if the Flash plugin is not
-     * installed on the client.
+     * @throws PluginVersionException if the required Flash plugin version is not installed on the client.
+     * @throws PluginNotFoundException if the Flash plugin is not installed on the client.
      * @throws NullPointerException if {@code height} or {@code width} is null.
      *
      * @see PluginVersion

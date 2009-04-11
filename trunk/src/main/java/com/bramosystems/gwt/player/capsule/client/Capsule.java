@@ -24,7 +24,6 @@ import com.bramosystems.gwt.player.core.client.PlayException;
 import com.bramosystems.gwt.player.core.client.MediaStateListener;
 import com.bramosystems.gwt.player.core.client.PluginNotFoundException;
 import com.bramosystems.gwt.player.core.client.Plugin;
-import com.bramosystems.gwt.player.core.client.ui.Logger;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Timer;
@@ -68,7 +67,6 @@ public class Capsule extends CustomAudioPlayer {
     private ProgressBar progress;
     private PushButton play,  stop;
     private Timer playTimer,  infoTimer;
-    private Logger logger;
     private PlayState playState;
     private VolumeControl vc;
     private MediaInfo mInfo;
@@ -81,12 +79,9 @@ public class Capsule extends CustomAudioPlayer {
      *
      * @param mediaURL the URL of the media to playback
      *
-     * @throws com.bramosystems.gwt.player.client.LoadException if an error occurs while
-     * loading the media.
-     * @throws com.bramosystems.gwt.player.client.PluginVersionException if the required
-     * plugin version is not installed on the client.
-     * @throws com.bramosystems.gwt.player.client.PluginNotFoundException if the
-     * plugin is not installed on the client.
+     * @throws LoadException if an error occurs while loading the media.
+     * @throws PluginVersionException if the required plugin version is not installed on the client.
+     * @throws PluginNotFoundException if the plugin is not installed on the client.
      */
     public Capsule(String mediaURL) throws PluginNotFoundException,
             PluginVersionException, LoadException {
@@ -100,12 +95,9 @@ public class Capsule extends CustomAudioPlayer {
      * @param mediaURL the URL of the media to playback
      * @param autoplay {@code true} to start playing automatically, {@code false} otherwise
      *
-     * @throws com.bramosystems.gwt.player.client.LoadException if an error occurs while
-     * loading the media.
-     * @throws com.bramosystems.gwt.player.client.PluginVersionException if the required
-     * plugin version is not installed on the client.
-     * @throws com.bramosystems.gwt.player.client.PluginNotFoundException if the
-     * plugin is not installed on the client.
+     * @throws LoadException if an error occurs while loading the media.
+     * @throws PluginVersionException if the required plugin version is not installed on the client.
+     * @throws PluginNotFoundException if the plugin is not installed on the client.
      */
     public Capsule(String mediaURL, boolean autoplay) throws PluginNotFoundException,
             PluginVersionException, LoadException {
@@ -121,12 +113,9 @@ public class Capsule extends CustomAudioPlayer {
      * @param mediaURL the URL of the media to playback
      * @param autoplay {@code true} to start playing automatically, {@code false} otherwise
      *
-     * @throws com.bramosystems.gwt.player.client.LoadException if an error occurs while
-     * loading the media.
-     * @throws com.bramosystems.gwt.player.client.PluginVersionException if the required
-     * plugin version is not installed on the client.
-     * @throws com.bramosystems.gwt.player.client.PluginNotFoundException if the
-     * plugin is not installed on the client.
+     * @throws LoadException if an error occurs while loading the media.
+     * @throws PluginVersionException if the required plugin version is not installed on the client.
+     * @throws PluginNotFoundException if the plugin is not installed on the client.
      *
      * @see Plugin
      */
@@ -278,17 +267,7 @@ public class Capsule extends CustomAudioPlayer {
         DOM.setStyleAttribute(main.getElement(), "background", "url(" +
                 GWT.getModuleBaseURL() + "capsule-bground.png) repeat-x");
 
-        logger = new Logger();
-        logger.setVisible(false);
-
-        VerticalPanel hp = new VerticalPanel();
-        hp.setVerticalAlignment(VerticalPanel.ALIGN_MIDDLE);
-        hp.setWidth("100%");
-        hp.add(main);
-        hp.add(logger);
-        hp.setCellHorizontalAlignment(main, VerticalPanel.ALIGN_CENTER);
-
-        setPlayerControlWidget(hp);
+        setPlayerControlWidget(main);
         setWidth("100%");
     }
 
@@ -299,11 +278,6 @@ public class Capsule extends CustomAudioPlayer {
     protected void onUnload() {
         playTimer.cancel();
         infoTimer.cancel();
-    }
-
-    @Override
-    public void showLogger(boolean show) {
-        logger.setVisible(show);
     }
 
     private void toPlayState(PlayState state) {

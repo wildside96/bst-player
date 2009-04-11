@@ -19,6 +19,7 @@ import com.bramosystems.gwt.player.core.client.*;
 import com.bramosystems.gwt.player.core.client.ui.*;
 import com.google.gwt.user.client.ui.AbsolutePanel;
 import com.google.gwt.user.client.ui.SimplePanel;
+import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 
 /**
@@ -37,6 +38,13 @@ public abstract class CustomAudioPlayer extends AbstractMediaPlayer {
     private SimplePanel container;
 
     /**
+     * The Logger widget attached to this player
+     */
+    protected final Logger logger = new Logger();
+
+    /**
+     * @deprecated
+     * 
      * Constructs <code>CustomAudioPlayer</code> with 100px height and 100% width
      * to playback media located at {@code mediaURL} using the specified
      * {@code playerPlugin}. Media playback begins automatically if
@@ -46,11 +54,9 @@ public abstract class CustomAudioPlayer extends AbstractMediaPlayer {
      * @param mediaURL the URL of the media to playback
      * @param autoplay {@code true} to start playing automatically, {@code false} otherwise
      *
-     * @throws com.bramosystems.gwt.player.client.LoadException if an error occurs while loading the media.
-     * @throws com.bramosystems.gwt.player.client.PluginVersionException if the required
-     * player plugin version is not installed on the client.
-     * @throws com.bramosystems.gwt.player.client.PluginNotFoundException if the player plugin is not
-     * installed on the client.
+     * @throws LoadException if an error occurs while loading the media.
+     * @throws PluginVersionException if the required player plugin version is not installed on the client.
+     * @throws PluginNotFoundException if the player plugin is not installed on the client.
      *
      * @see Plugin
      * @see QuickTimePlayer
@@ -59,7 +65,7 @@ public abstract class CustomAudioPlayer extends AbstractMediaPlayer {
      */
     public CustomAudioPlayer(Plugin playerPlugin, String mediaURL, boolean autoplay)
             throws PluginNotFoundException, PluginVersionException, LoadException {
-        this(playerPlugin, mediaURL, autoplay, "100%", "100px");
+        this(playerPlugin, mediaURL, autoplay, "100px", "100%");
     }
 
     /**
@@ -74,11 +80,9 @@ public abstract class CustomAudioPlayer extends AbstractMediaPlayer {
      * @param height the height of the player
      * @param width the width of the player.
      *
-     * @throws com.bramosystems.gwt.player.client.LoadException if an error occurs while loading the media.
-     * @throws com.bramosystems.gwt.player.client.PluginVersionException if the required
-     * player plugin version is not installed on the client.
-     * @throws com.bramosystems.gwt.player.client.PluginNotFoundException if the player plugin is not
-     * installed on the client.
+     * @throws LoadException if an error occurs while loading the media.
+     * @throws PluginVersionException if the required player plugin version is not installed on the client.
+     * @throws PluginNotFoundException if the player plugin is not installed on the client.
      *
      * @see Plugin
      * @see QuickTimePlayer
@@ -144,12 +148,20 @@ public abstract class CustomAudioPlayer extends AbstractMediaPlayer {
         container = new SimplePanel();
         container.setWidth("100%");
 
+        logger.setVisible(false);
+
         AbsolutePanel hp = new AbsolutePanel();
         hp.setSize(width, height);
         hp.add(engine, 0, 0);
         hp.add(container, 0, 0);
 
-        super.initWidget(hp);
+        VerticalPanel vp = new VerticalPanel();
+        vp.setVerticalAlignment(VerticalPanel.ALIGN_MIDDLE);
+        vp.setWidth("100%");
+        vp.add(hp);
+        vp.add(logger);
+        vp.setCellHorizontalAlignment(hp, VerticalPanel.ALIGN_CENTER);
+        super.initWidget(vp);
     }
 
     /**
@@ -233,4 +245,8 @@ public abstract class CustomAudioPlayer extends AbstractMediaPlayer {
         engine.setLoopCount(loop);
     }
 
+    @Override
+    public void showLogger(boolean show) {
+        logger.setVisible(show);
+    }
 }

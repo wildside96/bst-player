@@ -19,7 +19,6 @@ import com.bramosystems.gwt.player.core.client.PlayerUtil;
 import com.bramosystems.gwt.player.core.client.PlayException;
 import com.bramosystems.gwt.player.core.client.MediaStateListenerAdapter;
 import com.bramosystems.gwt.player.core.client.AbstractMediaPlayer;
-import com.bramosystems.gwt.player.core.client.ui.FlashImages;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Timer;
@@ -35,7 +34,7 @@ import com.google.gwt.user.client.ui.*;
  */
 public class FlatCustomControl extends Composite {
 
-    private FlashImages imgPack = GWT.create(FlashImages.class);
+    private ImagePack imgPack = GWT.create(ImagePack.class);
     private String mediaDurationString;
     private PushButton play,  stop;
     private Timer playTimer;
@@ -229,5 +228,26 @@ public class FlatCustomControl extends Composite {
     private enum PlayState {
 
         Playing, Pause, Stop;
+    }
+
+    public interface ImagePack extends ImageBundle {
+
+        public AbstractImagePrototype pause();
+
+        public AbstractImagePrototype pauseHover();
+
+        public AbstractImagePrototype play();
+
+        public AbstractImagePrototype playHover();
+
+        public AbstractImagePrototype playDisabled();
+
+        public AbstractImagePrototype stop();
+
+        public AbstractImagePrototype stopDisabled();
+
+        public AbstractImagePrototype stopHover();
+
+        public AbstractImagePrototype spk();
     }
 }
