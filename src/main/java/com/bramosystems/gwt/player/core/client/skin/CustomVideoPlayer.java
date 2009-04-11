@@ -57,11 +57,9 @@ public abstract class CustomVideoPlayer extends AbstractMediaPlayer {
      * @param height the height of the player
      * @param width the width of the player.
      *
-     * @throws com.bramosystems.gwt.player.client.LoadException if an error occurs while loading the media.
-     * @throws com.bramosystems.gwt.player.client.PluginVersionException if the required
-     * player plugin version is not installed on the client.
-     * @throws com.bramosystems.gwt.player.client.PluginNotFoundException if the player plugin is not
-     * installed on the client.
+     * @throws LoadException if an error occurs while loading the media.
+     * @throws PluginVersionException if the required player plugin version is not installed on the client.
+     * @throws PluginNotFoundException if the player plugin is not installed on the client.
      * @throws NullPointerException if {@code height} or {@code width} is {@code null}
      *
      * @see Plugin

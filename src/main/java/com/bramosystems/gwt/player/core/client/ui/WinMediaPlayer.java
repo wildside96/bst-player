@@ -93,11 +93,9 @@ public final class WinMediaPlayer extends AbstractMediaPlayer {
      * @param height the height of the player
      * @param width the width of the player.
      *
-     * @throws com.bramosystems.gwt.player.client.LoadException if an error occurs while loading the media.
-     * @throws com.bramosystems.gwt.player.client.PluginVersionException if the required
-     * Windows Media Player plugin version is not installed on the client.
-     * @throws com.bramosystems.gwt.player.client.PluginNotFoundException if the Windows Media
-     * Player plugin is not installed on the client.
+     * @throws LoadException if an error occurs while loading the media.
+     * @throws PluginVersionException if the required Windows Media Player plugin version is not installed on the client.
+     * @throws PluginNotFoundException if the Windows Media Player plugin is not installed on the client.
      */
     public WinMediaPlayer(String mediaURL, boolean autoplay, String height, String width)
             throws LoadException, PluginNotFoundException, PluginVersionException {
@@ -198,11 +196,9 @@ public final class WinMediaPlayer extends AbstractMediaPlayer {
      *
      * @param mediaURL the URL of the media to playback
      *
-     * @throws com.bramosystems.gwt.player.client.LoadException if an error occurs while loading the media.
-     * @throws com.bramosystems.gwt.player.client.PluginVersionException if the required
-     * Windows Media Player plugin version is not installed on the client.
-     * @throws com.bramosystems.gwt.player.client.PluginNotFoundException if the Windows Media
-     * Player plugin is not installed on the client.
+     * @throws LoadException if an error occurs while loading the media.
+     * @throws PluginVersionException if the required Windows Media Player plugin version is not installed on the client.
+     * @throws PluginNotFoundException if the Windows Media Player plugin is not installed on the client.
      */
     public WinMediaPlayer(String mediaURL) throws LoadException,
             PluginNotFoundException, PluginVersionException {
@@ -219,11 +215,9 @@ public final class WinMediaPlayer extends AbstractMediaPlayer {
      * @param mediaURL the URL of the media to playback
      * @param autoplay {@code true} to start playing automatically, {@code false} otherwise
      *
-     * @throws com.bramosystems.gwt.player.client.LoadException if an error occurs while loading the media.
-     * @throws com.bramosystems.gwt.player.client.PluginVersionException if the required
-     * Windows Media Player plugin version is not installed on the client.
-     * @throws com.bramosystems.gwt.player.client.PluginNotFoundException if the Windows Media
-     * Player plugin is not installed on the client.
+     * @throws LoadException if an error occurs while loading the media.
+     * @throws PluginVersionException if the required Windows Media Player plugin version is not installed on the client.
+     * @throws PluginNotFoundException if the Windows Media Player plugin is not installed on the client.
      */
     public WinMediaPlayer(String mediaURL, boolean autoplay) throws LoadException,
             PluginNotFoundException, PluginVersionException {

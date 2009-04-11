@@ -99,6 +99,8 @@ public abstract class AbstractMediaPlayer extends Composite {
     public  abstract void pauseMedia();
 
     /**
+     * @deprecated Will be removed in a future release
+     * 
      * Ejects the media loaded into player. After this method is called, the
      * <code>loadMedia(String mediaURL)</code> method should be called first
      * before any other media playback methods are called

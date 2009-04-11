@@ -72,11 +72,9 @@ public class FlatVideoPlayer extends CustomVideoPlayer {
      * @param height the height of the player
      * @param width the width of the player.
      *
-     * @throws com.bramosystems.gwt.player.client.LoadException if an error occurs while loading the media.
-     * @throws com.bramosystems.gwt.player.client.PluginVersionException if the required plugin version
-     * is not installed on the client.
-     * @throws com.bramosystems.gwt.player.client.PluginNotFoundException if an appropriate plugin cannot be
-     * found on the client.
+     * @throws LoadException if an error occurs while loading the media.
+     * @throws PluginVersionException if the required player plugin version is not installed on the client.
+     * @throws PluginNotFoundException if the player plugin is not installed on the client.
      * @throws NullPointerException if {@code height} or {@code width} is {@code null}
      */
     public FlatVideoPlayer(Plugin plugin, String mediaURL, boolean autoplay, String height, String width)
@@ -129,11 +127,9 @@ public class FlatVideoPlayer extends CustomVideoPlayer {
      * @param height the height of the player
      * @param width the width of the player.
      *
-     * @throws com.bramosystems.gwt.player.client.LoadException if an error occurs while loading the media.
-     * @throws com.bramosystems.gwt.player.client.PluginVersionException if the required plugin version
-     * is not installed on the client.
-     * @throws com.bramosystems.gwt.player.client.PluginNotFoundException if an appropriate plugin cannot be
-     * found on the client.
+     * @throws LoadException if an error occurs while loading the media.
+     * @throws PluginVersionException if the required player plugin version is not installed on the client.
+     * @throws PluginNotFoundException if the player plugin is not installed on the client.
      * @throws NullPointerException if {@code height} or {@code width} is {@code null}
      *
      */
