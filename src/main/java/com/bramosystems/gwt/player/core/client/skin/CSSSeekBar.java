@@ -39,11 +39,11 @@ public class CSSSeekBar extends MediaSeekBar {
         super(height);
         playing = new Label();
         playing.setHeight(height + "px");
-        playing.addMouseListener(this);
+        playing.addMouseUpHandler(this);
 
         loading = new Label();
         loading.setHeight(height + "px");
-        loading.addMouseListener(this);
+        loading.addMouseUpHandler(this);
 
         DOM.setStyleAttribute(playing.getElement(), "cursor", "pointer");
         DOM.setStyleAttribute(playing.getElement(), "background", "#6600ff");

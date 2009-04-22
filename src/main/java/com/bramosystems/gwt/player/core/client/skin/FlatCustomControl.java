@@ -20,6 +20,8 @@ import com.bramosystems.gwt.player.core.client.PlayException;
 import com.bramosystems.gwt.player.core.client.MediaStateListenerAdapter;
 import com.bramosystems.gwt.player.core.client.AbstractMediaPlayer;
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.Window;
@@ -78,9 +80,9 @@ public class FlatCustomControl extends Composite {
             }
         };
 
-        play = new PushButton(imgPack.play().createImage(), new ClickListener() {
+        play = new PushButton(imgPack.play().createImage(), new ClickHandler() {
 
-            public void onClick(Widget sender) {
+            public void onClick(ClickEvent event) {
                 switch (playState) {
                     case Stop:
                     case Pause:
@@ -99,9 +101,9 @@ public class FlatCustomControl extends Composite {
         play.getUpDisabledFace().setImage(imgPack.playDisabled().createImage());
         play.setEnabled(false);
 
-        stop = new PushButton(imgPack.stop().createImage(), new ClickListener() {
+        stop = new PushButton(imgPack.stop().createImage(), new ClickHandler() {
 
-            public void onClick(Widget sender) {
+            public void onClick(ClickEvent event) {
                 player.stopMedia();
                 toPlayState(PlayState.Stop);
             }
@@ -111,7 +113,7 @@ public class FlatCustomControl extends Composite {
         stop.setEnabled(false);
 
         vc = new VolumeControl(imgPack.spk().createImage(), 5);
-        vc.setPopupStyle("background", "url(" + GWT.getModuleBaseURL() + "bg.png) repeat");
+        vc.setPopupStyle("background", "url(" + GWT.getModuleBaseURL() + "flat-bg.png) repeat");
         vc.addVolumeChangeListener(new VolumeChangeListener() {
 
             public void onVolumeChanged(double newValue) {
@@ -182,7 +184,7 @@ public class FlatCustomControl extends Composite {
         DOM.setStyleAttribute(timeLabel.getElement(), "font", "bold 8pt Arial,Helvetica,sans-serif");
         DOM.setStyleAttribute(timeLabel.getElement(), "color", "white");
         DOM.setStyleAttribute(face.getElement(), "background",
-                "url(" + GWT.getModuleBaseURL() + "bg.png) repeat");
+                "url(" + GWT.getModuleBaseURL() + "flat-bg.png) repeat");
         return face;
     }
 

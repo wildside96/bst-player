@@ -283,6 +283,4 @@ public class FlashVideoPlayer extends AbstractMediaPlayer {
     public int getLoopCount() {
         return impl.getLoopCount(playerId);
     }
-
-
 }

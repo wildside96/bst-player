@@ -15,9 +15,10 @@
  */
 package com.bramosystems.gwt.player.core.client.skin;
 
+import com.google.gwt.event.dom.client.MouseUpEvent;
+import com.google.gwt.event.dom.client.MouseUpHandler;
 import com.google.gwt.user.client.ui.AbsolutePanel;
 import com.google.gwt.user.client.ui.Composite;
-import com.google.gwt.user.client.ui.MouseListener;
 import com.google.gwt.user.client.ui.Widget;
 import java.util.ArrayList;
 
@@ -29,7 +30,7 @@ import java.util.ArrayList;
  *
  * @author Sikirulai Braheem
  */
-public abstract class MediaSeekBar extends Composite implements MouseListener {
+public abstract class MediaSeekBar extends Composite implements MouseUpHandler {
 
     private Widget playing,  loading;
     protected AbsolutePanel seekTrack;
@@ -105,20 +106,8 @@ public abstract class MediaSeekBar extends Composite implements MouseListener {
         }
     }
 
-    public final void onMouseEnter(Widget sender) {
-    }
-
-    public final void onMouseLeave(Widget sender) {
-    }
-
-    public final void onMouseMove(Widget sender, int x, int y) {
-    }
-
-    public final void onMouseDown(Widget sender, int x, int y) {
-    }
-
-    public final void onMouseUp(Widget sender, int x, int y) {
-        fireSeekChanged(x / (double) getOffsetWidth());
+    public void onMouseUp(MouseUpEvent event) {
+        fireSeekChanged(event.getX() / (double) getOffsetWidth());
     }
 
     /**

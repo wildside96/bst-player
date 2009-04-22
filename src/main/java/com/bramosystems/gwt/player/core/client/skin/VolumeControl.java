@@ -15,6 +15,10 @@
  */
 package com.bramosystems.gwt.player.core.client.skin;
 
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.dom.client.MouseUpEvent;
+import com.google.gwt.event.dom.client.MouseUpHandler;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.ui.*;
 import java.util.ArrayList;
@@ -29,7 +33,7 @@ import java.util.ArrayList;
  * @see VolumeChangeListener
  * @author Sikirulai Braheem
  */
-public class VolumeControl extends Composite implements MouseListener {
+public class VolumeControl extends Composite implements MouseUpHandler {
 
     private Label volume,  track;
     private ArrayList<VolumeChangeListener> seekListeners;
@@ -47,9 +51,9 @@ public class VolumeControl extends Composite implements MouseListener {
      * @param sliderHeight the height of the volume slider control.
      */
     public VolumeControl(Image icon, int sliderHeight) {
-        icon.addClickListener(new ClickListener() {
+        icon.addClickHandler(new ClickHandler() {
 
-            public void onClick(Widget sender) {
+            public void onClick(ClickEvent event) {
                 volumePanel.setPopupPositionAndShow(new PopupPanel.PositionCallback() {
 
                     public void setPosition(int offsetWidth, int offsetHeight) {
@@ -63,12 +67,12 @@ public class VolumeControl extends Composite implements MouseListener {
         seekListeners = new ArrayList<VolumeChangeListener>();
 
         volume = new Label();
-        volume.addMouseListener(this);
+        volume.addMouseUpHandler(this);
         setVolumeIndicatorStyle("cursor", "pointer");
         setVolumeIndicatorStyle("background", "#6600ff");
 
         track = new Label();
-        track.addMouseListener(this);
+        track.addMouseUpHandler(this);
         setTrackStyle("cursor", "pointer");
         setTrackStyle("background", "#ffff99");
 
@@ -107,23 +111,11 @@ public class VolumeControl extends Composite implements MouseListener {
         }
     }
 
-    public final void onMouseUp(Widget sender, int x, int y) {
+    public void onMouseUp(MouseUpEvent event) {
         double vol = 0;
-        vol = x / (double) seekTrack.getOffsetWidth();
+        vol = event.getX() / (double) seekTrack.getOffsetWidth();
         setVolume(vol);
         fireVolumeChanged(vol);
-    }
-
-    public final void onMouseEnter(Widget sender) {
-    }
-
-    public final void onMouseLeave(Widget sender) {
-    }
-
-    public final void onMouseMove(Widget sender, int x, int y) {
-    }
-
-    public final void onMouseDown(Widget sender, int x, int y) {
     }
 
     /**
