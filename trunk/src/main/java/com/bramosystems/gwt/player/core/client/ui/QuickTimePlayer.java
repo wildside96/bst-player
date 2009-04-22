@@ -357,6 +357,4 @@ public final class QuickTimePlayer extends AbstractMediaPlayer {
     public void setLoopCount(int loop) {
         impl.setLoopCount(playerId, loop);
     }
-
-
 }

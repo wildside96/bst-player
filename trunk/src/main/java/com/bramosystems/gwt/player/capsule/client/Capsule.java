@@ -25,6 +25,8 @@ import com.bramosystems.gwt.player.core.client.MediaStateListener;
 import com.bramosystems.gwt.player.core.client.PluginNotFoundException;
 import com.bramosystems.gwt.player.core.client.Plugin;
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.Window;
@@ -157,9 +159,9 @@ public class Capsule extends CustomAudioPlayer {
             }
         };
 
-        play = new PushButton(imgPack.play().createImage(), new ClickListener() {
+        play = new PushButton(imgPack.play().createImage(), new ClickHandler() {
 
-            public void onClick(Widget sender) {
+            public void onClick(ClickEvent event) {
                 switch (playState) {
                     case Stop:
                     case Pause:
@@ -179,9 +181,9 @@ public class Capsule extends CustomAudioPlayer {
         play.getUpDisabledFace().setImage(imgPack.playDisabled().createImage());
         play.setEnabled(false);
 
-        stop = new PushButton(imgPack.stop().createImage(), new ClickListener() {
+        stop = new PushButton(imgPack.stop().createImage(), new ClickHandler() {
 
-            public void onClick(Widget sender) {
+            public void onClick(ClickEvent event) {
                 stopMedia();
                 toPlayState(PlayState.Stop);
             }

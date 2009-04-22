@@ -15,7 +15,6 @@
  */
 package com.bramosystems.gwt.player.core.client;
 
-import com.bramosystems.gwt.player.core.client.AbstractMediaPlayer;
 import com.bramosystems.gwt.player.core.client.impl.PlayerUtilImpl;
 import com.bramosystems.gwt.player.core.client.ui.FlashMP3Player;
 import com.bramosystems.gwt.player.core.client.ui.FlashVideoPlayer;
@@ -209,6 +208,7 @@ public class PlayerUtil {
 
             @Override
             public void onBrowserEvent(Event event) {
+                super.onBrowserEvent(event);
                 switch (event.getTypeInt()) {
                     case Event.ONCLICK:
                         if (plugin.getDownloadURL().length() > 0) {

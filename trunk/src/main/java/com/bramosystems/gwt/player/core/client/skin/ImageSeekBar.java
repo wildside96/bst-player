@@ -37,10 +37,10 @@ public class ImageSeekBar extends MediaSeekBar {
     public ImageSeekBar(int height) {
         super(height);
         playing = new Image();
-        playing.addMouseListener(this);
+        playing.addMouseUpHandler(this);
 
         loading = new Image();
-        loading.addMouseListener(this);
+        loading.addMouseUpHandler(this);
 
         DOM.setStyleAttribute(playing.getElement(), "cursor", "pointer");
         DOM.setStyleAttribute(loading.getElement(), "cursor", "pointer");
