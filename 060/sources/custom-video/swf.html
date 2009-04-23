@@ -1,0 +1,31 @@
+<html>
+    <head>
+        <title></title>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    </head>
+    <body>
+        <div class="section-desc">Playing with Flash Player plugin</div>
+        <div class="media-desc">vixy.net Podcaster Demo (online)</div>
+        <pre><code>Widget v = null;
+try {
+    FlatVideoPlayer vp = new FlatVideoPlayer(
+        Plugin.FlashVideoPlayer,
+        "http://vixy.net/flv/vixy_net_" +
+        "podcaster_demo_director.flv",
+        false, "350px", "100%");
+    vp.showLogger(true);
+    v = vp;
+} catch (LoadException ex) {
+    Window.alert("Load exp");
+} catch (PluginVersionException ex) {
+    v = PlayerUtil.getMissingPluginNotice(
+            Plugin.FlashVideoPlayer,
+            ex.getRequiredVersion());
+} catch (PluginNotFoundException ex) {
+    v = PlayerUtil.getMissingPluginNotice(
+            Plugin.FlashVideoPlayer);
+}
+panel.add(v);
+        </code></pre>
+    </body>
+</html>

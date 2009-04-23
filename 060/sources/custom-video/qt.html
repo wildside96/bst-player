@@ -1,0 +1,30 @@
+<html>
+    <head>
+        <title></title>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    </head>
+    <body>
+        <div class="section-desc">Playback with QuickTime Player plugin</div>
+        <div class="media-desc">Star Trek Movie Trailer (online)</div>
+        <pre><code>Widget v = null;
+try {
+    v = new FlatVideoPlayer(
+            Plugin.QuickTimePlayer,
+            "http://movies.apple.com/" +
+            "movies/paramount/star_trek" +
+            "/startrek-tlr3_h.640.mov",
+            false, "350px", "100%");
+} catch (LoadException ex) {
+    Window.alert("Load exp");
+} catch (PluginVersionException ex) {
+    v = PlayerUtil.getMissingPluginNotice(
+            Plugin.QuickTimePlayer,
+            ex.getRequiredVersion());
+} catch (PluginNotFoundException ex) {
+    v = PlayerUtil.getMissingPluginNotice(
+            Plugin.QuickTimePlayer);
+}
+panel.add(v);
+        </code></pre>
+    </body>
+</html>
