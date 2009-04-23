@@ -1,0 +1,26 @@
+<html>
+    <head>
+        <title></title>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    </head>
+    <body>
+        <div class="section-desc">Playback with QuickTime Player plugin</div>
+        <pre><code>Widget c = null;
+try {
+    c = new Capsule(Plugin.QuickTimePlayer,
+            GWT.getHostPageBaseURL() +
+            "media/thunder.mp3", false);
+} catch (LoadException ex) {
+    Window.alert("Load exp");
+} catch (PluginVersionException ex) {
+    c = PlayerUtil.getMissingPluginNotice(
+            Plugin.QuickTimePlayer,
+            ex.getRequiredVersion());
+} catch (PluginNotFoundException ex) {
+    c = PlayerUtil.getMissingPluginNotice(
+            Plugin.QuickTimePlayer);
+}
+panel.add(c);
+        </code></pre>
+    </body>
+</html>

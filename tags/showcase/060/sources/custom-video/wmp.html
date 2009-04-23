@@ -1,0 +1,29 @@
+<html>
+    <head>
+        <title></title>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    </head>
+    <body>
+        <div class="section-desc">Embedding Windows Media Player plugin</div>
+        <div class="media-desc">Teaching of Islam (online)</div>
+        <pre><code>Widget v = null;
+try {
+    v = new FlatVideoPlayer(Plugin.WinMediaPlayer,
+        "http://bst-player.googlecode.com/" +
+        "svn/tags/showcase/media/" +
+        "teaching-of-islam.wmv",
+        false, "300px", "100%");
+} catch (LoadException ex) {
+    Window.alert("Load exp");
+} catch (PluginVersionException ex) {
+    v = PlayerUtil.getMissingPluginNotice(
+            Plugin.WinMediaPlayer,
+            ex.getRequiredVersion());
+} catch (PluginNotFoundException ex) {
+    v = PlayerUtil.getMissingPluginNotice(
+            Plugin.WinMediaPlayer);
+}
+panel.add(v);
+        </code></pre>
+    </body>
+</html>
