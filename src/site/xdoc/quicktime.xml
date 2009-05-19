@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<document xmlns="http://maven.apache.org/XDOC/2.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/XDOC/2.0 http://maven.apache.org/xsd/xdoc-2.0.xsd">
+
+    <properties>
+        <title>Demo Applications - QuickTime Player</title>
+    </properties>
+
+    <body>
+        <section name="Embedding QuickTime Player plugin">
+            <script type="text/javascript" src="scripts/qt.js"></script>
+            <script type="text/javascript" src="gwt-demo/jsShowcase/jsShowcase.nocache.js">
+            </script>
+
+            <p>
+                The following are sample codes to embed QuickTime Player plugin
+            </p>
+
+            <subsection name="Playing sound automatically">
+                <div align="center" id="ex_1"></div>
+                <source>
+Widget qt = null;
+try {
+    qt = new QuickTimePlayer(GWT.getHostPageBaseURL() + "media/thunder.mp3");
+} catch (LoadException ex) {
+    Window.alert("Load exp");
+} catch (PluginVersionException ex) {
+    qt = PlayerUtil.getMissingPluginNotice(Plugin.QuickTimePlayer);
+} catch (PluginNotFoundException ex) {
+    qt = PlayerUtil.getMissingPluginNotice(Plugin.QuickTimePlayer);
+}
+panel.add(qt);
+                </source>
+            </subsection>
+
+            <subsection name="Playing sound with autoplay set to false">
+                <div align="center" id="ex_2"></div>
+                <source>
+Widget qt = null;
+try {
+    qt = new QuickTimePlayer(GWT.getHostPageBaseURL() + "media/thunder.mp3", false);
+} catch (LoadException ex) {
+    Window.alert("Load exp");
+} catch (PluginVersionException ex) {
+    qt = PlayerUtil.getMissingPluginNotice(Plugin.QuickTimePlayer);
+} catch (PluginNotFoundException ex) {
+    qt = PlayerUtil.getMissingPluginNotice(Plugin.QuickTimePlayer);
+}
+panel.add(qt);
+                </source>
+            </subsection>
+
+            <subsection name="Playing sound with logger widget visible">
+                <div align="center" id="ex_3"></div>
+                <source>
+Widget qt = null;
+try {
+    QuickTimePlayer p = new QuickTimePlayer(GWT.getHostPageBaseURL() +
+        "media/o-na-som.mp3", false);
+    p.showLogger(true);
+    qt = p;
+} catch (LoadException ex) {
+    Window.alert("Load exp");
+} catch (PluginVersionException ex) {
+    qt = PlayerUtil.getMissingPluginNotice(Plugin.QuickTimePlayer);
+} catch (PluginNotFoundException ex) {
+    qt = PlayerUtil.getMissingPluginNotice(Plugin.QuickTimePlayer);
+}
+panel.add(qt);
+                </source>
+            </subsection>
+
+            <subsection name="Embedding Video - Star Trek Movie Trailer (online)">
+                <div align="center" id="ex_4"></div>
+                <source>
+Widget qt = null;
+try {
+    QuickTimePlayer p = new QuickTimePlayer("http://movies.apple.com/movies/" +
+       "paramount/star_trek/startrek-tlr3_h.640.mov", false, "220px", "100%");
+    p.showLogger(true);
+    qt = p;
+} catch (LoadException ex) {
+    Window.alert("Load exp");
+} catch (PluginVersionException ex) {
+    qt = PlayerUtil.getMissingPluginNotice(Plugin.QuickTimePlayer,
+            ex.getRequiredVersion());
+} catch (PluginNotFoundException ex) {
+    qt = PlayerUtil.getMissingPluginNotice(Plugin.QuickTimePlayer);
+}
+panel.add(qt);
+                </source>
+            </subsection>
+        </section>
+    </body>
+</document>

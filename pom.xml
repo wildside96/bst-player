@@ -1,72 +1,142 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <groupId>com.bramosystems.gwt</groupId>
-    <artifactId>bst-player</artifactId>
-    <packaging>jar</packaging>
-    <version>1.0-alpha</version>
-    <name>bst-player</name>
-    <url></url>
-    <properties>
-        <app.version>1.0-alpha</app.version>
-    </properties>
-	<licenses>
-		<license>
-			<name>The Apache Software License, Version 2.0</name>
-			<url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
-			<distribution>repo</distribution>
-		</license>
-	</licenses>
-	<developers>
-		<developer>
-			<id>sbraheem</id>
-			<name>Sikiru Braheem</name>
-			<roles>
-				<role>Developer</role>
-			</roles>
-			<timezone>+1</timezone>
-		</developer>
-	</developers>
-    <build>
-        <resources>
-            <resource>
-                <directory>src/main/java</directory>
-            </resource>
-        </resources>
+    <groupId>com.bramosystems.oss.player</groupId>
+    <artifactId>parent</artifactId>
+    <packaging>pom</packaging>
+    <version>1.0-SNAPSHOT</version>
+    <name>BST Player</name>
+    <url>http://oss.bramosystems.com/bst-player</url>
+    <inceptionYear>2009</inceptionYear>
+    <description>Parent POM for the BST Player API Modules</description>
 
+    <licenses>
+        <license>
+            <name>The Apache Software License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+
+    <developers>
+        <developer>
+            <id>sbraheem</id>
+            <name>Sikiru Braheem</name>
+            <roles>
+                <role>Developer</role>
+            </roles>
+            <timezone>+1</timezone>
+            <email>sbraheem@bramosystems.com</email>
+        </developer>
+    </developers>
+
+    <scm>
+        <connection>scm:svn:http://bst-player.googlecode.com/svn/trunk</connection>
+        <developerConnection>scm:svn:https://bst-player.googlecode.com/svn/trunk</developerConnection>
+        <url>http://code.google.com/p/bst-player/source/browse</url>
+    </scm>
+
+    <issueManagement>
+        <system>Google Code</system>
+        <url>http://code.google.com/p/bst-player/issues/list</url>
+    </issueManagement>
+
+    <mailingLists>
+        <mailingList>
+            <name>Google Groups</name>
+            <subscribe>Subscribe</subscribe>
+            <unsubscribe>Unsubscribe</unsubscribe>
+            <post>bst-player@googlegroups.com</post>
+            <archive>http://groups.google.com/group/bst-player</archive>
+        </mailingList>
+    </mailingLists>
+
+    <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <configuration>
+                        <source>1.5</source>
+                        <target>1.5</target>
+                    </configuration>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+    </build>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>junit</groupId>
+                <artifactId>junit</artifactId>
+                <version>4.3</version>
+                <scope>test</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>com.google.gwt</groupId>
+                <artifactId>gwt-user</artifactId>
+                <version>1.6.3</version>
+                <scope>provided</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+    <modules>
+        <module>flex-video-player</module>
+        <module>bst-player-api</module>
+        <module>flex-mp3-player</module>
+        <module>bst-player-showcase</module>
+    </modules>
+
+    <properties>
+        <flex.home>E:/RUNTIMEs/flex_sdk_3</flex.home>
+    </properties>
+
+    <reporting>
         <plugins>
             <plugin>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>2.0.2</version>
-                <configuration>
-                    <source>1.5</source>
-                    <target>1.5</target>
-                </configuration>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-project-info-reports-plugin</artifactId>
+                <reportSets>
+                    <reportSet>
+                        <reports>
+                            <report>index</report>
+                            <report>dependencies</report>
+                            <report>issue-tracking</report>
+                            <report>license</report>
+                            <report>mailing-list</report>
+                            <report>project-team</report>
+                            <report>scm</report>
+                            <report>summary</report>
+                        </reports>
+                    </reportSet>
+                </reportSets>
             </plugin>
             <plugin>
                 <artifactId>maven-javadoc-plugin</artifactId>
                 <version>2.5</version>
+                <reportSets>
+                    <reportSet>
+                        <reports>
+                            <report>javadoc</report>
+                        </reports>
+                    </reportSet>
+                </reportSets>
                 <configuration>
                     <excludePackageNames>*.impl</excludePackageNames>
-                    <doctitle>BST Player API ${project.version}</doctitle>
-                    <windowtitle>BST Player API ${project.version}</windowtitle>
+                    <doctitle>${project.name} ${project.version}</doctitle>
+                    <windowtitle>${project.name} ${project.version}</windowtitle>
                 </configuration>
             </plugin>
         </plugins>
-    </build>
-    <dependencies>
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>4.3</version>
-            <scope>test</scope>
-        </dependency>
+    </reporting>
 
-        <dependency>
-            <groupId>com.google.gwt</groupId>
-            <artifactId>gwt-user</artifactId>
-            <version>1.6.3</version>
-            <scope>provided</scope>
-        </dependency>
-    </dependencies>
+    <!--distributionManagement>
+        <site>
+            <id>website</id>
+            <url>file:///e:/PROJECTs/Bramosystems Site/oss/bst-player</url>
+        </site>
+    </distributionManagement-->
 </project>
