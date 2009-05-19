@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project>
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <artifactId>parent</artifactId>
+        <groupId>com.bramosystems.oss.player</groupId>
+        <version>1.0-SNAPSHOT</version>
+    </parent>
+    <artifactId>bst-player-api</artifactId>
+    <name>BST Player API</name>
+    <description>
+        Provides a consistent API for embedding popular media player plugins in web applications.
+    </description>
+
+    <properties>
+        <flex.apps.dir>
+            ${project.build.directory}/classes/com/bramosystems/oss/player/core/publicc
+        </flex.apps.dir>
+    </properties>
+
+    <build>
+        <resources>
+            <resource>
+                <directory>src/main/java</directory>
+            </resource>
+        </resources>
+
+        <plugins>
+            <plugin>
+                <groupId>net.israfil.mojo</groupId>
+                <artifactId>maven-flex2-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>copy-flex</id>
+                        <phase>process-classes</phase>
+                        <goals>
+                            <goal>copy-flex-applications</goal>
+                        </goals>
+                        <configuration>
+                            <modules>
+                                <swfModule>
+                                    <groupId>${project.groupId}</groupId>
+                                    <artifactId>flex-video-player</artifactId>
+                                    <targetPath>${flex.apps.dir}</targetPath>
+                                    <targetFilename>video-player-${project.version}.swf</targetFilename>
+                                </swfModule>
+                                <swfModule>
+                                    <groupId>${project.groupId}</groupId>
+                                    <artifactId>flex-mp3-player</artifactId>
+                                    <targetPath>${flex.apps.dir}</targetPath>
+                                    <targetFilename>mp3-player-${project.version}.swf</targetFilename>
+                                </swfModule>
+                            </modules>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
+    <dependencies>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <version>${project.version}</version>
+            <artifactId>flex-video-player</artifactId>
+            <scope>provided</scope>
+            <type>swf</type>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <version>${project.version}</version>
+            <artifactId>flex-mp3-player</artifactId>
+            <scope>provided</scope>
+            <type>swf</type>
+        </dependency>
+        <dependency>
+            <groupId>com.google.gwt</groupId>
+            <artifactId>gwt-user</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+        </dependency>
+    </dependencies>
+</project>
