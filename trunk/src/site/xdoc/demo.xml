@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<document xmlns="http://maven.apache.org/XDOC/2.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/XDOC/2.0 http://maven.apache.org/xsd/xdoc-2.0.xsd">
+
+    <properties>
+        <title>Demo Applications</title>
+    </properties>
+    
+    <body>
+        <section name="Demo Applications">
+            <p>
+                This page provides an overview of the various demo applications that showcase
+                the features of the API
+            </p>
+
+            <subsection name="Overview">
+                <table class="bodyTable">
+                    <tr class="a">
+                        <th>Sample Application</th>
+                        <th>Description</th>
+                    </tr>
+                    <tr class="b">
+                        <td><a href="wmp.html">Windows Media Player</a></td>
+                        <td>Embedding Windows Media Player plugin</td>
+                    </tr>
+                    <tr class="a">
+                        <td><a href="quicktime.html">QuickTime</a></td>
+                        <td>Embedding QuickTime Player plugin</td>
+                    </tr>
+                    <tr class="b">
+                        <td><a href="flash.html">Adobe Flash plugin</a></td>
+                        <td>Media playback with Adobe Flash plugin</td>
+                    </tr>
+                    <tr class="a">
+                        <td><a href="custom-audio-player.html">Custom Audio Player</a></td>
+                        <td>Using custom audio player</td>
+                    </tr>
+                    <tr class="b">
+                        <td><a href="custom-video-player.html">Custom Video Player</a></td>
+                        <td>Using custom video player</td>
+                    </tr>
+                    <tr class="a">
+                        <td><a href="misc.html">Miscellaneous</a></td>
+                        <td>Various miscellaneous examples</td>
+                    </tr>
+                </table>
+
+            </subsection>
+        </section>
+    </body>
+</document>
