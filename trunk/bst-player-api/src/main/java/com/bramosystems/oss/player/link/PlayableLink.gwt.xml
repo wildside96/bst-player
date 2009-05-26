@@ -17,6 +17,4 @@
 
 <module>
     <inherits name="com.bramosystems.oss.player.core.Core"/>
-    
-    <stylesheet src="player-link-styles.css" />
 </module>

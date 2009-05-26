@@ -60,6 +60,20 @@ public abstract class AbstractMediaPlayer extends Composite {
     }
 
     /**
+     * Returns true if this player contains the specified listener.
+     *
+     * @param listener whose presence in this player is to be tested
+     * @return true if this list contains the specified element
+     * @since 1.0
+     */
+    public final boolean containsMediaStateListener(MediaStateListener listener) {
+        if (listener == null) {
+            return false;
+        }
+        return callbacks.contains(listener);
+    }
+
+    /**
      * Loads the media at the specified URL into the player.
      *
      * <p>In respect of the <code>same domain</code> policy of some plugins,
@@ -110,7 +124,6 @@ public abstract class AbstractMediaPlayer extends Composite {
      * after the <code>{@link #close()}</code> method has been called on this player.
      */
 //    public abstract void ejectMedia();
-
     /**
      * Closes the player and all associated resources such as removing the media player
      * plugin from the page.
@@ -296,21 +309,21 @@ public abstract class AbstractMediaPlayer extends Composite {
     }
 
     /**
-     * Sets the number of times the current media file should loop playback before stopping.
+     * Sets the number of times the current media file should repeat playback before stopping.
      * This implementation does nothing, subclasses should override and implement accordingly.
      *
-     * @param loop number of times to loop playback. A negative value makes playback loop forever.
+     * @param loop number of times to repeat playback. A negative value makes playback repeat forever.
      * @since 0.6
      */
     public void setLoopCount(int loop) {
     }
 
     /**
-     * Returns the remaining number of times this player loops playback before stopping. This
+     * Returns the number of times this player repeats playback before stopping. This
      * implementation returns <code>0</code>, subclasses should override and implement
      * accordingly.
      *
-     * @return the remaining number of times this player will loop playback before stopping.
+     * @return the number of times this player will repeat playback before stopping.
      * @since 0.6
      */
     public int getLoopCount() {
@@ -352,11 +365,11 @@ public abstract class AbstractMediaPlayer extends Composite {
     }
 
     /**
-     * Removes the specified URL from the players' playlist.
+     * Removes the entry at the specified index from the players' playlist.
      *
-     * @param mediaURL the URL of the media.
+     * @param index the index of the playlist entry.
      * @since 1.0
      */
-    public void removeFromPlaylist(String mediaURL) {
+    public void removeFromPlaylist(int index) {
     }
 }

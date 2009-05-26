@@ -257,7 +257,8 @@ public class WinMediaPlayerImpl {
     }-*/;
 
     private native boolean isPlayerAvailableImpl(JavaScriptObject jso, String playerId) /*-{
-        return (jso[playerId] != undefined) || (jso[playerId] != null);
+        return ((jso[playerId] != undefined) || (jso[playerId] != null)) &&
+                ($doc.getElementById(playerId) != null);
      }-*/;
 
     public native void loadSound(String playerId, String mediaURL) /*-{
@@ -314,9 +315,9 @@ public class WinMediaPlayerImpl {
     try {
      var playr = $doc.getElementById(playerId);
 //     if(count >= 0) {
-     $wnd.alert("Setting Play Count : " + count);
+//     $wnd.alert("Setting Play Count : " + count);
      playr.settings.playCount = count;
-     $wnd.alert("Play Count : " + playr.settings.playCount);
+//     $wnd.alert("Play Count : " + playr.settings.playCount);
 //     }else {
 //     playr.settings.setMode("loop", true);
 //     $wnd.alert("Loop : " + playr.settings.getMode("loop"));

@@ -24,7 +24,6 @@ import com.bramosystems.oss.player.core.client.ui.FlashVideoPlayer;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
@@ -40,7 +39,7 @@ public class FlatCustomControl extends Composite {
 
     private ImagePack imgPack = GWT.create(ImagePack.class);
     private String mediaDurationString;
-    private PushButton play,  stop;
+    private PushButton play,  stop, prev, next;
     private Timer playTimer;
     private CSSSeekBar seekbar;
     private Label timeLabel;
@@ -60,13 +59,14 @@ public class FlatCustomControl extends Composite {
 
         initWidget(getPlayerWidget());
         setSize("100%", "20px");
+        setStyleName("player-FlatCustomControl");
     }
 
     private Widget getPlayerWidget() {
         mediaDurationString = "";
         seekbar = new CSSSeekBar(5);
         seekbar.setPlayingStyle("background", "red");
-        seekbar.setWidth("90%");
+        seekbar.setWidth("95%");
         seekbar.addSeekChangeListener(new SeekChangeListener() {
 
             public void onSeekChanged(double newValue) {
@@ -113,6 +113,28 @@ public class FlatCustomControl extends Composite {
         stop.getUpDisabledFace().setImage(imgPack.stopDisabled().createImage());
         stop.getUpHoveringFace().setImage(imgPack.stopHover().createImage());
         stop.setEnabled(false);
+
+        prev = new PushButton(imgPack.prev().createImage(), new ClickHandler() {
+
+            public void onClick(ClickEvent event) {
+//                player.stopMedia();
+//                toPlayState(PlayState.Stop);
+            }
+        });
+        prev.getUpDisabledFace().setImage(imgPack.prevDisabled().createImage());
+        prev.getUpHoveringFace().setImage(imgPack.prevHover().createImage());
+        prev.setEnabled(false);
+
+        next = new PushButton(imgPack.next().createImage(), new ClickHandler() {
+
+            public void onClick(ClickEvent event) {
+//                player.stopMedia();
+//                toPlayState(PlayState.Stop);
+            }
+        });
+        next.getUpDisabledFace().setImage(imgPack.nextDisabled().createImage());
+        next.getUpHoveringFace().setImage(imgPack.nextHover().createImage());
+        next.setEnabled(false);
 
         vc = new VolumeControl(imgPack.spk().createImage(), 5);
         vc.setPopupStyle("background", "url(" + GWT.getModuleBaseURL() + "flat-bg.png) repeat");
@@ -177,16 +199,18 @@ public class FlatCustomControl extends Composite {
         face.add(vc, DockPanel.WEST);
         face.add(play, DockPanel.WEST);
         face.add(stop, DockPanel.WEST);
+        face.add(prev, DockPanel.WEST);
+        face.add(next, DockPanel.WEST);
         face.add(timeLabel, DockPanel.EAST);
         face.add(seekbar, DockPanel.CENTER);
 
         face.setCellWidth(seekbar, "100%");
         face.setCellHorizontalAlignment(seekbar, DockPanel.ALIGN_CENTER);
 
-        DOM.setStyleAttribute(timeLabel.getElement(), "font", "bold 8pt Arial,Helvetica,sans-serif");
-        DOM.setStyleAttribute(timeLabel.getElement(), "color", "white");
-        DOM.setStyleAttribute(face.getElement(), "background",
-                "url(" + GWT.getModuleBaseURL() + "flat-bg.png) repeat");
+//        DOM.setStyleAttribute(timeLabel.getElement(), "font", "bold 8pt Arial,Helvetica,sans-serif");
+//        DOM.setStyleAttribute(timeLabel.getElement(), "color", "white");
+//        DOM.setStyleAttribute(face.getElement(), "background",
+//                "url(" + GWT.getModuleBaseURL() + "flat-bg.png) repeat");
         return face;
     }
 
@@ -256,5 +280,17 @@ public class FlatCustomControl extends Composite {
         public AbstractImagePrototype stopHover();
 
         public AbstractImagePrototype spk();
+
+        public AbstractImagePrototype prev();
+
+        public AbstractImagePrototype prevDisabled();
+
+        public AbstractImagePrototype prevHover();
+
+        public AbstractImagePrototype next();
+
+        public AbstractImagePrototype nextDisabled();
+
+        public AbstractImagePrototype nextHover();
     }
 }

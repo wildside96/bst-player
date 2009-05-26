@@ -59,7 +59,8 @@ public final class WinMediaPlayer extends AbstractMediaPlayer {
     private String playerId,  uiMode = "full",  mediaURL;
     private HTML playerDiv;
     private Logger logger;
-    private boolean isEmbedded,  isPlayerRealized,  autoplay;
+    private boolean isEmbedded, autoplay;
+    private MediaStateListener _onInitLoopCountListener;
 
     WinMediaPlayer() {
         if (impl == null) {
@@ -99,7 +100,6 @@ public final class WinMediaPlayer extends AbstractMediaPlayer {
 
         this.autoplay = autoplay;
         this.mediaURL = mediaURL;
-        isPlayerRealized = false;
         playerId = DOM.createUniqueId().replace("-", "");
 
         impl.init(playerId, new MediaStateListener() {
@@ -129,7 +129,6 @@ public final class WinMediaPlayer extends AbstractMediaPlayer {
             }
 
             public void onPlayerReady() {
-                isPlayerRealized = true;
                 firePlayerReady();
             }
 
@@ -322,7 +321,7 @@ public final class WinMediaPlayer extends AbstractMediaPlayer {
             uiMode = isEmbedded ? UI_MODE_INVISIBLE : UI_MODE_NONE;
         }
 
-        if (isPlayerRealized) {
+        if (impl.isPlayerAvailable(playerId)) {
             impl.setUIMode(playerId, uiMode);
         }
     }
@@ -347,23 +346,29 @@ public final class WinMediaPlayer extends AbstractMediaPlayer {
      */
     @Override
     public void setLoopCount(final int loop) {
-        if (isPlayerRealized) {
+        if (impl.isPlayerAvailable(playerId)) {
             impl.setLoopCount(playerId, loop);
         } else {
-            addMediaStateListener(new MediaStateListenerAdapter() {
+            if (containsMediaStateListener(_onInitLoopCountListener)) {
+                // ensure only one instance is queued ...
+                removeMediaStateListener(_onInitLoopCountListener);
+            }
+
+            _onInitLoopCountListener = new MediaStateListenerAdapter() {
 
                 @Override
                 public void onPlayerReady() {
                     impl.setLoopCount(playerId, loop);
-//                    removeMediaStateListener(looplistener);
+                    removeMediaStateListener(_onInitLoopCountListener);
                 }
-            });
+            };
+            addMediaStateListener(_onInitLoopCountListener);
         }
     }
 
     @Override
     public void addToPlaylist(final String mediaURL) {
-        if (isPlayerRealized) {
+        if (impl.isPlayerAvailable(playerId)) {
             impl.addToPlaylist(playerId, mediaURL);
         } else {
             final MediaStateListener playlistListener = new MediaStateListenerAdapter() {
@@ -380,30 +385,21 @@ public final class WinMediaPlayer extends AbstractMediaPlayer {
 
     @Override
     public boolean isShuffleEnabled() {
-        if (isPlayerRealized) {
+        if (impl.isPlayerAvailable(playerId)) {
             return impl.isShuffleEnabled(playerId);
         }
         return false;
     }
 
     @Override
-    public void removeFromPlaylist(final String mediaURL) {
-        if (isPlayerRealized) {
-            impl.removeFromPlaylist(playerId, mediaURL);
-        } else {
-            addMediaStateListener(new MediaStateListenerAdapter() {
-
-                @Override
-                public void onPlayerReady() {
-                    impl.removeFromPlaylist(playerId, mediaURL);
-                }
-            });
-        }
+    public void removeFromPlaylist(int index) {
+        checkAvailable();
+//        impl.removeFromPlaylist(playerId, index);
     }
 
     @Override
     public void setShuffleEnabled(final boolean enable) {
-        if (isPlayerRealized) {
+        if (impl.isPlayerAvailable(playerId)) {
             impl.setShuffleEnabled(playerId, enable);
         } else {
             addMediaStateListener(new MediaStateListenerAdapter() {
