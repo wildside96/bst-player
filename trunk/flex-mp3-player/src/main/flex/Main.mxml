@@ -21,13 +21,17 @@
                 layout="horizontal" applicationComplete="initApp()">
     <mx:Script>
         <![CDATA[
+            import com.bramosystems.oss.player.*;
+            import com.bramosystems.oss.player.playlist.*;
+
             import flash.external.*;
             import flash.media.*;
             import flash.events.*;
+            import flash.net.*;
 
             private var playerId:String;
-            private var channelPos:Number = 0;
             private var debug:Boolean = true;
+            private var mp3engine:MP3Engine;
 
             private function initApp():void {
                 // Check if the container is able to use the external API.
@@ -44,11 +48,17 @@
                         ExternalInterface.addCallback("setSndVolume", setVolume);
                         ExternalInterface.addCallback("getSndDuration", getDuration);
                         ExternalInterface.addCallback("closeSnd", close);
-                        ExternalInterface.addCallback("getSndID3", getID3);
                         ExternalInterface.addCallback("getSndPlayerVer", getFlashVersion);
+                        ExternalInterface.addCallback("getSndPlayCount", getPlayCount);
+                        ExternalInterface.addCallback("setSndPlayCount", setPlayCount);
+                        ExternalInterface.addCallback("addMediaToPlaylist", addToPlaylist);
+                        ExternalInterface.addCallback("removeMediaFromPlaylist", removeFromPlaylist);
+                        ExternalInterface.addCallback("setMediaShuffleOn", enableShuffle);
+                        ExternalInterface.addCallback("isMediaShuffleOn", isShuffleEnabled);
 
                         // get params...
                         playerId = Application.application.parameters.playerId;
+                        mp3engine = new MP3Engine(playerId);
 
                         ExternalInterface.call("bstSwfSndInit", playerId);
                     } catch(err:SecurityError) {
@@ -73,122 +83,97 @@
             }
 
             /**************************** PLAYER IMPL ******************************/
-            private var sound:Sound;
-            private var channel:SoundChannel;
-            private var sndTransform:SoundTransform = new SoundTransform(0.5);
             private var mediaUrl:String;
-            private var mediaID3:ID3Info;
-            private var soundDuration:Number = 0;
-            private var position:Number = 0;
-            private var isPlaying:Boolean = false, isPaused:Boolean = false;
 
             public function load(url:String):void {
-                try {
-                    log("Loading sound at " + url);
-                    mediaUrl = url;
-                    var req:URLRequest = new URLRequest(url);
-                    sound = new Sound();
-                    sound.addEventListener(Event.COMPLETE, loadingCompleteHandler);
-                    sound.addEventListener(Event.OPEN, loadingStartedHandler);
-                    sound.addEventListener(IOErrorEvent.IO_ERROR, loadingErrorHandler);
-                    sound.addEventListener(ProgressEvent.PROGRESS, loadingProgressHandler);
-                    sound.addEventListener(Event.ID3, id3Handler);
-                    sound.load(req, new SoundLoaderContext(1000, true));
-                } catch(err:Error){
-                    logError(err.message);
+                if(url.search(".m3u") >= 0) {
+                    log("Loading playlist at " + url);
+                    loadM3U(url, false);
+                } else {    // load single file...
+                    var playlist:Playlist = new Playlist();
+                    playlist.add(new PlaylistEntry(0, url, url));
+                    mp3engine.setPlaylist(playlist);
                 }
+            }
+
+            public function addToPlaylist(mediaUrl:String):void {
+                if(mediaUrl.search(".m3u") >= 0) {
+                    log("Adding playlist at " + mediaUrl);
+                    loadM3U(mediaUrl, true);
+                } else {    // add single file...
+                    mp3engine.getPlaylist().add(new PlaylistEntry(0, mediaUrl, mediaUrl));
+                    mp3engine.getPlaylist().checkShuffle();
+                }
+            }
+
+            public function removeFromPlaylist(index:int):void {
+                mp3engine.getPlaylist().remove(index);
             }
 
             public function setPlayPosition(channelPosition:Number):void {
-                if(isPaused || isPlaying) {
-                    position = channelPosition;
-
-                    if(isPlaying) {
-                        play();
-                    }
-                }
+                mp3engine.setPlayPosition(channelPosition);
             }
 
             public function play():void {
-                if(sound == null) {
-                    log("Player not loaded, load player first");
-                    return;
-                }
-
-                if(channel != null) {
-                    channel.stop();
-                }
-                channel = sound.play(position, 0, sndTransform);
-                playStatedHandler();
-                channel.addEventListener(Event.SOUND_COMPLETE, playFinishedHandler);
+                mp3engine.play();
             }
 
             public function stop():void {
-                if(channel == null) {
-                    log("Stop playback call ignored, sound not played yet!");
-                    return;
-                }
-
-                channel.stop();
-                position = 0;
-                isPlaying = false;
-                isPaused = false;
-                log("Player stopped");
+                mp3engine.stop();
             }
 
             public function pause():void {
-                if(channel == null) {
-                    log("Pause playback call ignored, sound not played yet!");
-                    return;
-                }
-
-                position = channel.position;
-                channel.stop();
-                isPlaying = false;
-                isPaused = true;
-                log("Player paused");
+                mp3engine.pause();
             }
 
             public function getPlayPosition():Number {
-                if(channel == null)
-                    return 0;
-
-                if(isPlaying)
-                    position = channel.position;
-
-                return position;
+                return mp3engine.getPlayPosition();
             }
 
             public function getDuration():Number {
-                return soundDuration;
-            }
-
-            public function getID3():ID3Info {
-                return mediaID3;
+                return mp3engine.getDuration();
             }
 
             public function getVolume():Number {
-                if(channel == null)
-                    return 0;
-
-                return channel.soundTransform.volume;
+                return mp3engine.getVolume();
             }
 
             public function setVolume(vol:Number):void {
-                if(channel == null)
-                    return;
-
-                sndTransform = new SoundTransform(vol);
-                channel.soundTransform = sndTransform;
-                log("Volume set to " + (vol * 100).toFixed(0) + "%");
+                mp3engine.setVolume(vol);
             }
 
             public function close():void {
-                try {
-                    sound.close();
-                    log("Player closed");
-                } catch(err:IOError) {
+                mp3engine.close();
+            }
+
+            public function setPlayCount(count:int):void {
+                if(count < 0) {
+                    mp3engine.getPlaylist().setRepeatMode(RepeatMode.REPEAT_ALL);
+                } else {
+                    mp3engine.getPlaylist().setRepeatMode(RepeatMode.NO_REPEAT);
+                    mp3engine.getPlaylist().setPlayCount(count);
                 }
+            }
+
+            public function getPlayCount():int {
+                var count:int = 0;
+                switch(mp3engine.getPlaylist().getRepeatMode()) {
+                    case RepeatMode.REPEAT_ALL:
+                    case RepeatMode.REPEAT_ONE:
+                        count = -1;
+                        break;
+                     case RepeatMode.NO_REPEAT:
+                        count = mp3engine.getPlaylist().getPlayCount();
+                }
+                return count;
+            }
+
+            public function enableShuffle(enable:Boolean):void {
+                mp3engine.getPlaylist().enableShuffle(enable);
+            }
+
+            public function isShuffleEnabled():Boolean {
+                return mp3engine.getPlaylist().isShuffleEnabled();
             }
 
             public function setDebugEnabled(enabled:Boolean):void {
@@ -196,57 +181,14 @@
             }
 
             /********************* Javascript call impls. *************************/
-            private function loadingStartedHandler(event:Event):void {
-               ExternalInterface.call("bstSwfSndMediaStateChanged", playerId, 1);
-               log("Media loading started");
-            }
-
-            private function playStatedHandler():void {
-                isPlaying = true;
-                isPaused = false;
-                log("Media playback started");
-                ExternalInterface.call("bstSwfSndMediaStateChanged", playerId, 2);
-            }
-
-            private function playFinishedHandler(event:Event):void {
-               position = 0;
-               log("Media playback finished");
-               ExternalInterface.call("bstSwfSndMediaStateChanged", playerId, 9);
-            }
-
-            private function loadingCompleteHandler(event:Event):void {
-               if(sound != null)
-                    soundDuration = sound.length;
-
-               ExternalInterface.call("bstSwfSndMediaStateChanged", playerId, 10);
-               log("Loading complete");
-            }
-
-            private function loadingProgressHandler(event:ProgressEvent):void {
-               if(sound != null)
-                    soundDuration = sound.length;
-
-               ExternalInterface.call("bstSwfSndLoadingProgress", playerId,
-                    event.bytesLoaded / event.bytesTotal);
-            }
-
             private function loadingErrorHandler(event:IOErrorEvent):void {
                 var txt:String = event.text.toLowerCase();
                 if(txt.search("2032") >= 0) {
-                    logError("Error loading media at " + mediaUrl +
-                        ".  The stream could not be opened, please check your network connection.");
+                    logError(event.text);
+//                    logError("Error loading media at " + mediaUrl +
+//                        ".  The stream could not be opened, please check your network connection.");
                 } else {
                     logError(event.text);
-                }
-            }
-
-            private function id3Handler(event:Event):void {
-                try {
-                    mediaID3 = sound.id3;
-                    log("ID3 data available");
-                    ExternalInterface.call("bstSwfSndID3", playerId);
-                } catch(err:Error) {
-                    log(err.message);
                 }
             }
 
@@ -257,6 +199,50 @@
 
             private function logError(error:String):void {
                 ExternalInterface.call("bstSwfSndError", playerId, error);
+            }
+
+            private function getBaseURL(url:String):String {
+                return url.substring(0, url.lastIndexOf("/"));
+            }
+
+            /************************* M3U PLAYLIST SUPPORT ****************************/
+            private var loader:URLLoader;
+            private var m3uParser:M3UParser;
+
+            private function loadM3U(m3uUrl:String, append:Boolean):void {
+                m3uParser = new M3UParser(getBaseURL(m3uUrl));
+
+                loader = new URLLoader();
+                loader.addEventListener(IOErrorEvent.IO_ERROR, loadingErrorHandler);
+                if(append) {
+                    loader.addEventListener(Event.COMPLETE, listAppendHandler);
+                } else {
+                    loader.addEventListener(Event.COMPLETE, loaderCompleteHandler);
+                }
+
+                try {
+                    loader.load(new URLRequest(m3uUrl));
+                } catch (error:Error) {
+                }
+            }
+
+            private function listAppendHandler(event:Event):void {
+                var mp3s:Array = m3uParser.parse(loader.data);
+
+                for(var i:uint = 0; i < mp3s.length; i++) {
+                    mp3engine.getPlaylist().add(mp3s[i]);
+                }
+                mp3engine.getPlaylist().checkShuffle();
+            }
+
+            private function loaderCompleteHandler(event:Event):void {
+                var playlist:Playlist = new Playlist();
+                var mp3s:Array = m3uParser.parse(loader.data);
+
+                for(var i:uint = 0; i < mp3s.length; i++) {
+                    playlist.add(mp3s[i]);
+                }
+                mp3engine.setPlaylist(playlist);
             }
         ]]>
     </mx:Script>
