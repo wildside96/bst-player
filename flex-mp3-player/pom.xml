@@ -3,12 +3,17 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <artifactId>parent</artifactId>
-        <groupId>com.bramosystems.gwt.player</groupId>
+        <groupId>com.bramosystems.oss.player</groupId>
         <version>1.0-SNAPSHOT</version>
     </parent>
     <artifactId>flex-mp3-player</artifactId>
     <packaging>swf</packaging>
-    <name>flex-mp3-player</name>
+    <name>Flex MP3 Player</name>
+
+    <description>
+        This project is component part of the BST Player API.
+        It implements the FlashMP3Player flash application.
+    </description>
 
     <build>
         <sourceDirectory>src/main/flex</sourceDirectory>
@@ -22,6 +27,7 @@
                     <flexHome>${flex.home}</flexHome>
                     <useNetwork>true</useNetwork>
                     <main>Main.mxml</main>
+                    <incremental>false</incremental>
                 </configuration>
             </plugin>
         </plugins>
