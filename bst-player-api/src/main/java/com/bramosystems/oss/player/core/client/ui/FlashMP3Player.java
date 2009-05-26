@@ -67,6 +67,7 @@ public class FlashMP3Player extends AbstractMediaPlayer {
     private String playerId;
     private boolean isEmbedded;
     private Logger logger;
+    private MediaStateListener _onInitLoopCountListener,  _onInitListListener,  _onInitSuffleListener;
 
     /**
      * Constructs <code>FlashMP3Player</code> with the specified {@code height} and
@@ -212,15 +213,11 @@ public class FlashMP3Player extends AbstractMediaPlayer {
 
     private void checkAvailable() {
         if (!impl.isPlayerAvailable(playerId)) {
-            String message = "Player closed already, create another instance";
+            String message = "Player closed already or not available on page yet! " +
+                    "Create another instance";
             fireDebug(message);
             throw new IllegalStateException(message);
         }
-    }
-
-    public void ejectMedia() {
-        checkAvailable();
-        impl.ejectMedia(playerId);
     }
 
     public long getMediaDuration() {
@@ -276,18 +273,89 @@ public class FlashMP3Player extends AbstractMediaPlayer {
     }
 
     /**
-     * Returns the remaining number of times this player loops playback before stopping.
+     * Returns the number of times this player repeats playback before stopping.
      */
     @Override
     public int getLoopCount() {
+        checkAvailable();
         return impl.getLoopCount(playerId);
     }
 
     /**
-     * Sets the number of times the current media file should loop playback before stopping.
+     * Sets the number of times the current media file should repeat playback before stopping.
      */
     @Override
-    public void setLoopCount(int loop) {
-        impl.setLoopCount(playerId, loop);
+    public void setLoopCount(final int loop) {
+        if (impl.isPlayerAvailable(playerId)) {
+            impl.setLoopCount(playerId, loop);
+        } else {
+            if (containsMediaStateListener(_onInitLoopCountListener)) {
+                // ensure only one instance is queued ...
+                removeMediaStateListener(_onInitLoopCountListener);
+            }
+            _onInitLoopCountListener = new MediaStateListenerAdapter() {
+
+                @Override
+                public void onPlayerReady() {
+                    impl.setLoopCount(playerId, loop);
+                    removeMediaStateListener(_onInitLoopCountListener);
+                }
+            };
+            addMediaStateListener(_onInitLoopCountListener);
+        }
+    }
+
+    @Override
+    public void addToPlaylist(final String mediaURL) {
+        if (impl.isPlayerAvailable(playerId)) {
+            impl.addToPlaylist(playerId, mediaURL);
+        } else {
+            if (containsMediaStateListener(_onInitListListener)) {
+                removeMediaStateListener(_onInitListListener);
+            }
+
+            _onInitListListener = new MediaStateListenerAdapter() {
+
+                @Override
+                public void onPlayerReady() {
+                    impl.addToPlaylist(playerId, mediaURL);
+                    removeMediaStateListener(_onInitListListener);
+                }
+            };
+            addMediaStateListener(_onInitListListener);
+        }
+    }
+
+    @Override
+    public boolean isShuffleEnabled() {
+        checkAvailable();
+        return impl.isShuffleEnabled(playerId);
+    }
+
+    @Override
+    public void removeFromPlaylist(int index) {
+        checkAvailable();
+        impl.removeFromPlaylist(playerId, index);
+    }
+
+    @Override
+    public void setShuffleEnabled(final boolean enable) {
+        if (impl.isPlayerAvailable(playerId)) {
+            impl.setShuffleEnabled(playerId, enable);
+        } else {
+            if (containsMediaStateListener(_onInitSuffleListener)) {
+                removeMediaStateListener(_onInitSuffleListener);
+            }
+
+            _onInitSuffleListener = new MediaStateListenerAdapter() {
+
+                @Override
+                public void onPlayerReady() {
+                    impl.setShuffleEnabled(playerId, enable);
+                    removeMediaStateListener(_onInitSuffleListener);
+                }
+            };
+            addMediaStateListener(_onInitSuffleListener);
+        }
     }
 }

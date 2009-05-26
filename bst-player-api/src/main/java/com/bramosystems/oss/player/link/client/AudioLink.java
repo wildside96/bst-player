@@ -16,11 +16,10 @@
 package com.bramosystems.oss.player.link.client;
 
 import com.bramosystems.oss.player.core.client.*;
-import com.bramosystems.oss.player.core.client.ui.*;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HorizontalPanel;
+import com.google.gwt.user.client.ui.Label;
 
 /**
  *
@@ -32,34 +31,9 @@ public class AudioLink extends AbstractMediaPlayer {
     private State playState;
     private boolean isRealized;
 
-    public AudioLink(String mediaURL, String text, boolean preload)
+    public AudioLink(String mediaURL, String text, final boolean preload)
             throws PluginNotFoundException, PluginVersionException, LoadException {
-        this(Plugin.Auto, mediaURL, text, preload);
-    }
-
-    public AudioLink(Plugin playerPlugin, String mediaURL, String text, final boolean preload)
-            throws PluginNotFoundException, PluginVersionException, LoadException {
-        switch (playerPlugin) {
-            case FlashMP3Player:
-                engine = new FlashMP3Player(mediaURL, false, null, null);
-                break;
-            case QuickTimePlayer:
-                engine = new QuickTimePlayer(mediaURL, false, null, null);
-                break;
-            case WinMediaPlayer:
-                engine = new WinMediaPlayer(mediaURL, false, null, null);
-                break;
-            case FlashVideoPlayer:
-                engine = new FlashVideoPlayer(mediaURL, false, null, null);
-                break;
-            case Auto:
-                engine = PlayerUtil.getPlayer(mediaURL, false, null, null);
-                break;
-        }
-
-        final HorizontalPanel hp = new HorizontalPanel();
-        initWidget(hp);
-
+        engine = PlayerUtil.getPlayer(mediaURL, false, null, null);
         engine.addMediaStateListener(new MediaStateListener() {
 
             public void onError(String description) {
@@ -98,11 +72,21 @@ public class AudioLink extends AbstractMediaPlayer {
             }
 
             public void onMediaInfoAvailable(MediaInfo info) {
+                // build media info ...
+                StringBuilder b = new StringBuilder();
+                b.append(info.getItem(MediaInfo.MediaInfoKey.Title));
+                b.append(" - " + info.getItem(MediaInfo.MediaInfoKey.Artists));
+                b.append(" - " + info.getItem(MediaInfo.MediaInfoKey.AlbumTitle));
+                setTitle(b.toString());
+                
                 fireMediaInfoAvailable(info);
             }
         });
 
-        HTML link = new HTML("<a href='" + mediaURL + "'>" + text + "</a>");
+        final HorizontalPanel hp = new HorizontalPanel();
+        initWidget(hp);
+
+        Label link = new Label(text);
         link.addClickHandler(new ClickHandler() {
 
             public void onClick(ClickEvent event) {
@@ -123,13 +107,13 @@ public class AudioLink extends AbstractMediaPlayer {
                 }
             }
         });
+
         hp.add(link);
         if (preload) {
             hp.add(engine);
         }
 
         setStyleName("player-AudioLink");
-        setTitle("Ctrl + Click to follow link");
         playState = State.stop;
         isRealized = false;
     }

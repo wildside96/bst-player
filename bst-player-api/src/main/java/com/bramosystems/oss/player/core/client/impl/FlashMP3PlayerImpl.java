@@ -44,24 +44,8 @@ public class FlashMP3PlayerImpl {
         return isPlayerAvailableImpl(jso, playerId);
     }
 
-    public final void loadMedia(String playerId, String url) {
-        loadMediaImpl(jso, playerId, url);
-    }
-
     public final void playMedia(String playerId) {
         playMediaImpl(jso, playerId);
-    }
-
-    public final void pauseMedia(String playerId) {
-        pauseMediaImpl(jso, playerId);
-    }
-
-    public final void stopMedia(String playerId) {
-        stopMediaImpl(jso, playerId);
-    }
-
-    public final void ejectMedia(String playerId) {
-        ejectMediaImpl(jso, playerId);
     }
 
     public final void closeMedia(String playerId) {
@@ -69,31 +53,15 @@ public class FlashMP3PlayerImpl {
     }
 
     public final double getPlayPosition(String playerId) {
-        return Double.parseDouble(getPlayPositionImpl(jso, playerId));
-    }
-
-    public final void setPlayPosition(String playerId, double position) {
-        setPlayPositionImpl(jso, playerId, position);
+        return Double.parseDouble(getPlayPositionImpl(playerId));
     }
 
     public final double getVolume(String playerId) {
-        return Double.parseDouble(getVolumeImpl(jso, playerId));
-    }
-
-    public final void setVolume(String playerId, double volume) {
-        setVolumeImpl(jso, playerId, volume);
-    }
-
-    public final int getLoopCount(String playerId) {
-        return getLoopCountImpl(jso, playerId);
-    }
-
-    public final void setLoopCount(String playerId, int count) {
-        setLoopCountImpl(jso, playerId, count);
+        return Double.parseDouble(getVolumeImpl(playerId));
     }
 
     public final double getMediaDuration(String playerId) {
-        return Double.parseDouble(getMediaDurationImpl(jso, playerId));
+        return Double.parseDouble(getMediaDurationImpl(playerId));
     }
 
     protected native void initGlobalCallbacks(JavaScriptObject jso) /*-{
@@ -132,8 +100,8 @@ public class FlashMP3PlayerImpl {
         $wnd.bstSwfSndDebug = function(playerId, message){
             jso[playerId].doDebug(message);
         }
-        $wnd.bstSwfSndID3 = function(playerId){
-            jso[playerId].doID3();
+        $wnd.bstSwfSndID3 = function(playerId, id3){
+            jso[playerId].doID3(id3);
         }
      }-*/;
 
@@ -142,7 +110,6 @@ public class FlashMP3PlayerImpl {
     jso[playerId] = new Object();
     jso[playerId]._mediaURL = mediaURL;
     jso[playerId]._autoplay = autoplay;
-    jso[playerId].loopCount = 0;
 
     // add callbacks...
     jso[playerId].errorr = function(message) {
@@ -155,20 +122,7 @@ public class FlashMP3PlayerImpl {
     listener.@com.bramosystems.oss.player.core.client.MediaStateListener::onPlayerReady()();
     };
     jso[playerId].playFinished = function() {
-        if (jso[playerId].loopCount < 0) {
-            jso[playerId].statPlay();
-        } else {
-            if (jso[playerId].loopCount > 1) {
-                jso[playerId].statPlay();
-                jso[playerId].loopCount--;
-            } else {
-                listener.@com.bramosystems.oss.player.core.client.MediaStateListener::onPlayFinished()();
-            }
-        }
-    };
-    jso[playerId].statPlay = function() {
-        var player = $doc.getElementById(playerId);
-        player.playSnd();
+    listener.@com.bramosystems.oss.player.core.client.MediaStateListener::onPlayFinished()();
     };
     jso[playerId].loaded = function() {
         listener.@com.bramosystems.oss.player.core.client.MediaStateListener::onLoadingComplete()();
@@ -182,10 +136,8 @@ public class FlashMP3PlayerImpl {
     jso[playerId].parseID3 = function(value) {
         return (value == undefined) ? '' : value;
     };
-    jso[playerId].doID3 = function() {
+    jso[playerId].doID3 = function(pInfo) {
         try {
-            var playr = $doc.getElementById(playerId);
-            var pInfo = playr.getSndID3();
             id3.@com.bramosystems.oss.player.core.client.MediaInfo::year = jso[playerId].parseID3(pInfo.year);
             id3.@com.bramosystems.oss.player.core.client.MediaInfo::albumTitle = jso[playerId].parseID3(pInfo.album);
             id3.@com.bramosystems.oss.player.core.client.MediaInfo::artists = jso[playerId].parseID3(pInfo.artist);
@@ -207,30 +159,28 @@ public class FlashMP3PlayerImpl {
     }-*/;
 
     private native boolean isPlayerAvailableImpl(JavaScriptObject jso, String playerId) /*-{
-        return (jso[playerId] != undefined) || (jso[playerId] != null);
+        return ((jso[playerId] != undefined) || (jso[playerId] != null)) &&
+                ($doc.getElementById(playerId) != null);
      }-*/;
 
-    private native void loadMediaImpl(JavaScriptObject jso, String playerId, String url) /*-{
+    public native void loadMedia(String playerId, String url) /*-{
         var player = $doc.getElementById(playerId);
         player.loadSnd(url);
     }-*/;
 
     private native void playMediaImpl(JavaScriptObject jso, String playerId) /*-{
-        jso[playerId].statPlay();
+        var player = $doc.getElementById(playerId);
+        player.playSnd();
      }-*/;
 
-    private native void stopMediaImpl(JavaScriptObject jso, String playerId) /*-{
+    public native void stopMedia(String playerId) /*-{
         var player = $doc.getElementById(playerId);
         player.stopSnd();
     }-*/;
 
-    private native void pauseMediaImpl(JavaScriptObject jso, String playerId) /*-{
+    public native void pauseMedia(String playerId) /*-{
         var player = $doc.getElementById(playerId);
         player.pauseSnd();
-    }-*/;
-
-    private native void ejectMediaImpl(JavaScriptObject jso, String playerId) /*-{
-//        jso[playerId].player.eject();
     }-*/;
 
     private native void closeMediaImpl(JavaScriptObject jso, String playerId) /*-{
@@ -242,36 +192,58 @@ public class FlashMP3PlayerImpl {
         delete jso[playerId];
     }-*/;
 
-    private native String getPlayPositionImpl(JavaScriptObject jso, String playerId) /*-{
+    private native String getPlayPositionImpl(String playerId) /*-{
         var player = $doc.getElementById(playerId);
         return player.getSndPlayPosition().toString();
     }-*/;
 
-    private native void setPlayPositionImpl(JavaScriptObject jso, String playerId, double position) /*-{
+    public native void setPlayPosition(String playerId, double position) /*-{
         var player = $doc.getElementById(playerId);
         player.setSndPlayPosition(position);
      }-*/;
 
-    private native String getMediaDurationImpl(JavaScriptObject jso, String playerId) /*-{
+    private native String getMediaDurationImpl(String playerId) /*-{
         var player = $doc.getElementById(playerId);
         return player.getSndDuration().toString();
     }-*/;
 
-    private native String getVolumeImpl(JavaScriptObject jso, String playerId) /*-{
+    private native String getVolumeImpl(String playerId) /*-{
         var player = $doc.getElementById(playerId);
         return player.getSndVolume().toString();
     }-*/;
 
-    private native void setVolumeImpl(JavaScriptObject jso, String playerId, double volume) /*-{
+    public native void setVolume(String playerId, double volume) /*-{
         var player = $doc.getElementById(playerId);
         player.setSndVolume(volume);
     }-*/;
 
-    private native void setLoopCountImpl(JavaScriptObject jso, String playerId, int count) /*-{
-        jso[playerId].loopCount = count;
+    public native void setLoopCount(String playerId, int count) /*-{
+        var player = $doc.getElementById(playerId);
+        player.setSndPlayCount(count);
     }-*/;
 
-    private native int getLoopCountImpl(JavaScriptObject jso, String playerId) /*-{
-        return jso[playerId].loopCount;
+    public native int getLoopCount(String playerId) /*-{
+        var player = $doc.getElementById(playerId);
+        player.getSndPlayCount();
+    }-*/;
+
+    public native void addToPlaylist(String playerId, String mediaURL) /*-{
+        var player = $doc.getElementById(playerId);
+        player.addMediaToPlaylist(mediaURL);
+    }-*/;
+
+    public native void removeFromPlaylist(String playerId, int index) /*-{
+        var player = $doc.getElementById(playerId);
+        player.removeMediaFromPlaylist(index);
+    }-*/;
+
+    public native boolean isShuffleEnabled(String playerId) /*-{
+        var player = $doc.getElementById(playerId);
+        return player.isMediaShuffleOn();
+    }-*/;
+
+    public native void setShuffleEnabled(String playerId, boolean enable) /*-{
+        var player = $doc.getElementById(playerId);
+        player.setMediaShuffleOn(enable);
     }-*/;
 }

@@ -18,6 +18,7 @@
 <module>
     <inherits name="com.google.gwt.user.User"/>
     <public path="publicc" />
+    <stylesheet src="player-flat-styles.css" />
 
 	<!-- WinMediaPlayer mapping for IE6 & IE7 -->
     <replace-with class="com.bramosystems.oss.player.core.client.impl.WinMediaPlayerImplIE">
