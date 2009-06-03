@@ -19,8 +19,7 @@ import com.bramosystems.oss.player.core.client.PlayerUtil;
 import com.bramosystems.oss.player.core.client.PlayException;
 import com.bramosystems.oss.player.core.client.MediaStateListenerAdapter;
 import com.bramosystems.oss.player.core.client.AbstractMediaPlayer;
-import com.bramosystems.oss.player.core.client.ui.FlashMP3Player;
-import com.bramosystems.oss.player.core.client.ui.FlashVideoPlayer;
+import com.bramosystems.oss.player.core.client.ui.FlashPlayer;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
@@ -29,8 +28,8 @@ import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
 
 /**
- * Custom player control widget.  Used by the {@link FlashVideoPlayer}, {@link FlashMP3Player}
- * and the {@link FlatVideoPlayer} classes.
+ * Custom player control widget.  Used by the {@link FlashPlayer} and
+ * the {@link FlatVideoPlayer} classes.
  *
  * @author Sikirulai Braheem
  * @since 0.6
@@ -206,11 +205,6 @@ public class FlatCustomControl extends Composite {
 
         face.setCellWidth(seekbar, "100%");
         face.setCellHorizontalAlignment(seekbar, DockPanel.ALIGN_CENTER);
-
-//        DOM.setStyleAttribute(timeLabel.getElement(), "font", "bold 8pt Arial,Helvetica,sans-serif");
-//        DOM.setStyleAttribute(timeLabel.getElement(), "color", "white");
-//        DOM.setStyleAttribute(face.getElement(), "background",
-//                "url(" + GWT.getModuleBaseURL() + "flat-bg.png) repeat");
         return face;
     }
 

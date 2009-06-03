@@ -6,13 +6,13 @@
         <groupId>com.bramosystems.oss.player</groupId>
         <version>1.0-SNAPSHOT</version>
     </parent>
-    <artifactId>flex-video-player</artifactId>
+    <artifactId>bst-flash-player</artifactId>
     <packaging>swf</packaging>
-    <name>Flex Video Player</name>
+    <name>BST Flash Player</name>
 
     <description>
-        This project is component part of the BST Player API. It implements the FlashVideoPlayer
-        flash application.
+        This project is component part of the BST Player API.
+        It implements the FlashPlayer SWF application.
     </description>
 
     <build>
@@ -27,6 +27,7 @@
                     <flexHome>${flex.home}</flexHome>
                     <useNetwork>true</useNetwork>
                     <main>Main.mxml</main>
+                    <incremental>false</incremental>
                 </configuration>
             </plugin>
         </plugins>

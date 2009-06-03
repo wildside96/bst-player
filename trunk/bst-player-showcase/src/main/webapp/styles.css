@@ -59,10 +59,23 @@ pre code {
 }
 
 .showcase-Case {
-    border-style: solid;
-    border-width: 3px;
-    border-color: #b1b1db;
+    border: solid 3px #b1b1db;
     margin-bottom: 20px;
+}
+
+.showcase-Menu {
+    border-left: solid 2px #b1b1db;
+    border-top: solid 2px #b1b1db;
+    border-bottom: solid 2px #b1b1db;
+    background-color: #b1b1db;
+    padding: 5px;
+}
+.showcase-Menu:hover {
+    cursor: pointer;
+	background-color: #f5f5f5;
+    border-left: solid 2px #b1b1db;
+    border-top: solid 2px #b1b1db;
+    border-bottom: solid 2px #b1b1db;
 }
 
 .player-MissingPlugin {
@@ -80,6 +93,25 @@ pre code {
 
 .player-MissingPlugin-message {
     padding: 5px;
+}
+
+.player-AudioLink {
+    background: #ffff00 url(images/player-link-playable.png) center right no-repeat;
+    padding: 0px 20px 0px 5px;
+    color: blue;
+    cursor: pointer;
+}
+.player-AudioLink-playing {
+    background: #ffff00 url(images/player-link-pause.png) center right no-repeat;
+    padding: 0px 20px 0px 5px;
+    color: blue;
+    cursor: pointer;
+}
+.player-AudioLink-paused {
+    background: #ffff00 url(images/player-link-playing.png) center right no-repeat;
+    padding: 0px 20px 0px 5px;
+    color: blue;
+    cursor: pointer;
 }
 
 .gwt-TabBar .gwt-TabBarItem {

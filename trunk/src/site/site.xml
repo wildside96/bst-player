@@ -7,7 +7,8 @@
             <item name="Overview" href="index.html" />
             <item name="Getting Started" href="getting-started.html" />
             <item name="Release Notes" href="release-note.html" />
-            <item name="Download" href="http://code.google.com/p/bst-player/download/list" />
+            <item name="Download" href="http://code.google.com/p/bst-player/downloads/list" />
+            <!--item name="Wikis" href="http://code.google.com/p/bst-player/w/list" /-->
         </menu>
         <menu name="Demo Applications">
             <item name="Windows Media Player" href="wmp.html" />
@@ -20,7 +21,7 @@
         <menu ref="modules" />
     </body>
     <poweredBy>
-        <logo name="Maven" href="http://maven.apache.org/" img="images/logos/build-by-maven-white.png" />
+        <logo name="Maven" href="http://maven.apache.org/" img="./images/logos/build-by-maven-white.png" />
     </poweredBy>
     <skin>
         <groupId>com.bramosystems.mvn</groupId>

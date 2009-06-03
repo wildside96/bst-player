@@ -26,6 +26,7 @@ import com.google.gwt.core.client.JavaScriptObject;
  *
  * @author Sikirulai Braheem
  * @see FlashMP3Player
+ * @deprecated Replaced with {@link FlashPlayerImpl}. Will be removed in a future version
  */
 public class FlashMP3PlayerImpl {
     private JavaScriptObject jso;
@@ -42,10 +43,6 @@ public class FlashMP3PlayerImpl {
 
     public final boolean isPlayerAvailable(String playerId) {
         return isPlayerAvailableImpl(jso, playerId);
-    }
-
-    public final void playMedia(String playerId) {
-        playMediaImpl(jso, playerId);
     }
 
     public final void closeMedia(String playerId) {
@@ -168,7 +165,7 @@ public class FlashMP3PlayerImpl {
         player.loadSnd(url);
     }-*/;
 
-    private native void playMediaImpl(JavaScriptObject jso, String playerId) /*-{
+    public native void playMedia(String playerId) /*-{
         var player = $doc.getElementById(playerId);
         player.playSnd();
      }-*/;

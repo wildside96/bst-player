@@ -19,4 +19,6 @@
     <inherits name="com.google.gwt.i18n.I18N"/>
     <inherits name="com.bramosystems.oss.player.BSTPlayer" />
     <entry-point class="com.bramosystems.gwt.player.showcase.client.Showcase" />
+    
+    <stylesheet src="player-link-styles.css" />
 </module>

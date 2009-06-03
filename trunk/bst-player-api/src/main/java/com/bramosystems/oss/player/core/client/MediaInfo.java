@@ -61,7 +61,7 @@ public class MediaInfo {
                 "<tr class='info_odd'><td>Title</td><td>" + title + "</td></tr>" +
                 "<tr><td>Artists</td><td>" + artists + "</td></tr>" +
                 "<tr class='info_odd'><td>AlbumTitle</td><td>" + albumTitle + "</td></tr>" +
-                "<tr><td>Genre</td><td>" + genre + "</td></tr>" +
+                "<tr><td>Genre</td><td>" + decodeGenre() + "</td></tr>" +
                 "<tr class='info_odd'><td>Year</td><td>" + year + "</td></tr>" +
                 "<tr><td>Duration</td><td>" + PlayerUtil.formatMediaTime((long) duration) + "</td></tr>" +
                 "<tr class='info_odd'><td>Publisher</td><td>" + publisher + "</td></tr>" +

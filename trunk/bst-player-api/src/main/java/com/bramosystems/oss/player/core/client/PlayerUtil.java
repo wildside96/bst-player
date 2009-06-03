@@ -16,8 +16,7 @@
 package com.bramosystems.oss.player.core.client;
 
 import com.bramosystems.oss.player.core.client.impl.PlayerUtilImpl;
-import com.bramosystems.oss.player.core.client.ui.FlashMP3Player;
-import com.bramosystems.oss.player.core.client.ui.FlashVideoPlayer;
+import com.bramosystems.oss.player.core.client.ui.FlashPlayer;
 import com.bramosystems.oss.player.core.client.ui.QuickTimePlayer;
 import com.bramosystems.oss.player.core.client.ui.WinMediaPlayer;
 import com.google.gwt.core.client.GWT;
@@ -109,10 +108,9 @@ public class PlayerUtil {
 
         switch (impl.suggestPlayer(protocol, ext)) {
             case FlashVideoPlayer:
-                player = new FlashVideoPlayer(mediaURL, autoplay, height, width);
-                break;
             case FlashMP3Player:
-                player = new FlashMP3Player(mediaURL, autoplay, height, width);
+            case FlashPlayer:
+                player = new FlashPlayer(mediaURL, autoplay, height, width);
                 break;
             case QuickTimePlayer:
                 player = new QuickTimePlayer(mediaURL, autoplay, height, width);
@@ -267,6 +265,7 @@ public class PlayerUtil {
                 break;
             case FlashMP3Player:
             case FlashVideoPlayer:
+            case FlashPlayer:
                 message = "Adobe Flash Player " + version + " or later is required to play" +
                         "this media. Click here to get Flash";
                 break;
@@ -303,6 +302,7 @@ public class PlayerUtil {
                 break;
             case FlashMP3Player:
             case FlashVideoPlayer:
+            case FlashPlayer:
                 message = "Adobe Flash Player is required to play" +
                         "this media. Click here to get Flash";
                 break;

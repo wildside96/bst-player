@@ -36,23 +36,23 @@ public class Showcase extends Composite implements EntryPoint {
         Label banner = new Label("BST Player Showcase");
         banner.setStyleName("showcase-Banner");
 
-        VerticalPanel bar = new VerticalPanel();
-        bar.add(getSectionLink("Home", 0));
-        bar.add(getSectionLink("Windows Media Player", 1));
-        bar.add(getSectionLink("QuickTime", 2));
-        bar.add(getSectionLink("Flash", 3));
-        bar.add(getSectionLink("Custom Audio Player", 4));
-        bar.add(getSectionLink("Custom Video Player", 5));
-        bar.add(getSectionLink("Playable Links", 6));
-        bar.add(getSectionLink("Miscellaneous", 7));
-
-        StackPanel sp = new StackPanel();
-        sp.add(bar, "Examples");
+        VerticalPanel menu = new VerticalPanel();
+        menu.add(getSectionLink("Home", 0));
+        menu.add(getSectionLink("Windows Media Player", 1));
+        menu.add(getSectionLink("QuickTime", 2));
+        menu.add(getSectionLink("Flash", 3));
+        menu.add(getSectionLink("Custom Audio Player", 4));
+        menu.add(getSectionLink("Custom Video Player", 5));
+        menu.add(getSectionLink("Playlists", 6));
+        menu.add(getSectionLink("Playable Links", 7));
+        menu.add(getSectionLink("Miscellaneous", 8));
 
         DockPanel dp = new DockPanel();
         dp.setWidth("100%");
+        dp.setSpacing(5);
         dp.add(banner, DockPanel.NORTH);
-        dp.add(sp, DockPanel.WEST);
+        dp.add(menu, DockPanel.WEST);
+        dp.setCellWidth(menu, "150px");
         dp.add(panel, DockPanel.CENTER);
         initWidget(dp);
     }
@@ -65,6 +65,7 @@ public class Showcase extends Composite implements EntryPoint {
 
     public Label getSectionLink(String text, final int index) {
         Label lbl = new Label(text);
+        lbl.setStyleName("showcase-Menu");
         lbl.addClickHandler(new ClickHandler() {
 
             public void onClick(ClickEvent event) {
@@ -92,9 +93,12 @@ public class Showcase extends Composite implements EntryPoint {
                 panel.setWidget(new DynaVideoShowcase());
                 break;
             case 6:
-                panel.setWidget(new LinkShowcase());
+                panel.setWidget(new PlaylistShowcase());
                 break;
             case 7:
+                panel.setWidget(new LinkShowcase());
+                break;
+            case 8:
                 panel.setWidget(new MiscShowcase());
                 break;
             default:

@@ -22,6 +22,9 @@ import com.bramosystems.oss.player.core.client.PlayerUtil;
 import com.bramosystems.oss.player.core.client.Plugin;
 import com.bramosystems.oss.player.core.client.PluginNotFoundException;
 import com.bramosystems.oss.player.core.client.PluginVersionException;
+import com.bramosystems.oss.player.core.client.ui.FlashPlayer;
+import com.bramosystems.oss.player.core.client.ui.QuickTimePlayer;
+import com.bramosystems.oss.player.core.client.ui.WinMediaPlayer;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
@@ -30,24 +33,31 @@ import com.google.gwt.user.client.ui.*;
  *
  * @author Sikirulai Braheem <sbraheem at gmail.com>
  */
-public class DynaShowcase extends AbstractCase {
+public class PlaylistShowcase extends AbstractCase {
 
-    public DynaShowcase() {
-        Widget c = null;
+    public PlaylistShowcase() {
+        Widget c3 = null;
         try {
-            c = new Capsule(Plugin.WinMediaPlayer, GWT.getHostPageBaseURL() + "media/o-na-som.mp3", false);
+            WinMediaPlayer mp = new WinMediaPlayer(GWT.getHostPageBaseURL() + "media/playlist.m3u", false);
+            mp.showLogger(true);
+            mp.setLoopCount(2);
+            c3 = mp;
         } catch (LoadException ex) {
             Window.alert("Load exp");
         } catch (PluginVersionException ex) {
-            c = PlayerUtil.getMissingPluginNotice(Plugin.WinMediaPlayer, ex.getRequiredVersion());
+            c3 = PlayerUtil.getMissingPluginNotice(Plugin.WinMediaPlayer, ex.getRequiredVersion());
         } catch (PluginNotFoundException ex) {
-            c = PlayerUtil.getMissingPluginNotice(Plugin.WinMediaPlayer);
+            c3 = PlayerUtil.getMissingPluginNotice(Plugin.WinMediaPlayer);
         }
-        addCase(c, "sources/custom-audio/wmp.html");
+        addCase(c3, "sources/custom-audio/wmp.html");
 
         Widget c2 = null;
         try {
-            c2 = new Capsule(Plugin.FlashPlayer, GWT.getHostPageBaseURL() + "media/applause.mp3", false);
+            FlashPlayer mp = new FlashPlayer(GWT.getHostPageBaseURL() + "media/funky.m3u", false);
+            mp.showLogger(true);
+            mp.addToPlaylist(GWT.getHostPageBaseURL() + "media/playlist.m3u");
+            mp.setShuffleEnabled(true);
+            c2 = mp;
         } catch (LoadException ex) {
             Window.alert("Load exp");
         } catch (PluginVersionException ex) {
@@ -55,38 +65,38 @@ public class DynaShowcase extends AbstractCase {
         } catch (PluginNotFoundException ex) {
             c2 = PlayerUtil.getMissingPluginNotice(Plugin.FlashPlayer);
         }
-        addCase(c2, "sources/custom-audio/swf.html");
+        addCase(c2, "sources/custom-audio/wmp.html");
 
-        Widget c3 = null;
+        Widget c = null;
         try {
-            c3 = new Capsule(Plugin.QuickTimePlayer, GWT.getHostPageBaseURL() + "media/thunder.mp3", false);
+            QuickTimePlayer mp = new QuickTimePlayer(GWT.getHostPageBaseURL() + "media/playlist.m3u", false);
+            mp.showLogger(true);
+            c = mp;
         } catch (LoadException ex) {
             Window.alert("Load exp");
         } catch (PluginVersionException ex) {
-            c3 = PlayerUtil.getMissingPluginNotice(Plugin.QuickTimePlayer, ex.getRequiredVersion());
+            c = PlayerUtil.getMissingPluginNotice(Plugin.QuickTimePlayer, ex.getRequiredVersion());
         } catch (PluginNotFoundException ex) {
-            c3 = PlayerUtil.getMissingPluginNotice(Plugin.QuickTimePlayer);
+            c = PlayerUtil.getMissingPluginNotice(Plugin.QuickTimePlayer);
         }
-            addCase(c3, "sources/custom-audio/qt.html");
+        addCase(c, "sources/custom-audio/wmp.html");
 
         Widget c4 = null;
         try {
-            Capsule cap = new Capsule(GWT.getHostPageBaseURL() + "media/o-na-som.mp3", false);
-            cap.showLogger(true);
-            c4 = cap;
+            Capsule mp = new Capsule(GWT.getHostPageBaseURL() + "media/playlist.m3u", false);
+            mp.showLogger(true);
+            c4 = mp;
         } catch (LoadException ex) {
             Window.alert("Load exp");
         } catch (PluginVersionException ex) {
-            c4 = PlayerUtil.getMissingPluginNotice(Plugin.Auto, "No Plugin",
-                    "A compatible sound plugin could not be found", false);
+            c4 = PlayerUtil.getMissingPluginNotice(Plugin.Auto, ex.getRequiredVersion());
         } catch (PluginNotFoundException ex) {
-            c4 = PlayerUtil.getMissingPluginNotice(Plugin.Auto, "No Plugin",
-                    "A compatible sound plugin could not be found", false);
+            c4 = PlayerUtil.getMissingPluginNotice(Plugin.Auto);
         }
-        addCase(c4, "sources/custom-audio/dyn.html");
+        addCase(c4, "sources/custom-audio/wmp.html");
     }
 
     public String getSummary() {
-        return "Using custom sound player controls.";
+        return "Working with playlists";
     }
 }

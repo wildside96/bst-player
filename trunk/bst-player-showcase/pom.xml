@@ -21,7 +21,7 @@
                 <artifactId>maven-gwt-plugin</artifactId>
                 <version>1.0.2</version>
                 <executions>
-                    <execution>
+                    <!--execution>
                         <id>js-showcase</id>
                         <goals>
                             <goal>compile</goal>
@@ -31,7 +31,7 @@
                             <jvmArgs>-Xmx256M</jvmArgs>
                             <outputDirectory>${gwt.out.dir}</outputDirectory>
                         </configuration>
-                    </execution>
+                    </execution-->
                     <execution>
                         <id>showcase</id>
                         <goals>
