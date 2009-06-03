@@ -24,7 +24,7 @@ import com.bramosystems.oss.player.core.client.MediaStateListener;
 import com.bramosystems.oss.player.core.client.MediaStateListenerAdapter;
 import com.bramosystems.oss.player.core.client.PluginNotFoundException;
 import com.bramosystems.oss.player.core.client.AbstractMediaPlayer;
-import com.bramosystems.oss.player.core.client.impl.FlashVideoPlayerImpl;
+import com.bramosystems.oss.player.core.client.impl.FlashPlayerImpl;
 import com.bramosystems.oss.player.core.client.skin.FlatCustomControl;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.ui.*;
@@ -61,12 +61,13 @@ import com.google.gwt.user.client.ui.*;
  *
  * @author Sikirulai Braheem
  * @since 0.6
+ * @deprecated Replaced with {@link FlashPlayer} class
  */
 public class FlashVideoPlayer extends AbstractMediaPlayer {
 
-    private static FlashVideoPlayerImpl impl = new FlashVideoPlayerImpl();
-    private String playerId,  mediaURL;
-    private boolean autoplay,  isEmbedded;
+    private static FlashPlayerImpl impl = new FlashPlayerImpl();
+    private String playerId;
+    private boolean  isEmbedded;
     private Logger logger;
     private FlatCustomControl control;
 
@@ -94,8 +95,6 @@ public class FlashVideoPlayer extends AbstractMediaPlayer {
     public FlashVideoPlayer(String mediaURL, boolean autoplay, String height, String width)
             throws PluginNotFoundException, PluginVersionException, LoadException {
 
-        this.autoplay = autoplay;
-        this.mediaURL = mediaURL;
         isEmbedded = (height == null) || (width == null);
 
         if (isEmbedded) {
@@ -103,12 +102,14 @@ public class FlashVideoPlayer extends AbstractMediaPlayer {
             width = "0px";
         }
 
-        SWFWidget swf = new SWFWidget(GWT.getModuleBaseURL() + "video-player-1.0-SNAPSHOT.swf",
+        SWFWidget swf = new SWFWidget(GWT.getModuleBaseURL() + "bst-flash-player-1.0-SNAPSHOT.swf",
                 "100%", height, PluginVersion.get(9, 0, 0));
         playerId = swf.getId();
-        swf.addProperty("flashVars", "playerId=" + playerId);
+        swf.addProperty("flashVars", "playerId=" + playerId + "&autoplay=" + autoplay);
+        swf.addProperty("allowScriptAccess", "sameDomain");
+        swf.addProperty("bgcolor", "#000000");
 
-        impl.init(playerId, mediaURL, autoplay, new MediaStateListener() {
+        impl.init(playerId, mediaURL, new MediaStateListener() {
 
             public void onPlayFinished() {
                 firePlayFinished();
@@ -185,11 +186,6 @@ public class FlashVideoPlayer extends AbstractMediaPlayer {
             fireDebug(message);
             throw new IllegalStateException(message);
         }
-    }
-
-    public void ejectMedia() {
-        checkAvailable();
-        impl.ejectMedia(playerId);
     }
 
     public long getMediaDuration() {

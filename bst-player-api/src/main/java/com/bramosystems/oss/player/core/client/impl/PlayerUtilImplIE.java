@@ -57,23 +57,13 @@ public class PlayerUtilImplIE extends PlayerUtilImpl {
             }
         }
 
-        if (pg.equals(Plugin.Auto)) {    // supported player not found yet, try flash sound ...
-            if (Arrays.binarySearch(flsPool, ext.toLowerCase()) >= 0) {
-                pv = new PluginVersion();
-                getFlashPluginVersion(pv);          // SWF plugin supported ext....
-                if (pv.compareTo(9, 0, 0) >= 0) {   // req SWF plugin found...
-                    pg = Plugin.FlashMP3Player;
-                }
-            }
-        }
-
         if (pg.equals(Plugin.Auto)) {    // supported player not found yet, try flash video ...
             if (Arrays.binarySearch(flvPool, ext.toLowerCase()) >= 0) {
                 // check if plugin is available...
                 pv = new PluginVersion();
                 getFlashPluginVersion(pv);          // SWF plugin supported ext....
                 if (pv.compareTo(9, 0, 0) >= 0) {   // req SWF plugin found...
-                    pg = Plugin.FlashVideoPlayer;
+                    pg = Plugin.FlashPlayer;
                 }
             }
         }

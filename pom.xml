@@ -33,7 +33,7 @@
     <scm>
         <connection>scm:svn:http://bst-player.googlecode.com/svn/trunk</connection>
         <developerConnection>scm:svn:https://bst-player.googlecode.com/svn/trunk</developerConnection>
-        <url>http://code.google.com/p/bst-player/source/browse</url>
+        <url>http://code.google.com/p/bst-player/source/browse/trunk</url>
     </scm>
 
     <issueManagement>
@@ -84,15 +84,10 @@
     </dependencyManagement>
 
     <modules>
-        <module>flex-video-player</module>
         <module>bst-player-api</module>
-        <module>flex-mp3-player</module>
         <module>bst-player-showcase</module>
+        <module>bst-flash-player</module>
     </modules>
-
-    <properties>
-        <flex.home>E:/RUNTIMEs/flex_sdk_3</flex.home>
-    </properties>
 
     <reporting>
         <plugins>
@@ -136,7 +131,7 @@
     <!--distributionManagement>
         <site>
             <id>website</id>
-            <url>file:///e:/PROJECTs/Bramosystems Site/oss/bst-player</url>
+            <url>file://oss.bramosystems.com/bst-player</url>
         </site>
     </distributionManagement-->
 </project>

@@ -21,8 +21,7 @@ import com.bramosystems.oss.player.core.client.PlayerUtil;
 import com.bramosystems.oss.player.core.client.Plugin;
 import com.bramosystems.oss.player.core.client.PluginNotFoundException;
 import com.bramosystems.oss.player.core.client.PluginVersionException;
-import com.bramosystems.oss.player.core.client.ui.FlashMP3Player;
-import com.bramosystems.oss.player.core.client.ui.FlashVideoPlayer;
+import com.bramosystems.oss.player.core.client.ui.FlashPlayer;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
@@ -36,55 +35,56 @@ public class SWFShowcase extends AbstractCase {
     public SWFShowcase() {
         Widget mp = null;
         try {
-            mp = new FlashMP3Player(GWT.getHostPageBaseURL() + "media/applause.mp3");
+            mp = new FlashPlayer(GWT.getHostPageBaseURL() + "media/applause.mp3");
         } catch (LoadException ex) {
             Window.alert("Load exp");
         } catch (PluginVersionException ex) {
-            mp = PlayerUtil.getMissingPluginNotice(Plugin.FlashMP3Player, ex.getRequiredVersion());
+            mp = PlayerUtil.getMissingPluginNotice(Plugin.FlashPlayer, ex.getRequiredVersion());
         } catch (PluginNotFoundException ex) {
-            mp = PlayerUtil.getMissingPluginNotice(Plugin.FlashMP3Player);
+            mp = PlayerUtil.getMissingPluginNotice(Plugin.FlashPlayer);
         }
         addCase(mp, "sources/swf/auto.html");
 
         Widget mp2 = null;
         try {
-            mp2 = new FlashMP3Player(GWT.getHostPageBaseURL() + "media/thunder.mp3", false);
+            mp2 = new FlashPlayer(GWT.getHostPageBaseURL() + "media/thunder.mp3", false);
         } catch (LoadException ex) {
             Window.alert("Load exp");
         } catch (PluginVersionException ex) {
-            mp2 = PlayerUtil.getMissingPluginNotice(Plugin.FlashMP3Player, ex.getRequiredVersion());
+            mp2 = PlayerUtil.getMissingPluginNotice(Plugin.FlashPlayer, ex.getRequiredVersion());
         } catch (PluginNotFoundException ex) {
-            mp2 = PlayerUtil.getMissingPluginNotice(Plugin.FlashMP3Player);
+            mp2 = PlayerUtil.getMissingPluginNotice(Plugin.FlashPlayer);
         }
         addCase(mp2, "sources/swf/no-auto.html");
 
         Widget mp3 = null;
         try {
-            FlashMP3Player p3 = new FlashMP3Player(GWT.getHostPageBaseURL() + "media/o-na-som.mp3", false);
+            FlashPlayer p3 = new FlashPlayer(GWT.getHostPageBaseURL() + "media/o-na-som.mp3", false);
             p3.showLogger(true);
             mp3 = p3;
         } catch (LoadException ex) {
             Window.alert("Load exp");
         } catch (PluginVersionException ex) {
-            mp3 = PlayerUtil.getMissingPluginNotice(Plugin.FlashMP3Player, ex.getRequiredVersion());
+            mp3 = PlayerUtil.getMissingPluginNotice(Plugin.FlashPlayer, ex.getRequiredVersion());
         } catch (PluginNotFoundException ex) {
-            mp3 = PlayerUtil.getMissingPluginNotice(Plugin.FlashMP3Player);
+            mp3 = PlayerUtil.getMissingPluginNotice(Plugin.FlashPlayer);
         }
         addCase(mp3, "sources/swf/show-logger.html");
 
         Widget mp4 = null;
         try {
-            FlashVideoPlayer v1 = new FlashVideoPlayer("http://vixy.net/flv/" +
-                    "vixy_net_podcaster_demo_director.flv",
+            FlashPlayer v1 = new FlashPlayer(
+                    "/downloads3/Soul For Real/Candy Rain/01 Candy Rain.m4a",
+//                    "/downloads2/video/project-dev/teaching-of-islam.flv",
                     false, "350px", "100%");
             v1.showLogger(true);
             mp4 = v1;
         } catch (LoadException ex) {
             Window.alert("Load exp");
         } catch (PluginVersionException ex) {
-            mp4 = PlayerUtil.getMissingPluginNotice(Plugin.FlashVideoPlayer, ex.getRequiredVersion());
+            mp4 = PlayerUtil.getMissingPluginNotice(Plugin.FlashPlayer, ex.getRequiredVersion());
         } catch (PluginNotFoundException ex) {
-            mp4 = PlayerUtil.getMissingPluginNotice(Plugin.FlashVideoPlayer);
+            mp4 = PlayerUtil.getMissingPluginNotice(Plugin.FlashPlayer);
         }
         addCase(mp4, "sources/swf/video.html");
     }

@@ -36,8 +36,8 @@ public class PlayerUtilImpl {
         "sdv", "m1s", "m1a", "m1v", "mpm", "mpv", "mpa", "m2a", "m4a", "m4p", "m4b"};
     protected final static String[] wmpPool = {"asf", "asx", "wmv", "wvx", "wm",
         "wma", "wax", "wav", "mp3", "mid", "midi", "smf", "m3u"};
-    protected final static String[] flvPool = {"flv", "mp4", "f4v", "m4a", "mov", "mp4v"}; // "3gp", "3g2"
-    protected final static String[] flsPool = {"mp3", "m3u"};  // "spl",
+    protected final static String[] flvPool = {"flv", "mp4", "f4v", "m4a", "mov", 
+        "mp4v", "mp3", "m3u"}; // "3gp", "3g2"
     
     protected final static String[] qtProt = {"rtsp", "rts"};
 //    protected final static String[] flsProt = {};
@@ -45,7 +45,6 @@ public class PlayerUtilImpl {
 
     public PlayerUtilImpl() {
         Arrays.sort(flvPool);
-        Arrays.sort(flsPool);
         Arrays.sort(qtPool);
         Arrays.sort(qtProt);
         Arrays.sort(wmpPool);
@@ -77,23 +76,13 @@ public class PlayerUtilImpl {
             }
         }
 
-        if (pg.equals(Plugin.Auto)) {    // supported player not found yet, try flash sound ...
-            if (Arrays.binarySearch(flsPool, ext.toLowerCase()) >= 0) {
-                pv = new PluginVersion();
-                getFlashPluginVersion(pv);          // SWF plugin supported ext....
-                if (pv.compareTo(9, 0, 0) >= 0) {   // req SWF plugin found...
-                    pg = Plugin.FlashMP3Player;
-                }
-            }
-        }
-
         if (pg.equals(Plugin.Auto)) {    // supported player not found yet, try flash video...
             if (Arrays.binarySearch(flvPool, ext.toLowerCase()) >= 0) {
                 // check if plugin is available...
                 pv = new PluginVersion();
                 getFlashPluginVersion(pv);          // SWF plugin supported ext....
                 if (pv.compareTo(9, 0, 0) >= 0) {   // req SWF plugin found...
-                    pg = Plugin.FlashVideoPlayer;
+                    pg = Plugin.FlashPlayer;
                 }
             }
         }

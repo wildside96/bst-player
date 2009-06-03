@@ -43,14 +43,20 @@ public enum Plugin {
 
     /**
      * Specifies the Flash Player plugin for MP3 sound
+     * @deprecated Will be removed in a future version, use {@link #FlashPlayer} instead.
      */
     FlashMP3Player("http://www.adobe.com/go/getflash"),
     
     /**
      * Specifies the Flash Player plugin for Flash Videos
+     * @deprecated Will be removed in a future version, use {@link #FlashPlayer} instead.
      */
-    FlashVideoPlayer("http://www.adobe.com/go/getflash");
+    FlashVideoPlayer("http://www.adobe.com/go/getflash"),
     
+    /**
+     * Specifies the Flash Player plugin
+     */
+    FlashPlayer("http://www.adobe.com/go/getflash");
 
     private String downloadURL;
 

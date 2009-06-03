@@ -16,7 +16,6 @@
 
 package com.bramosystems.gwt.player.showcase.client;
 
-import com.bramosystems.oss.player.capsule.client.Capsule;
 import com.bramosystems.oss.player.core.client.LoadException;
 import com.bramosystems.oss.player.core.client.PlayerUtil;
 import com.bramosystems.oss.player.core.client.Plugin;
@@ -36,20 +35,20 @@ public class LinkShowcase extends AbstractCase {
     public LinkShowcase() {
         Widget c = null;
         try {
-            c = new AudioLink(Plugin.Auto, GWT.getHostPageBaseURL() + "media/o-na-som.mp3",
+            c = new AudioLink(GWT.getHostPageBaseURL() + "media/o-na-som.mp3",
                     "O na som", false);
         } catch (LoadException ex) {
             Window.alert("Load exp");
         } catch (PluginVersionException ex) {
-            c = PlayerUtil.getMissingPluginNotice(Plugin.WinMediaPlayer, ex.getRequiredVersion());
+            c = PlayerUtil.getMissingPluginNotice(Plugin.Auto, ex.getRequiredVersion());
         } catch (PluginNotFoundException ex) {
-            c = PlayerUtil.getMissingPluginNotice(Plugin.WinMediaPlayer);
+            c = PlayerUtil.getMissingPluginNotice(Plugin.Auto);
         }
         addCase(c, "sources/custom-audio/wmp.html");
 
     }
 
     public String getSummary() {
-        return "Using custom sound player controls.";
+        return "Using playable links.";
     }
 }

@@ -48,17 +48,18 @@ public class DynaVideoShowcase extends AbstractCase {
 
         Widget v2 = null;
         try {
-            FlatVideoPlayer vp = new FlatVideoPlayer(Plugin.FlashVideoPlayer,
-                    "http://vixy.net/flv/vixy_net_podcaster_demo_director.flv",
+            FlatVideoPlayer vp = new FlatVideoPlayer(Plugin.FlashPlayer,
+                    "http://movies.apple.com/movies/paramount/star_trek/startrek-tlr3_h.480.mov",
+//                    "http://vixy.net/flv/vixy_net_podcaster_demo_director.flv",
                     false, "350px", "100%");
             vp.showLogger(true);
             v2 = vp;
         } catch (LoadException ex) {
             Window.alert("Load exp");
         } catch (PluginVersionException ex) {
-            v2 = PlayerUtil.getMissingPluginNotice(Plugin.FlashVideoPlayer, ex.getRequiredVersion());
+            v2 = PlayerUtil.getMissingPluginNotice(Plugin.FlashPlayer, ex.getRequiredVersion());
         } catch (PluginNotFoundException ex) {
-            v2 = PlayerUtil.getMissingPluginNotice(Plugin.FlashVideoPlayer);
+            v2 = PlayerUtil.getMissingPluginNotice(Plugin.FlashPlayer);
         }
         addCase(v2, "sources/custom-video/swf.html");
 
