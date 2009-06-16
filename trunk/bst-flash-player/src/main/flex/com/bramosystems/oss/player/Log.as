@@ -21,11 +21,11 @@ package com.bramosystems.oss.player {
         public static var playerId:String = "";
 
         public static function info(message:String):void {
-            ExternalInterface.call("bstSwfSndDebug", playerId, message);
+            ExternalInterface.call("bstSwfMdaDebug", playerId, message);
         }
 
         public static function error(message:String):void {
-            ExternalInterface.call("bstSwfSndError", playerId, message);
+            ExternalInterface.call("bstSwfMdaError", playerId, message);
         }
     }
 }

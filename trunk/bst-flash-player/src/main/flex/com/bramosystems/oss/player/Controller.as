@@ -28,7 +28,7 @@ package com.bramosystems.oss.player {
     import mx.controls.*;
     import mx.events.*;
 
-    public class Controller extends UIComponent {
+    public class Controller {
 
             private var playerId:String;
             private var player:Engine, mp3:Engine, vdu:VideoEngine;
@@ -40,12 +40,15 @@ package com.bramosystems.oss.player {
 
                 mp3 = new MP3Engine(playerId, playFinishedHandler);
                 vdu = new VideoEngine(playerId, playFinishedHandler);
-                addChild(vdu.getDisplayComponent());
+            }
+
+            public function getDisplayComponent():UIComponent {
+                return vdu.getDisplayComponent();
             }
 
             /**************************** PLAYER IMPL ******************************/
             private var mediaURL:String;
-            private var playlist:Playlist;
+            private var playlist:Playlist = new Playlist();;
 
             public function setPlaylist(playlist:Playlist):void {
                 this.playlist = playlist;
@@ -63,9 +66,11 @@ package com.bramosystems.oss.player {
             public function load(mediaURL:String):void {
                 if(mediaURL.search(".mp3") >= 0) {
                     player = mp3
+                    vdu.getDisplayComponent().visible = false;
                     Log.info("Using MP3Engine ...");
                 } else {
                     player = vdu;
+                    vdu.getDisplayComponent().visible = true;
                     Log.info("Using VideoEngine ...");
                 }
 
@@ -119,7 +124,7 @@ package com.bramosystems.oss.player {
                     play();
                 } else {
                    Log.info("Media playback finished");
-                   ExternalInterface.call("bstSwfSndMediaStateChanged", playerId, 9);
+                   ExternalInterface.call("bstSwfMdaMediaStateChanged", playerId, 9);
                 }
             }
     }
