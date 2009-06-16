@@ -14,14 +14,14 @@
                 This page contains information on the various released packages of the project.
             </p>
 
-            <subsection name="13 March 2009 - Version 0.6">
+            <subsection name="13 March 2009 - Version 1.0">
                 <p>
                     <b>New Features</b>
                 </p>
 
                 <ul>
-                    <li>
-                    </li>
+                    <li>Introduces VLCPlayer widget to embed VLC Media Player plugin.</li>
+                    <li>Playlists now supported.</li>
                 </ul>
 
                 <p>
@@ -29,9 +29,9 @@
                 </p>
 
                 <ul>
-                    <li>
-                        Code refactoring: library split into modules and packages renamed.
-                    </li>
+                    <li>Code refactoring: library split into modules and packages renamed.</li>
+                    <li>FlashMP3Player and FlashVideoPlayer classes replaced
+                        with the new FlashPlayer class</li>
                 </ul>
 
                 <p>
