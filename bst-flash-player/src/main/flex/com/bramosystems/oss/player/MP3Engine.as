@@ -159,7 +159,7 @@ package com.bramosystems.oss.player {
 
             /********************* Javascript call impls. *************************/
             private function loadingStartedHandler(event:Event):void {
-               ExternalInterface.call("bstSwfSndMediaStateChanged", playerId, 1);
+               ExternalInterface.call("bstSwfMdaMediaStateChanged", playerId, 1);
                Log.info("Media loading started");
             }
 
@@ -167,14 +167,14 @@ package com.bramosystems.oss.player {
                 isPlaying = true;
                 isPaused = false;
                 Log.info("Media playback started");
-                ExternalInterface.call("bstSwfSndMediaStateChanged", playerId, 2);
+                ExternalInterface.call("bstSwfMdaMediaStateChanged", playerId, 2);
             }
 
             private function loadingCompleteHandler(event:Event):void {
                if(sound != null)
                     soundDuration = sound.length;
 
-               ExternalInterface.call("bstSwfSndMediaStateChanged", playerId, 10);
+               ExternalInterface.call("bstSwfMdaMediaStateChanged", playerId, 10);
                Log.info("Loading complete");
             }
 
@@ -182,7 +182,7 @@ package com.bramosystems.oss.player {
                if(sound != null)
                     soundDuration = sound.length;
 
-               ExternalInterface.call("bstSwfSndLoadingProgress", playerId,
+               ExternalInterface.call("bstSwfMdaLoadingProgress", playerId,
                     event.bytesLoaded / event.bytesTotal);
             }
 
@@ -200,7 +200,7 @@ package com.bramosystems.oss.player {
                 try {
                     if(propagateID3) {  // workarround for multiple firing ...
                         Log.info("ID3 data available");
-                        ExternalInterface.call("bstSwfSndID3", playerId, sound.id3);
+                        ExternalInterface.call("bstSwfMdaID3", playerId, sound.id3);
                         propagateID3 = false;
                     }
                 } catch(err:Error) {

@@ -111,12 +111,12 @@ package com.bramosystems.oss.player {
 
             /********************* Javascript call impls. *************************/
             private function initCompleteNotify():void {
-                ExternalInterface.call("bstSwfSndInit", playerId);
+                ExternalInterface.call("bstSwfMdaInit", playerId);
             }
 
             private function metadataHandler(meta:MetadataEvent):void {
                 if(propagateMeta) {  // workarround for multiple firing ...
-                    var hdwr:String = "Audio: ";
+                    var hdwr:String = "Audio Codec: ";
                     switch(meta.info.audiocodecid) {
                         case 0:
                             hdwr += "Uncompressed";
@@ -136,8 +136,10 @@ package com.bramosystems.oss.player {
                         default:
                             hdwr += "Unknown";
                     }
+                    hdwr += ", Audio data rate: " + meta.info.audiodatarate;
 
                     hdwr += ", Video: ";
+                    video.visible = true;
                     switch(meta.info.videocodecid) {
                         case 2:
                             hdwr += "Sorenson H.263";
@@ -153,11 +155,13 @@ package com.bramosystems.oss.player {
                             break;
                         default:
                             hdwr += "Unknown";
+                            video.visible = false;
                     }
+                    hdwr += ", Video data rate: " + meta.info.videodatarate;
                     hdwr += ", Frame rate: " + meta.info.framerate;
 
                     Log.info("Media Metadata available");
-                    ExternalInterface.call("bstSwfSndMetadata", playerId, meta.info.duration, hdwr);
+                    ExternalInterface.call("bstSwfMdaMetadata", playerId, meta.info.duration, hdwr);
                     propagateMeta = false;
                 }
             }
@@ -186,20 +190,20 @@ package com.bramosystems.oss.player {
             }
 
             private function playerReadyHandler():void {
-                ExternalInterface.call("bstSwfSndMediaStateChanged", playerId, 1);
+                ExternalInterface.call("bstSwfMdaMediaStateChanged", playerId, 1);
             }
 
             private function playStatedHandler():void {
                 Log.info("Media playback started");
-                ExternalInterface.call("bstSwfSndMediaStateChanged", playerId, 2);
+                ExternalInterface.call("bstSwfMdaMediaStateChanged", playerId, 2);
             }
 
             private function loadingProgressHandler(event:ProgressEvent):void {
                 var prog:Number = event.bytesLoaded / event.bytesTotal;
                 if(prog < 1.0) {
-                    ExternalInterface.call("bstSwfSndLoadingProgress", playerId, prog);
+                    ExternalInterface.call("bstSwfMdaLoadingProgress", playerId, prog);
                 } else {
-                    ExternalInterface.call("bstSwfSndMediaStateChanged", playerId, 10);
+                    ExternalInterface.call("bstSwfMdaMediaStateChanged", playerId, 10);
                     Log.info("Loading complete");
                 }
             }
