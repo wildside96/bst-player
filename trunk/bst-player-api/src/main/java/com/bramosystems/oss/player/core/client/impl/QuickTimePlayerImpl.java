@@ -32,8 +32,7 @@ public class QuickTimePlayerImpl {
     private JavaScriptObject jso;
 
     // Make package private....
-    QuickTimePlayerImpl() {
-    }
+    QuickTimePlayerImpl(){}
 
     public void init(String playerId, MediaStateListener listener) {
         if(jso == null) {
@@ -78,6 +77,7 @@ public class QuickTimePlayerImpl {
                     jso[playerId].debug('QuickTime Player plugin');
                     var plyr = $doc.getElementById(playerId);
                     jso[playerId].debug('Version : ' + plyr.GetPluginVersion());
+                    plyr.SetResetPropertiesOnReload(false); // disable property reset ...
                 }
             };
         }
@@ -104,7 +104,16 @@ public class QuickTimePlayerImpl {
         listener.@com.bramosystems.oss.player.core.client.MediaStateListener::onPlayStarted()();
         var plyr = $doc.getElementById(playerId);
         jso[playerId].debug('Playing media at ' + plyr.GetURL());
-        jso[playerId].doMetadata();
+        jso[playerId].debug('Chapter count :: ' + plyr.GetChapterCount());
+        count = plyr.GetTrackCount();
+        jso[playerId].debug('Track count  ::: ' + count);
+        for(i = 1; i <= count; i++){
+             jso[playerId].debug('Track Name ' + i + ' = ' + plyr.GetTrackName(i));
+             jso[playerId].debug('Track Type ' + i + ' = ' + plyr.GetTrackType(i));
+             jso[playerId].debug('Track Enab ' + i + ' = ' + plyr.GetTrackEnabled(i));
+             jso[playerId].debug('QTNEXTUrl  ' + i + ' = ' + plyr.GetQTNEXTUrl(i));
+        }
+//        jso[playerId].doMetadata();
     };
     jso[playerId].playerReady = function() {
         listener.@com.bramosystems.oss.player.core.client.MediaStateListener::onPlayerReady()();
@@ -181,11 +190,12 @@ public class QuickTimePlayerImpl {
     playr.addEventListener('qt_play', jso[playerId].playStarted, false);
     playr.addEventListener('qt_canplay', jso[playerId].playerReady, false);
     playr.addEventListener('qt_volumechange', jso[playerId].volumeChange, false);
-//    playr.addEventListener('qt_loadedmetadata', jso[playerId].doMetadata, false);
+    playr.addEventListener('qt_loadedmetadata', jso[playerId].doMetadata, false);
     }-*/;
 
     private native boolean isPlayerAvailableImpl(JavaScriptObject jso, String playerId) /*-{
-        return (jso[playerId] != undefined) || (jso[playerId] != null);
+        return ((jso[playerId] != undefined) || (jso[playerId] != null)) &&
+                ($doc.getElementById(playerId) != null);
      }-*/;
 
     private native void injectScriptImpl(String divId, String script) /*-{
@@ -355,4 +365,4 @@ public class QuickTimePlayerImpl {
         plyr.SetControllerVisible(show);
     }
     }-*/;
-}
+     }

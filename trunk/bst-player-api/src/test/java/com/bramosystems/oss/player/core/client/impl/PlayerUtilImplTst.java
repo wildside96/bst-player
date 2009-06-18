@@ -39,7 +39,7 @@ public class PlayerUtilImplTst extends GWTTestCase {
         PlayerUtilImpl instance = GWT.create(PlayerUtilImpl.class);
 
         Plugin result = instance.suggestPlayer(null, "flv");
-        assertEquals(Plugin.FlashVideoPlayer, result);
+        assertEquals(Plugin.FlashPlayer, result);
 
 //        result = instance.suggestPlayer(null, "mov");
 //        assertEquals(Plugin.QuickTimePlayer, result);

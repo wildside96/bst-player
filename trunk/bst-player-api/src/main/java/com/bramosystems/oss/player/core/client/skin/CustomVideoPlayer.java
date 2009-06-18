@@ -24,9 +24,10 @@ import com.bramosystems.oss.player.core.client.MediaStateListener;
 import com.bramosystems.oss.player.core.client.PluginNotFoundException;
 import com.bramosystems.oss.player.core.client.Plugin;
 import com.bramosystems.oss.player.core.client.AbstractMediaPlayer;
-import com.bramosystems.oss.player.core.client.ui.FlashVideoPlayer;
-import com.bramosystems.oss.player.core.client.ui.FlashMP3Player;
+import com.bramosystems.oss.player.core.client.PlaylistSupport;
+import com.bramosystems.oss.player.core.client.ui.FlashMediaPlayer;
 import com.bramosystems.oss.player.core.client.ui.QuickTimePlayer;
+import com.bramosystems.oss.player.core.client.ui.VLCPlayer;
 import com.bramosystems.oss.player.core.client.ui.WinMediaPlayer;
 import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
@@ -41,7 +42,7 @@ import com.google.gwt.user.client.ui.Widget;
  *
  * @author Sikirulai Braheem
  */
-public abstract class CustomVideoPlayer extends AbstractMediaPlayer {
+public abstract class CustomVideoPlayer extends AbstractMediaPlayer implements PlaylistSupport {
 
     private AbstractMediaPlayer engine;
     private SimplePanel container;
@@ -65,7 +66,7 @@ public abstract class CustomVideoPlayer extends AbstractMediaPlayer {
      * @see Plugin
      * @see QuickTimePlayer
      * @see WinMediaPlayer
-     * @see FlashMP3Player
+     * @see FlashMediaPlayer
      */
     public CustomVideoPlayer(Plugin playerPlugin, String mediaURL, boolean autoplay,
             String height, String width)
@@ -78,8 +79,11 @@ public abstract class CustomVideoPlayer extends AbstractMediaPlayer {
         }
 
         switch (playerPlugin) {
-            case FlashVideoPlayer:
-                engine = new FlashVideoPlayer(mediaURL, autoplay, height, "100%");
+            case VLCPlayer:
+                engine = new VLCPlayer(mediaURL, autoplay, height, "100%");
+                break;
+            case FlashPlayer:
+                engine = new FlashMediaPlayer(mediaURL, autoplay, height, "100%");
                 break;
             case QuickTimePlayer:
                 engine = new QuickTimePlayer(mediaURL, autoplay, height, "100%");
@@ -165,10 +169,6 @@ public abstract class CustomVideoPlayer extends AbstractMediaPlayer {
         engine.close();
     }
 
-//    public void ejectMedia() {
-//        engine.ejectMedia();
-//    }
-
     public long getMediaDuration() {
         return engine.getMediaDuration();
     }
@@ -219,6 +219,40 @@ public abstract class CustomVideoPlayer extends AbstractMediaPlayer {
     @Override
     public void setLoopCount(int loop) {
         engine.setLoopCount(loop);
+    }
+
+    public void addToPlaylist(String mediaURL) {
+        if (engine instanceof PlaylistSupport) {
+            ((PlaylistSupport) engine).addToPlaylist(mediaURL);
+        }
+    }
+
+    public boolean isShuffleEnabled() {
+        if (engine instanceof PlaylistSupport) {
+            return ((PlaylistSupport) engine).isShuffleEnabled();
+        }
+        return false;
+    }
+
+    public void removeFromPlaylist(int index) {
+        if (engine instanceof PlaylistSupport) {
+            ((PlaylistSupport) engine).removeFromPlaylist(index);
+        }
+    }
+
+    public void setShuffleEnabled(boolean enable) {
+        if (engine instanceof PlaylistSupport) {
+            ((PlaylistSupport) engine).setShuffleEnabled(enable);
+        }
+    }
+
+    public void clearPlaylist() {
+    }
+
+    public void playNext() {
+    }
+
+    public void playPrevious() {
     }
 
 }

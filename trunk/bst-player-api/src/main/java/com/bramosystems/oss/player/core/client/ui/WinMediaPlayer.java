@@ -62,10 +62,17 @@ public final class WinMediaPlayer extends AbstractMediaPlayer {
     private boolean isEmbedded, autoplay;
     private MediaStateListener _onInitLoopCountListener;
 
-    WinMediaPlayer() {
+    private WinMediaPlayer() throws PluginNotFoundException, PluginVersionException {
+        PluginVersion v = PlayerUtil.getWindowsMediaPlayerPluginVersion();
+        if (v.compareTo(1, 1, 1) < 0) {
+            throw new PluginVersionException("1.1.1", v.toString());
+        }
+
         if (impl == null) {
             impl = GWT.create(WinMediaPlayerImpl.class);
         }
+
+        playerId = DOM.createUniqueId().replace("-", "");
     }
 
     /**
@@ -93,14 +100,8 @@ public final class WinMediaPlayer extends AbstractMediaPlayer {
             throws LoadException, PluginNotFoundException, PluginVersionException {
         this();
 
-        PluginVersion v = PlayerUtil.getWindowsMediaPlayerPluginVersion();
-        if (v.compareTo(1, 1, 1) < 0) {
-            throw new PluginVersionException("1, 1, 1", v.toString());
-        }
-
         this.autoplay = autoplay;
         this.mediaURL = mediaURL;
-        playerId = DOM.createUniqueId().replace("-", "");
 
         impl.init(playerId, new MediaStateListener() {
 
@@ -261,9 +262,6 @@ public final class WinMediaPlayer extends AbstractMediaPlayer {
         impl.pause(playerId);
     }
 
-    public void ejectMedia() {
-    }
-
     public void close() {
         impl.close(playerId);
     }
@@ -333,16 +331,17 @@ public final class WinMediaPlayer extends AbstractMediaPlayer {
     public boolean isControllerVisible() {
         return uiMode.equals(UI_MODE_FULL);
     }
-
     /**
-     * Returns the remaining number of times this player loops playback before stopping.
+     * Returns the number of times this player repeats playback before stopping.
      */
     @Override
     public int getLoopCount() {
+        checkAvailable();
         return impl.getLoopCount(playerId);
     }
+
     /**
-     * Sets the number of times the current media file should loop playback before stopping.
+     * Sets the number of times the current media file should repeat playback before stopping.
      */
     @Override
     public void setLoopCount(final int loop) {
@@ -353,7 +352,6 @@ public final class WinMediaPlayer extends AbstractMediaPlayer {
                 // ensure only one instance is queued ...
                 removeMediaStateListener(_onInitLoopCountListener);
             }
-
             _onInitLoopCountListener = new MediaStateListenerAdapter() {
 
                 @Override
@@ -363,52 +361,6 @@ public final class WinMediaPlayer extends AbstractMediaPlayer {
                 }
             };
             addMediaStateListener(_onInitLoopCountListener);
-        }
-    }
-
-    @Override
-    public void addToPlaylist(final String mediaURL) {
-        if (impl.isPlayerAvailable(playerId)) {
-            impl.addToPlaylist(playerId, mediaURL);
-        } else {
-            final MediaStateListener playlistListener = new MediaStateListenerAdapter() {
-
-                @Override
-                public void onPlayerReady() {
-                    impl.addToPlaylist(playerId, mediaURL);
-//                    removeMediaStateListener(playlistListener);
-                }
-            };
-            addMediaStateListener(playlistListener);
-        }
-    }
-
-    @Override
-    public boolean isShuffleEnabled() {
-        if (impl.isPlayerAvailable(playerId)) {
-            return impl.isShuffleEnabled(playerId);
-        }
-        return false;
-    }
-
-    @Override
-    public void removeFromPlaylist(int index) {
-        checkAvailable();
-//        impl.removeFromPlaylist(playerId, index);
-    }
-
-    @Override
-    public void setShuffleEnabled(final boolean enable) {
-        if (impl.isPlayerAvailable(playerId)) {
-            impl.setShuffleEnabled(playerId, enable);
-        } else {
-            addMediaStateListener(new MediaStateListenerAdapter() {
-
-                @Override
-                public void onPlayerReady() {
-                    impl.setShuffleEnabled(playerId, enable);
-                }
-            });
         }
     }
 

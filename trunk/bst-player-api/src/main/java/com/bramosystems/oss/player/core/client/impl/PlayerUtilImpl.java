@@ -27,6 +27,8 @@ import java.util.Arrays;
  *
  * @see PlayerUtil
  * @author Sikirulai Braheem
+ *
+ * TODO: add suggest for VLC
  */
 public class PlayerUtilImpl {
 
@@ -116,17 +118,6 @@ public class PlayerUtilImpl {
         }
     }
 
-    public native String getPlugins() /*-{
-    var pp = navigator.plugins.length;
-    var plugs = "Length : " + pp + "<br/>";
-    for (counter=0; counter < pp; counter++ ) {
-    plugs += navigator.plugins[counter].name + ", " +
-    navigator.plugins[counter].description;
-    plugs += "<br/>";
-    }
-    return plugs;
-    }-*/;
-
     /**
      * Native implementation of Flash plugin detection
      * @param version wraps the detected version numbers.
@@ -193,6 +184,23 @@ public class PlayerUtilImpl {
     version.@com.bramosystems.oss.player.core.client.PluginVersion::setMajor(I)(parseInt(1));
     version.@com.bramosystems.oss.player.core.client.PluginVersion::setMinor(I)(parseInt(1));
     version.@com.bramosystems.oss.player.core.client.PluginVersion::setRevision(I)(parseInt(1));
+    }
+    }-*/;
+
+    /**
+     * Native implementation of VLC plugin detection
+     * @param version wraps the detected version numbers.
+     */
+    public native void getVLCPluginVersion(PluginVersion version) /*-{
+    if (navigator.plugins != null && navigator.plugins.length > 0 &&
+                        navigator.plugins["VLC Multimedia Plug-in"]) {
+        var desc = navigator.plugins["VLC Multimedia Plug-in"].description;
+        var descRegex = new RegExp("\\d+.\\d+.\\d+", "");
+        var verArray = (descRegex.exec(desc))[0].split(".");
+
+        version.@com.bramosystems.oss.player.core.client.PluginVersion::setMajor(I)(parseInt(verArray[0]));
+        version.@com.bramosystems.oss.player.core.client.PluginVersion::setMinor(I)(parseInt(verArray[1]));
+        version.@com.bramosystems.oss.player.core.client.PluginVersion::setRevision(I)(parseInt(verArray[2]));
     }
     }-*/;
 }

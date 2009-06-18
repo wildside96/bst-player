@@ -20,7 +20,8 @@
  * as well as other native implementation of utility functions.
  *
  * <p>
- * It is not recommended to interact directly with the classes in this package.
+ * It is not recommended to interact directly with the classes in this package
+ * as their definitions can change without notice.
  */
 package com.bramosystems.oss.player.core.client.impl;
 

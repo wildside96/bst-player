@@ -15,9 +15,7 @@
  */
 package com.bramosystems.oss.player.core.client.impl;
 
-import com.bramosystems.oss.player.core.client.MediaStateListener;
 import com.bramosystems.oss.player.core.client.ui.WinMediaPlayer;
-import com.google.gwt.core.client.JavaScriptObject;
 
 /**
  * IE specific native implementation of the WinMediaPlayer class. It is not recommended to
@@ -43,102 +41,51 @@ public class WinMediaPlayerImplIE extends WinMediaPlayerImpl {
     }
 
     @Override
-    protected void initGlobalEventListeners(JavaScriptObject jso) {
+    protected void initGlobalEventListeners(WinMediaPlayerImpl jso) {
         // override this and do nothing to avoid IE errors. Method is just a
         // workaround for non IE browsers.
     }
 
-    /**
-     * Create native MediaStateListener functions
-     * @param jso function wrapper
-     * @param playerId player ID
-     * @param listener callback
-     */
     @Override
-    protected native void createMediaStateListenerImpl(JavaScriptObject jso, String playerId,
-            MediaStateListener listener) /*-{
-    jso[playerId].errorr = function() {
-        var playr = $doc.getElementById(playerId);
-        var desc = playr.error.item(0).errorDescription;
-        listener.@com.bramosystems.oss.player.core.client.MediaStateListener::onError(Ljava/lang/String;)(desc);
-        jso[playerId].debug(desc);
-    };
-    jso[playerId].buffering = function(Start) {
-        var playr = $doc.getElementById(playerId);
-        if(Start == true) {
-            jso[playerId].progTimerId = $wnd.setInterval(function() {
-                  var prog = playr.network.downloadProgress / 100;
-                  listener.@com.bramosystems.oss.player.core.client.MediaStateListener::onLoadingProgress(D)(prog);
-            }, 1000);
-        } else {
-           $wnd.clearInterval(jso[playerId].progTimerId);
-           listener.@com.bramosystems.oss.player.core.client.MediaStateListener::onLoadingComplete()();
-           jso[playerId].debug('Media loading complete');
-        }
-    };
-    jso[playerId].playStateChange = function(NewState) {
-        switch(NewState) {
-            case 1:    // stopped..
-                jso[playerId].debug('Media playback stopped');
-                if(jso[playerId].doLoop == true) {
-                    jso[playerId].statPlay();
-                }
-                break;
-            case 2:    // paused..
-                jso[playerId].debug('Media playback paused');
-                break;
-            case 3:    // playing..
-                listener.@com.bramosystems.oss.player.core.client.MediaStateListener::onPlayStarted()();
-                var playr = $doc.getElementById(playerId);
-                jso[playerId].debug('Playing media at ' + playr.URL);
-                jso[playerId].doWMPMetadata();
-                break;
-            case 8:    // media ended...
-                if (jso[playerId].loopCount < 0) {
-                    jso[playerId].doLoop = true;
-                } else {
-                    if (jso[playerId].loopCount > 0) {
-                        jso[playerId].doLoop = true;
-                        jso[playerId].loopCount--;
-                    } else {
-                        jso[playerId].doLoop = false;
-                        listener.@com.bramosystems.oss.player.core.client.MediaStateListener::onPlayFinished()();
-                        jso[playerId].debug('Media playback finished');
-                    }
-                }
-                break;
-            case 10:    // player ready...
-                listener.@com.bramosystems.oss.player.core.client.MediaStateListener::onPlayerReady()();
-                var playr = $doc.getElementById(playerId);
-                var versn = playr.versionInfo;
-                jso[playerId].debug('Windows Media Player plugin ready');
-                jso[playerId].debug('Version ' + versn);
-                break;
-        }
-    };
+    public void registerMediaStateListener(String playerId) {
+        registerMediaStateListenerImpl(this, playerId);
+    }
+
+    private native void registerMediaStateListenerImpl(WinMediaPlayerImplIE impl, String playerId) /*-{
+    var playr = $doc.getElementById(playerId);
+    playr.attachEvent('playStateChange', function(NewState) {
+    impl.@com.bramosystems.oss.player.core.client.impl.WinMediaPlayerImplIE::firePlayStateChanged(Ljava/lang/String;)(playerId);
+    });
+    playr.attachEvent('buffering', function(Start) {
+    impl.@com.bramosystems.oss.player.core.client.impl.WinMediaPlayerImplIE::fireBuffering(Ljava/lang/String;Z)(playerId, Start);
+    });
+    playr.attachEvent('error', function() {
+    impl.@com.bramosystems.oss.player.core.client.impl.WinMediaPlayerImplIE::fireError(Ljava/lang/String;)(playerId);
+    });
+    impl.@com.bramosystems.oss.player.core.client.impl.WinMediaPlayerImplIE::firePlayStateChanged(Ljava/lang/String;)(playerId);
     }-*/;
 
-    @Override
-    protected native void registerMediaStateListenerImpl(JavaScriptObject jso, String playerId) /*-{
-        var playr = $doc.getElementById(playerId);
-        playr.attachEvent('playStateChange', jso[playerId].playStateChange);
-        playr.attachEvent('buffering', jso[playerId].buffering);
-        playr.attachEvent('error', jso[playerId].errorr);
-        if(playr.playState) {
-             jso[playerId].playStateChange(playr.playState);
-        }
-     }-*/;
+    private void firePlayStateChanged(String playerId) {
+        cache.get(playerId).checkPlayState();
+    }
 
-//    @Override
-//    public native void loadSound(String playerId, String mediaURL) /*-{
-//    var player = $doc.getElementById(playerId);
-//    player.URL = mediaURL;
-//    }-*/;
+    private void fireBuffering(String playerId, boolean buffering) {
+        cache.get(playerId).doBuffering(buffering);
+    }
+
+    private void fireError(String playerId) {
+        cache.get(playerId).onError(getErrorDiscriptionImpl(playerId));
+    }
 
     @Override
-    protected native void closeImpl(JavaScriptObject jso, String playerId) /*-{
-//    var player = $doc.getElementById(playerId);
-//    player.close();
-    delete jso[playerId];
+    public void close(String playerId) {
+        closeImpl(playerId);
+        super.close(playerId);
+    }
+
+    private native void closeImpl(String playerId) /*-{
+    var playr = $doc.getElementById(playerId);
+    playr.close();
     }-*/;
+
 }

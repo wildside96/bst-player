@@ -42,21 +42,15 @@ public enum Plugin {
     QuickTimePlayer("http://www.apple.com/quicktime/download"),
 
     /**
-     * Specifies the Flash Player plugin for MP3 sound
-     * @deprecated Will be removed in a future version, use {@link #FlashPlayer} instead.
-     */
-    FlashMP3Player("http://www.adobe.com/go/getflash"),
-    
-    /**
      * Specifies the Flash Player plugin for Flash Videos
-     * @deprecated Will be removed in a future version, use {@link #FlashPlayer} instead.
      */
-    FlashVideoPlayer("http://www.adobe.com/go/getflash"),
+    FlashPlayer("http://www.adobe.com/go/getflash"),
     
     /**
      * Specifies the Flash Player plugin
+     * @since 1.0
      */
-    FlashPlayer("http://www.adobe.com/go/getflash");
+    VLCPlayer("http://www.videolan.org");
 
     private String downloadURL;
 
