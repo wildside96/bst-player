@@ -4,7 +4,7 @@
  */
 package com.bramosystems.oss.player.core.client;
 
-import com.bramosystems.oss.player.core.client.ui.FlashMP3Player;
+import com.bramosystems.oss.player.core.client.ui.FlashMediaPlayer;
 import com.bramosystems.oss.player.core.client.ui.QuickTimePlayer;
 import com.bramosystems.oss.player.core.client.ui.WinMediaPlayer;
 import com.google.gwt.junit.client.GWTTestCase;
@@ -67,11 +67,14 @@ public class PlayerUtilTst extends GWTTestCase {
     public void testGetPlayer() throws Exception {
         System.out.println("getPlayer: MP3 format");
         AbstractMediaPlayer result = PlayerUtil.getPlayer("foo.mp3", false, "0", "0");
-        assertTrue(result instanceof FlashMP3Player);
+        assertTrue((result instanceof QuickTimePlayer) ||
+                (result instanceof WinMediaPlayer) ||
+                result instanceof FlashMediaPlayer);
 
         System.out.println("getPlayer: MOV format");
         result = PlayerUtil.getPlayer("foo.mov", false, "0", "0");
-        assertTrue(result instanceof QuickTimePlayer);
+        assertTrue((result instanceof QuickTimePlayer) ||
+                (result instanceof FlashMediaPlayer));
 
         System.out.println("getPlayer: WMA format");
         result = PlayerUtil.getPlayer("foo.wma", false, "0", "0");

@@ -173,7 +173,7 @@ public class PluginVersion implements IsSerializable, Serializable, Comparable<P
      * @see #compareTo(PluginVersion o)
      */
     public int compareTo(int major, int minor, int revision) {
-        return compareTo(new PluginVersion(minor, major, revision));
+        return compareTo(get(major, minor, revision));
     }
 
     /**

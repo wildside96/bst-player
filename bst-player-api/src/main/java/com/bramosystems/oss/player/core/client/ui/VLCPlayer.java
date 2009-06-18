@@ -17,6 +17,7 @@ package com.bramosystems.oss.player.core.client.ui;
 
 import com.bramosystems.oss.player.core.client.LoadException;
 import com.bramosystems.oss.player.core.client.PluginVersion;
+import com.bramosystems.oss.player.core.client.PlayerUtil;
 import com.bramosystems.oss.player.core.client.MediaInfo;
 import com.bramosystems.oss.player.core.client.PluginVersionException;
 import com.bramosystems.oss.player.core.client.PlayException;
@@ -24,13 +25,18 @@ import com.bramosystems.oss.player.core.client.MediaStateListener;
 import com.bramosystems.oss.player.core.client.MediaStateListenerAdapter;
 import com.bramosystems.oss.player.core.client.PluginNotFoundException;
 import com.bramosystems.oss.player.core.client.AbstractMediaPlayer;
-import com.bramosystems.oss.player.core.client.impl.FlashPlayerImpl;
+import com.bramosystems.oss.player.core.client.PlaylistSupport;
+import com.bramosystems.oss.player.core.client.impl.VLCPlayerImpl;
 import com.bramosystems.oss.player.core.client.skin.FlatCustomControl;
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.user.client.DOM;
+import com.google.gwt.user.client.Timer;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
+import java.util.ArrayList;
 
 /**
- * Widget to embed Flash plugin for playback of flash-supported formats
+ * Widget to embed VLC Player plugin.
  *
  * <h3>Usage Example</h3>
  *
@@ -40,16 +46,14 @@ import com.google.gwt.user.client.ui.*;
  * Widget player = null;
  * try {
  *      // create the player
- *      player = new FlashPlayer("www.example.com/mediafile.flv", false, "200px", "250px");
+ *      player = new VLCPlayer("www.example.com/mediafile.vob");
  * } catch(LoadException e) {
  *      // catch loading exception and alert user
  *      Window.alert("An error occured while loading");
  * } catch(PluginVersionException e) {
- *      // catch plugin version exception and alert user to download plugin first.
- *      // An option is to use the utility method in PlayerUtil class.
- *      player = PlayerUtil.getMissingPluginNotice(Plugin.FlashVideoPlayer, "Missing Plugin",
- *              ".. some nice message telling the user to click and download plugin first ..",
- *              false);
+ *      // catch plugin version exception and alert user, possibly providing a link
+ *      // to the plugin download page.
+ *      player = new HTML(".. some nice message telling the user to download plugin first ..");
  * } catch(PluginNotFoundException e) {
  *      // catch PluginNotFoundException and tell user to download plugin, possibly providing
  *      // a link to the plugin download page.
@@ -60,27 +64,43 @@ import com.google.gwt.user.client.ui.*;
  * </pre></code>
  *
  * @author Sikirulai Braheem
- * @since 1.0
  */
-public class FlashPlayer extends AbstractMediaPlayer {
+public final class VLCPlayer extends AbstractMediaPlayer implements PlaylistSupport {
 
-    private static FlashPlayerImpl impl = new FlashPlayerImpl();
-    private String playerId;
-    private boolean  isEmbedded;
+    private static VLCPlayerImpl impl;
+    private String playerId,  playerDivId,  mediaUrl;
+    private SimplePanel playerDiv;
     private Logger logger;
-    private FlatCustomControl control;
+    private boolean isEmbedded,  autoplay,  isLoaded;
     private MediaStateListener _onInitLoopCountListener,  _onInitListListener,  _onInitSuffleListener;
+    private ArrayList<String> _playlistCache;
+    private FlatCustomControl control;
+
+    VLCPlayer() throws PluginNotFoundException, PluginVersionException {
+        PluginVersion v = PlayerUtil.getVLCPlayerPluginVersion();
+        if (v.compareTo(0, 8, 6) < 0) {
+            throw new PluginVersionException("0.8.6", v.toString());
+        }
+
+        if (impl == null) {
+            impl = GWT.create(VLCPlayerImpl.class);
+        }
+
+        _playlistCache = new ArrayList<String>();
+        playerId = DOM.createUniqueId().replace("-", "");
+        isLoaded = false;
+    }
 
     /**
-     * Constructs <code>FlashPlayer</code> with the specified {@code height} and
+     * Constructs <code>VLCPlayer</code> with the specified {@code height} and
      * {@code width} to playback media located at {@code mediaURL}. Media playback
      * begins automatically if {@code autoplay} is {@code true}.
      *
      * <p> {@code height} and {@code width} are specified as CSS units. A value of {@code null}
      * for {@code height} or {@code width} puts the player in embedded mode.  When in embedded mode,
-     * the player is made invisible on the page and media state events are propagated to registered
+     * the player is made invisible on the page and media state events are propagated to registered 
      * listeners only.  This is desired especially when used with custom sound controls.  For custom
-     * video-playback control, specify valid CSS values for {@code height} and {@code width} but hide the
+     * video control, specify valid CSS values for {@code height} and {@code width} but hide the
      * player controls with {@code setControllerVisible(false)}.
      *
      * @param mediaURL the URL of the media to playback
@@ -89,27 +109,17 @@ public class FlashPlayer extends AbstractMediaPlayer {
      * @param width the width of the player.
      *
      * @throws LoadException if an error occurs while loading the media.
-     * @throws PluginVersionException if the required Flash plugin version is not installed on the client.
-     * @throws PluginNotFoundException if the Flash plugin is not installed on the client.
+     * @throws PluginVersionException if the required VLCPlayer plugin version is not installed on the client.
+     * @throws PluginNotFoundException if the VLCPlayer plugin is not installed on the client.
      */
-    public FlashPlayer(String mediaURL, boolean autoplay, String height, String width)
-            throws PluginNotFoundException, PluginVersionException, LoadException {
+    public VLCPlayer(String mediaURL, boolean autoplay, String height, String width)
+            throws LoadException, PluginVersionException, PluginNotFoundException {
+        this();
 
-        isEmbedded = (height == null) || (width == null);
+        mediaUrl = mediaURL;
+        this.autoplay = autoplay;
 
-        if (isEmbedded) {
-            height = "0px";
-            width = "0px";
-        }
-
-        SWFWidget swf = new SWFWidget(GWT.getModuleBaseURL() + "bst-flash-player-1.0-SNAPSHOT.swf",
-                "100%", height, PluginVersion.get(9, 0, 0));
-        playerId = swf.getId();
-        swf.addProperty("flashVars", "playerId=" + playerId + "&autoplay=" + autoplay);
-        swf.addProperty("allowScriptAccess", "sameDomain");
-        swf.addProperty("bgcolor", "#000000");
-
-        impl.init(playerId, mediaURL, new MediaStateListener() {
+        impl.init(playerId, new MediaStateListener() {
 
             public void onPlayFinished() {
                 firePlayFinished();
@@ -123,8 +133,8 @@ public class FlashPlayer extends AbstractMediaPlayer {
                 fireError(description);
             }
 
-            public void onDebug(String report) {
-                fireDebug(report);
+            public void onDebug(String message) {
+                fireDebug(message);
             }
 
             public void onLoadingProgress(double progress) {
@@ -144,78 +154,159 @@ public class FlashPlayer extends AbstractMediaPlayer {
             }
         });
 
-        VerticalPanel hp = new VerticalPanel();
-        hp.add(swf);
+        playerDivId = playerId + "_div";
+        playerDiv = new SimplePanel();
+        playerDiv.getElement().setId(playerDivId);
 
+        VerticalPanel dp = new VerticalPanel();
+        dp.add(playerDiv);
+
+        isEmbedded = (height == null) || (width == null);
         if (!isEmbedded) {
             control = new FlatCustomControl(this);
-            hp.add(control);
+            dp.add(control);
 
             logger = new Logger();
             logger.setVisible(false);
-            hp.add(logger);
+            dp.add(logger);
             addMediaStateListener(new MediaStateListenerAdapter() {
 
                 @Override
                 public void onError(String description) {
-                    log(description, false);
+                    Window.alert(description);
+                    logger.log(description, false);
                 }
 
                 @Override
                 public void onDebug(String message) {
-                    log(message, false);
+                    logger.log(message, false);
                 }
 
                 @Override
                 public void onMediaInfoAvailable(MediaInfo info) {
-                    log(info.asHTMLString(), true);
+                    logger.log(info.asHTMLString(), true);
                 }
             });
+        } else {
+            height = "0px";
+            width = "0px";
         }
-        initWidget(hp);
+
+        initWidget(dp);
+        playerDiv.setHeight(height);
         setWidth(width);
     }
 
     /**
-     * Constructs <code>FlashPlayer</code> to automatically playback media located at
-     * {@code mediaURL}.
-     *
-     * <p> Note: This constructor hides the video display component, the player controls are
-     * however visible.
+     * Constructs <code>VLCPlayer</code> to automatically playback media located at
+     * {@code mediaURL} using the default height of 20px and width of 100%.
      *
      * @param mediaURL the URL of the media to playback
      *
      * @throws LoadException if an error occurs while loading the media.
-     * @throws PluginVersionException if the required Flash plugin version is not installed on the client.
-     * @throws PluginNotFoundException if the Flash plugin is not installed on the client.
+     * @throws PluginVersionException if the required VLCPlayer plugin version is not installed on the client.
+     * @throws PluginNotFoundException if the VLCPlayer plugin is not installed on the client.
      *
      */
-    public FlashPlayer(String mediaURL) throws PluginNotFoundException,
-            PluginVersionException, LoadException {
-        this(mediaURL, true, "0px", "100%");
+    public VLCPlayer(String mediaURL) throws LoadException, PluginVersionException,
+            PluginNotFoundException {
+        this(mediaURL, true, "1px", "100%");
     }
 
     /**
-     * Constructs <code>FlashPlayer</code> to playback media located at {@code mediaURL}.
-     * Media playback begins automatically if {@code autoplay} is {@code true}.
-     *
-     * <p> Note: This constructor hides the video display component, the player controls are
-     * however visible.
+     * Constructs <code>VLCPlayer</code> to playback media located at {@code mediaURL}
+     * using the default height of 20px and width of 100%. Media playback begins
+     * automatically if {@code autoplay} is {@code true}.
      *
      * @param mediaURL the URL of the media to playback
      * @param autoplay {@code true} to start playing automatically, {@code false} otherwise
      *
      * @throws LoadException if an error occurs while loading the media.
-     * @throws PluginVersionException if the required Flash plugin version is not installed on the client.
-     * @throws PluginNotFoundException if the Flash plugin is not installed on the client.
+     * @throws PluginVersionException if the required VLCPlayer plugin version is not installed on the client.
+     * @throws PluginNotFoundException if the VLCPlayer plugin is not installed on the client.
      */
-    public FlashPlayer(String mediaURL, boolean autoplay) throws PluginNotFoundException,
-            PluginVersionException, LoadException {
-        this(mediaURL, autoplay, "0px", "100%");
+    public VLCPlayer(String mediaURL, boolean autoplay) throws LoadException,
+            PluginVersionException, PluginNotFoundException {
+        this(mediaURL, autoplay, "1px", "100%");
+    }
+
+    /**
+     * Overridden to register player for plugin DOM events
+     *
+     */
+    @Override
+    protected final void onLoad() {
+        Timer t = new Timer() {
+
+            @Override
+            public void run() {
+                impl.injectScript(playerDivId, mediaUrl, playerId, autoplay,
+                        playerDiv.getOffsetHeight(), playerDiv.getOffsetWidth());
+                isLoaded = true;
+            }
+        };
+        t.schedule(500);            // IE workarround...
+    }
+
+    /**
+     * Subclasses that override this method should call <code>super.onUnload()</code>
+     * to ensure the player is properly removed from the browser's DOM.
+     *
+     * Overridden to remove player from browsers' DOM.
+     */
+    @Override
+    protected void onUnload() {
+        impl.close(playerId);
+        playerDiv.getElement().setInnerText("");
+    }
+
+    public void loadMedia(String mediaURL) throws LoadException {
+        checkAvailable();
+        impl.loadSound(playerId, mediaURL);
+    }
+
+    public void playMedia() throws PlayException {
+        checkAvailable();
+        impl.playMedia(playerId);
+    }
+
+    public void stopMedia() {
+        checkAvailable();
+        impl.stop(playerId);
+    }
+
+    public void pauseMedia() {
+        checkAvailable();
+        impl.pause(playerId);
     }
 
     public void close() {
-        impl.closeMedia(playerId);
+        impl.close(playerId);
+    }
+
+    public long getMediaDuration() {
+        checkAvailable();
+        return (long) impl.getDuration(playerId);
+    }
+
+    public double getPlayPosition() {
+        checkAvailable();
+        return impl.getTime(playerId);
+    }
+
+    public void setPlayPosition(double position) {
+        checkAvailable();
+        impl.setTime(playerId, position);
+    }
+
+    public double getVolume() {
+        checkAvailable();
+        return impl.getVolume(playerId);
+    }
+
+    public void setVolume(double volume) {
+        checkAvailable();
+        impl.setVolume(playerId, volume);
     }
 
     private void checkAvailable() {
@@ -226,51 +317,6 @@ public class FlashPlayer extends AbstractMediaPlayer {
         }
     }
 
-    public long getMediaDuration() {
-        checkAvailable();
-        return (long) impl.getMediaDuration(playerId);
-    }
-
-    public double getPlayPosition() {
-        checkAvailable();
-        return impl.getPlayPosition(playerId);
-    }
-
-    public double getVolume() {
-        checkAvailable();
-        return impl.getVolume(playerId);
-    }
-
-    public void loadMedia(String mediaURL) throws LoadException {
-        checkAvailable();
-        impl.loadMedia(playerId, mediaURL);
-    }
-
-    public void pauseMedia() {
-        checkAvailable();
-        impl.pauseMedia(playerId);
-    }
-
-    public void playMedia() throws PlayException {
-        checkAvailable();
-        impl.playMedia(playerId);
-    }
-
-    public void setPlayPosition(double position) {
-        checkAvailable();
-        impl.setPlayPosition(playerId, position);
-    }
-
-    public void setVolume(double volume) {
-        checkAvailable();
-        impl.setVolume(playerId, volume);
-    }
-
-    public void stopMedia() {
-        checkAvailable();
-        impl.stopMedia(playerId);
-    }
-
     @Override
     public void showLogger(boolean enable) {
         if (!isEmbedded) {
@@ -278,15 +324,6 @@ public class FlashPlayer extends AbstractMediaPlayer {
         }
     }
 
-    private void log(String message, boolean asHTML) {
-        if (!isEmbedded && logger.isVisible()) {
-            logger.log(message, asHTML);
-        }
-    }
-
-    /**
-     * Displays or hides the player controls.
-     */
     @Override
     public void setControllerVisible(boolean show) {
         if (!isEmbedded) {
@@ -294,26 +331,17 @@ public class FlashPlayer extends AbstractMediaPlayer {
         }
     }
 
-    /**
-     * Checks whether the player controls are visible.
-     */
     @Override
     public boolean isControllerVisible() {
         return control.isVisible();
     }
 
-    /**
-     * Returns the number of times this player repeats playback before stopping.
-     */
     @Override
     public int getLoopCount() {
         checkAvailable();
         return impl.getLoopCount(playerId);
     }
 
-    /**
-     * Sets the number of times the current media file should repeat playback before stopping.
-     */
     @Override
     public void setLoopCount(final int loop) {
         if (impl.isPlayerAvailable(playerId)) {
@@ -340,19 +368,20 @@ public class FlashPlayer extends AbstractMediaPlayer {
         if (impl.isPlayerAvailable(playerId)) {
             impl.addToPlaylist(playerId, mediaURL);
         } else {
-            if (containsMediaStateListener(_onInitListListener)) {
-                removeMediaStateListener(_onInitListListener);
+            if (!containsMediaStateListener(_onInitListListener)) {
+                _onInitListListener = new MediaStateListenerAdapter() {
+
+                    @Override
+                    public void onPlayerReady() {
+                        for (String url : _playlistCache) {
+                            impl.addToPlaylist(playerId, url);
+                        }
+                        removeMediaStateListener(_onInitListListener);
+                    }
+                };
+                addMediaStateListener(_onInitListListener);
             }
-
-            _onInitListListener = new MediaStateListenerAdapter() {
-
-                @Override
-                public void onPlayerReady() {
-                    impl.addToPlaylist(playerId, mediaURL);
-                    removeMediaStateListener(_onInitListListener);
-                }
-            };
-            addMediaStateListener(_onInitListListener);
+            _playlistCache.add(mediaURL);
         }
     }
 
@@ -387,5 +416,14 @@ public class FlashPlayer extends AbstractMediaPlayer {
             };
             addMediaStateListener(_onInitSuffleListener);
         }
+    }
+
+    public void clearPlaylist() {
+    }
+
+    public void playNext() {
+    }
+
+    public void playPrevious() {
     }
 }

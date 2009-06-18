@@ -44,7 +44,7 @@ import java.util.HashMap;
  *      swf.addProperty("flashVars", "param1=value1&param2=value2");
  * } catch(PluginVersionException e) {
  *      // catch plugin version exception and alert user to download plugin first.
- *      // An option is to use the utility method - {@link #getMissingPluginNotice(String, String, boolean)
+ *      // An option is to use the utility method - {@link #getMissingPluginNotice(String, String, boolean)}
  *      swf = SWFWidget.getMissingPluginNotice("Missing Plugin",
  *              ".. some nice message telling the user to click and download plugin first ..",
  *              false);
@@ -199,7 +199,7 @@ public class SWFWidget extends Composite {
      * @see PlayerUtil#getMissingPluginNotice(Plugin, String, String, boolean)
      */
     public static Widget getMissingPluginNotice(String title, String message, boolean asHTML) {
-        return PlayerUtil.getMissingPluginNotice(Plugin.FlashMP3Player, title, message, asHTML);
+        return PlayerUtil.getMissingPluginNotice(Plugin.FlashPlayer, title, message, asHTML);
     }
 
     /**
@@ -216,6 +216,6 @@ public class SWFWidget extends Composite {
      * @see #getMissingPluginNotice(String, String, boolean)
      */
     public static Widget getMissingPluginNotice(PluginVersion version) {
-        return PlayerUtil.getMissingPluginNotice(Plugin.FlashMP3Player, version.toString());
+        return PlayerUtil.getMissingPluginNotice(Plugin.FlashPlayer, version.toString());
     }
 }

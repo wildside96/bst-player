@@ -19,7 +19,7 @@ import com.bramosystems.oss.player.core.client.PlayerUtil;
 import com.bramosystems.oss.player.core.client.PlayException;
 import com.bramosystems.oss.player.core.client.MediaStateListenerAdapter;
 import com.bramosystems.oss.player.core.client.AbstractMediaPlayer;
-import com.bramosystems.oss.player.core.client.ui.FlashPlayer;
+import com.bramosystems.oss.player.core.client.ui.FlashMediaPlayer;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
@@ -28,7 +28,7 @@ import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
 
 /**
- * Custom player control widget.  Used by the {@link FlashPlayer} and
+ * Custom player control widget.  Used by the {@link FlashMediaPlayer} and
  * the {@link FlatVideoPlayer} classes.
  *
  * @author Sikirulai Braheem
@@ -37,12 +37,12 @@ import com.google.gwt.user.client.ui.*;
 public class FlatCustomControl extends Composite {
 
     private ImagePack imgPack = GWT.create(ImagePack.class);
-    private String mediaDurationString;
+//    private String mediaDurationString;
     private PushButton play,  stop, prev, next;
     private Timer playTimer;
     private CSSSeekBar seekbar;
     private Label timeLabel;
-    private long mediaDuration;
+//    private long mediaDuration;
     private AbstractMediaPlayer player;
     private PlayState playState;
     private VolumeControl vc;
@@ -62,7 +62,7 @@ public class FlatCustomControl extends Composite {
     }
 
     private Widget getPlayerWidget() {
-        mediaDurationString = "";
+//        mediaDurationString = "";
         seekbar = new CSSSeekBar(5);
         seekbar.setPlayingStyle("background", "red");
         seekbar.setWidth("95%");
@@ -154,8 +154,8 @@ public class FlatCustomControl extends Composite {
 
             @Override
             public void onLoadingComplete() {
-                mediaDuration = player.getMediaDuration();
-                mediaDurationString = PlayerUtil.formatMediaTime(mediaDuration);
+//                mediaDuration = player.getMediaDuration();
+//                mediaDurationString = PlayerUtil.formatMediaTime(mediaDuration);
                 seekbar.setLoadingProgress(1.0);
                 vc.setVolume(player.getVolume());
                 updateSeekState();
@@ -168,8 +168,8 @@ public class FlatCustomControl extends Composite {
 
             @Override
             public void onLoadingProgress(double progress) {
-                mediaDuration = player.getMediaDuration();
-                mediaDurationString = PlayerUtil.formatMediaTime(mediaDuration);
+//                mediaDuration = player.getMediaDuration();
+//                mediaDurationString = PlayerUtil.formatMediaTime(mediaDuration);
                 seekbar.setLoadingProgress(progress);
                 updateSeekState();
             }
@@ -208,8 +208,9 @@ public class FlatCustomControl extends Composite {
         return face;
     }
 
-    private void setTime(long time) {
-        timeLabel.setText(PlayerUtil.formatMediaTime(time) + " / " + mediaDurationString);
+    private void setTime(long time, long duration) {
+        timeLabel.setText(PlayerUtil.formatMediaTime(time) + 
+                " / " + PlayerUtil.formatMediaTime(duration));
     }
 
     private void toPlayState(PlayState state) {
@@ -226,7 +227,7 @@ public class FlatCustomControl extends Composite {
             case Stop:
                 stop.setEnabled(false);
                 seekbar.setPlayingProgress(0);
-                setTime(0);
+                setTime(0, player.getMediaDuration());
                 playTimer.cancel();
             case Pause:
                 play.getUpFace().setImage(imgPack.play().createImage());
@@ -243,8 +244,9 @@ public class FlatCustomControl extends Composite {
 
     private void updateSeekState() {
         double pos = player.getPlayPosition();
-        setTime((long) pos);
-        seekbar.setPlayingProgress(pos / (double) mediaDuration);
+        double duration = player.getMediaDuration();
+        setTime((long)pos, (long)duration);
+        seekbar.setPlayingProgress(pos / duration);
     }
 
     private enum PlayState {

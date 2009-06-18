@@ -32,7 +32,7 @@ import com.google.gwt.user.client.ui.Widget;
  * @author Sikirulai Braheem
  * @since 0.6
  */
-public abstract class CustomAudioPlayer extends AbstractMediaPlayer {
+public abstract class CustomAudioPlayer extends AbstractMediaPlayer implements PlaylistSupport {
 
     private AbstractMediaPlayer engine;
     private SimplePanel container;
@@ -41,32 +41,6 @@ public abstract class CustomAudioPlayer extends AbstractMediaPlayer {
      * The Logger widget attached to this player
      */
     protected final Logger logger = new Logger();
-
-    /**
-     * @deprecated
-     * 
-     * Constructs <code>CustomAudioPlayer</code> with 100px height and 100% width
-     * to playback media located at {@code mediaURL} using the specified
-     * {@code playerPlugin}. Media playback begins automatically if
-     * {@code autoplay} is {@code true}.
-     *
-     * @param playerPlugin the plugin to use for playback.
-     * @param mediaURL the URL of the media to playback
-     * @param autoplay {@code true} to start playing automatically, {@code false} otherwise
-     *
-     * @throws LoadException if an error occurs while loading the media.
-     * @throws PluginVersionException if the required player plugin version is not installed on the client.
-     * @throws PluginNotFoundException if the player plugin is not installed on the client.
-     *
-     * @see Plugin
-     * @see QuickTimePlayer
-     * @see WinMediaPlayer
-     * @see FlashMP3Player
-     */
-    public CustomAudioPlayer(Plugin playerPlugin, String mediaURL, boolean autoplay)
-            throws PluginNotFoundException, PluginVersionException, LoadException {
-        this(playerPlugin, mediaURL, autoplay, "100px", "100%");
-    }
 
     /**
      * Constructs <code>CustomAudioPlayer</code> with the specified {@code height} and
@@ -87,25 +61,24 @@ public abstract class CustomAudioPlayer extends AbstractMediaPlayer {
      * @see Plugin
      * @see QuickTimePlayer
      * @see WinMediaPlayer
-     * @see FlashMP3Player
+     * @see FlashMediaPlayer
      *
-     * @since 1.0
      */
     public CustomAudioPlayer(Plugin playerPlugin, String mediaURL, boolean autoplay,
             String height, String width) throws PluginNotFoundException,
             PluginVersionException, LoadException {
         switch (playerPlugin) {
-            case FlashMP3Player:
-                engine = new FlashMP3Player(mediaURL, autoplay, null, null);
+            case VLCPlayer:
+                engine = new VLCPlayer(mediaURL, autoplay, null, null);
+                break;
+            case FlashPlayer:
+                engine = new FlashMediaPlayer(mediaURL, autoplay, null, null);
                 break;
             case QuickTimePlayer:
                 engine = new QuickTimePlayer(mediaURL, autoplay, null, null);
                 break;
             case WinMediaPlayer:
                 engine = new WinMediaPlayer(mediaURL, autoplay, null, null);
-                break;
-            case FlashVideoPlayer:
-                engine = new FlashVideoPlayer(mediaURL, autoplay, null, null);
                 break;
             case Auto:
                 engine = PlayerUtil.getPlayer(mediaURL, autoplay, null, null);
@@ -192,7 +165,6 @@ public abstract class CustomAudioPlayer extends AbstractMediaPlayer {
 //    public void ejectMedia() {
 //        engine.ejectMedia();
 //    }
-
     public long getMediaDuration() {
         return engine.getMediaDuration();
     }
@@ -248,5 +220,40 @@ public abstract class CustomAudioPlayer extends AbstractMediaPlayer {
     @Override
     public void showLogger(boolean show) {
         logger.setVisible(show);
+    }
+
+    public void addToPlaylist(String mediaURL) {
+        if (engine instanceof PlaylistSupport) {
+            ((PlaylistSupport) engine).addToPlaylist(mediaURL);
+        }
+    }
+
+    public boolean isShuffleEnabled() {
+        if (engine instanceof PlaylistSupport) {
+            return ((PlaylistSupport) engine).isShuffleEnabled();
+        }
+        return false;
+    }
+
+    public void removeFromPlaylist(int index) {
+        if (engine instanceof PlaylistSupport) {
+            ((PlaylistSupport) engine).removeFromPlaylist(index);
+        }
+
+    }
+
+    public void setShuffleEnabled(boolean enable) {
+        if (engine instanceof PlaylistSupport) {
+            ((PlaylistSupport) engine).setShuffleEnabled(enable);
+        }
+    }
+
+    public void clearPlaylist() {
+    }
+
+    public void playNext() {
+    }
+
+    public void playPrevious() {
     }
 }

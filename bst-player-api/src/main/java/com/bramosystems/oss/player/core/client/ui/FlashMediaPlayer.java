@@ -24,13 +24,15 @@ import com.bramosystems.oss.player.core.client.MediaStateListener;
 import com.bramosystems.oss.player.core.client.MediaStateListenerAdapter;
 import com.bramosystems.oss.player.core.client.PluginNotFoundException;
 import com.bramosystems.oss.player.core.client.AbstractMediaPlayer;
-import com.bramosystems.oss.player.core.client.impl.FlashPlayerImpl;
+import com.bramosystems.oss.player.core.client.PlaylistSupport;
+import com.bramosystems.oss.player.core.client.impl.FlashMediaPlayerImpl;
 import com.bramosystems.oss.player.core.client.skin.FlatCustomControl;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.ui.*;
+import java.util.ArrayList;
 
 /**
- * Widget to embed MP3 media using Flash Plugin
+ * Widget to embed Flash plugin for playback of flash-supported formats
  *
  * <h3>Usage Example</h3>
  *
@@ -40,14 +42,14 @@ import com.google.gwt.user.client.ui.*;
  * Widget player = null;
  * try {
  *      // create the player
- *      player = new FlashMP3Player("www.example.com/mediafile.mp3");
+ *      player = new FlashMediaPlayer("www.example.com/mediafile.flv", false, "200px", "250px");
  * } catch(LoadException e) {
  *      // catch loading exception and alert user
  *      Window.alert("An error occured while loading");
  * } catch(PluginVersionException e) {
  *      // catch plugin version exception and alert user to download plugin first.
  *      // An option is to use the utility method in PlayerUtil class.
- *      player = PlayerUtil.getMissingPluginNotice(Plugin.FlashMP3Player, "Missing Plugin",
+ *      player = PlayerUtil.getMissingPluginNotice(Plugin.FlashMediaPlayer, "Missing Plugin",
  *              ".. some nice message telling the user to click and download plugin first ..",
  *              false);
  * } catch(PluginNotFoundException e) {
@@ -59,27 +61,36 @@ import com.google.gwt.user.client.ui.*;
  * panel.setWidget(player); // add player to panel.
  * </pre></code>
  *
+ * <h2>M3U Playlist Support</h2>
+ * <p>
+ * This player supports M3U formatted playlists.  However, each entry in the playlist MUST be
+ * a flash-supported media file.
+ * </p>
+ *
  * @author Sikirulai Braheem
- * @deprecated Replaced with {@link FlashPlayer} class
+ * @since 1.0
  */
-public class FlashMP3Player extends AbstractMediaPlayer {
+public class FlashMediaPlayer extends AbstractMediaPlayer implements PlaylistSupport {
 
-    private static FlashPlayerImpl impl = new FlashPlayerImpl();
+    public static FlashMediaPlayerImpl impl = new FlashMediaPlayerImpl();
     private String playerId;
     private boolean isEmbedded;
     private Logger logger;
+    private FlatCustomControl control;
     private MediaStateListener _onInitLoopCountListener,  _onInitListListener,  _onInitSuffleListener;
+    private ArrayList<String> _playlistCache;
 
     /**
-     * Constructs <code>FlashMP3Player</code> with the specified {@code height} and
+     * Constructs <code>FlashMediaPlayer</code> with the specified {@code height} and
      * {@code width} to playback media located at {@code mediaURL}. Media playback
      * begins automatically if {@code autoplay} is {@code true}.
      *
      * <p> {@code height} and {@code width} are specified as CSS units. A value of {@code null}
      * for {@code height} or {@code width} puts the player in embedded mode.  When in embedded mode,
-     * the player is made invisible on the page and media state events are never handled by this player
-     * but rather propagated to registered listeners only.  This is desired especially when used
-     * with custom controls.
+     * the player is made invisible on the page and media state events are propagated to registered
+     * listeners only.  This is desired especially when used with custom sound controls.  For custom
+     * video-playback control, specify valid CSS values for {@code height} and {@code width} but hide the
+     * player controls with {@code setControllerVisible(false)}.
      *
      * @param mediaURL the URL of the media to playback
      * @param autoplay {@code true} to start playing automatically, {@code false} otherwise
@@ -90,14 +101,23 @@ public class FlashMP3Player extends AbstractMediaPlayer {
      * @throws PluginVersionException if the required Flash plugin version is not installed on the client.
      * @throws PluginNotFoundException if the Flash plugin is not installed on the client.
      */
-    public FlashMP3Player(String mediaURL, boolean autoplay, String height, String width)
+    public FlashMediaPlayer(String mediaURL, boolean autoplay, String height, String width)
             throws PluginNotFoundException, PluginVersionException, LoadException {
 
+        _playlistCache = new ArrayList<String>();
+
+        isEmbedded = (height == null) || (width == null);
+        if (isEmbedded) {
+            height = "0px";
+            width = "0px";
+        }
+
         SWFWidget swf = new SWFWidget(GWT.getModuleBaseURL() + "bst-flash-player-1.0-SNAPSHOT.swf",
-                "0px", "0px", PluginVersion.get(9, 0, 0));
+                "100%", height, PluginVersion.get(9, 0, 0));
         playerId = swf.getId();
         swf.addProperty("flashVars", "playerId=" + playerId + "&autoplay=" + autoplay);
         swf.addProperty("allowScriptAccess", "sameDomain");
+        swf.addProperty("bgcolor", "#000000");
 
         impl.init(playerId, mediaURL, new MediaStateListener() {
 
@@ -134,48 +154,44 @@ public class FlashMP3Player extends AbstractMediaPlayer {
             }
         });
 
-        AbsolutePanel ap = new AbsolutePanel();
-        ap.add(swf, 0, 0);
-
         VerticalPanel hp = new VerticalPanel();
-        hp.add(ap);
+        hp.add(swf);
 
-        isEmbedded = (height == null) || (width == null);
         if (!isEmbedded) {
-            // placed to bypass UI setup in embedded cases especially
-            // when used with CustomPlayer.
+            control = new FlatCustomControl(this);
+            hp.add(control);
+
             logger = new Logger();
             logger.setVisible(false);
-            ap.add(new FlatCustomControl(this), 0, 0);
-            ap.setSize("100%", "22px");
             hp.add(logger);
             addMediaStateListener(new MediaStateListenerAdapter() {
 
                 @Override
                 public void onError(String description) {
-                    logger.log(description, false);
+                    log(description, false);
                 }
 
                 @Override
                 public void onDebug(String message) {
-                    logger.log(message, false);
+                    log(message, false);
                 }
 
                 @Override
                 public void onMediaInfoAvailable(MediaInfo info) {
-                    logger.log(info.asHTMLString(), true);
+                    log(info.asHTMLString(), true);
                 }
             });
         }
         initWidget(hp);
-        setWidth(isEmbedded ? "0px" : width);
+        setWidth(width);
     }
 
     /**
-     * Constructs <code>FlashMP3Player</code> to automatically playback media located at
-     * {@code mediaURL} using the default height of 20px and width of 100%.
+     * Constructs <code>FlashMediaPlayer</code> to automatically playback media located at
+     * {@code mediaURL}.
      *
-     * <p> This is the same as calling {@code FlashMP3Player(mediaURL, true, "20px", "100%")}
+     * <p> Note: This constructor hides the video display component, the player controls are
+     * however visible.
      *
      * @param mediaURL the URL of the media to playback
      *
@@ -184,17 +200,17 @@ public class FlashMP3Player extends AbstractMediaPlayer {
      * @throws PluginNotFoundException if the Flash plugin is not installed on the client.
      *
      */
-    public FlashMP3Player(String mediaURL) throws PluginNotFoundException,
+    public FlashMediaPlayer(String mediaURL) throws PluginNotFoundException,
             PluginVersionException, LoadException {
-        this(mediaURL, true, "20px", "100%");
+        this(mediaURL, true, "1px", "100%");
     }
 
     /**
-     * Constructs <code>FlashMP3Player</code> to playback media located at {@code mediaURL}
-     * using the default height of 20px and width of 100%. Media playback begins
-     * automatically if {@code autoplay} is {@code true}.
+     * Constructs <code>FlashMediaPlayer</code> to playback media located at {@code mediaURL}.
+     * Media playback begins automatically if {@code autoplay} is {@code true}.
      *
-     * <p> This is the same as calling {@code FlashMP3Player(mediaURL, autoplay, "20px", "100%")}
+     * <p> Note: This constructor hides the video display component, the player controls are
+     * however visible.
      *
      * @param mediaURL the URL of the media to playback
      * @param autoplay {@code true} to start playing automatically, {@code false} otherwise
@@ -203,9 +219,9 @@ public class FlashMP3Player extends AbstractMediaPlayer {
      * @throws PluginVersionException if the required Flash plugin version is not installed on the client.
      * @throws PluginNotFoundException if the Flash plugin is not installed on the client.
      */
-    public FlashMP3Player(String mediaURL, boolean autoplay) throws PluginNotFoundException,
+    public FlashMediaPlayer(String mediaURL, boolean autoplay) throws PluginNotFoundException,
             PluginVersionException, LoadException {
-        this(mediaURL, autoplay, "20px", "100%");
+        this(mediaURL, autoplay, "1px", "100%");
     }
 
     public void close() {
@@ -214,8 +230,7 @@ public class FlashMP3Player extends AbstractMediaPlayer {
 
     private void checkAvailable() {
         if (!impl.isPlayerAvailable(playerId)) {
-            String message = "Player closed already or not available on page yet! " +
-                    "Create another instance";
+            String message = "Player closed already, create another instance";
             fireDebug(message);
             throw new IllegalStateException(message);
         }
@@ -273,6 +288,30 @@ public class FlashMP3Player extends AbstractMediaPlayer {
         }
     }
 
+    private void log(String message, boolean asHTML) {
+        if (!isEmbedded && logger.isVisible()) {
+            logger.log(message, asHTML);
+        }
+    }
+
+    /**
+     * Displays or hides the player controls.
+     */
+    @Override
+    public void setControllerVisible(boolean show) {
+        if (!isEmbedded) {
+            control.setVisible(show);
+        }
+    }
+
+    /**
+     * Checks whether the player controls are visible.
+     */
+    @Override
+    public boolean isControllerVisible() {
+        return control.isVisible();
+    }
+
     /**
      * Returns the number of times this player repeats playback before stopping.
      */
@@ -306,40 +345,37 @@ public class FlashMP3Player extends AbstractMediaPlayer {
         }
     }
 
-    @Override
     public void addToPlaylist(final String mediaURL) {
         if (impl.isPlayerAvailable(playerId)) {
             impl.addToPlaylist(playerId, mediaURL);
         } else {
-            if (containsMediaStateListener(_onInitListListener)) {
-                removeMediaStateListener(_onInitListListener);
+            if (!containsMediaStateListener(_onInitListListener)) {
+                _onInitListListener = new MediaStateListenerAdapter() {
+
+                    @Override
+                    public void onPlayerReady() {
+                        for (String url : _playlistCache) {
+                            impl.addToPlaylist(playerId, url);
+                        }
+                        removeMediaStateListener(_onInitListListener);
+                    }
+                };
+                addMediaStateListener(_onInitListListener);
             }
-
-            _onInitListListener = new MediaStateListenerAdapter() {
-
-                @Override
-                public void onPlayerReady() {
-                    impl.addToPlaylist(playerId, mediaURL);
-                    removeMediaStateListener(_onInitListListener);
-                }
-            };
-            addMediaStateListener(_onInitListListener);
+            _playlistCache.add(mediaURL);
         }
     }
 
-    @Override
     public boolean isShuffleEnabled() {
         checkAvailable();
         return impl.isShuffleEnabled(playerId);
     }
 
-    @Override
     public void removeFromPlaylist(int index) {
         checkAvailable();
         impl.removeFromPlaylist(playerId, index);
     }
 
-    @Override
     public void setShuffleEnabled(final boolean enable) {
         if (impl.isPlayerAvailable(playerId)) {
             impl.setShuffleEnabled(playerId, enable);
@@ -358,5 +394,14 @@ public class FlashMP3Player extends AbstractMediaPlayer {
             };
             addMediaStateListener(_onInitSuffleListener);
         }
+    }
+
+    public void clearPlaylist() {
+    }
+
+    public void playNext() {
+    }
+
+    public void playPrevious() {
     }
 }

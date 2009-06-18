@@ -17,20 +17,20 @@ package com.bramosystems.oss.player.core.client.impl;
 
 import com.bramosystems.oss.player.core.client.MediaInfo;
 import com.bramosystems.oss.player.core.client.MediaStateListener;
-import com.bramosystems.oss.player.core.client.ui.FlashPlayer;
+import com.bramosystems.oss.player.core.client.ui.FlashMediaPlayer;
 import com.google.gwt.core.client.JavaScriptObject;
 
 /**
- * Native implementation of the FlashPlayer class. It is not recommended to
+ * Native implementation of the FlashMediaPlayer class. It is not recommended to
  * interact with this class directly.
  *
  * @author Sikirulai Braheem
- * @see FlashPlayer
+ * @see FlashMediaPlayer
  */
-public class FlashPlayerImpl {
-    private JavaScriptObject jso;
+public class FlashMediaPlayerImpl {
+    protected JavaScriptObject jso;
 
-    public FlashPlayerImpl() {
+    public FlashMediaPlayerImpl() {
         jso = JavaScriptObject.createObject();
         initGlobalCallbacks(jso);
     }
@@ -60,7 +60,7 @@ public class FlashPlayerImpl {
     }
 
     protected native void initGlobalCallbacks(JavaScriptObject jso) /*-{
-        $wnd.bstSwfSndMediaStateChanged = function(playerId, state){
+        $wnd.bstSwfMdaMediaStateChanged = function(playerId, state){
             switch(state) {
                 case 1: // loading started...
                      jso[playerId].playerReady();
@@ -76,22 +76,22 @@ public class FlashPlayerImpl {
                     break;
             }
         }
-        $wnd.bstSwfSndInit = function(playerId){
+        $wnd.bstSwfMdaInit = function(playerId){
             jso[playerId].initComplete();
         }
-        $wnd.bstSwfSndLoadingProgress = function(playerId, progress){
+        $wnd.bstSwfMdaLoadingProgress = function(playerId, progress){
             jso[playerId].progress(progress);
         }
-        $wnd.bstSwfSndError = function(playerId, error){
+        $wnd.bstSwfMdaError = function(playerId, error){
             jso[playerId].errorr(error);
         }
-        $wnd.bstSwfSndDebug = function(playerId, message){
+        $wnd.bstSwfMdaDebug = function(playerId, message){
             jso[playerId].doDebug(message);
         }
-        $wnd.bstSwfSndMetadata = function(playerId, duration, hdwr){
+        $wnd.bstSwfMdaMetadata = function(playerId, duration, hdwr){
             jso[playerId].doMetadata(duration, hdwr);
         }
-        $wnd.bstSwfSndID3 = function(playerId, id3){
+        $wnd.bstSwfMdaID3 = function(playerId, id3){
             jso[playerId].doID3(id3);
         }
      }-*/;
@@ -103,8 +103,8 @@ public class FlashPlayerImpl {
     jso[playerId].initComplete = function() {
         var player = $doc.getElementById(playerId);
         jso[playerId].doDebug("Flash Player plugin");
-        jso[playerId].doDebug("Version : " + player.getSndPlayerVer());
-        player.loadSnd(mediaURL);
+        jso[playerId].doDebug("Version : " + player.getMdaPlayerVer());
+        player.loadMda(mediaURL);
     };
 
     // add callbacks...
@@ -162,7 +162,7 @@ public class FlashPlayerImpl {
             mData.@com.bramosystems.oss.player.core.client.MediaInfo::title = jso[playerId].parseID3(pInfo.songName);
             mData.@com.bramosystems.oss.player.core.client.MediaInfo::contentProviders = jso[playerId].parseID3(pInfo.TOLY);
             mData.@com.bramosystems.oss.player.core.client.MediaInfo::copyright = jso[playerId].parseID3(pInfo.TOWN);
-//            mData.@com.bramosystems.oss.player.core.client.MediaInfo::duration = parseFloat(jso[playerId].parseID3(pInfo.TLEN));
+            mData.@com.bramosystems.oss.player.core.client.MediaInfo::duration = parseFloat(jso[playerId].parseID3(pInfo.TLEN));
             mData.@com.bramosystems.oss.player.core.client.MediaInfo::hardwareSoftwareRequirements = jso[playerId].parseID3(pInfo.TSSE);
             mData.@com.bramosystems.oss.player.core.client.MediaInfo::publisher = jso[playerId].parseID3(pInfo.TPUB);
             mData.@com.bramosystems.oss.player.core.client.MediaInfo::internetStationOwner = jso[playerId].parseID3(pInfo.TRSO);
@@ -174,6 +174,59 @@ public class FlashPlayerImpl {
     }
     }-*/;
 
+    private native String getPluginVersion(String playerId) /*-{
+        var player = $doc.getElementById(playerId);
+        return player.getMdaPlayerVer();
+    }-*/;
+
+    private class EventHandler implements MediaStateListener {
+        private MediaStateListener listener;
+        private String id;
+
+        public EventHandler(MediaStateListener listener, String id) {
+            this.listener = listener;
+            this.id = id;
+        }
+
+        public void initComplete() {
+            listener.onDebug("Flash Player plugin");
+            listener.onDebug("Version : " + getPluginVersion(id));
+        }
+
+        public void onPlayerReady() {
+            listener.onPlayerReady();
+        }
+
+        public void onPlayStarted() {
+            listener.onPlayStarted();
+        }
+
+        public void onPlayFinished() {
+            listener.onPlayFinished();
+        }
+
+        public void onLoadingComplete() {
+            listener.onLoadingComplete();
+        }
+
+        public void onLoadingProgress(double progress) {
+            listener.onLoadingProgress(progress);
+        }
+
+        public void onError(String description) {
+            listener.onError(description);
+        }
+
+        public void onDebug(String message) {
+            listener.onDebug(message);
+        }
+
+        public void onMediaInfoAvailable(MediaInfo info) {
+            listener.onMediaInfoAvailable(info);
+        }
+
+    }
+
     protected native boolean isPlayerAvailableImpl(JavaScriptObject jso, String playerId) /*-{
         return ((jso[playerId] != undefined) || (jso[playerId] != null)) &&
                 ($doc.getElementById(playerId) != null);
@@ -181,28 +234,28 @@ public class FlashPlayerImpl {
 
     public native void loadMedia(String playerId, String url) /*-{
         var player = $doc.getElementById(playerId);
-        player.loadSnd(url);
+        player.loadMda(url);
     }-*/;
 
     public native void playMedia(String playerId) /*-{
         var player = $doc.getElementById(playerId);
-        player.playSnd();
+        player.playMda();
      }-*/;
 
     public native void stopMedia(String playerId) /*-{
         var player = $doc.getElementById(playerId);
-        player.stopSnd();
+        player.stopMda();
     }-*/;
 
     public native void pauseMedia(String playerId) /*-{
         var player = $doc.getElementById(playerId);
-        player.pauseSnd();
+        player.pauseMda();
     }-*/;
 
     private native void closeMediaImpl(JavaScriptObject jso, String playerId) /*-{
         try {
             var player = $doc.getElementById(playerId);
-            player.closeSnd();
+            player.closeMda();
         }catch(err) {
         }
         delete jso[playerId];
@@ -210,42 +263,42 @@ public class FlashPlayerImpl {
 
     private native String getPlayPositionImpl(String playerId) /*-{
         var player = $doc.getElementById(playerId);
-        return player.getSndPlayPosition().toString();
+        return player.getMdaPlayPosition().toString();
     }-*/;
 
     public native void setPlayPosition(String playerId, double position) /*-{
         var player = $doc.getElementById(playerId);
-        player.setSndPlayPosition(position);
+        player.setMdaPlayPosition(position);
      }-*/;
 
     private native String getMediaDurationImpl(String playerId) /*-{
         var player = $doc.getElementById(playerId);
-        return player.getSndDuration().toString();
+        return player.getMdaDuration().toString();
     }-*/;
 
     private native String getVolumeImpl(String playerId) /*-{
         var player = $doc.getElementById(playerId);
-        return player.getSndVolume().toString();
+        return player.getMdaVolume().toString();
     }-*/;
 
     public native void setVolume(String playerId, double volume) /*-{
         var player = $doc.getElementById(playerId);
-        player.setSndVolume(volume);
+        player.setMdaVolume(volume);
     }-*/;
 
     public native void setLoopCount(String playerId, int count) /*-{
         var player = $doc.getElementById(playerId);
-        player.setSndPlayCount(count);
+        player.setMdaPlayCount(count);
     }-*/;
 
     public native int getLoopCount(String playerId) /*-{
         var player = $doc.getElementById(playerId);
-        player.getSndPlayCount();
+        player.getMdaPlayCount();
     }-*/;
 
     public native void addToPlaylist(String playerId, String mediaURL) /*-{
         var player = $doc.getElementById(playerId);
-        player.addMediaToPlaylist(mediaURL);
+        player.addMdaToPlaylist(mediaURL);
     }-*/;
 
     public native void removeFromPlaylist(String playerId, int index) /*-{

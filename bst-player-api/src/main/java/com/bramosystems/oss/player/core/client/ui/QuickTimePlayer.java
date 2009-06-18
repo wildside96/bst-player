@@ -69,11 +69,21 @@ public final class QuickTimePlayer extends AbstractMediaPlayer {
     private SimplePanel playerDiv;
     private Logger logger;
     private boolean isEmbedded,  autoplay,  isLoaded,  showControls;
+    private MediaStateListener _onInitLoopCountListener; 
 
-    QuickTimePlayer() {
+    QuickTimePlayer() throws PluginNotFoundException, PluginVersionException {
+        PluginVersion v = PlayerUtil.getQuickTimePluginVersion();
+        if (v.compareTo(7, 2, 1) < 0) {
+            throw new PluginVersionException("7.2.1", v.toString());
+        }
+
         if (impl == null) {
             impl = GWT.create(QuickTimePlayerImpl.class);
         }
+
+        playerId = DOM.createUniqueId().replace("-", "");
+        isLoaded = false;
+        showControls = true;
     }
 
     /**
@@ -101,14 +111,6 @@ public final class QuickTimePlayer extends AbstractMediaPlayer {
             throws LoadException, PluginVersionException, PluginNotFoundException {
         this();
 
-        PluginVersion v = PlayerUtil.getQuickTimePluginVersion();
-        if (v.compareTo(7, 2, 1) < 0) {
-            throw new PluginVersionException("7, 2, 1", v.toString());
-        }
-
-        playerId = DOM.createUniqueId().replace("-", "");
-        isLoaded = false;
-        showControls = true;
         mediaUrl = mediaURL;
         this.autoplay = autoplay;
 
@@ -184,7 +186,7 @@ public final class QuickTimePlayer extends AbstractMediaPlayer {
         dp.add(playerDiv, DockPanel.CENTER);
         initWidget(dp);
 
-        playerDiv.setHeight(height);
+        playerDiv.setSize(width, height);
         setWidth(width);
     }
 
@@ -275,10 +277,6 @@ public final class QuickTimePlayer extends AbstractMediaPlayer {
         impl.pause(playerId);
     }
 
-    public void ejectMedia() {
-//        checkAvailable();
-    }
-
     public void close() {
         impl.close(playerId);
     }
@@ -342,19 +340,33 @@ public final class QuickTimePlayer extends AbstractMediaPlayer {
         return showControls;
     }
 
-    /**
-     * Returns the remaining number of times this player loops playback before stopping.
-     */
     @Override
     public int getLoopCount() {
+        checkAvailable();
         return impl.getLoopCount(playerId);
     }
 
     /**
-     * Sets the number of times the current media file should loop playback before stopping.
+     * Sets the number of times the current media file should repeat playback before stopping.
      */
     @Override
-    public void setLoopCount(int loop) {
-        impl.setLoopCount(playerId, loop);
+    public void setLoopCount(final int loop) {
+        if (impl.isPlayerAvailable(playerId)) {
+            impl.setLoopCount(playerId, loop);
+        } else {
+            if (containsMediaStateListener(_onInitLoopCountListener)) {
+                // ensure only one instance is queued ...
+                removeMediaStateListener(_onInitLoopCountListener);
+            }
+            _onInitLoopCountListener = new MediaStateListenerAdapter() {
+
+                @Override
+                public void onPlayerReady() {
+                    impl.setLoopCount(playerId, loop);
+                    removeMediaStateListener(_onInitLoopCountListener);
+                }
+            };
+            addMediaStateListener(_onInitLoopCountListener);
+        }
     }
 }

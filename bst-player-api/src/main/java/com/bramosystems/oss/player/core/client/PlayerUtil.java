@@ -16,8 +16,9 @@
 package com.bramosystems.oss.player.core.client;
 
 import com.bramosystems.oss.player.core.client.impl.PlayerUtilImpl;
-import com.bramosystems.oss.player.core.client.ui.FlashPlayer;
+import com.bramosystems.oss.player.core.client.ui.FlashMediaPlayer;
 import com.bramosystems.oss.player.core.client.ui.QuickTimePlayer;
+import com.bramosystems.oss.player.core.client.ui.VLCPlayer;
 import com.bramosystems.oss.player.core.client.ui.WinMediaPlayer;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.i18n.client.NumberFormat;
@@ -107,10 +108,11 @@ public class PlayerUtil {
         String ext = mediaURL.substring(mediaURL.lastIndexOf(".") + 1);
 
         switch (impl.suggestPlayer(protocol, ext)) {
-            case FlashVideoPlayer:
-            case FlashMP3Player:
+            case VLCPlayer:
+                player = new VLCPlayer(mediaURL, autoplay, height, width);
+                break;
             case FlashPlayer:
-                player = new FlashPlayer(mediaURL, autoplay, height, width);
+                player = new FlashMediaPlayer(mediaURL, autoplay, height, width);
                 break;
             case QuickTimePlayer:
                 player = new QuickTimePlayer(mediaURL, autoplay, height, width);
@@ -173,6 +175,27 @@ public class PlayerUtil {
     public static PluginVersion getWindowsMediaPlayerPluginVersion() throws PluginNotFoundException {
         PluginVersion v = new PluginVersion();
         impl.getWindowsMediaPlayerVersion(v);
+        if (v.equals(new PluginVersion())) {
+            throw new PluginNotFoundException();
+        }
+
+        return v;
+    }
+
+    /**
+     * Detects the version of the VLC Media Player plugin available on the clients browser.
+     *
+     * @return <code>PluginVersion</code> object wrapping the version numbers of the
+     * plugin on the browser.
+     *
+     * @throws PluginNotFoundException if a plugin could not be found.
+     * (especially if none is installed or the plugin is disabled).
+     *
+     * @since 1.0
+     */
+    public static PluginVersion getVLCPlayerPluginVersion() throws PluginNotFoundException {
+        PluginVersion v = new PluginVersion();
+        impl.getVLCPluginVersion(v);
         if (v.equals(new PluginVersion())) {
             throw new PluginNotFoundException();
         }
@@ -263,8 +286,6 @@ public class PlayerUtil {
                 message = "Windows Media Player " + version + " or later is required to play " +
                         "this media. Click here to get Windows Media Player.";
                 break;
-            case FlashMP3Player:
-            case FlashVideoPlayer:
             case FlashPlayer:
                 message = "Adobe Flash Player " + version + " or later is required to play" +
                         "this media. Click here to get Flash";
@@ -272,6 +293,10 @@ public class PlayerUtil {
             case QuickTimePlayer:
                 message = "QuickTime Player " + version + " plugin or later is required to play " +
                         "this media. Click here to get QuickTime";
+                break;
+            case VLCPlayer:
+                message = "VLC Media Player " + version + " plugin or later is required to play " +
+                        "this media. Click here to get VLC Media Player";
                 break;
         }
         return getMissingPluginNotice(plugin, title, message, false);
@@ -300,8 +325,6 @@ public class PlayerUtil {
                 message = "Windows Media Player is required to play " +
                         "this media. Click here to get Windows Media Player.";
                 break;
-            case FlashMP3Player:
-            case FlashVideoPlayer:
             case FlashPlayer:
                 message = "Adobe Flash Player is required to play" +
                         "this media. Click here to get Flash";
@@ -309,6 +332,10 @@ public class PlayerUtil {
             case QuickTimePlayer:
                 message = "QuickTime Player is required to play " +
                         "this media. Click here to get QuickTime";
+                break;
+            case VLCPlayer:
+                message = "VLC Media Player is required to play " +
+                        "this media. Click here to get VLC Media Player";
                 break;
             default:
                 message = "A compatible plugin could not be found";

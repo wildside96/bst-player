@@ -20,8 +20,8 @@ import com.google.gwt.user.client.ui.Composite;
 import java.util.ArrayList;
 
 /**
- * Abstract implementation of a media player.  It implements the
- * handling of MediaStateListeners.
+ * Abstract implementation of a media player.  It implements the handling
+ * of MediaStateListeners.
  *
  * @author Sikiru Braheem
  */
@@ -328,48 +328,5 @@ public abstract class AbstractMediaPlayer extends Composite {
      */
     public int getLoopCount() {
         return 0;
-    }
-
-    /**
-     * Enables or disables players' shuffle mode. This implementation does nothing, subclasses
-     * should override and implement accrodingly.
-     *
-     * @param enable {@code true} to enable shuffle, {@code false} otherwise
-     * @since 1.0
-     */
-    public void setShuffleEnabled(boolean enable) {
-    }
-
-    /**
-     * Checks if this player is in shuffle mode. This implementation returns false, subclasses should
-     * override and implement accordingly.
-     *
-     * @return {@code true} if player is in shuffle mode, {@code false} otherwise.
-     * @since 1.0
-     */
-    public boolean isShuffleEnabled() {
-        return false;
-    }
-
-    /**
-     * Adds the media at the specified URL to the players' playlist.
-     *
-     * <p>In respect of the <code>same domain</code> policy of some plugins,
-     * the URL should point to a destination on the same domain
-     * where the application is hosted.
-     *
-     * @param mediaURL the URL of the media.
-     * @since 1.0
-     */
-    public void addToPlaylist(String mediaURL) {
-    }
-
-    /**
-     * Removes the entry at the specified index from the players' playlist.
-     *
-     * @param index the index of the playlist entry.
-     * @since 1.0
-     */
-    public void removeFromPlaylist(int index) {
     }
 }
