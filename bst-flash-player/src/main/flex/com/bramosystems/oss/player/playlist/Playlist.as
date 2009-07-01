@@ -16,140 +16,116 @@
 
 package com.bramosystems.oss.player.playlist {
 
-    import com.bramosystems.oss.player.Log;
+    import com.bramosystems.oss.player.external.Log;
+    import com.bramosystems.oss.player.*;
+    import com.bramosystems.oss.player.events.*;
+    import flash.events.*;
+    import flash.net.*;
 
-    public class Playlist {
+    public class Playlist extends EventDispatcher {
 
-        private var playlist:Array, _shuffledList:Array;
-        private var listIndex:int;
-        private var repeatMode:RepeatMode;
-        private var playCount:int, __playCount:int;
-        private var shuffleOn:Boolean;
+        private var playlist:Array;
+        private var _size:uint = 0;
 
         public function Playlist() {
             playlist = new Array();
-            _shuffledList = new Array();
-            listIndex = -1;
-            playCount = 1;
-            __playCount = 1;
-            repeatMode = RepeatMode.NO_REPEAT;
-            enableShuffle(false);
         }
 
-        public function setPlayCount(count:int):void {
-            if(count == 0) {
-                count++;
-            }
-            playCount = count;
-            __playCount = count;
+        public function size():uint {
+            return _size;
         }
 
-        public function getPlayCount():int {
-            return playCount;
-        }
-
-        public function setRepeatMode(mode:RepeatMode):void {
-            repeatMode = mode;
-        }
-
-        public function getRepeatMode():RepeatMode {
-            return repeatMode;
-        }
-
-        public function add(entry:PlaylistEntry):void {
-            playlist.push(entry);
+        public function clear():void {
+            playlist.splice(0);
+            _size = 0;
+            dispatchEvent(new PlaylistEvent(PlaylistEvent.CHANGED));
+            Log.info("Playlist cleared");
         }
 
         public function remove(index:int):void {
-            playlist.splice(index, 1);
+            Log.info("'" + playlist.splice(index, 1) + "' removed from playlist!");
+//            playlist.splice(index, 1);
+            _size = playlist.length;
+            dispatchEvent(new PlaylistEvent(PlaylistEvent.CHANGED));
+            Log.info(_size + " entries left in playlist");
         }
 
-        public function getNextEntry():PlaylistEntry {
-            updateListIndex();
-            if(listIndex < 0)
-                return null;
-
-            return playlist[listIndex];
+        public function getEntry(index:int):PlaylistEntry {
+            return playlist[index];
         }
 
-        public function getNextURLEntry():String {
-            updateListIndex();
-            if(listIndex < 0)
-                return null;
-
-            return playlist[listIndex].getFileName();
+        public function add(mediaUrl:String):void {
+            if(mediaUrl.search(".m3u") >= 0) {
+                Log.info("Adding playlist at " + mediaUrl);
+                loadM3U(mediaUrl, true);
+            } else {    // add single file...
+                Log.info("Adding '" + mediaUrl + "' to playlist");
+                _size = playlist.push(new PlaylistEntry(0, mediaUrl, mediaUrl));
+                dispatchEvent(new PlaylistEvent(PlaylistEvent.CHANGED));
+                Log.info(_size + (_size > 1 ? " entries in playlist!" : " entry in playlist!"));
+             }
         }
 
-        public function enableShuffle(enable:Boolean):void {
-            shuffleOn = enable;
-            Log.info(shuffleOn ? "Shuffle turned on" : "Shuffle turned off");
+        /************************* PLAYLIST SHUFFLING *****************************/
+        public function getShuffledIndexes():Array {
+            return playlist.sort(shuffler, Array.RETURNINDEXEDARRAY);
         }
 
-        public function isShuffleEnabled():Boolean {
-            return shuffleOn;
+        private function shuffler(e1:PlaylistEntry, e2:PlaylistEntry):Number {
+            var pos:Number = 0;
+            switch(Math.round(Math.random() * 2)) {
+                case 0:
+                    pos = -1;
+                    break;
+                case 1:
+                    pos = 0;
+                    break;
+                case 2:
+                    pos = 1;
+            }
+            return pos;
         }
 
-        private function updateListIndex():void {
-            if(shuffleOn) {
-                var _count:int = -1;
-                var _index:int = getRandomIndex();
-                try {
-                    while(_shuffledList.indexOf(_index) >= 0) {
-                        _index = getRandomIndex();
-                        _count++;
-                        if(_count >= playlist.length) {
-                            throw new RangeError();
-                        }
-                    }
-                    _shuffledList.push(_index);
-                    listIndex = _index;
-                } catch(e:RangeError) {
-                    // list exhausted ...
-                    _shuffledList = new Array();
-                    switch(repeatMode) {
-                        case RepeatMode.NO_REPEAT:
-                            listIndex = -1;     // list exhausted ...
-                            break;
-                        case RepeatMode.REPEAT_ALL:
-                            listIndex = 0;     // start again ...
-                            break;
-                        case RepeatMode.REPEAT_ONE:
-                            // change not the listIndex :-).
-                            break;
-                    }
-                }
-            } else {
-                switch(repeatMode) {
-                    case RepeatMode.NO_REPEAT:
-                        if(listIndex < (playlist.length - 1)) {
-                            listIndex++;
-                            _shuffledList.push(listIndex);
-                        } else {
-                            _shuffledList = new Array();
-                            if(__playCount > 1) {
-                                __playCount--;
-                                listIndex = 0;
-                            } else {
-                                listIndex = -1;     // list exhausted ...
-                            }
-                        }
-                        break;
-                    case RepeatMode.REPEAT_ALL:
-                        if(listIndex < (playlist.length - 1)) {
-                            listIndex++;
-                        } else {
-                            listIndex = 0;     // start again ...
-                        }
-                        break;
-                    case RepeatMode.REPEAT_ONE:
-                        // change not the listIndex :-).
-                        break;
-                }
+        /************************* M3U PLAYLIST SUPPORT ****************************/
+        private var loader:URLLoader;
+        private var m3uParser:M3UParser;
+        private var mediaUrl:String;
+
+        private function getBaseURL(url:String):String {
+            return url.substring(0, url.lastIndexOf("/"));
+        }
+
+        private function loadM3U(m3uUrl:String, append:Boolean):void {
+            m3uParser = new M3UParser(getBaseURL(m3uUrl));
+            mediaUrl = m3uUrl;
+
+            loader = new URLLoader();
+            loader.addEventListener(IOErrorEvent.IO_ERROR, loadingErrorHandler);
+            loader.addEventListener(Event.COMPLETE, loaderCompleteHandler);
+
+            try {
+                loader.load(new URLRequest(m3uUrl));
+            } catch (error:Error) {
             }
         }
 
-        private function getRandomIndex():int {
-            return int(Math.round(Math.random() * (playlist.length - 1)));
+        private function loaderCompleteHandler(event:Event):void {
+            var mp3s:Array = m3uParser.parse(loader.data);
+
+            for(var i:uint = 0; i < mp3s.length; i++) {
+                _size = playlist.push(mp3s[i]);
+            }
+            dispatchEvent(new PlaylistEvent(PlaylistEvent.CHANGED));
+            Log.info("Playlist Entries : " + _size);
+        }
+
+        private function loadingErrorHandler(event:IOErrorEvent):void {
+            var txt:String = event.text.toLowerCase();
+            if(txt.search("2032") >= 0) {
+                Log.error("Error loading media at "+mediaUrl+".  The stream could not be opened, please check your network connection.");
+            } else {
+                Log.error(event.text);
+            }
         }
     }
 }

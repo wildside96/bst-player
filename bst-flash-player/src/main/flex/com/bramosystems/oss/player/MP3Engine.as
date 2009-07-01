@@ -16,20 +16,21 @@
 
 package com.bramosystems.oss.player {
     import com.bramosystems.oss.player.playlist.*;
+    import com.bramosystems.oss.player.external.*;
 
-    import flash.external.*;
+    import flash.display.Graphics;
     import flash.errors.*;
-    import flash.media.*;
     import flash.events.*;
+    import flash.media.*;
     import flash.net.*;
+    import flash.utils.ByteArray;
 
-    public class MP3Engine implements Engine {
-            private var playerId:String;
-            private var debug:Boolean = true;
+    import mx.core.UIComponent;
 
+    public class MP3Engine extends UIComponent implements Engine {
             private var sound:Sound;
             private var channel:SoundChannel;
-            private var sndTransform:SoundTransform = new SoundTransform(0.5);
+            private var sndTransform:SoundTransform;
             private var mediaUrl:String = "";
             private var soundDuration:Number = 0;
             private var position:Number = 0;
@@ -37,18 +38,30 @@ package com.bramosystems.oss.player {
             private var propagateID3:Boolean = false;
 
             private var playFinishedHandler:Function;
-            private var playlist:Playlist;
+            private var playStartedHandler:Function;
 
-            public function MP3Engine(id:String, playFinishedHandler:Function) {
-                playerId = id;
+            public function MP3Engine(playStartedHandler:Function, playFinishedHandler:Function) {
                 this.playFinishedHandler = playFinishedHandler;
+                this.playStartedHandler = playStartedHandler;
             }
 
-            public function load(url:String, autoplay:Boolean):void {
+            public function _load(url:String):void {
                 if((url != null) && (url != mediaUrl)) {
-                    loadMP3(url);
-                    if(autoplay) {
-                        play();
+                    try {
+                        this.mediaUrl = url;
+                        position = 0;
+                        propagateID3 = true;
+                        sound = new Sound();
+                        sound.addEventListener(Event.COMPLETE, loadingCompleteHandler);
+                        sound.addEventListener(Event.OPEN, loadingStartedHandler);
+                        sound.addEventListener(IOErrorEvent.IO_ERROR, loadingErrorHandler);
+                        sound.addEventListener(ProgressEvent.PROGRESS, loadingProgressHandler);
+                        sound.addEventListener(Event.ID3, id3Handler);
+                        sound.load(new URLRequest(mediaUrl), new SoundLoaderContext(1000, true));
+
+//                        addEventListener(Event.ENTER_FRAME, onEnterFrame);
+                    } catch(err:Error){
+                        Log.error(err.message);
                     }
                 }
             }
@@ -66,44 +79,55 @@ package com.bramosystems.oss.player {
             public function play():void {
                 if(sound == null) {
                     Log.info("Player not loaded, load player first");
-                    return;
+                    throw new Error("Player not loaded, load player first");
                 }
 
                 if(channel != null) {
                     channel.stop();
                 }
                 channel = sound.play(position, 0, sndTransform);
-                playStartedHandler();
-                channel.addEventListener(Event.SOUND_COMPLETE, _PlayFinishedHandler);
+                channel.addEventListener(Event.SOUND_COMPLETE, _playFinishedHandler);
                 channel.addEventListener(Event.SOUND_COMPLETE, playFinishedHandler);
+                _playStartedHandler();
+                playStartedHandler();
             }
 
-            public function stop(rewind:Boolean):void {
+            public function pause():void {
                 if(channel == null) {
-                    Log.info((rewind ? "Stop " : "Pause ") +
-                         "playback call ignored, sound not played yet!");
+                    Log.info("Pause playback call ignored, sound not played yet!");
                     return;
                 }
 
-                if(rewind) {    // stop...
-                    position = 0;
-                    isPaused = false;
-                } else {    // pause ...
-                    position = channel.position;
-                    isPaused = true;
-                }
+                position = channel.position;
+                isPaused = true;
 
                 channel.stop();
                 isPlaying = false;
-                Log.info("Player " + (rewind ? "stopped" : "paused"));
+                Log.info("Player paused");
+            }
+
+            public function stop():void {
+                if(channel == null) {
+                    Log.info("Stop playback call ignored, sound not played yet!");
+                    return;
+                }
+
+                position = 0;
+                isPaused = false;
+
+                channel.stop();
+                isPlaying = false;
+                Log.info("Player stopped");
             }
 
             public function getPlayPosition():Number {
-                if(channel == null)
+                if(channel == null) {
                     return 0;
+                }
 
-                if(isPlaying)
+                if(isPlaying) {
                     position = channel.position;
+                }
 
                 return position;
             }
@@ -112,20 +136,12 @@ package com.bramosystems.oss.player {
                 return soundDuration;
             }
 
-            public function getVolume():Number {
-                if(channel == null)
-                    return 0;
-
-                return channel.soundTransform.volume;
-            }
-
-            public function setVolume(vol:Number):void {
+            public function setVolume(volume:Number):void {
+                this.sndTransform = new SoundTransform(volume);
                 if(channel == null)
                     return;
 
-                sndTransform = new SoundTransform(vol);
                 channel.soundTransform = sndTransform;
-                Log.info("Volume set to " + (vol * 100).toFixed(0) + "%");
             }
 
             public function close():void {
@@ -136,45 +152,21 @@ package com.bramosystems.oss.player {
                 }
             }
 
-            public function setDebugEnabled(enabled:Boolean):void {
-                debug = enabled;
-            }
-
-            private function loadMP3(mediaUrl:String):void {
-                try {
-                    Log.info("Loading sound at " + mediaUrl);
-                    position = 0;
-                    propagateID3 = true;
-                    sound = new Sound();
-                    sound.addEventListener(Event.COMPLETE, loadingCompleteHandler);
-                    sound.addEventListener(Event.OPEN, loadingStartedHandler);
-                    sound.addEventListener(IOErrorEvent.IO_ERROR, loadingErrorHandler);
-                    sound.addEventListener(ProgressEvent.PROGRESS, loadingProgressHandler);
-                    sound.addEventListener(Event.ID3, id3Handler);
-                    sound.load(new URLRequest(mediaUrl), new SoundLoaderContext(1000, true));
-                } catch(err:Error){
-                    Log.error(err.message);
-                }
-            }
-
             /********************* Javascript call impls. *************************/
             private function loadingStartedHandler(event:Event):void {
-               ExternalInterface.call("bstSwfMdaMediaStateChanged", playerId, 1);
-               Log.info("Media loading started");
+                EventUtil.fireMediaStateChanged(1);
             }
 
-            private function playStartedHandler():void {
+            private function _playStartedHandler():void {
                 isPlaying = true;
                 isPaused = false;
-                Log.info("Media playback started");
-                ExternalInterface.call("bstSwfMdaMediaStateChanged", playerId, 2);
             }
 
             private function loadingCompleteHandler(event:Event):void {
                if(sound != null)
                     soundDuration = sound.length;
 
-               ExternalInterface.call("bstSwfMdaMediaStateChanged", playerId, 10);
+               EventUtil.fireMediaStateChanged(10);
                Log.info("Loading complete");
             }
 
@@ -182,8 +174,7 @@ package com.bramosystems.oss.player {
                if(sound != null)
                     soundDuration = sound.length;
 
-               ExternalInterface.call("bstSwfMdaLoadingProgress", playerId,
-                    event.bytesLoaded / event.bytesTotal);
+               EventUtil.fireLoadingProgress(event.bytesLoaded / event.bytesTotal);
             }
 
             private function loadingErrorHandler(event:IOErrorEvent):void {
@@ -200,7 +191,7 @@ package com.bramosystems.oss.player {
                 try {
                     if(propagateID3) {  // workarround for multiple firing ...
                         Log.info("ID3 data available");
-                        ExternalInterface.call("bstSwfMdaID3", playerId, sound.id3);
+                        EventUtil.fireID3Metadata(sound.id3);
                         propagateID3 = false;
                     }
                 } catch(err:Error) {
@@ -208,8 +199,48 @@ package com.bramosystems.oss.player {
                 }
             }
 
-            private function _PlayFinishedHandler(event:Event):void {
+            private function _playFinishedHandler(event:Event):void {
                 position = 0;
+//                removeEventListener(Event.ENTER_FRAME, onEnterFrame);
             }
+
+
+
+        private function onEnterFrame(event:Event):void {
+            var bytes:ByteArray = new ByteArray();
+            const PLOT_HEIGHT:int = 180;
+            const CHANNEL_LENGTH:int = 256;
+
+            SoundMixer.computeSpectrum(bytes, false, 0);
+
+            var g:Graphics = this.graphics;
+            g.clear();
+
+            g.lineStyle(0, 0x6600CC);
+            g.beginFill(0x6600CC);
+            g.moveTo(0, PLOT_HEIGHT);
+
+            var n:Number = 0;
+
+            for (var i:int = 0; i < CHANNEL_LENGTH; i++) {
+                n = (bytes.readFloat() * PLOT_HEIGHT);
+                g.lineTo(i * 2, PLOT_HEIGHT - n);
+            }
+
+            g.lineTo(CHANNEL_LENGTH * 2, PLOT_HEIGHT);
+            g.endFill();
+
+            g.lineStyle(0, 0xCC0066);
+            g.beginFill(0xCC0066, 0.5);
+            g.moveTo(CHANNEL_LENGTH * 2, PLOT_HEIGHT);
+
+            for (i = CHANNEL_LENGTH; i > 0; i--) {
+                n = (bytes.readFloat() * PLOT_HEIGHT);
+                g.lineTo(i * 2, PLOT_HEIGHT - n);
+            }
+
+            g.lineTo(0, PLOT_HEIGHT);
+            g.endFill();
+        }
     }
 }
