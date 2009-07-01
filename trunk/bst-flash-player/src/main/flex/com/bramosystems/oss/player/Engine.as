@@ -16,24 +16,24 @@
 
 package com.bramosystems.oss.player {
 
+    import flash.media.SoundTransform;
+
     public interface Engine {
 
-        function load(url:String, autoplay:Boolean):void;
+        function _load(url:String):void;
 
         function play():void;
 
-        function stop(rewind:Boolean):void;
+        function stop():void;
+        function pause():void;
 
         function close():void;
 
         function getDuration():Number;
 
-        function setDebugEnabled(enabled:Boolean):void;
-
         function setPlayPosition(channelPosition:Number):void;
         function getPlayPosition():Number;
 
-        function getVolume():Number;
-        function setVolume(vol:Number):void;
+        function setVolume(volume:Number):void;
     }
 }

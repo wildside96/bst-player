@@ -26,50 +26,40 @@
         <![CDATA[
             import com.bramosystems.oss.player.*;
             import com.bramosystems.oss.player.playlist.*;
+            import com.bramosystems.oss.player.external.*;
+            import com.bramosystems.oss.player.events.*;
 
             import flash.external.*;
             import flash.display.*;
-            import flash.media.*;
-            import flash.events.*;
-            import flash.net.*;
-
-            private var playerId:String;
+    
             private var debug:Boolean = true;
-            private var controller:Controller;
+            private var player:Engine, mp3:MP3Engine, vdu:VideoEngine;
+            private var playlist:Playlist;
+            private var listManager:PlaylistManager;
+            private var setting:Setting;
 
             private function initApp():void {
                 // Check if the container is able to use the external API.
                 if (ExternalInterface.available) {
                     try {
-                        // setup callback interfaces...
-                        ExternalInterface.addCallback("loadMda", load);
-                        ExternalInterface.addCallback("playMda", play);
-                        ExternalInterface.addCallback("stopMda", stop);
-                        ExternalInterface.addCallback("pauseMda", pause);
-                        ExternalInterface.addCallback("getMdaPlayPosition", getPlayPosition);
-                        ExternalInterface.addCallback("setMdaPlayPosition", setPlayPosition);
-                        ExternalInterface.addCallback("getMdaVolume", getVolume);
-                        ExternalInterface.addCallback("setMdaVolume", setVolume);
-                        ExternalInterface.addCallback("getMdaDuration", getDuration);
-                        ExternalInterface.addCallback("closeMda", close);
-                        ExternalInterface.addCallback("getMdaPlayerVer", getFlashVersion);
-                        ExternalInterface.addCallback("getMdaPlayCount", getPlayCount);
-                        ExternalInterface.addCallback("setMdaPlayCount", setPlayCount);
-                        ExternalInterface.addCallback("addMdaToPlaylist", addToPlaylist);
-                        ExternalInterface.addCallback("removeMediaFromPlaylist", removeFromPlaylist);
-                        ExternalInterface.addCallback("setMediaShuffleOn", enableShuffle);
-                        ExternalInterface.addCallback("isMediaShuffleOn", isShuffleEnabled);
-
                         // get params...
-                        playerId = Application.application.parameters.playerId;
+                        var playerId:String = Application.application.parameters.playerId;
                         Log.playerId = playerId;
+                        EventUtil.playerId = playerId;
 
-                        var autoplay:String = Application.application.parameters.autoplay;
+                        setting = new Setting();
+                        setting.addEventListener(SettingChangedEvent.VOLUME_CHANGED, updateVolume);
+                        playlist = new Playlist();
+                        listManager = new PlaylistManager(playlist, setting);
+                        mp3 = new MP3Engine(playStartedHandler, playFinishedHandler);
+                        vdu = new VideoEngine(playStartedHandler, playFinishedHandler);
 
-                        controller = new Controller(playerId, autoplay == "true");
-                        addChild(controller.getDisplayComponent());
+                        mp3.setVolume(setting.getVolume());
+                        vdu.setVolume(setting.getVolume());
 
-                        ExternalInterface.call("bstSwfMdaInit", playerId);
+    //                    stage.scaleMode = StageScaleMode.NO_BORDER;
+                        setupCallbacks();
+                        EventUtil.fireApplicationInitialized();
                     } catch(err:SecurityError) {
                         Log.error(err.message);
                     } catch(err:Error) {
@@ -91,155 +81,173 @@
                 return vers;
             }
 
-            /**************************** PLAYER IMPL ******************************/
-            private var mediaUrl:String;
+            /********************** SETUP JS-INTERFACE FUNCTIONS ************************/
+            public function setupCallbacks():void {
+                // setup callback interfaces...
+                ExternalInterface.addCallback("closeMda", close);
+                ExternalInterface.addCallback("getMdaPlayerVer", getFlashVersion);
 
-            public function load(url:String):void {
-                if(url.search(".m3u") >= 0) {
-                    Log.info("Loading playlist at " + url);
-                    loadM3U(url, false);
-                } else {    // load single file...
-                    var playlist:Playlist = new Playlist();
-                    playlist.add(new PlaylistEntry(0, url, url));
-                    controller.setPlaylist(playlist);
-                }
-            }
+                // settings stuffs ...
+                ExternalInterface.addCallback("getMdaVolume", setting.getVolume);
+                ExternalInterface.addCallback("setMdaVolume", setting.setVolume);
+                ExternalInterface.addCallback("getMdaLoopCount", setting.getLoopCount);
+                ExternalInterface.addCallback("setMdaLoopCount", setting.setLoopCount);
+                ExternalInterface.addCallback("isMdaShuffleEnabled", setting.isShuffleEnabled);
+                ExternalInterface.addCallback("setMdaShuffleEnabled", setting.setShuffleEnabled);
 
-            public function addToPlaylist(mediaUrl:String):void {
-                if(mediaUrl.search(".m3u") >= 0) {
-                    Log.info("Adding playlist at " + mediaUrl);
-                    loadM3U(mediaUrl, true);
-                } else {    // add single file...
-                    Log.info("Adding '" + mediaUrl + "' to playlist");
-                    controller.getPlaylist().add(new PlaylistEntry(0, mediaUrl, mediaUrl));
-                }
-            }
+                // Playlist stuffs ...
+                ExternalInterface.addCallback("getMdaPlaylistSize", playlist.size);
+                ExternalInterface.addCallback("clearMdaPlaylist", playlist.clear);
+                ExternalInterface.addCallback("removeFromMdaPlaylist", playlist.remove);
+                ExternalInterface.addCallback("addToMdaPlaylist", playlist.add);
 
-            public function removeFromPlaylist(index:int):void {
-                controller.getPlaylist().remove(index);
-            }
-
-            public function setPlayPosition(channelPosition:Number):void {
-                controller.setPlayPosition(channelPosition);
-            }
-
-            public function play():void {
-                controller.play();
-            }
-
-            public function stop():void {
-                controller.stop(true);
-            }
-
-            public function pause():void {
-                controller.stop(false);
-            }
-
-            public function getPlayPosition():Number {
-                return controller.getPlayPosition();
-            }
-
-            public function getDuration():Number {
-                return controller.getDuration();
-            }
-
-            public function getVolume():Number {
-                return controller.getVolume();
-            }
-
-            public function setVolume(vol:Number):void {
-                controller.setVolume(vol);
-            }
-
-            public function close():void {
-                controller.close();
-            }
-
-            public function setPlayCount(count:int):void {
-                if(count < 0) {
-                    controller.getPlaylist().setRepeatMode(RepeatMode.REPEAT_ALL);
-                } else {
-                    controller.getPlaylist().setRepeatMode(RepeatMode.NO_REPEAT);
-                    controller.getPlaylist().setPlayCount(count);
-                }
-            }
-
-            public function getPlayCount():int {
-                var count:int = 0;
-                switch(controller.getPlaylist().getRepeatMode()) {
-                    case RepeatMode.REPEAT_ALL:
-                    case RepeatMode.REPEAT_ONE:
-                        count = -1;
-                        break;
-                     case RepeatMode.NO_REPEAT:
-                        count = controller.getPlaylist().getPlayCount();
-                }
-                return count;
-            }
-
-            public function enableShuffle(enable:Boolean):void {
-                controller.getPlaylist().enableShuffle(enable);
-            }
-
-            public function isShuffleEnabled():Boolean {
-                return controller.getPlaylist().isShuffleEnabled();
+                // controller stuffs...
+                ExternalInterface.addCallback("loadMda", load);
+                ExternalInterface.addCallback("playMda", play);
+                ExternalInterface.addCallback("playNextMda", playNext);
+                ExternalInterface.addCallback("playPrevMda", playPrev);
+                ExternalInterface.addCallback("playMdaIndex", playIndex);
+                ExternalInterface.addCallback("stopMda", stop);
+                ExternalInterface.addCallback("getMdaDuration", getDuration);
+                ExternalInterface.addCallback("getMdaPlayPosition", getPlayPosition);
+                ExternalInterface.addCallback("setMdaPlayPosition", setPlayPosition);
             }
 
             public function setDebugEnabled(enabled:Boolean):void {
                 debug = enabled;
             }
 
-            /********************* Javascript call impls. *************************/
-            private function loadingErrorHandler(event:IOErrorEvent):void {
-                var txt:String = event.text.toLowerCase();
-                if(txt.search("2032") >= 0) {
-                    Log.error("Error loading media at "+mediaUrl+".  The stream could not be opened, please check your network connection.");
+            /**************************** PLAYER IMPL ******************************/
+            private var mediaURL:String;
+            private var isLoaded:Boolean = false, playPending:Boolean = false;
+
+            public function load(mediaURL:String):void {
+                playlist.clear();
+                playlist.add(mediaURL);
+                var url:String = listManager.getNextURLEntry();
+                _load(url);
+                playPending = true;
+            }
+
+            public function play():void {
+               if(isLoaded) {
+                    if(!playPending) {
+                        var url:String = listManager.getNextURLEntry();
+                        _load(url);
+                        player.play();
+                    } else {
+                        player.play();
+                        playPending = false;    // workaround for playing after loading fresh playlist :-)
+                    }
+               } else {
+                    try {
+                        player.play();
+                    } catch(e:Error) {
+                        playNext();
+                    }
+               }
+            }
+
+            public function playNext():Boolean {
+                var url:String = listManager.getNextURLEntry();
+                if(url != null) {
+                    _load(url);
+                    player.play();
+                    return true;
                 } else {
-                    Log.error(event.text);
+                    return false;
                 }
             }
 
-            private function getBaseURL(url:String):String {
-                return url.substring(0, url.lastIndexOf("/"));
-            }
-
-            /************************* M3U PLAYLIST SUPPORT ****************************/
-            private var loader:URLLoader;
-            private var m3uParser:M3UParser;
-
-            private function loadM3U(m3uUrl:String, append:Boolean):void {
-                m3uParser = new M3UParser(getBaseURL(m3uUrl));
-
-                loader = new URLLoader();
-                loader.addEventListener(IOErrorEvent.IO_ERROR, loadingErrorHandler);
-                if(append) {
-                    loader.addEventListener(Event.COMPLETE, listAppendHandler);
+            public function playPrev():Boolean {
+                var url:String = listManager.getPrevURLEntry();
+                if(url != null) {
+                    _load(url);
+                    player.play();
+                    return true;
                 } else {
-                    loader.addEventListener(Event.COMPLETE, loaderCompleteHandler);
-                }
-
-                try {
-                    loader.load(new URLRequest(m3uUrl));
-                } catch (error:Error) {
+                    return false;
                 }
             }
 
-            private function listAppendHandler(event:Event):void {
-                var mp3s:Array = m3uParser.parse(loader.data);
-
-                for(var i:uint = 0; i < mp3s.length; i++) {
-                    controller.getPlaylist().add(mp3s[i]);
+            public function playIndex(index:int):Boolean {
+                var url:String = listManager.getURLEntry(index);
+                if(url != null) {
+                    _load(url);
+                    player.play();
+                    return true;
+                } else {
+                    return false;
                 }
             }
 
-            private function loaderCompleteHandler(event:Event):void {
-                var playlist:Playlist = new Playlist();
-                var mp3s:Array = m3uParser.parse(loader.data);
-
-                for(var i:uint = 0; i < mp3s.length; i++) {
-                    playlist.add(mp3s[i]);
+            public function stop(rewind:Boolean):void {
+                if(rewind) {
+                    player.stop();
+                    isLoaded = false;
+                } else {
+                    player.pause();
                 }
-                controller.setPlaylist(playlist);
+            }
+
+            public function getDuration():Number {
+                return player.getDuration();
+            }
+
+            public function getPlayPosition():Number {
+                return player.getPlayPosition();
+            }
+
+            public function setPlayPosition(pos:Number):void {
+                player.setPlayPosition(pos);
+            }
+
+            public function close():void {
+                if(player != null) {
+                   player.close();
+                }
+            }
+
+            /*************************** PLAY STATE HANDLERS *********************/
+            private function playFinishedHandler(event:Event):void {
+                EventUtil.fireMediaStateChanged(9, listManager.getListIndex());
+                if(!playNext()) {
+                    Log.info("Media playback finished");
+                    EventUtil.fireMediaStateChanged(9);
+                    isLoaded = false;
+                }
+            }
+
+            public function playStartedHandler():void {
+                Log.info("Playlist item " + listManager.getListIndex() + " : playback started");
+                EventUtil.fireMediaStateChanged(2, listManager.getListIndex());
+            }
+
+            /************************** HELPER FUNCTIONS *****************************/
+            private function _load(mediaURL:String):void {
+                if(player != null) {
+                    player.stop(); // stop playback if any ...
+                    removeChildAt(0);
+                }
+
+                if(mediaURL.search(".mp3") >= 0) {
+                    player = mp3
+                    addChild(mp3);
+                    Log.info("Using MP3Engine");
+                } else {
+                    player = vdu;
+                    addChild(vdu);
+                    Log.info("Using VideoEngine");
+                }
+
+                Log.info("Loading media at '" + mediaURL + "'");
+                player._load(mediaURL);
+                isLoaded = true;
+            }
+
+            private function updateVolume(event:SettingChangedEvent):void {
+                mp3.setVolume(Number(event.newValue));
+                vdu.setVolume(Number(event.newValue));
             }
         ]]>
     </mx:Script>

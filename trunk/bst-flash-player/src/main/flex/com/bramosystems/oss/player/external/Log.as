@@ -14,7 +14,7 @@
  * the License.
  */
 
-package com.bramosystems.oss.player {
+package com.bramosystems.oss.player.external {
     import flash.external.*;
 
     public class Log {

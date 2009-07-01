@@ -16,104 +16,68 @@
 
 package com.bramosystems.oss.player {
     import com.bramosystems.oss.player.playlist.*;
+    import com.bramosystems.oss.player.external.*;
 
-    import flash.external.*;
-    import flash.display.*;
-    import flash.errors.*;
     import flash.media.*;
     import flash.events.*;
-    import flash.net.*;
-    import flash.utils.Timer;
-    import mx.core.*;
     import mx.controls.*;
     import mx.events.*;
 
-    public class VideoEngine implements Engine {
+    public class VideoEngine extends VideoDisplay implements Engine {
 
-            private var playerId:String;
-            private var debug:Boolean = true;
-            private var video:VideoDisplay;
+            private var playStartedHandler:Function;
 
-            public function VideoEngine(id:String, playFinishedHandler:Function) {
-                playerId = id;
-                video = new VideoDisplay();
-                video.addEventListener(ProgressEvent.PROGRESS, loadingProgressHandler);
-                video.addEventListener(MetadataEvent.METADATA_RECEIVED, metadataHandler);
-                video.addEventListener(VideoEvent.COMPLETE, playFinishedHandler);
-                video.addEventListener(VideoEvent.STATE_CHANGE, stateHandler);
+            public function VideoEngine(playStartedHandler:Function, playFinishedHandler:Function) {
+                this.playStartedHandler = playStartedHandler;
+                addEventListener(ProgressEvent.PROGRESS, loadingProgressHandler);
+                addEventListener(MetadataEvent.METADATA_RECEIVED, metadataHandler);
+                addEventListener(VideoEvent.COMPLETE, playFinishedHandler);
+                addEventListener(VideoEvent.STATE_CHANGE, stateHandler);
             }
 
             /**************************** PLAYER IMPL ******************************/
-            private var mediaURL:String;
+            private var mediaURL:String = "";
             private var playlist:Playlist;
             private var propagateMeta:Boolean = false;
 
-            public function getDisplayComponent():VideoDisplay {
-                return video;
-            }
-
-            public function load(url:String, autoplay:Boolean):void {
+            public function _load(url:String):void {
                 if((url != null) && (url != mediaURL)) {
-                    video.autoPlay = autoplay;
-                    loadVideo(url);
+
+                    visible = false;
+                    autoPlay = false;
+                    this.mediaURL = url;
+                    propagateMeta = true;
+                    source = url;
+                    playerReadyHandler();
                 }
             }
 
-            public function loadVideo(mediaURL:String):void {
-                 Log.info("Loading media at " + mediaURL);
-                 this.mediaURL = mediaURL;
-
-                 propagateMeta = true;
-                 video.source = mediaURL;
-                 playerReadyHandler();
-            }
-
-            public function play():void {
-                video.play();
-            }
-
-            public function stop(rewind:Boolean):void {
-                if(rewind) {
-                    video.stop();
-                } else {
-                    video.pause();
+            override public function play():void {
+                if(source == null) {
+                    Log.info("Player not loaded, load player first");
+                    throw new Error("Player not loaded, load player first");
                 }
+
+                super.play();
             }
 
-            public function setVolume(vol:Number):void {
-                video.volume = vol;
-                Log.info("Volume set to " + (vol * 100).toFixed(0) + "%");
-            }
-
-            public function getVolume():Number {
-                return video.volume;
+            public function setVolume(volume:Number):void {
+                this.volume = volume;
             }
 
             public function getDuration():Number {
-                return video.totalTime * 1000.0;
+                return totalTime * 1000.0;
             }
 
             public function getPlayPosition():Number {
-                return video.playheadTime * 1000.0;
+                return playheadTime * 1000.0;
             }
 
             public function setPlayPosition(pos:Number):void {
-                video.playheadTime = pos / 1000.0;
-            }
-
-            public function close():void {
-                video.close();
-            }
-
-            public function setDebugEnabled(enabled:Boolean):void {
-                debug = enabled;
+                playheadTime = pos / 1000.0;
             }
 
             /********************* Javascript call impls. *************************/
-            private function initCompleteNotify():void {
-                ExternalInterface.call("bstSwfMdaInit", playerId);
-            }
-
             private function metadataHandler(meta:MetadataEvent):void {
                 if(propagateMeta) {  // workarround for multiple firing ...
                     var hdwr:String = "Audio Codec: ";
@@ -139,29 +103,33 @@ package com.bramosystems.oss.player {
                     hdwr += ", Audio data rate: " + meta.info.audiodatarate;
 
                     hdwr += ", Video: ";
-                    video.visible = true;
                     switch(meta.info.videocodecid) {
                         case 2:
                             hdwr += "Sorenson H.263";
+                            visible = true;
                             break;
                         case 3:
                             hdwr += "Screen video";
+                            visible = true;
                             break;
                         case 4:
                             hdwr += "VP6 video";
+                            visible = true;
                             break;
                         case 5:
                             hdwr += "VP6 video with alpha channel";
+                            visible = true;
                             break;
                         default:
                             hdwr += "Unknown";
-                            video.visible = false;
                     }
                     hdwr += ", Video data rate: " + meta.info.videodatarate;
                     hdwr += ", Frame rate: " + meta.info.framerate;
+                    hdwr += ", Height: " + meta.info.height;
+                    hdwr += ", Width: " + meta.info.width;
 
                     Log.info("Media Metadata available");
-                    ExternalInterface.call("bstSwfMdaMetadata", playerId, meta.info.duration, hdwr);
+                    EventUtil.fireVideoMetadata(meta.info.duration, hdwr);
                     propagateMeta = false;
                 }
             }
@@ -169,11 +137,10 @@ package com.bramosystems.oss.player {
             private function stateHandler(event:VideoEvent):void {
                 switch(event.state) {
                     case VideoEvent.PLAYING:
-                        Log.info("Media playback started");
-                        playStatedHandler();
+                        playStartedHandler();
                         break;
                     case VideoEvent.STOPPED:
-                        Log.info("Media playback stopped ...");
+                        Log.info("Media playback stopped");
                         break;
                     case VideoEvent.PAUSED:
                         Log.info("Playback paused ...");
@@ -190,20 +157,15 @@ package com.bramosystems.oss.player {
             }
 
             private function playerReadyHandler():void {
-                ExternalInterface.call("bstSwfMdaMediaStateChanged", playerId, 1);
-            }
-
-            private function playStatedHandler():void {
-                Log.info("Media playback started");
-                ExternalInterface.call("bstSwfMdaMediaStateChanged", playerId, 2);
+                EventUtil.fireMediaStateChanged(1);
             }
 
             private function loadingProgressHandler(event:ProgressEvent):void {
                 var prog:Number = event.bytesLoaded / event.bytesTotal;
                 if(prog < 1.0) {
-                    ExternalInterface.call("bstSwfMdaLoadingProgress", playerId, prog);
+                    EventUtil.fireLoadingProgress(prog);
                 } else {
-                    ExternalInterface.call("bstSwfMdaMediaStateChanged", playerId, 10);
+                    EventUtil.fireMediaStateChanged(10);
                     Log.info("Loading complete");
                 }
             }
