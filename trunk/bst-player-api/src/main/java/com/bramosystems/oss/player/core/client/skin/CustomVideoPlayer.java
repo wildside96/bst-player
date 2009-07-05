@@ -29,6 +29,7 @@ import com.bramosystems.oss.player.core.client.ui.FlashMediaPlayer;
 import com.bramosystems.oss.player.core.client.ui.QuickTimePlayer;
 import com.bramosystems.oss.player.core.client.ui.VLCPlayer;
 import com.bramosystems.oss.player.core.client.ui.WinMediaPlayer;
+import com.google.gwt.user.client.ui.DockPanel;
 import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
@@ -92,7 +93,7 @@ public abstract class CustomVideoPlayer extends AbstractMediaPlayer implements P
                 engine = new WinMediaPlayer(mediaURL, autoplay, height, "100%");
                 break;
             default:
-                engine = PlayerUtil.getPlayer(mediaURL, autoplay, height, "100%");
+                engine = PlayerUtil.getPlayer(playerPlugin, mediaURL, autoplay, height, "100%");
                 break;
         }
 
@@ -129,6 +130,18 @@ public abstract class CustomVideoPlayer extends AbstractMediaPlayer implements P
             public void onMediaInfoAvailable(MediaInfo info) {
                 fireMediaInfoAvailable(info);
             }
+            
+            public void onPlayStarted(int index) {
+                firePlayStarted(index);
+            }
+
+            public void onPlayFinished(int index) {
+                firePlayFinished(index);
+            }
+
+            public void onBuffering(boolean buffering) {
+                fireBuffering(buffering);
+            }
         });
         engine.setControllerVisible(false);
         engine.showLogger(false);
@@ -136,10 +149,11 @@ public abstract class CustomVideoPlayer extends AbstractMediaPlayer implements P
         container = new SimplePanel();
         container.setWidth("100%");
 
-        VerticalPanel hp = new VerticalPanel();
+        DockPanel hp = new DockPanel();
+        hp.setSpacing(0);
         hp.setVerticalAlignment(VerticalPanel.ALIGN_MIDDLE);
-        hp.add(engine);
-        hp.add(container);
+        hp.add(container, DockPanel.SOUTH);
+        hp.add(engine, DockPanel.CENTER);
         super.initWidget(hp);
         setSize(width, height);
     }
@@ -247,12 +261,33 @@ public abstract class CustomVideoPlayer extends AbstractMediaPlayer implements P
     }
 
     public void clearPlaylist() {
+        if (engine instanceof PlaylistSupport) {
+            ((PlaylistSupport) engine).clearPlaylist();
+        }
     }
 
-    public void playNext() {
+    public int getPlaylistSize() {
+        if (engine instanceof PlaylistSupport) {
+            return ((PlaylistSupport) engine).getPlaylistSize();
+        }
+        return 1;
     }
 
-    public void playPrevious() {
+    public void play(int index) throws IndexOutOfBoundsException {
+        if (engine instanceof PlaylistSupport) {
+            ((PlaylistSupport) engine).play(index);
+        }
     }
 
+    public void playNext() throws PlayException {
+        if (engine instanceof PlaylistSupport) {
+            ((PlaylistSupport) engine).playNext();
+        }
+    }
+
+    public void playPrevious() throws PlayException {
+        if (engine instanceof PlaylistSupport) {
+            ((PlaylistSupport) engine).playPrevious();
+        }
+    }
 }

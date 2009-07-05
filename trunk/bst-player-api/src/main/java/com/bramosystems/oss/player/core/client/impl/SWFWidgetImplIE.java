@@ -15,32 +15,32 @@
  */
 package com.bramosystems.oss.player.core.client.impl;
 
+import com.bramosystems.oss.player.core.client.ui.SWFWidget;
 import java.util.HashMap;
 import java.util.Iterator;
 
 /**
- * Native IE implementation of the SWFObject class. It is not recommended to
+ * Native IE implementation of the SWFWidget class. It is not recommended to
  * interact with this class directly.
  *
  * @author Sikirulai Braheem
- * @see SWFObject
+ * @see SWFWidget
  */
 public class SWFWidgetImplIE extends SWFWidgetImpl {
 
     @Override
-    public void injectScript(String playerId, String swfURL, int width,
-            int height, HashMap<String, String> params) {
+    public String getScript(String playerId, String swfURL, String width,
+            String height, HashMap<String, String> params) {
         Iterator<String> keys = params.keySet().iterator();
         StringBuilder script = new StringBuilder("<object id='" + playerId + "' " +
                 "classid='CLSID:D27CDB6E-AE6D-11cf-96B8-444553540000' ");
-        script.append("width='" + width + "px' height='" + height + "px'> ");
+        script.append("width='" + width + "' height='" + height + "'> ");
         script.append("<param value='" + swfURL + "' name='movie' />");
         while(keys.hasNext()) {
             String name = keys.next();
             script.append("<param value='" + params.get(name) + "' name='" + name + "' />");
         }
         script.append("</object>");
-
-        injectScriptImpl(playerId + "_div", script.toString());
+        return script.toString();
     }
 }

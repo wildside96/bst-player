@@ -35,7 +35,8 @@ import com.google.gwt.user.client.ui.*;
 public class PlayerUtil {
 
     private static PlayerUtilImpl impl = GWT.create(PlayerUtilImpl.class);
-    private static NumberFormat nf = NumberFormat.getFormat("00");
+    private static NumberFormat timeFormat = NumberFormat.getFormat("00");
+    private static NumberFormat hourFormat = NumberFormat.getFormat("#0");
 
     /**
      * Formats the specified time (in milliseconds) into time string in the
@@ -66,8 +67,8 @@ public class PlayerUtil {
             // catch exceptions like division by zero...
         }
 
-        String time = (hrs > 0 ? nf.format(hrs) + ":" : "") +
-                nf.format(min) + ":" + nf.format(secs);
+        String time = (hrs > 0 ? hourFormat.format(hrs) + ":" : "") +
+                timeFormat.format(min) + ":" + timeFormat.format(secs);
         return time;
     }
 
@@ -90,10 +91,8 @@ public class PlayerUtil {
      * @return a suitable player implementation
      *
      * @throws LoadException if an error occurs while loading the media.
-     * @throws PluginVersionException if the required
-     * plugin version is not installed on the client.
-     * @throws PluginNotFoundException if the required plugin
-     * is not installed on the client.
+     * @throws PluginVersionException if the required plugin version is not installed on the client.
+     * @throws PluginNotFoundException if the required plugin is not installed on the client.
      */
     public static AbstractMediaPlayer getPlayer(String mediaURL,
             boolean autoplay, String height, String width)
@@ -107,7 +106,17 @@ public class PlayerUtil {
 
         String ext = mediaURL.substring(mediaURL.lastIndexOf(".") + 1);
 
-        switch (impl.suggestPlayer(protocol, ext)) {
+        Plugin pg = Plugin.Auto;
+        Plugin plugins[] = Plugin.values();
+
+        for (int i = 0; i < plugins.length; i++) {
+            if (impl.canHandleMedia(plugins[i], protocol, ext)) {
+                pg = plugins[i];
+                break;
+            }
+        }
+
+        switch (pg) {
             case VLCPlayer:
                 player = new VLCPlayer(mediaURL, autoplay, height, width);
                 break;
@@ -120,6 +129,86 @@ public class PlayerUtil {
             case WinMediaPlayer:
                 player = new WinMediaPlayer(mediaURL, autoplay, height, width);
                 break;
+            default:
+                throw new PluginNotFoundException();
+        }
+        return player;
+    }
+
+    /**
+     * Utility method to get a player that best supports the specified {@code mediaURL} with
+     * the specified plugin feature.
+     *
+     * <p>A suitable player is determined based on the features/capabilities derivable from
+     * the player plugin, its availability on the browser, and its suitability to
+     * playback the specified media.
+     *
+     *<p>The current implementation considers the following features:
+     * <ul>
+     * <li>{@linkplain Plugin#Auto} : Basic features i.e. ability to play, pause, stop e.t.c</li>
+     * <li>{@linkplain Plugin#PlaylistSupport} : Playlist management features i.e.
+     * ability to add and/or remove media items from playlists</li>
+     * </ul>
+     *
+     * <p><b>NOTE:</b> If the media is served with a special streaming protocol such as
+     * MMS and RTSP, {@code mediaURL} should be specified in its absolute form. Otherwise
+     * {@code mediaURL} should end in a standard media format extension e.g.
+     * {@code .mp3, .wma, .mov, .flv ...}
+     *
+     * @param plugin the features of the required player plugin
+     * @param mediaURL the URL of the media to playback
+     * @param autoplay {@code true} to start playing automatically, {@code false} otherwise
+     * @param height the height of the player
+     * @param width the width of the player.
+     *
+     * @return a suitable player implementation
+     *
+     * @throws LoadException if an error occurs while loading the media.
+     * @throws PluginVersionException if the required plugin version is not installed on the client.
+     * @throws PluginNotFoundException if the required plugin is not installed on the client.
+     *
+     * @since 1.0
+     * @see #getPlayer(java.lang.String, boolean, java.lang.String, java.lang.String)
+     */
+    public static AbstractMediaPlayer getPlayer(Plugin plugin, String mediaURL,
+            boolean autoplay, String height, String width)
+            throws LoadException, PluginNotFoundException, PluginVersionException {
+        AbstractMediaPlayer player = null;
+
+        String protocol = null;
+        if (mediaURL.contains("://")) {
+            protocol = mediaURL.substring(0, mediaURL.indexOf("://"));
+        }
+
+        String ext = mediaURL.substring(mediaURL.lastIndexOf(".") + 1);
+        Plugin pg = Plugin.Auto;
+
+        switch (plugin) {
+            case PlaylistSupport:
+                Plugin plugins[] = {Plugin.FlashPlayer, Plugin.VLCPlayer};
+                for (int i = 0; i < plugins.length; i++) {
+                    if (impl.canHandleMedia(plugins[i], protocol, ext)) {
+                        pg = plugins[i];
+                        break;
+                    }
+                }
+        }
+
+        switch (pg) {
+            case VLCPlayer:
+                player = new VLCPlayer(mediaURL, autoplay, height, width);
+                break;
+            case FlashPlayer:
+                player = new FlashMediaPlayer(mediaURL, autoplay, height, width);
+                break;
+            case QuickTimePlayer:
+                player = new QuickTimePlayer(mediaURL, autoplay, height, width);
+                break;
+            case WinMediaPlayer:
+                player = new WinMediaPlayer(mediaURL, autoplay, height, width);
+                break;
+            default:
+                player = getPlayer(mediaURL, autoplay, height, width);
         }
         return player;
     }
@@ -336,6 +425,10 @@ public class PlayerUtil {
             case VLCPlayer:
                 message = "VLC Media Player is required to play " +
                         "this media. Click here to get VLC Media Player";
+                break;
+            case PlaylistSupport:
+                message = "No player plugin with client-side playlist" +
+                        " management can be found";
                 break;
             default:
                 message = "A compatible plugin could not be found";

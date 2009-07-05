@@ -22,7 +22,7 @@ import com.bramosystems.oss.player.core.client.MediaStateListenerAdapter;
 import com.bramosystems.oss.player.core.client.PluginNotFoundException;
 import com.bramosystems.oss.player.core.client.Plugin;
 import com.bramosystems.oss.player.core.client.ui.*;
-import com.google.gwt.user.client.ui.VerticalPanel;
+import com.google.gwt.user.client.ui.DockPanel;
 
 /**
  * Custom video player implementation using FlatCustomControl
@@ -84,10 +84,11 @@ public class FlatVideoPlayer extends CustomVideoPlayer {
         logger = new Logger();
         logger.setVisible(false);
 
-        VerticalPanel vp = new VerticalPanel();
+        DockPanel vp = new DockPanel();
+        vp.setSpacing(0);
         vp.setWidth("100%");
-        vp.add(new FlatCustomControl(this));
-        vp.add(logger);
+        vp.add(logger, DockPanel.SOUTH);
+        vp.add(new FlatCustomControl(this), DockPanel.SOUTH);
 
         setPlayerControlWidget(vp);
         addMediaStateListener(new MediaStateListenerAdapter() {

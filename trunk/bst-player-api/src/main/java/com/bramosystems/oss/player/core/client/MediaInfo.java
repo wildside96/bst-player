@@ -34,18 +34,18 @@ public class MediaInfo {
 
     @Override
     public String toString() {
-        return "Title : " + title +
-                ", Artists : " + artists +
-                ", AlbumTitle : " + albumTitle +
-                ", Genre : " + genre +
-                ", Year : " + year +
-                ", Duration : " + duration +
-                ", Publisher : " + publisher +
-                ", Content Providers : " + contentProviders +
-                ", Hardware/Software Requirements : " + hardwareSoftwareRequirements +
-                ", Station Name : " + internetStationName +
-                ", Station Owner : " + internetStationOwner +
-                ", Comment : " + comment;
+        return "Title : " + getItem(MediaInfoKey.Title) +
+                ", Artists : " + getItem(MediaInfoKey.Artists) +
+                ", AlbumTitle : " + getItem(MediaInfoKey.AlbumTitle) +
+                ", Genre : " + getItem(MediaInfoKey.Genre) +
+                ", Year : " + getItem(MediaInfoKey.Year) +
+                ", Duration : " + getItem(MediaInfoKey.Duration) +
+                ", Publisher : " + getItem(MediaInfoKey.Publisher) +
+                ", Content Providers : " + getItem(MediaInfoKey.ContentProviders) +
+                ", Hardware/Software Requirements : " + getItem(MediaInfoKey.HardwareSoftwareRequirements) +
+                ", Station Name : " + getItem(MediaInfoKey.StationName) +
+                ", Station Owner : " + getItem(MediaInfoKey.StationOwner) +
+                ", Comment : " + getItem(MediaInfoKey.Comment);
     }
 
     /**
@@ -57,24 +57,29 @@ public class MediaInfo {
     public String asHTMLString() {
         return "========== Media Info Details ========" +
                 "<style>.info_odd{background-color:#ccc}</style>" +
-                "<table border='0' align='center' cellspacing='0' cellpadding='3'><tbody>" +
-                "<tr class='info_odd'><td>Title</td><td>" + title + "</td></tr>" +
-                "<tr><td>Artists</td><td>" + artists + "</td></tr>" +
-                "<tr class='info_odd'><td>AlbumTitle</td><td>" + albumTitle + "</td></tr>" +
-                "<tr><td>Genre</td><td>" + decodeGenre() + "</td></tr>" +
-                "<tr class='info_odd'><td>Year</td><td>" + year + "</td></tr>" +
+                "<table border='0' width='70%' align='center' cellspacing='0' cellpadding='3'><tbody>" +
+                "<tr class='info_odd'><td>Title</td><td>" + getItem(MediaInfoKey.Title) + "</td></tr>" +
+                "<tr><td>Artists</td><td>" + getItem(MediaInfoKey.Artists) + "</td></tr>" +
+                "<tr class='info_odd'><td>AlbumTitle</td><td>" +
+                getItem(MediaInfoKey.AlbumTitle) + "</td></tr>" +
+                "<tr><td>Genre</td><td>" + getItem(MediaInfoKey.Genre) + "</td></tr>" +
+                "<tr class='info_odd'><td>Year</td><td>" + getItem(MediaInfoKey.Year) + "</td></tr>" +
                 "<tr><td>Duration</td><td>" + PlayerUtil.formatMediaTime((long) duration) + "</td></tr>" +
-                "<tr class='info_odd'><td>Publisher</td><td>" + publisher + "</td></tr>" +
-                "<tr><td>Content Providers</td><td>" + contentProviders + "</td></tr>" +
-                "<tr class='info_odd'><td>Hardware/Software Requirements</td><td>" + hardwareSoftwareRequirements + "</td></tr>" +
-                "<tr><td>Station Name</td><td>" + internetStationName + "</td></tr>" +
-                "<tr class='info_odd'><td>Station Owner</td><td>" + internetStationOwner + "</td></tr>" +
-                "<tr><td>Comment</td><td>" + comment + "</td></tr>" +
+                "<tr class='info_odd'><td>Publisher</td><td>" + 
+                getItem(MediaInfoKey.Publisher) + "</td></tr>" +
+                "<tr><td>Content Providers</td><td>" + getItem(MediaInfoKey.ContentProviders) + "</td></tr>" +
+                "<tr class='info_odd'><td>Hardware/Software Requirements</td><td>" + 
+                getItem(MediaInfoKey.HardwareSoftwareRequirements) + "</td></tr>" +
+                "<tr><td>Station Name</td><td>" + getItem(MediaInfoKey.StationName) + "</td></tr>" +
+                "<tr class='info_odd'><td>Station Owner</td><td>" +
+                getItem(MediaInfoKey.StationOwner) + "</td></tr>" +
+                "<tr><td>Comment</td><td>" + getItem(MediaInfoKey.Comment) + "</td></tr>" +
                 "</tbody></table>";
     }
 
     private boolean isEmpty(String value) {
-        return (value == null) || (value.length() == 0);
+        return (value == null) || (value.length() == 0) ||
+                (value.equals("null") || (value.equals("undefined")));
     }
 
     /**
@@ -178,7 +183,11 @@ public class MediaInfo {
                 value = year;
                 break;
         }
-        return value;
+        if (isEmpty(value)) {
+            return "";
+        } else {
+            return value;
+        }
     }
 
     private String decodeGenre() {
@@ -217,7 +226,6 @@ public class MediaInfo {
         Duration("Duration"),
         HardwareSoftwareRequirements("Hardware/Software Requirements"),
         Copyright("Copyright");
-
         private String itemName;
 
         MediaInfoKey(String itemName) {

@@ -15,37 +15,31 @@
  */
 package com.bramosystems.oss.player.core.client.impl;
 
+import com.bramosystems.oss.player.core.client.ui.SWFWidget;
 import java.util.HashMap;
 import java.util.Iterator;
 
 /**
- * Native implementation of the SWFObject class. It is not recommended to
+ * Native implementation of the SWFWidget class. It is not recommended to
  * interact with this class directly.
  *
  * @author Sikirulai Braheem
- * @see SWFObject
+ * @see SWFWidget
  */
 public class SWFWidgetImpl {
 
-    public void injectScript(String playerId, String swfURL, int width,
-            int height, HashMap<String, String> params) {
+    public String getScript(String playerId, String swfURL, String width,
+            String height, HashMap<String, String> params) {
         Iterator<String> keys = params.keySet().iterator();
         StringBuilder script = new StringBuilder("<embed type='application/x-shockwave-flash' " +
                 "src='" + swfURL + "' ");
         script.append("id='" + playerId + "' name='" + playerId + "' ");
-        script.append("width='" + width + "px' height='" + height + "px' ");
+        script.append("width='" + width + "' height='" + height + "' ");
         while(keys.hasNext()) {
             String name = keys.next();
             script.append(name + "='" + params.get(name) + "' ");
         }
         script.append("></embed>");
-
-        injectScriptImpl(playerId + "_div", script.toString());
+        return script.toString();
     }
-
-    protected final native void injectScriptImpl(String divId, String script) /*-{
-        var e = $doc.getElementById(divId);
-        e.innerHTML = script;
-    }-*/;
-
 }

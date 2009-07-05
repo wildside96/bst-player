@@ -15,11 +15,12 @@
  */
 package com.bramosystems.oss.player.core.client.skin;
 
+import com.bramosystems.oss.player.core.client.MediaInfo;
 import com.bramosystems.oss.player.core.client.PlayerUtil;
 import com.bramosystems.oss.player.core.client.PlayException;
-import com.bramosystems.oss.player.core.client.MediaStateListenerAdapter;
 import com.bramosystems.oss.player.core.client.AbstractMediaPlayer;
-import com.bramosystems.oss.player.core.client.ui.FlashMediaPlayer;
+import com.bramosystems.oss.player.core.client.MediaStateListener;
+import com.bramosystems.oss.player.core.client.PlaylistSupport;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
@@ -28,21 +29,30 @@ import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
 
 /**
- * Custom player control widget.  Used by the {@link FlashMediaPlayer} and
- * the {@link FlatVideoPlayer} classes.
+ * Custom player control widget.
+ *
+ * <h4>CSS Styles</h4>
+ * <code><pre>
+ * .player-FlatCustomControl { the player control }
+ * .player-FlatCustomControl-seekbar { the seekbar of the control }
+ * .player-FlatCustomControl-seekbar .loading { the seekbars' loading progress indicator }
+ * .player-FlatCustomControl-seekbar .playing { the seekbars' playing progress indicator }
+ * .player-FlatCustomControl-volumeControl { the volume controls' slider widget }
+ * .player-FlatCustomControl-volumeControl .volume { the volume level indicator }
+ * .player-FlatCustomControl-volumeControl .track  { the volume sliders' track indicator }
+ * </pre></code>
  *
  * @author Sikirulai Braheem
  * @since 0.6
  */
 public class FlatCustomControl extends Composite {
 
-    private ImagePack imgPack = GWT.create(ImagePack.class);
-//    private String mediaDurationString;
-    private PushButton play,  stop, prev, next;
+    private final String STYLE_NAME = "player-FlatCustomControl";
+    private ImagePack imgPack;
+    private PushButton play,  stop,  prev,  next;
     private Timer playTimer;
     private CSSSeekBar seekbar;
     private Label timeLabel;
-//    private long mediaDuration;
     private AbstractMediaPlayer player;
     private PlayState playState;
     private VolumeControl vc;
@@ -53,18 +63,65 @@ public class FlatCustomControl extends Composite {
      * @param player the player object to control
      */
     public FlatCustomControl(AbstractMediaPlayer player) {
+        this(player, (ImagePack) GWT.create(ImagePack.class));
+    }
+
+    /**
+     * Constructs FlatCustomControl to control the specified player using the
+     * specified image icons for the control buttons.
+     *
+     * @param player the player object to control
+     * @param imagePack the control button icons
+     * @since 1.0
+     */
+    public FlatCustomControl(AbstractMediaPlayer player, ImagePack imagePack) {
         this.player = player;
+        this.imgPack = imagePack;
         playState = PlayState.Stop;
 
         initWidget(getPlayerWidget());
         setSize("100%", "20px");
-        setStyleName("player-FlatCustomControl");
+        setStylePrimaryName(STYLE_NAME);
+    }
+
+    /**
+     * Sets the primary CSS style name of this widget as well as the seekbar and
+     * the volume controls' slider widgets.
+     *
+     * @param style the CSS style name
+     */
+    @Override
+    public void setStylePrimaryName(String style) {
+        super.setStylePrimaryName(style);
+        seekbar.setStylePrimaryName(style);
+        vc.setPopupStyleName(style + "-volumeControl");
+    }
+
+    /**
+     * Sets the CSS style name of this widget as well as the seekbar and
+     * the volume controls' slider widgets.
+     *
+     * @param style the CSS style name
+     */
+    @Override
+    public void setStyleName(String style) {
+        super.setStyleName(style);
+        seekbar.setStylePrimaryName(style);
+        vc.setPopupStyleName(style + "-volumeControl");
+    }
+
+    /**
+     * Overriden to release resources.
+     */
+    @Override
+    protected void onUnload() {
+        playTimer.cancel();
     }
 
     private Widget getPlayerWidget() {
-//        mediaDurationString = "";
         seekbar = new CSSSeekBar(5);
-        seekbar.setPlayingStyle("background", "red");
+        seekbar.setStylePrimaryName(STYLE_NAME);
+        seekbar.addStyleDependentName("seekbar");
         seekbar.setWidth("95%");
         seekbar.addSeekChangeListener(new SeekChangeListener() {
 
@@ -116,8 +173,14 @@ public class FlatCustomControl extends Composite {
         prev = new PushButton(imgPack.prev().createImage(), new ClickHandler() {
 
             public void onClick(ClickEvent event) {
-//                player.stopMedia();
-//                toPlayState(PlayState.Stop);
+                if (player instanceof PlaylistSupport) {
+                    try {
+                        ((PlaylistSupport) player).playPrevious();
+                    } catch (PlayException ex) {
+                        next.setEnabled(false);
+                        player.fireDebug(ex.getMessage());
+                    }
+                }
             }
         });
         prev.getUpDisabledFace().setImage(imgPack.prevDisabled().createImage());
@@ -127,8 +190,14 @@ public class FlatCustomControl extends Composite {
         next = new PushButton(imgPack.next().createImage(), new ClickHandler() {
 
             public void onClick(ClickEvent event) {
-//                player.stopMedia();
-//                toPlayState(PlayState.Stop);
+                if (player instanceof PlaylistSupport) {
+                    try {
+                        ((PlaylistSupport) player).playNext();
+                    } catch (PlayException ex) {
+                        next.setEnabled(false);
+                        player.fireDebug(ex.getMessage());
+                    }
+                }
             }
         });
         next.getUpDisabledFace().setImage(imgPack.nextDisabled().createImage());
@@ -136,7 +205,7 @@ public class FlatCustomControl extends Composite {
         next.setEnabled(false);
 
         vc = new VolumeControl(imgPack.spk().createImage(), 5);
-        vc.setPopupStyle("background", "url(" + GWT.getModuleBaseURL() + "flat-bg.png) repeat");
+        vc.setPopupStyleName(STYLE_NAME + "-volumeControl");
         vc.addVolumeChangeListener(new VolumeChangeListener() {
 
             public void onVolumeChanged(double newValue) {
@@ -144,7 +213,7 @@ public class FlatCustomControl extends Composite {
             }
         });
 
-        player.addMediaStateListener(new MediaStateListenerAdapter() {
+        player.addMediaStateListener(new MediaStateListener() {
 
             @Override
             public void onError(String description) {
@@ -154,8 +223,6 @@ public class FlatCustomControl extends Composite {
 
             @Override
             public void onLoadingComplete() {
-//                mediaDuration = player.getMediaDuration();
-//                mediaDurationString = PlayerUtil.formatMediaTime(mediaDuration);
                 seekbar.setLoadingProgress(1.0);
                 vc.setVolume(player.getVolume());
                 updateSeekState();
@@ -168,8 +235,6 @@ public class FlatCustomControl extends Composite {
 
             @Override
             public void onLoadingProgress(double progress) {
-//                mediaDuration = player.getMediaDuration();
-//                mediaDurationString = PlayerUtil.formatMediaTime(mediaDuration);
                 seekbar.setLoadingProgress(progress);
                 updateSeekState();
             }
@@ -183,6 +248,27 @@ public class FlatCustomControl extends Composite {
             public void onPlayerReady() {
                 play.setEnabled(true);
                 vc.setVolume(player.getVolume());
+            }
+
+            public void onDebug(String message) {
+            }
+
+            public void onMediaInfoAvailable(MediaInfo info) {
+            }
+            
+            public void onBuffering(boolean buffering) {
+            }
+
+            public void onPlayStarted(int index) {
+                toPlayState(PlayState.Playing);
+                next.setEnabled(index < (((PlaylistSupport) player).getPlaylistSize() - 1));
+                prev.setEnabled(index > 0);
+            }
+
+            public void onPlayFinished(int index) {
+                toPlayState(PlayState.Stop);
+                next.setEnabled(index >= 1);
+                prev.setEnabled(index >= 1);
             }
         });
 
@@ -209,7 +295,7 @@ public class FlatCustomControl extends Composite {
     }
 
     private void setTime(long time, long duration) {
-        timeLabel.setText(PlayerUtil.formatMediaTime(time) + 
+        timeLabel.setText(PlayerUtil.formatMediaTime(time) +
                 " / " + PlayerUtil.formatMediaTime(duration));
     }
 
@@ -229,6 +315,8 @@ public class FlatCustomControl extends Composite {
                 seekbar.setPlayingProgress(0);
                 setTime(0, player.getMediaDuration());
                 playTimer.cancel();
+                next.setEnabled(false);
+                prev.setEnabled(false);
             case Pause:
                 play.getUpFace().setImage(imgPack.play().createImage());
                 play.getUpHoveringFace().setImage(imgPack.playHover().createImage());
@@ -237,15 +325,10 @@ public class FlatCustomControl extends Composite {
         playState = state;
     }
 
-    @Override
-    protected void onUnload() {
-        playTimer.cancel();
-    }
-
     private void updateSeekState() {
         double pos = player.getPlayPosition();
-        double duration = player.getMediaDuration();
-        setTime((long)pos, (long)duration);
+        long duration = player.getMediaDuration();
+        setTime((long) pos, duration);
         seekbar.setPlayingProgress(pos / duration);
     }
 

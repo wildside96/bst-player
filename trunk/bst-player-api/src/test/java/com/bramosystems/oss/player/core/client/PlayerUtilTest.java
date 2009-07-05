@@ -17,9 +17,9 @@ import static org.junit.Assert.*;
  *
  * @author Sikirulai Braheem <sbraheem at gmail.com>
  */
-public class PlayerUtilTst extends GWTTestCase {
+public class PlayerUtilTest extends GWTTestCase {
 
-    public PlayerUtilTst() {
+    public PlayerUtilTest() {
     }
 
     @BeforeClass
@@ -33,10 +33,8 @@ public class PlayerUtilTst extends GWTTestCase {
     @Test
     public void testFormatMediaTime() {
         System.out.println("formatMediaTime");
-        long milliSeconds = 0L;
-        String expResult = "";
-        String result = PlayerUtil.formatMediaTime(milliSeconds);
-        assertEquals(expResult, result);
+        assertEquals("00:00", PlayerUtil.formatMediaTime(0));
+        assertEquals("1:00:00", PlayerUtil.formatMediaTime(3600000));
     }
 
     @Test
@@ -84,6 +82,6 @@ public class PlayerUtilTst extends GWTTestCase {
 
     @Override
     public String getModuleName() {
-        return "com.bramosystems.gwt.player.BSTPlayer";
+        return "com.bramosystems.oss.player.core.Core";
     }
 }

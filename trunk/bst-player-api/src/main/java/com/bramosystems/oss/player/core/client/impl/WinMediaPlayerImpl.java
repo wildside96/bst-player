@@ -290,14 +290,14 @@ public class WinMediaPlayerImpl {
                     debug("Media playback paused");
                     break;
                 case 3:    // playing..
-                    listener.onPlayStarted();
+                    listener.onPlayStarted(0);
                     debug("Playing media at " + getMediaURLImpl(id));
 
                     // do metadata ...
                     doMetadata();
                     break;
                 case 8:    // media ended...
-                    listener.onPlayFinished();
+                    listener.onPlayFinished(0);
                     listener.onDebug("Media playback finished");
                     break;
                 case 10:    // player ready...
@@ -331,6 +331,7 @@ public class WinMediaPlayerImpl {
         }
 
         public void doBuffering(boolean buffering) {
+            listener.onBuffering(buffering);
             if (buffering) {
                 downloadProgressTimer.scheduleRepeating(1000);
             } else {

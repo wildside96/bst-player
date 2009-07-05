@@ -16,7 +16,7 @@
 package com.bramosystems.oss.player.core.client;
 
 /**
- * The interface for players that have client-side playlist support.
+ * Interface for players that have client-side playlist support.
  *
  * @author Sikiru Braheem
  * @since 1.0
@@ -55,9 +55,41 @@ public interface PlaylistSupport {
      */
     public void removeFromPlaylist(int index);
 
+    /**
+     * Removes all entries in the players' playlist
+     */
     public void clearPlaylist();
 
-    public void playNext();
+    /**
+     * Plays the next item in the playlist
+     *
+     * @throws PlayException if there are no more entries in the playlist to be played. Especially if we've
+     * advanced to the end of the playlist. Note: A player with a negative loop count (i.e. set to play
+     * forever!) may not throw this exception
+     */
+    public void playNext() throws PlayException;
 
-    public void playPrevious();
+    /**
+     * Plays the previous item in the playlist
+     *
+     * @throws PlayException if there are no more entries in the playlist to be played. Especially if we've
+     * gotten to the beginning of the playlist. Note: A player with a negative loop count (i.e. set to play
+     * forever!) may not throw this exception
+     */
+    public void playPrevious() throws PlayException;
+
+    /**
+     * Play playlist entry at the specified <code>index</code>
+     *
+     * @param index number of the playlist entry
+     * @throws IndexOutOfBoundsException if <code>index</code> is outside the bounds of the playlist
+     */
+    public void play(int index) throws IndexOutOfBoundsException;
+
+    /**
+     * Returns the number of entries in the playlist
+     *
+     * @return number of entries in the playlist
+     */
+    public int getPlaylistSize();
 }

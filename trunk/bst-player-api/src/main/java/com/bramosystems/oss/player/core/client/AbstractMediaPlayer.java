@@ -16,8 +16,11 @@
 package com.bramosystems.oss.player.core.client;
 
 import com.bramosystems.oss.player.core.client.ui.Logger;
+import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.ui.Composite;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
 
 /**
  * Abstract implementation of a media player.  It implements the handling
@@ -28,12 +31,16 @@ import java.util.ArrayList;
 public abstract class AbstractMediaPlayer extends Composite {
 
     private ArrayList<MediaStateListener> callbacks;
+    private HashMap<String, Command> readyCmdQueue;
+    private ArrayList<String> cmdKeys;
 
     /**
      * Constructor method.
      */
     public AbstractMediaPlayer() {
         callbacks = new ArrayList<MediaStateListener>();
+        readyCmdQueue = new HashMap<String, Command>();
+        cmdKeys = new ArrayList<String>();
     }
 
     /**
@@ -114,17 +121,6 @@ public abstract class AbstractMediaPlayer extends Composite {
     public abstract void pauseMedia();
 
     /**
-     * @deprecated Will be removed in a future release
-     * 
-     * Ejects the media loaded into player. After this method is called, the
-     * <code>loadMedia(String mediaURL)</code> method should be called first
-     * before any other media playback methods are called
-     *
-     * @throws IllegalStateException if the player is not available, this is the case
-     * after the <code>{@link #close()}</code> method has been called on this player.
-     */
-//    public abstract void ejectMedia();
-    /**
      * Closes the player and all associated resources such as removing the media player
      * plugin from the page.
      *
@@ -191,7 +187,7 @@ public abstract class AbstractMediaPlayer extends Composite {
      */
     public final void firePlayFinished() {
         for (int i = 0; i < callbacks.size(); i++) {
-            callbacks.get(i).onPlayFinished();
+            callbacks.get(i).onPlayFinished(0);
         }
     }
 
@@ -202,7 +198,7 @@ public abstract class AbstractMediaPlayer extends Composite {
      */
     public final void firePlayStarted() {
         for (int i = 0; i < callbacks.size(); i++) {
-            callbacks.get(i).onPlayStarted();
+            callbacks.get(i).onPlayStarted(0);
         }
     }
 
@@ -215,6 +211,14 @@ public abstract class AbstractMediaPlayer extends Composite {
         for (int i = 0; i < callbacks.size(); i++) {
             callbacks.get(i).onPlayerReady();
         }
+
+        // ensure commands are executed in the same sequence as added ...
+        Iterator<String> keys = cmdKeys.iterator();
+        while (keys.hasNext()) {
+            readyCmdQueue.get(keys.next()).execute();
+        }
+        cmdKeys.clear();
+        readyCmdQueue.clear();
     }
 
     /**
@@ -312,7 +316,7 @@ public abstract class AbstractMediaPlayer extends Composite {
      * Sets the number of times the current media file should repeat playback before stopping.
      * This implementation does nothing, subclasses should override and implement accordingly.
      *
-     * @param loop number of times to repeat playback. A negative value makes playback repeat forever.
+     * @param loop number of times to repeat playback. A negative value makes playback repeat forever!.
      * @since 0.6
      */
     public void setLoopCount(int loop) {
@@ -329,4 +333,79 @@ public abstract class AbstractMediaPlayer extends Composite {
     public int getLoopCount() {
         return 0;
     }
+
+    /**
+     * Adds the specified command to this players' command queue.  The command queue
+     * is a hash-map of commands that are schedule for execution as soon as the underlying
+     * plugin is ready for javascript interaction.
+     *
+     * <p>The execution of the commands is tied to the <code>onPlayerReady</code> event
+     * of the underlying plugin.  All scheduled commands are executed exactly once.
+     *
+     * <p><b>Note:</b> If multiple commands use the same key, only the last command is executed.
+     *
+     * @param key key with which the specified command is to be associated
+     * @param command the command to execute when the player is ready for interaction
+     * @since 1.0
+     */
+    protected final void addToPlayerReadyCommandQueue(String key, Command command) {
+        if (cmdKeys.contains(key)) {
+            cmdKeys.remove(key);
+        }
+        cmdKeys.add(key);   // ensure commands are executed in the same sequence as added ...
+        readyCmdQueue.put(key, command);
+    }
+
+    /**
+     * Removes a queued command with the specified <code>key</code> from this players'
+     * command queue.
+     *
+     * @param key key whose command is to be removed
+     * @since 1.0
+     * @see #addToPlayerReadyCommandQueue(java.lang.String, com.google.gwt.user.client.Command)
+     */
+    protected final void removeFromPlayerReadyCommandQueue(String key) {
+        cmdKeys.remove(key);
+        readyCmdQueue.remove(key);
+    }
+
+    /**
+     * Calls <code>onPlayStarted</code> on registered MediaStateListeners.
+     *
+     * @param index the index of current media in the players' playlist
+     * @see MediaStateListener#onPlayStarted(int)
+     * @since 1.0
+     */
+    public final void firePlayStarted(int index) {
+        for (int i = 0; i < callbacks.size(); i++) {
+            callbacks.get(i).onPlayStarted(index);
+        }
+    }
+
+    /**
+     * Calls <code>onPlayFinished</code> on registered MediaStateListeners.
+     *
+     * @param index the index of current media in the players' playlist
+     * @see MediaStateListener#onPlayFinished(int)
+     * @since 1.0
+     */
+    public final void firePlayFinished(int index) {
+        for (int i = 0; i < callbacks.size(); i++) {
+            callbacks.get(i).onPlayFinished(index);
+        }
+    }
+
+    /**
+     * Calls <code>onBuffering</code> on registered MediaStateListeners.
+     *
+     * @param buffering <code>true</code> if buffering has started, <code>false</code> otherwise
+     * @since 1.0
+     * @see MediaStateListener#onBuffering(boolean)
+     */
+    public final void fireBuffering(boolean buffering) {
+        for (int i = 0; i < callbacks.size(); i++) {
+            callbacks.get(i).onBuffering(buffering);
+        }
+    }
+
 }
