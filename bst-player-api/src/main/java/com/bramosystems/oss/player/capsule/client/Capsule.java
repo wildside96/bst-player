@@ -20,7 +20,6 @@ import com.bramosystems.oss.player.core.client.skin.*;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
@@ -192,47 +191,51 @@ public class Capsule extends CustomAudioPlayer {
                 setVolume(newValue);
             }
         });
-        vc.setPopupStyle("background", "url(" + GWT.getModuleBaseURL() +
-                "capsule-bground.png) repeat-x");
-        vc.setPopupStyle("padding", "3px");
+        vc.setPopupStyleName("player-Capsule-volumeControl");
 
-        addMediaStateListener(new MediaStateListener() {
+        addMediaStateListener(new MediaStateListenerAdapter() {
 
+            @Override
             public void onError(String description) {
                 Window.alert(description);
                 onDebug(description);
             }
 
+            @Override
             public void onLoadingComplete() {
-                progress.setInfo("Loaded 100%");
                 progress.setLoadingProgress(1);
                 progress.setDuration(getMediaDuration());
                 progress.setTime(0);
                 vc.setVolume(getVolume());
             }
 
-            public void onPlayFinished() {
+            @Override
+            public void onPlayFinished(int index) {
                 toPlayState(PlayState.Stop);
             }
 
+            @Override
             public void onDebug(String report) {
                 logger.log(report, false);
             }
 
+            @Override
             public void onLoadingProgress(double progrezz) {
-                progress.setInfo("Loaded " + ((int) (progrezz * 100)) + "%");
                 progress.setLoadingProgress(progrezz);
             }
 
-            public void onPlayStarted() {
+            @Override
+            public void onPlayStarted(int index) {
                 toPlayState(PlayState.Playing);
             }
 
+            @Override
             public void onPlayerReady() {
                 play.setEnabled(true);
                 vc.setVolume(getVolume());
             }
 
+            @Override
             public void onMediaInfoAvailable(MediaInfo info) {
                 mInfo = info;
                 mItems = mInfo.getAvailableItems();
@@ -245,7 +248,7 @@ public class Capsule extends CustomAudioPlayer {
 
         // build the UI...
         DockPanel main = new DockPanel();
-        main.setStyleName("");
+        main.setStyleName("player-Capsule");
         main.setSpacing(0);
         main.setVerticalAlignment(DockPanel.ALIGN_MIDDLE);
         main.setSize("100%", "64px");
@@ -258,10 +261,6 @@ public class Capsule extends CustomAudioPlayer {
         main.add(progress, DockPanel.CENTER);
         main.setCellWidth(progress, "100%");
         main.setCellHorizontalAlignment(progress, DockPanel.ALIGN_CENTER);
-
-        DOM.setStyleAttribute(main.getElement(), "background", "url(" +
-                GWT.getModuleBaseURL() + "capsule-bground.png) repeat-x");
-
         setPlayerControlWidget(main);
         setWidth("100%");
     }
@@ -278,30 +277,22 @@ public class Capsule extends CustomAudioPlayer {
     private void toPlayState(PlayState state) {
         switch (state) {
             case Playing:
-//                progress.setDuration(getMediaDuration());
                 play.setEnabled(true);
                 stop.setEnabled(true);
                 vc.setVolume(getVolume());
-//                isPlaying = true;
-//                if (loadingComplete && isPlaying) {
                 playTimer.scheduleRepeating(1000);
-//                }
-
-//              playTimer.scheduleRepeating(1000);
                 infoTimer.scheduleRepeating(3000);
 
                 play.getUpFace().setImage(imgPack.pause().createImage());
                 play.getUpHoveringFace().setImage(imgPack.pauseHover().createImage());
                 break;
             case Stop:
-//                playTimer.cancel();
                 progress.setTime(0);
                 progress.setFinishedState();
                 stop.setEnabled(false);
                 playTimer.cancel();
                 infoTimer.cancel();
             case Pause:
-//                            stop.setEnabled(true);
                 play.getUpFace().setImage(imgPack.play().createImage());
                 play.getUpHoveringFace().setImage(imgPack.playHover().createImage());
                 break;
@@ -318,15 +309,13 @@ public class Capsule extends CustomAudioPlayer {
 
         public ProgressBar() {
             timeLabel = new Label("--:-- / --:--");
+            timeLabel.setStyleName("player-Capsule-info");
             timeLabel.setWordWrap(false);
             timeLabel.setHorizontalAlignment(Label.ALIGN_RIGHT);
-            DOM.setStyleAttribute(timeLabel.getElement(), "font", "bold 8pt Arial,Helvetica,sans-serif");
-            DOM.setStyleAttribute(timeLabel.getElement(), "color", "white");
 
             infoLabel = new Label();
+            infoLabel.setStyleName("player-Capsule-info");
             infoLabel.setWordWrap(false);
-            DOM.setStyleAttribute(infoLabel.getElement(), "font", "bold 8pt Arial,Helvetica,sans-serif");
-            DOM.setStyleAttribute(infoLabel.getElement(), "color", "white");
 
             DockPanel dp = new DockPanel();
             dp.setVerticalAlignment(DockPanel.ALIGN_MIDDLE);
@@ -336,6 +325,7 @@ public class Capsule extends CustomAudioPlayer {
             dp.add(infoLabel, DockPanel.CENTER);
 
             seekBar = new CSSSeekBar(5);
+            seekBar.setStylePrimaryName("player-Capsule-seekbar");
             seekBar.setWidth("100%");
             seekBar.addSeekChangeListener(new SeekChangeListener() {
 

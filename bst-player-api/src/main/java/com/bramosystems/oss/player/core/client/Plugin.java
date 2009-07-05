@@ -23,31 +23,43 @@ package com.bramosystems.oss.player.core.client;
 public enum Plugin {
 
     /**
-     * Dynamically determine the plugin to use based on its
-     * availability on the browser as well as suitability to playback
-     * the specified media.
+     * Specifies any media player plugin that is available on the browser and features basic
+     * playback support.
+     *
+     * <p>Basic playback support is as defined by the {@linkplain AbstractMediaPlayer} class.
      *
      * @see PlayerUtil#getPlayer(java.lang.String, boolean, java.lang.String, java.lang.String)
      */
     Auto(""),
 
     /**
-     * The Window Media Player plugin
+     * Similar to {@linkplain #Auto}, specifies any media player plugin that supports
+     * client-side playlist management as defined by the {@linkplain PlaylistSupport}
+     * interface.
+     *
+     * @see PlayerUtil#getPlayer(Plugin, java.lang.String, boolean, java.lang.String, java.lang.String)
+     * @see PlaylistSupport
+     * @since 1.0
+     */
+    PlaylistSupport(""),
+
+    /**
+     * Specifies the Window Media Player&trade; plugin
      */
     WinMediaPlayer("http://www.microsoft.com/windowsmedia"),
 
     /**
-     * The QuickTime plugin
+     * Specifies the QuickTime&trade; Player plugin
      */
     QuickTimePlayer("http://www.apple.com/quicktime/download"),
 
     /**
-     * Specifies the Flash Player plugin for Flash Videos
+     * Specifies the Flash Player plugin
      */
     FlashPlayer("http://www.adobe.com/go/getflash"),
     
     /**
-     * Specifies the Flash Player plugin
+     * Specifies the VLC Media Player plugin
      * @since 1.0
      */
     VLCPlayer("http://www.videolan.org");

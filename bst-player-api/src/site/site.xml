@@ -5,7 +5,4 @@
         <menu ref="parent" />
         <menu ref="reports" />
     </body>
-    <poweredBy>
-        <logo name="Maven" href="http://maven.apache.org/" img="./images/logos/build-by-maven-white.png" />
-    </poweredBy>
 </project>

@@ -28,6 +28,7 @@ import com.bramosystems.oss.player.core.client.PlaylistSupport;
 import com.bramosystems.oss.player.core.client.impl.FlashMediaPlayerImpl;
 import com.bramosystems.oss.player.core.client.skin.FlatCustomControl;
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.ui.*;
 import java.util.ArrayList;
 
@@ -61,7 +62,7 @@ import java.util.ArrayList;
  * panel.setWidget(player); // add player to panel.
  * </pre></code>
  *
- * <h2>M3U Playlist Support</h2>
+ * <h3>M3U Playlist Support</h3>
  * <p>
  * This player supports M3U formatted playlists.  However, each entry in the playlist MUST be
  * a flash-supported media file.
@@ -72,12 +73,12 @@ import java.util.ArrayList;
  */
 public class FlashMediaPlayer extends AbstractMediaPlayer implements PlaylistSupport {
 
-    public static FlashMediaPlayerImpl impl = new FlashMediaPlayerImpl();
+    private static FlashMediaPlayerImpl impl = new FlashMediaPlayerImpl();
     private String playerId;
     private boolean isEmbedded;
     private Logger logger;
     private FlatCustomControl control;
-    private MediaStateListener _onInitLoopCountListener,  _onInitListListener,  _onInitSuffleListener;
+    private MediaStateListener _onInitListListener;
     private ArrayList<String> _playlistCache;
 
     /**
@@ -113,13 +114,13 @@ public class FlashMediaPlayer extends AbstractMediaPlayer implements PlaylistSup
         }
 
         SWFWidget swf = new SWFWidget(GWT.getModuleBaseURL() + "bst-flash-player-1.0-SNAPSHOT.swf",
-                "100%", height, PluginVersion.get(9, 0, 0));
+                "100%", "100%", PluginVersion.get(9, 0, 0));
         playerId = swf.getId();
-        swf.addProperty("flashVars", "playerId=" + playerId + "&autoplay=" + autoplay);
+        swf.addProperty("flashVars", "playerId=" + playerId);
         swf.addProperty("allowScriptAccess", "sameDomain");
         swf.addProperty("bgcolor", "#000000");
 
-        impl.init(playerId, mediaURL, new MediaStateListener() {
+        impl.init(playerId, mediaURL, autoplay, new MediaStateListener() {
 
             public void onPlayFinished() {
                 firePlayFinished();
@@ -152,18 +153,26 @@ public class FlashMediaPlayer extends AbstractMediaPlayer implements PlaylistSup
             public void onMediaInfoAvailable(MediaInfo info) {
                 fireMediaInfoAvailable(info);
             }
+
+            public void onPlayStarted(int index) {
+                firePlayStarted(index);
+            }
+
+            public void onPlayFinished(int index) {
+                firePlayFinished(index);
+            }
+
+            public void onBuffering(boolean buffering) {
+                fireBuffering(buffering);
+            }
         });
 
-        VerticalPanel hp = new VerticalPanel();
-        hp.add(swf);
+        DockPanel hp = new DockPanel();
 
         if (!isEmbedded) {
-            control = new FlatCustomControl(this);
-            hp.add(control);
-
             logger = new Logger();
             logger.setVisible(false);
-            hp.add(logger);
+            hp.add(logger, DockPanel.SOUTH);
             addMediaStateListener(new MediaStateListenerAdapter() {
 
                 @Override
@@ -181,7 +190,13 @@ public class FlashMediaPlayer extends AbstractMediaPlayer implements PlaylistSup
                     log(info.asHTMLString(), true);
                 }
             });
+            control = new FlatCustomControl(this);
+            hp.add(control, DockPanel.SOUTH);
         }
+
+        hp.add(swf, DockPanel.CENTER);
+        hp.setCellHeight(swf, height);
+        hp.setCellWidth(swf, width);
         initWidget(hp);
         setWidth(width);
     }
@@ -202,7 +217,7 @@ public class FlashMediaPlayer extends AbstractMediaPlayer implements PlaylistSup
      */
     public FlashMediaPlayer(String mediaURL) throws PluginNotFoundException,
             PluginVersionException, LoadException {
-        this(mediaURL, true, "1px", "100%");
+        this(mediaURL, true, "0px", "100%");
     }
 
     /**
@@ -221,7 +236,7 @@ public class FlashMediaPlayer extends AbstractMediaPlayer implements PlaylistSup
      */
     public FlashMediaPlayer(String mediaURL, boolean autoplay) throws PluginNotFoundException,
             PluginVersionException, LoadException {
-        this(mediaURL, autoplay, "1px", "100%");
+        this(mediaURL, autoplay, "0px", "100%");
     }
 
     public void close() {
@@ -323,25 +338,21 @@ public class FlashMediaPlayer extends AbstractMediaPlayer implements PlaylistSup
 
     /**
      * Sets the number of times the current media file should repeat playback before stopping.
+     *
+     * <p>As of version 1.0, if this player is not available on the panel, this method
+     * call is added to the command-queue for later execution.
      */
     @Override
     public void setLoopCount(final int loop) {
         if (impl.isPlayerAvailable(playerId)) {
             impl.setLoopCount(playerId, loop);
         } else {
-            if (containsMediaStateListener(_onInitLoopCountListener)) {
-                // ensure only one instance is queued ...
-                removeMediaStateListener(_onInitLoopCountListener);
-            }
-            _onInitLoopCountListener = new MediaStateListenerAdapter() {
+            addToPlayerReadyCommandQueue("loopcount", new Command() {
 
-                @Override
-                public void onPlayerReady() {
+                public void execute() {
                     impl.setLoopCount(playerId, loop);
-                    removeMediaStateListener(_onInitLoopCountListener);
                 }
-            };
-            addMediaStateListener(_onInitLoopCountListener);
+            });
         }
     }
 
@@ -376,32 +387,53 @@ public class FlashMediaPlayer extends AbstractMediaPlayer implements PlaylistSup
         impl.removeFromPlaylist(playerId, index);
     }
 
+    /**
+     * Enables or disables players' shuffle mode.
+     *
+     * <p>As of version 1.0, if this player is not available on the panel, this method
+     * call is added to the command-queue for later execution.
+     */
     public void setShuffleEnabled(final boolean enable) {
         if (impl.isPlayerAvailable(playerId)) {
             impl.setShuffleEnabled(playerId, enable);
         } else {
-            if (containsMediaStateListener(_onInitSuffleListener)) {
-                removeMediaStateListener(_onInitSuffleListener);
-            }
+            addToPlayerReadyCommandQueue("shuffle", new Command() {
 
-            _onInitSuffleListener = new MediaStateListenerAdapter() {
-
-                @Override
-                public void onPlayerReady() {
+                public void execute() {
                     impl.setShuffleEnabled(playerId, enable);
-                    removeMediaStateListener(_onInitSuffleListener);
                 }
-            };
-            addMediaStateListener(_onInitSuffleListener);
+            });
         }
     }
 
     public void clearPlaylist() {
+        checkAvailable();
+        impl.clearPlaylist(playerId);
     }
 
-    public void playNext() {
+    public int getPlaylistSize() {
+        checkAvailable();
+        return impl.getPlaylistCount(playerId);
     }
 
-    public void playPrevious() {
+    public void play(int index) throws IndexOutOfBoundsException {
+        checkAvailable();
+        if(!impl.playMedia(playerId, index)) {
+            throw new IndexOutOfBoundsException();
+        }
+    }
+
+    public void playNext() throws PlayException {
+        checkAvailable();
+        if(!impl.playNext(playerId)) {
+            throw new PlayException("No more entries in playlist");
+        }
+    }
+
+    public void playPrevious() throws PlayException {
+        checkAvailable();
+        if(!impl.playPrevious(playerId)) {
+            throw new PlayException("Beginning of playlist reached");
+        }
     }
 }

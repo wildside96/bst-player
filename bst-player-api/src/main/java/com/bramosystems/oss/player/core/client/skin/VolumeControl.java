@@ -19,7 +19,6 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.MouseUpEvent;
 import com.google.gwt.event.dom.client.MouseUpHandler;
-import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.ui.*;
 import java.util.ArrayList;
 
@@ -29,6 +28,13 @@ import java.util.ArrayList;
  * slider widget for the volume.
  *
  * <p>{@code VolumeChangeListener}s are notified whenever the slider is adjusted.
+ *
+ * <h4>CSS Styles</h4>
+ * <code><pre>
+ * .player-VolumeControl { the slider widget }
+ * .player-VolumeControl .volume { the volume level indicator }
+ * .player-VolumeControl .track  { the sliders' track indicator }
+ * </pre></code>
  *
  * @see VolumeChangeListener
  * @author Sikirulai Braheem
@@ -68,20 +74,18 @@ public class VolumeControl extends Composite implements MouseUpHandler {
 
         volume = new Label();
         volume.addMouseUpHandler(this);
-        setVolumeIndicatorStyle("cursor", "pointer");
-        setVolumeIndicatorStyle("background", "#6600ff");
+        volume.setStyleName("volume");
 
         track = new Label();
         track.addMouseUpHandler(this);
-        setTrackStyle("cursor", "pointer");
-        setTrackStyle("background", "#ffff99");
+        track.setStyleName("track");
 
         seekTrack = new AbsolutePanel();
 
         volumePanel = new PopupPanel(true);
         volumePanel.setStyleName("");
         volumePanel.setWidget(seekTrack);
-        DOM.setStyleAttribute(volumePanel.getElement(), "padding", "1px");
+        volumePanel.setStylePrimaryName("player-VolumeControl");
 
         String sizze = String.valueOf(sliderHeight) + "px";
         seekTrack.setSize("50px", sizze);
@@ -157,18 +161,20 @@ public class VolumeControl extends Composite implements MouseUpHandler {
      * Assigns a CSS style class name to the volume indicator
      *
      * @param styleName CSS style class name
+     * @deprecated Use appropriate style in a stylesheet instead. Will be removed in a future version
      */
     public void setVolumeIndicatorStyleName(String styleName) {
-        volume.setStyleName(styleName);
+//        volume.setStyleName(styleName);
     }
 
     /**
      * Assigns a CSS style class name to the volume track
      *
      * @param styleName CSS style class name
+     * @deprecated Use appropriate style in a stylesheet instead. Will be removed in a future version
      */
     public void setTrackStyleName(String styleName) {
-        track.setStyleName(styleName);
+//        track.setStyleName(styleName);
     }
 
     /**
@@ -177,7 +183,7 @@ public class VolumeControl extends Composite implements MouseUpHandler {
      * @param styleName CSS style class name
      */
     public void setPopupStyleName(String styleName) {
-        volumePanel.setStyleName(styleName);
+        volumePanel.setStylePrimaryName(styleName);
     }
 
     /**
@@ -186,9 +192,10 @@ public class VolumeControl extends Composite implements MouseUpHandler {
      *
      * @param name name of style e.g. {@code background, cursor etc}
      * @param value the style.
+     * @deprecated Use appropriate style in a stylesheet instead. Will be removed in a future version
      */
     public void setVolumeIndicatorStyle(String name, String value) {
-        DOM.setStyleAttribute(volume.getElement(), name, value);
+//        DOM.setStyleAttribute(volume.getElement(), name, value);
     }
 
     /**
@@ -197,9 +204,10 @@ public class VolumeControl extends Composite implements MouseUpHandler {
      *
      * @param name name of style e.g. {@code background, cursor etc}
      * @param value the style.
+     * @deprecated Use appropriate style in a stylesheet instead. Will be removed in a future version
      */
     public void setTrackStyle(String name, String value) {
-        DOM.setStyleAttribute(track.getElement(), name, value);
+//        DOM.setStyleAttribute(track.getElement(), name, value);
     }
 
     /**
@@ -208,8 +216,9 @@ public class VolumeControl extends Composite implements MouseUpHandler {
      *
      * @param name name of style e.g. {@code background, cursor etc}
      * @param value the style.
+     * @deprecated Use appropriate style in a stylesheet instead. Will be removed in a future version
      */
     public void setPopupStyle(String name, String value) {
-        DOM.setStyleAttribute(volumePanel.getElement(), name, value);
+//        DOM.setStyleAttribute(volumePanel.getElement(), name, value);
     }
 }

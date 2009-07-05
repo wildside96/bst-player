@@ -43,4 +43,10 @@
         <when-type-is class="com.bramosystems.oss.player.core.client.impl.SWFWidgetImpl"/>
         <when-property-is name="user.agent" value="ie6" />
     </replace-with>
+
+    <!-- VLCPlayerImpl mapping for IE6 & IE7 -->
+    <replace-with class="com.bramosystems.oss.player.core.client.impl.VLCPlayerImplIE">
+        <when-type-is class="com.bramosystems.oss.player.core.client.impl.VLCPlayerImpl"/>
+        <when-property-is name="user.agent" value="ie6" />
+    </replace-with>
 </module>

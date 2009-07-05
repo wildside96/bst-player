@@ -18,6 +18,7 @@ package com.bramosystems.oss.player.core.client.skin;
 import com.bramosystems.oss.player.core.client.*;
 import com.bramosystems.oss.player.core.client.ui.*;
 import com.google.gwt.user.client.ui.AbsolutePanel;
+import com.google.gwt.user.client.ui.DockPanel;
 import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
@@ -36,7 +37,6 @@ public abstract class CustomAudioPlayer extends AbstractMediaPlayer implements P
 
     private AbstractMediaPlayer engine;
     private SimplePanel container;
-
     /**
      * The Logger widget attached to this player
      */
@@ -80,8 +80,8 @@ public abstract class CustomAudioPlayer extends AbstractMediaPlayer implements P
             case WinMediaPlayer:
                 engine = new WinMediaPlayer(mediaURL, autoplay, null, null);
                 break;
-            case Auto:
-                engine = PlayerUtil.getPlayer(mediaURL, autoplay, null, null);
+            default:
+                engine = PlayerUtil.getPlayer(playerPlugin, mediaURL, autoplay, null, null);
                 break;
         }
         engine.addMediaStateListener(new MediaStateListener() {
@@ -117,7 +117,20 @@ public abstract class CustomAudioPlayer extends AbstractMediaPlayer implements P
             public void onMediaInfoAvailable(MediaInfo info) {
                 fireMediaInfoAvailable(info);
             }
+
+            public void onPlayStarted(int index) {
+                firePlayStarted(index);
+            }
+
+            public void onPlayFinished(int index) {
+                firePlayFinished(index);
+            }
+
+            public void onBuffering(boolean buffering) {
+                fireBuffering(buffering);
+            }
         });
+
         container = new SimplePanel();
         container.setWidth("100%");
 
@@ -128,11 +141,11 @@ public abstract class CustomAudioPlayer extends AbstractMediaPlayer implements P
         hp.add(engine, 0, 0);
         hp.add(container, 0, 0);
 
-        VerticalPanel vp = new VerticalPanel();
+        DockPanel vp = new DockPanel();
         vp.setVerticalAlignment(VerticalPanel.ALIGN_MIDDLE);
         vp.setWidth("100%");
-        vp.add(hp);
-        vp.add(logger);
+        vp.add(logger, DockPanel.SOUTH);
+        vp.add(hp, DockPanel.SOUTH);
         vp.setCellHorizontalAlignment(hp, VerticalPanel.ALIGN_CENTER);
         super.initWidget(vp);
     }
@@ -249,11 +262,33 @@ public abstract class CustomAudioPlayer extends AbstractMediaPlayer implements P
     }
 
     public void clearPlaylist() {
+        if (engine instanceof PlaylistSupport) {
+            ((PlaylistSupport) engine).clearPlaylist();
+        }
     }
 
-    public void playNext() {
+    public int getPlaylistSize() {
+        if (engine instanceof PlaylistSupport) {
+            return ((PlaylistSupport) engine).getPlaylistSize();
+        }
+        return 1;
     }
 
-    public void playPrevious() {
+    public void play(int index) throws IndexOutOfBoundsException {
+        if (engine instanceof PlaylistSupport) {
+            ((PlaylistSupport) engine).play(index);
+        }
+    }
+
+    public void playNext() throws PlayException {
+        if (engine instanceof PlaylistSupport) {
+            ((PlaylistSupport) engine).playNext();
+        }
+    }
+
+    public void playPrevious() throws PlayException {
+        if (engine instanceof PlaylistSupport) {
+            ((PlaylistSupport) engine).playPrevious();
+        }
     }
 }

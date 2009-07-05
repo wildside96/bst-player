@@ -18,6 +18,7 @@ package com.bramosystems.oss.player.core.client.ui;
 import com.bramosystems.oss.player.core.client.*;
 import com.bramosystems.oss.player.core.client.impl.WinMediaPlayerImpl;
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.Window;
@@ -60,7 +61,6 @@ public final class WinMediaPlayer extends AbstractMediaPlayer {
     private HTML playerDiv;
     private Logger logger;
     private boolean isEmbedded, autoplay;
-    private MediaStateListener _onInitLoopCountListener;
 
     private WinMediaPlayer() throws PluginNotFoundException, PluginVersionException {
         PluginVersion v = PlayerUtil.getWindowsMediaPlayerPluginVersion();
@@ -136,16 +136,26 @@ public final class WinMediaPlayer extends AbstractMediaPlayer {
             public void onMediaInfoAvailable(MediaInfo info) {
                 fireMediaInfoAvailable(info);
             }
-        });
 
-        playerDiv = new HTML();
-        playerDiv.setStyleName("");
-        playerDiv.setHorizontalAlignment(HTML.ALIGN_CENTER);
+            public void onPlayStarted(int index) {
+                firePlayStarted(index);
+            }
+
+            public void onPlayFinished(int index) {
+                firePlayFinished(index);
+            }
+
+            public void onBuffering(boolean buffering) {
+                fireBuffering(buffering);
+            }
+        });
+        DockPanel dp = new DockPanel();
 
         isEmbedded = (height == null) || (width == null);
         if (!isEmbedded) {
             logger = new Logger();
             logger.setVisible(false);
+            dp.add(logger, DockPanel.SOUTH);
             addMediaStateListener(new MediaStateListenerAdapter() {
 
                 @Override
@@ -169,14 +179,13 @@ public final class WinMediaPlayer extends AbstractMediaPlayer {
             height = "0px";
         }
 
-        DockPanel dp = new DockPanel();
-        if (!isEmbedded) {
-            dp.add(logger, DockPanel.SOUTH);
-        }
+        playerDiv = new HTML();
+        playerDiv.setStyleName("");
+        playerDiv.setHorizontalAlignment(HTML.ALIGN_CENTER);
+        playerDiv.setHeight(height);
         dp.add(playerDiv, DockPanel.CENTER);
 
         initWidget(dp);
-        playerDiv.setHeight(height);
         setWidth(width);
     }
 
@@ -342,25 +351,21 @@ public final class WinMediaPlayer extends AbstractMediaPlayer {
 
     /**
      * Sets the number of times the current media file should repeat playback before stopping.
+     *
+     * <p>As of version 1.0, if this player is not available on the panel, this method
+     * call is added to the command-queue for later execution.
      */
     @Override
     public void setLoopCount(final int loop) {
         if (impl.isPlayerAvailable(playerId)) {
             impl.setLoopCount(playerId, loop);
         } else {
-            if (containsMediaStateListener(_onInitLoopCountListener)) {
-                // ensure only one instance is queued ...
-                removeMediaStateListener(_onInitLoopCountListener);
-            }
-            _onInitLoopCountListener = new MediaStateListenerAdapter() {
+            addToPlayerReadyCommandQueue("loopcount", new Command() {
 
-                @Override
-                public void onPlayerReady() {
+                public void execute() {
                     impl.setLoopCount(playerId, loop);
-                    removeMediaStateListener(_onInitLoopCountListener);
                 }
-            };
-            addMediaStateListener(_onInitLoopCountListener);
+            });
         }
     }
 

@@ -81,6 +81,18 @@ public class AudioLink extends AbstractMediaPlayer {
                 
                 fireMediaInfoAvailable(info);
             }
+
+            public void onPlayStarted(int index) {
+                firePlayStarted(index);
+            }
+
+            public void onPlayFinished(int index) {
+                firePlayFinished(index);
+            }
+
+            public void onBuffering(boolean buffering) {
+                fireBuffering(buffering);
+            }
         });
 
         final HorizontalPanel hp = new HorizontalPanel();

@@ -18,4 +18,5 @@
 <module>
     <inherits name="com.bramosystems.oss.player.core.Core"/>
     <public path="publicc" />
+    <stylesheet src="capsule-styles.css" />
 </module>

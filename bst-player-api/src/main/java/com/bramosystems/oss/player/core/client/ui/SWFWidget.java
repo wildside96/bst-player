@@ -63,8 +63,8 @@ import java.util.HashMap;
 public class SWFWidget extends Composite {
 
     private static SWFWidgetImpl impl;
-    private String playerId,  swfURL;
-    private SimplePanel playerDiv;
+    private String playerId,  swfURL, height, width;
+    private HTML playerDiv;
     private HashMap<String, String> params;
 
     /**
@@ -105,14 +105,18 @@ public class SWFWidget extends Composite {
         }
 
         this.swfURL = sourceURL;
+        this.width = width;
+        this.height = height;
         playerId = DOM.createUniqueId().replace("-", "");
         params = new HashMap<String, String>();
 
-        playerDiv = new SimplePanel();
-        playerDiv.getElement().setId(playerId + "_div");
+        playerDiv = new HTML();
+        playerDiv.setStyleName("");
+        playerDiv.setHorizontalAlignment(HTML.ALIGN_CENTER);
 
         initWidget(playerDiv);
         setSize(width, height);
+        setStyleName("");
     }
 
     /**
@@ -154,7 +158,7 @@ public class SWFWidget extends Composite {
 
             @Override
             public void run() {
-                impl.injectScript(playerId, swfURL, getOffsetWidth(), getOffsetHeight(), params);
+                playerDiv.setHTML(impl.getScript(playerId, swfURL, width, height, params));
             }
         };
         t.schedule(500);   // IE & Opera workarround...

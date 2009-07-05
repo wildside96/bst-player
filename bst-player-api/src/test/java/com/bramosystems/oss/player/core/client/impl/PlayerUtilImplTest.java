@@ -17,9 +17,9 @@ import static org.junit.Assert.*;
  *
  * @author Sikirulai Braheem <sbraheem at gmail.com>
  */
-public class PlayerUtilImplTst extends GWTTestCase {
+public class PlayerUtilImplTest extends GWTTestCase {
 
-    public PlayerUtilImplTst() {
+    public PlayerUtilImplTest() {
     }
 
     @BeforeClass
@@ -38,22 +38,15 @@ public class PlayerUtilImplTst extends GWTTestCase {
         System.out.println("suggestPlayer");
         PlayerUtilImpl instance = GWT.create(PlayerUtilImpl.class);
 
-        Plugin result = instance.suggestPlayer(null, "flv");
-        assertEquals(Plugin.FlashPlayer, result);
-
-//        result = instance.suggestPlayer(null, "mov");
-//        assertEquals(Plugin.QuickTimePlayer, result);
-
-        result = instance.suggestPlayer(null, "m4a");
-        assertEquals(Plugin.QuickTimePlayer, result);
-
-        result = instance.suggestPlayer(null, "wma");
-        assertEquals(Plugin.WinMediaPlayer, result);
+        assertTrue(instance.canHandleMedia(Plugin.FlashPlayer, null, "flv"));
+        assertTrue(instance.canHandleMedia(Plugin.QuickTimePlayer, null, "m4a"));
+        assertTrue(instance.canHandleMedia(Plugin.WinMediaPlayer, null, "wma"));
+        assertTrue(instance.canHandleMedia(Plugin.VLCPlayer, null, "vob"));
     }
 
     @Override
     public String getModuleName() {
-        return "com.bramosystems.gwt.player.BSTPlayer";
+        return "com.bramosystems.oss.player.core.Core";
     }
 
 }

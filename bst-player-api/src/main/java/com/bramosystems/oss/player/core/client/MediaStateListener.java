@@ -33,14 +33,20 @@ public interface MediaStateListener extends EventListener {
      * Invoked when media playback has started.
      *
      * @see #onPlayFinished()
+     * @deprecated As of version 1.0, replaced with onPlayStarted(int). Will
+     * be removed in a future version
      */
+    // TODO: deprecate this please ...
     public void onPlayStarted();
 
     /**
      * Invoked when the media playback has finished
-     *
+     * 
      * @see #onPlayStarted()
+     * @deprecated As of version 1.0, replaced with onPlayFinished(int). Will
+     * be removed in a future version
      */
+    // TODO: deprecate this please ...
     public void onPlayFinished();
 
     /**
@@ -78,4 +84,30 @@ public interface MediaStateListener extends EventListener {
      * @since 0.6
      */
     public void onMediaInfoAvailable(MediaInfo info);
+
+    /**
+     * Invoked when media playback has started.
+     *
+     * @param index the index of the current media being played in the players' playlist
+     * @see #onPlayFinished(int)
+     * @since 1.0
+     */
+    public void onPlayStarted(int index);
+
+    /**
+     * Invoked when the media playback has finished
+     *
+     * @param index the index of the current media being played in the players' playlist
+     * @see #onPlayStarted(int)
+     * @since 1.0
+     */
+    public void onPlayFinished(int index);
+
+    /**
+     * Invoked when the player starts/stops reading data from the media stream.
+     *
+     * @param buffering <code>true</code> if buffering has started, <code>false</code> otherwise
+     * @since 1.0
+     */
+    public void onBuffering(boolean buffering);
 }

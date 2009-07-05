@@ -24,28 +24,35 @@ package com.bramosystems.oss.player.core.client;
  */
 public class MediaStateListenerAdapter implements MediaStateListener {
 
-    public void onPlayerReady() {
+    public void onPlayerReady() {}
+
+    /**
+     * @deprecated
+     */
+    public final void onPlayStarted() {
+        onPlayStarted(1);
     }
 
-    public void onPlayStarted() {
+    /**
+     * @deprecated
+     */
+    public final void onPlayFinished() {
+        onPlayFinished(1);
     }
 
-    public void onPlayFinished() {
-    }
+    public void onLoadingComplete() {}
 
-    public void onLoadingComplete() {
-    }
+    public void onLoadingProgress(double progress) {}
 
-    public void onLoadingProgress(double progress) {
-    }
+    public void onBuffering(boolean buffering) {}
 
-    public void onError(String description) {
-    }
+    public void onError(String description) {}
 
-    public void onDebug(String message) {
-    }
+    public void onDebug(String message) {}
 
-    public void onMediaInfoAvailable(MediaInfo info) {
-    }
+    public void onMediaInfoAvailable(MediaInfo info) {}
 
+    public void onPlayStarted(int index) {}
+
+    public void onPlayFinished(int index) {}
 }

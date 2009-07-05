@@ -17,7 +17,6 @@ package com.bramosystems.oss.player.core.client.impl;
 
 import com.bramosystems.oss.player.core.client.PlayerUtil;
 import com.bramosystems.oss.player.core.client.PluginVersion;
-import com.bramosystems.oss.player.core.client.PluginNotFoundException;
 import com.bramosystems.oss.player.core.client.Plugin;
 import java.util.Arrays;
 
@@ -28,21 +27,22 @@ import java.util.Arrays;
  * @see PlayerUtil
  * @author Sikirulai Braheem
  *
- * TODO: add suggest for VLC
  */
 public class PlayerUtilImpl {
 
     protected final static String[] qtPool = {"wav", "bwf", "mid", "midi", "smf", "au", "snd", "aiff",
-        "aif", "aifc", "cdda", "ac3","caf", "aac","adts", "amr", "amc", "gsm", "3gp", "3gpp", "3g2",
-        "3gp2","mp2", "mp3", "mp4", "mov", "qt", "mqv", "mpeg", "mpg", "m3u",
+        "aif", "aifc", "cdda", "ac3", "caf", "aac", "adts", "amr", "amc", "gsm", "3gp", "3gpp", "3g2",
+        "3gp2", "mp2", "mp3", "mp4", "mov", "qt", "mqv", "mpeg", "mpg", "m3u",
         "sdv", "m1s", "m1a", "m1v", "mpm", "mpv", "mpa", "m2a", "m4a", "m4p", "m4b"};
     protected final static String[] wmpPool = {"asf", "asx", "wmv", "wvx", "wm",
         "wma", "wax", "wav", "mp3", "mid", "midi", "smf", "m3u"};
-    protected final static String[] flvPool = {"flv", "mp4", "f4v", "m4a", "mov", 
+    protected final static String[] flvPool = {"flv", "mp4", "f4v", "m4a", "mov",
         "mp4v", "mp3", "m3u"}; // "3gp", "3g2"
-    
+    protected final static String[] vlcPool = {"3gp2", "mp2", "mp3", "mp4", "mov", "qt", "mpeg",
+        "mpg", "mpga", "mpega", "mpe", "vob", "mpg4", "avi", "ogg", "vlc", "asf", "asx", "wmv",
+        "wav", "3gp", "3gpp", "3g2", "3gpp2", "divx", "flv", "mkv", "mka", "xspf", "m4a", "m3u", "wma"};
     protected final static String[] qtProt = {"rtsp", "rts"};
-//    protected final static String[] flsProt = {};
+    protected final static String[] vlcProt = {"rtp", "rtsp"};
     protected final static String[] wmpProt = {"mms"};
 
     public PlayerUtilImpl() {
@@ -50,72 +50,72 @@ public class PlayerUtilImpl {
         Arrays.sort(qtPool);
         Arrays.sort(qtProt);
         Arrays.sort(wmpPool);
+        Arrays.sort(vlcPool);
+        Arrays.sort(vlcProt);
     }
 
-    public Plugin suggestPlayer(String protocol, String ext) throws PluginNotFoundException {
-        // suggest player with preference for SWF, QT then WMP ...
+    public boolean canHandleMedia(Plugin plugin, String protocol, String ext) {
         PluginVersion pv = null;
-        Plugin pg = Plugin.Auto;
+        boolean canHandle = false;
 
-        if(protocol != null) {  // check for special streaming media...
-            if (Arrays.binarySearch(qtProt, protocol.toLowerCase()) >= 0) {
-                pv = new PluginVersion();
-                getQuickTimePluginVersion(pv);
-                if (pv.compareTo(7, 2, 1) >= 0) {   // req QT plugin found...
-                    pg = Plugin.QuickTimePlayer;
-                }
-            }
-
-            if (pg.equals(Plugin.Auto)) {    // supported player not found yet, try WMP...
-                if (Arrays.binarySearch(wmpProt, protocol.toLowerCase()) >= 0) {
-                    // check if plugin is available...
-                    pv = new PluginVersion();
-                    getWindowsMediaPlayerVersion(pv);
-                    if (pv.compareTo(1, 1, 1) >= 0) {   // req WMP plugin found...
-                        pg = Plugin.WinMediaPlayer;
-                    }
-                }
-            }
-        }
-
-        if (pg.equals(Plugin.Auto)) {    // supported player not found yet, try flash video...
-            if (Arrays.binarySearch(flvPool, ext.toLowerCase()) >= 0) {
+        switch (plugin) {
+            case FlashPlayer:
                 // check if plugin is available...
                 pv = new PluginVersion();
                 getFlashPluginVersion(pv);          // SWF plugin supported ext....
-                if (pv.compareTo(9, 0, 0) >= 0) {   // req SWF plugin found...
-                    pg = Plugin.FlashPlayer;
+                if (pv.compareTo(9, 0, 0) < 0) {   // req SWF plugin not found...
+                    break;
                 }
-            }
-        }
-
-        if (pg.equals(Plugin.Auto)) {    // supported player not found yet, try QT...
-            if (Arrays.binarySearch(qtPool, ext.toLowerCase()) >= 0) {
+                canHandle = Arrays.binarySearch(flvPool, ext.toLowerCase()) >= 0;
+                break;
+            case QuickTimePlayer:
                 // check if plugin is available...
                 pv = new PluginVersion();
                 getQuickTimePluginVersion(pv);
-                if (pv.compareTo(7, 2, 1) >= 0) {   // req QT plugin found...
-                    pg = Plugin.QuickTimePlayer;
+                if (pv.compareTo(7, 2, 1) < 0) {   // req QT plugin not found...
+                    break;
                 }
-            }
-        }
 
-        if (pg.equals(Plugin.Auto)) {    // supported player not found yet, try WMP...
-            if (Arrays.binarySearch(wmpPool, ext.toLowerCase()) >= 0) {
+                // check for streaming protocol ...
+                canHandle = (protocol != null) && (Arrays.binarySearch(qtProt, protocol.toLowerCase()) >= 0);
+
+                // check for extension ...
+                if (!canHandle && Arrays.binarySearch(qtPool, ext.toLowerCase()) >= 0) {
+                    canHandle = true;
+                }
+                break;
+            case WinMediaPlayer:
                 // check if plugin is available...
                 pv = new PluginVersion();
                 getWindowsMediaPlayerVersion(pv);
-                if (pv.compareTo(1, 1, 1) >= 0) {   // req WMP plugin found...
-                    pg = Plugin.WinMediaPlayer;
+                if (pv.compareTo(1, 1, 1) < 0) {   // req WMP plugin not found...
+                    break;
                 }
-            }
-        }
 
-        if (pg.equals(Plugin.Auto)) {    // plugin not found
-            throw new PluginNotFoundException();
-        } else {
-            return pg;
+                canHandle = (protocol != null) && (Arrays.binarySearch(wmpProt, protocol.toLowerCase()) >= 0);
+
+                // check for extension ...
+                if (!canHandle && Arrays.binarySearch(wmpPool, ext.toLowerCase()) >= 0) {
+                    canHandle = true;
+                }
+                break;
+            case VLCPlayer:
+                // check if plugin is available...
+                pv = new PluginVersion();
+                getVLCPluginVersion(pv);
+                if (pv.compareTo(0, 8, 6) < 0) {   // req VLC plugin not found...
+                    break;
+                }
+
+                canHandle = (protocol != null) && (Arrays.binarySearch(vlcProt, protocol.toLowerCase()) >= 0);
+
+                // check for extension ...
+                if (!canHandle && Arrays.binarySearch(vlcPool, ext.toLowerCase()) >= 0) {
+                    canHandle = true;
+                }
+                break;
         }
+        return canHandle;
     }
 
     /**
@@ -193,14 +193,14 @@ public class PlayerUtilImpl {
      */
     public native void getVLCPluginVersion(PluginVersion version) /*-{
     if (navigator.plugins != null && navigator.plugins.length > 0 &&
-                        navigator.plugins["VLC Multimedia Plug-in"]) {
-        var desc = navigator.plugins["VLC Multimedia Plug-in"].description;
-        var descRegex = new RegExp("\\d+.\\d+.\\d+", "");
-        var verArray = (descRegex.exec(desc))[0].split(".");
+    navigator.plugins["VLC Multimedia Plug-in"]) {
+    var desc = navigator.plugins["VLC Multimedia Plug-in"].description;
+    var descRegex = new RegExp("\\d+.\\d+.\\d+", "");
+    var verArray = (descRegex.exec(desc))[0].split(".");
 
-        version.@com.bramosystems.oss.player.core.client.PluginVersion::setMajor(I)(parseInt(verArray[0]));
-        version.@com.bramosystems.oss.player.core.client.PluginVersion::setMinor(I)(parseInt(verArray[1]));
-        version.@com.bramosystems.oss.player.core.client.PluginVersion::setRevision(I)(parseInt(verArray[2]));
+    version.@com.bramosystems.oss.player.core.client.PluginVersion::setMajor(I)(parseInt(verArray[0]));
+    version.@com.bramosystems.oss.player.core.client.PluginVersion::setMinor(I)(parseInt(verArray[1]));
+    version.@com.bramosystems.oss.player.core.client.PluginVersion::setRevision(I)(parseInt(verArray[2]));
     }
     }-*/;
 }

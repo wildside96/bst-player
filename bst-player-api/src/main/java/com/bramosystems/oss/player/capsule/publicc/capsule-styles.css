@@ -13,30 +13,31 @@
 * License for the specific language governing permissions and limitations under
 * the License.
 *
-*
-*   Document   : player-flat-styles
-*   Created on : May 22, 2009, 7:45:46 AM
 */
 
-.player-FlatCustomControl {
+.player-Capsule {
     font: bold 8pt Arial,Helvetica,sans-serif;
     color:  white;
-    background: url(flat-bg.png) repeat;
+    background: url(capsule-bground.png) repeat-x;
 }
-.player-FlatCustomControl-seekbar .loading, .player-FlatCustomControl-volumeControl .track  {
+.player-Capsule-info {
+    font: bold 8pt Arial,Helvetica,sans-serif;
+    color:  white;
+}
+.player-Capsule-seekbar .loading, .player-Capsule-volumeControl .track {
     cursor: pointer;
     background: #ffff99;
 }
-.player-FlatCustomControl-seekbar .playing, .player-FlatCustomControl-volumeControl .volume {
+.player-Capsule-seekbar .playing, .player-Capsule-volumeControl .volume {
     cursor: pointer;
-    background: red;
+    background: blue;
 }
-.player-FlatCustomControl-seekbar {
+.player-Capsule-seekbar {
     vertical-align:middle;
     background: #dadada;
 }
+.player-Capsule-volumeControl {
+    background: url(capsule-bground.png) repeat;
+    padding: 3px;
 
-.player-FlatCustomControl-volumeControl {
-    background: url(flat-bg.png) repeat;
-    padding: 2px;
 }
