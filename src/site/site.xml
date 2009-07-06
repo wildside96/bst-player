@@ -1,31 +1,46 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 
-<project name="${project.name}">
+<project name="${project.name}" xmlns="http://maven.apache.org/DECORATION/1.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/DECORATION/1.0.0 http://maven.apache.org/xsd/decoration-1.0.0.xsd">
     <version position="left" />
     <body>
+        <links>
+            <item name="OSS Lab" href="http://oss.bramosystems.com" />
+        </links>
+        <head>
+            <script type="text/javascript">
+                window.onload = function() {
+                    document.getElementById("ohloh").innerHTML = unescape("%3Cscript type='text/javascript' " +
+                    "src='http://www.ohloh.net/p/315620/widgets/project_thin_badge.js'%3E%3C/script%3E");
+                }
+            </script>
+        </head>
         <menu name="${project.name}">
             <item name="Overview" href="index.html" />
             <item name="Getting Started" href="getting-started.html" />
             <item name="Release Notes" href="release-note.html" />
+            <item name="Migrating from version 0.6" href="migration.html" />
             <item name="Download" href="http://code.google.com/p/bst-player/downloads/list" />
             <!--item name="Wikis" href="http://code.google.com/p/bst-player/w/list" /-->
         </menu>
-        <menu name="Demo Applications">
-            <item name="Windows Media Player" href="wmp.html" />
+        <menu name="Demo Application">
+            <!--item name="Windows Media Player" href="wmp.html" />
             <item name="QuickTime plugin" href="quicktime.html" />
             <item name="Working with Flash plugin" href="flash.html" />
             <item name="Custom Audio Player" href="custom-audio-player.html" />
             <item name="Custom Video Player" href="custom-video-player.html" />
-            <item name="Miscellaneous" href="misc.html" />
+            <item name="Miscellaneous" href="misc.html" /-->
+            <item name="BST Player Showcase" href="./demo" />
         </menu>
         <menu ref="modules" />
     </body>
     <poweredBy>
-        <logo name="Maven" href="http://maven.apache.org/" img="./images/logos/build-by-maven-white.png" />
+        <logo name="Maven" href="http://maven.apache.org/" 
+        img="http://oss.bramosystems.com/bst-player/images/logos/build-by-maven-white.png" />
     </poweredBy>
     <skin>
-        <groupId>com.bramosystems.mvn</groupId>
-        <artifactId>maven-breeze-skin</artifactId>
+        <groupId>com.bramosystems.sites</groupId>
+        <artifactId>maven-oss-site</artifactId>
         <version>1.0</version>
     </skin>
 </project>

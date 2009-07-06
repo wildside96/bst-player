@@ -10,8 +10,8 @@
     <body>
         <section name="Overview">
             <p>
-                The API makes Windows Media Player, QuickTime player and Flash player plugins
-                available in GWT applications like other GWT widgets.
+                The API makes Windows Media Player, QuickTime player, Flash player and VLC Media Player
+                plugins available in GWT applications like other GWT widgets.
             </p>
             <p>
                 The API feature sets of classes and interfaces that presents a consistent means of
@@ -34,22 +34,26 @@
 
             <subsection name="Demo">
                 <p>
-                    The <a href="demo.html">Demos</a> section showcase the various features of the API.
+                    The <a href="./demo">BST Player Showcase</a> application showcase
+                    the various features of the API.
                 </p>
             </subsection>
 
             <subsection name="Questions">
                 <p>
-                    Please post all questions on bst-player group, hopefully someone will try to
-                    provide answers as best as possible.
+                    Please post all questions on the
+                    <a href="http://groups.google.com/group/bst-player">bst-player</a>
+                    group, hopefully someone will try to provide answers as best as possible.
                 </p>
             </subsection>
 
             <subsection name="Suggestions and Issues">
                 <p>
-                    Suggestions are always welcome as regards improving the project. You may want to
-                    use the Issues tab to post your suggestions and all issues.
+                    Suggestions are always welcome as regards improving the project. You may post your
+                    suggestions and all issues on the
+                    <a href="http://code.google.com/p/bst-player/issues/">Issues page</a>.
                 </p>
+                <p>Happy coding ...</p>
             </subsection>
         </section>
     </body>
