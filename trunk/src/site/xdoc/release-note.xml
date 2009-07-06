@@ -2,6 +2,10 @@
 
 <document xmlns="http://maven.apache.org/XDOC/2.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://maven.apache.org/XDOC/2.0 http://maven.apache.org/xsd/xdoc-2.0.xsd">
+    <head>
+        <meta name="description" content="BST Player: Release Notes" />
+        <meta name="robots" content="index,follow" />
+    </head>
 
     <properties>
         <title>Release Note</title>
@@ -9,7 +13,6 @@
     
     <body>
         <section name="Release Notes">
-
             <p>
                 This page contains information on the various released packages of the project.
             </p>
@@ -21,7 +24,7 @@
 
                 <ul>
                     <li>Introduces VLCPlayer widget to embed VLC Media Player plugin.</li>
-                    <li>Playlists now supported.</li>
+                    <li>Client-side playlists support added</li>
                 </ul>
 
                 <p>
@@ -30,26 +33,17 @@
 
                 <ul>
                     <li>Code refactoring: library split into modules and packages renamed.</li>
-                    <li>FlashMP3Player and FlashVideoPlayer classes replaced
-                        with the new FlashPlayer class</li>
+                    <li>FlashMP3Player and FlashVideoPlayer widgets replaced
+                    with the new FlashMediaPlayer widget</li>
+                    <li>JSNI implementation of player widgets reworked to reduce memory leaks</li>
+                    <li>MediaStateListeners now notified when media stream buffering starts/stops</li>
                 </ul>
 
                 <p>
                     <b>Bug Fixes</b>
                 </p>
-                <ul >
-                    <li>
-                    </li>
-                </ul>
-
-                <p>
-                    <b>Known Issue</b>
-                </p>
-                <ul >
-                    <li>
-                        Method calls on QuickTimePlayer object does not work in Internet
-                        Explorer although embedding QuickTime plugin with the widget works fine
-                    </li>
+                <ul>
+                    <li>Method calls on QuickTimePlayer object now work in Internet Explorer</li>
                 </ul>
             </subsection>
 
@@ -80,7 +74,7 @@
                 </p>
                 <ul >
                     <li>
-                        Issue 2  fixed - All constructors now work fine for WinMediaPlayer
+                        Issue 2 - All constructors now work fine for WinMediaPlayer
                     </li>
                 </ul>
 

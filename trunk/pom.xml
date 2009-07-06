@@ -2,7 +2,7 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.bramosystems.oss.player</groupId>
-    <artifactId>parent</artifactId>
+    <artifactId>bst-player</artifactId>
     <packaging>pom</packaging>
     <version>1.0-SNAPSHOT</version>
     <name>BST Player</name>
@@ -65,6 +65,10 @@
         </pluginManagement>
     </build>
 
+    <properties>
+        <gwtVersion>1.6.4</gwtVersion>
+    </properties>
+
     <dependencyManagement>
         <dependencies>
             <dependency>
@@ -77,15 +81,15 @@
             <dependency>
                 <groupId>com.google.gwt</groupId>
                 <artifactId>gwt-user</artifactId>
-                <version>1.6.3</version>
+                <version>${gwtVersion}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.google.gwt</groupId>
                 <artifactId>gwt-dev</artifactId>
-                <version>1.6.3</version>
+                <version>${gwtVersion}</version>
                 <scope>test</scope>
-                <classifier>windows</classifier>
+                <classifier>${gwtPlatform}</classifier>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -127,7 +131,7 @@
                     </reportSet>
                 </reportSets>
                 <configuration>
-                    <excludePackageNames>*.impl</excludePackageNames>
+                    <excludePackageNames>*.impl;*.link.*</excludePackageNames>
                     <doctitle>${project.name} ${project.version}</doctitle>
                     <windowtitle>${project.name} ${project.version}</windowtitle>
                 </configuration>
@@ -141,4 +145,40 @@
             <url>file://oss.bramosystems.com/bst-player</url>
         </site>
     </distributionManagement-->
+
+    <profiles>
+        <profile>
+            <id>gwt-windows</id>
+            <properties>
+                <gwtPlatform>windows</gwtPlatform>
+            </properties>
+            <activation>
+                <os>
+                    <family>windows</family>
+                </os>
+            </activation>
+        </profile>
+        <profile>
+            <id>gwt-mac</id>
+            <properties>
+                <gwtPlatform>mac</gwtPlatform>
+            </properties>
+            <activation>
+                <os>
+                    <family>mac</family>
+                </os>
+            </activation>
+        </profile>
+        <profile>
+            <id>gwt-linux</id>
+            <properties>
+                <gwtPlatform>linux</gwtPlatform>
+            </properties>
+            <activation>
+                <os>
+                    <name>linux</name>
+                </os>
+            </activation>
+        </profile>
+    </profiles>
 </project>
