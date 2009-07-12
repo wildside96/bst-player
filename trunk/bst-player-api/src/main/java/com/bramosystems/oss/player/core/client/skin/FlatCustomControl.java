@@ -21,6 +21,7 @@ import com.bramosystems.oss.player.core.client.PlayException;
 import com.bramosystems.oss.player.core.client.AbstractMediaPlayer;
 import com.bramosystems.oss.player.core.client.MediaStateListener;
 import com.bramosystems.oss.player.core.client.PlaylistSupport;
+import com.bramosystems.oss.player.core.event.client.*;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
@@ -130,6 +131,13 @@ public class FlatCustomControl extends Composite {
             }
         });
 
+        seekbar.addSeekChangeHandler(new SeekChangeHandler() {
+
+            public void onSeekChanged(SeekChangeEvent event) {
+                player.setPlayPosition(event.getValue() * player.getMediaDuration());
+            }
+        });
+
         playTimer = new Timer() {
 
             @Override
@@ -152,7 +160,6 @@ public class FlatCustomControl extends Composite {
                         break;
                     case Playing:
                         player.pauseMedia();
-                        toPlayState(PlayState.Pause);
                 }
             }
         });
@@ -163,7 +170,6 @@ public class FlatCustomControl extends Composite {
 
             public void onClick(ClickEvent event) {
                 player.stopMedia();
-                toPlayState(PlayState.Stop);
             }
         });
         stop.getUpDisabledFace().setImage(imgPack.stopDisabled().createImage());
@@ -212,6 +218,54 @@ public class FlatCustomControl extends Composite {
                 player.setVolume(newValue);
             }
         });
+        vc.addVolumeChangeHandler(new VolumeChangeHandler() {
+
+            public void onVolumeChanged(VolumeChangeEvent event) {
+                player.setVolume(event.getValue());
+            }
+        });
+
+        player.addLoadingProgressHandler(new LoadingProgressHandler() {
+
+            public void onLoadingProgress(LoadingProgressEvent event) {
+                seekbar.setLoadingProgress(event.getProgress());
+                vc.setVolume(player.getVolume());
+                updateSeekState();
+            }
+        });
+        player.addPlayStateHandler(new PlayStateHandler() {
+
+            public void onPlayStateChanged(PlayStateEvent event) {
+                int index = event.getItemIndex();
+                switch (event.getPlayState()) {
+                    case Finished:
+                        toPlayState(PlayState.Stop);
+                        next.setEnabled(index >= 1);
+                        prev.setEnabled(index >= 1);
+                        break;
+                    case Paused:
+                        toPlayState(PlayState.Pause);
+                        break;
+                    case Started:
+                        toPlayState(PlayState.Playing);
+                        next.setEnabled(index < (((PlaylistSupport) player).getPlaylistSize() - 1));
+                        prev.setEnabled(index > 0);
+                        break;
+                    case Stopped:
+                        toPlayState(PlayState.Stop);
+                }
+            }
+        });
+        player.addPlayerStateHandler(new PlayerStateHandler() {
+
+            public void onPlayerStateChanged(PlayerStateEvent event) {
+                switch (event.getPlayerState()) {
+                    case Ready:
+                        play.setEnabled(true);
+                        vc.setVolume(player.getVolume());
+                }
+            }
+        });
 
         player.addMediaStateListener(new MediaStateListener() {
 
@@ -255,7 +309,7 @@ public class FlatCustomControl extends Composite {
 
             public void onMediaInfoAvailable(MediaInfo info) {
             }
-            
+
             public void onBuffering(boolean buffering) {
             }
 

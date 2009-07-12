@@ -15,20 +15,12 @@
  */
 package com.bramosystems.oss.player.core.client.ui;
 
-import com.bramosystems.oss.player.core.client.LoadException;
-import com.bramosystems.oss.player.core.client.PluginVersion;
-import com.bramosystems.oss.player.core.client.PlayerUtil;
-import com.bramosystems.oss.player.core.client.MediaInfo;
-import com.bramosystems.oss.player.core.client.PluginVersionException;
-import com.bramosystems.oss.player.core.client.PlayException;
-import com.bramosystems.oss.player.core.client.MediaStateListener;
-import com.bramosystems.oss.player.core.client.MediaStateListenerAdapter;
-import com.bramosystems.oss.player.core.client.PluginNotFoundException;
-import com.bramosystems.oss.player.core.client.AbstractMediaPlayer;
-import com.bramosystems.oss.player.core.client.PlaylistSupport;
+import com.bramosystems.oss.player.core.event.client.*;
+import com.bramosystems.oss.player.core.client.*;
 import com.bramosystems.oss.player.core.client.impl.VLCPlayerImpl;
 import com.bramosystems.oss.player.core.client.skin.FlatCustomControl;
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Timer;
@@ -73,8 +65,9 @@ public final class VLCPlayer extends AbstractMediaPlayer implements PlaylistSupp
     private HTML playerDiv;
     private Logger logger;
     private boolean isEmbedded,  autoplay;
-    private MediaStateListener _onInitListListener;
-    private ArrayList<String> _playlistCache;
+//    private MediaStateListener _onInitListListener;
+    private HandlerRegistration initListHandler;
+    private ArrayList<MRL> _playlistCache;
     private FlatCustomControl control;
 
     VLCPlayer() throws PluginNotFoundException, PluginVersionException {
@@ -87,7 +80,7 @@ public final class VLCPlayer extends AbstractMediaPlayer implements PlaylistSupp
             impl = GWT.create(VLCPlayerImpl.class);
         }
 
-        _playlistCache = new ArrayList<String>();
+        _playlistCache = new ArrayList<MRL>();
         playerId = DOM.createUniqueId().replace("-", "");
     }
 
@@ -119,53 +112,55 @@ public final class VLCPlayer extends AbstractMediaPlayer implements PlaylistSupp
         mediaUrl = mediaURL;
         this.autoplay = autoplay;
 
+        impl.init(playerId, new MediaStateListenerAdapter(), this);
+        /*
         impl.init(playerId, new MediaStateListener() {
 
-            public void onPlayFinished() {
-                firePlayFinished();
-            }
+        public void onPlayFinished() {
+        firePlayFinished();
+        }
 
-            public void onLoadingComplete() {
-                fireLoadingComplete();
-            }
+        public void onLoadingComplete() {
+        fireLoadingComplete();
+        }
 
-            public void onError(String description) {
-                fireError(description);
-            }
+        public void onError(String description) {
+        fireError(description);
+        }
 
-            public void onDebug(String message) {
-                fireDebug(message);
-            }
+        public void onDebug(String message) {
+        fireDebug(message);
+        }
 
-            public void onLoadingProgress(double progress) {
-                fireLoadingProgress(progress);
-            }
+        public void onLoadingProgress(double progress) {
+        fireLoadingProgress(progress);
+        }
 
-            public void onPlayStarted() {
-                firePlayStarted();
-            }
+        public void onPlayStarted() {
+        firePlayStarted();
+        }
 
-            public void onPlayerReady() {
-                firePlayerReady();
-            }
+        public void onPlayerReady() {
+        firePlayerReady();
+        }
 
-            public void onMediaInfoAvailable(MediaInfo info) {
-                fireMediaInfoAvailable(info);
-            }
+        public void onMediaInfoAvailable(MediaInfo info) {
+        fireMediaInfoAvailable(info);
+        }
 
-            public void onPlayStarted(int index) {
-                firePlayStarted(index);
-            }
+        public void onPlayStarted(int index) {
+        firePlayStarted(index);
+        }
 
-            public void onPlayFinished(int index) {
-                firePlayFinished(index);
-            }
+        public void onPlayFinished(int index) {
+        firePlayFinished(index);
+        }
 
-            public void onBuffering(boolean buffering) {
-                fireBuffering(buffering);
-            }
+        public void onBuffering(boolean buffering) {
+        fireBuffering(buffering);
+        }
         });
-
+         */
         DockPanel dp = new DockPanel();
         initWidget(dp);
 
@@ -178,24 +173,44 @@ public final class VLCPlayer extends AbstractMediaPlayer implements PlaylistSupp
             control = new FlatCustomControl(this);
             dp.add(control, DockPanel.SOUTH);
 
+            /*
             addMediaStateListener(new MediaStateListenerAdapter() {
 
-                @Override
-                public void onError(String description) {
-                    Window.alert(description);
-                    logger.log(description, false);
-                }
+            @Override
+            public void onError(String description) {
+            Window.alert(description);
+            logger.log(description, false);
+            }
 
-                @Override
-                public void onDebug(String message) {
-                    logger.log(message, false);
-                }
+            @Override
+            public void onDebug(String message) {
+            logger.log(message, false);
+            }
 
-                @Override
-                public void onMediaInfoAvailable(MediaInfo info) {
-                    logger.log(info.asHTMLString(), true);
+            @Override
+            public void onMediaInfoAvailable(MediaInfo info) {
+            logger.log(info.asHTMLString(), true);
+            }
+            });
+             */
+            addDebugHandler(new DebugHandler() {
+
+                public void onDebug(DebugEvent event) {
+                    switch (event.getMessageType()) {
+                        case Error:
+                            Window.alert(event.getMessage());
+                        case Info:
+                            logger.log(event.getMessage(), false);
+                    }
                 }
             });
+            addMediaInfoHandler(new MediaInfoHandler() {
+
+                public void onMediaInfoAvailable(MediaInfoEvent event) {
+                    logger.log(event.getMediaInfo().asHTMLString(), true);
+                }
+            });
+
         } else {
             height = "0px";
             width = "0px";
@@ -206,7 +221,7 @@ public final class VLCPlayer extends AbstractMediaPlayer implements PlaylistSupp
         playerDiv.setHorizontalAlignment(HTML.ALIGN_CENTER);
         playerDiv.setHeight(height);
         dp.add(playerDiv, DockPanel.CENTER);
-        
+
         setWidth(width);
     }
 
@@ -377,31 +392,51 @@ public final class VLCPlayer extends AbstractMediaPlayer implements PlaylistSupp
     }
 
     @Override
-    public void addToPlaylist(final String mediaURL) {
+    public void addToPlaylist(String mediaURL) {
         if (impl.isPlayerAvailable(playerId)) {
-            impl.addToPlaylist(playerId, mediaURL);
+            impl.addToPlaylist(playerId, mediaURL, null);
         } else {
-            if (!containsMediaStateListener(_onInitListListener)) {
-                _onInitListListener = new MediaStateListenerAdapter() {
+            if (initListHandler == null) {
+                initListHandler = addPlayerStateHandler(new PlayerStateHandler() {
 
-                    @Override
-                    public void onPlayerReady() {
-                        for (String url : _playlistCache) {
-                            impl.addToPlaylist(playerId, url);
+                    public void onPlayerStateChanged(PlayerStateEvent event) {
+                        switch (event.getPlayerState()) {
+                            case Ready:
+                                for (MRL mrl : _playlistCache) {
+                                    impl.addToPlaylist(playerId, mrl.getUrl(), mrl.getOption());
+                                }
+                                break;
                         }
-//                        removeMediaStateListener(_onInitListListener);
+                        initListHandler.removeHandler();
                     }
-                };
-                addMediaStateListener(_onInitListListener);
+                });
             }
-            _playlistCache.add(mediaURL);
+            /*
+            if (!containsMediaStateListener(_onInitListListener)) {
+            _onInitListListener = new MediaStateListenerAdapter() {
+
+            @Override
+            public void onPlayerReady() {
+            for (MRL mrl : _playlistCache) {
+            //                        for (int i = 0; i < _playlistCache.size(); i++) {
+            //                            MRL mrl = _playlistCache.get(i);
+            impl.addToPlaylist(playerId, mrl.getUrl(), mrl.getOption());
+            }
+            //                        removeMediaStateListener(_onInitListListener);
+            }
+            };
+            addMediaStateListener(_onInitListListener);
+            }
+             */
+            _playlistCache.add(new MRL(mediaURL, null));
         }
     }
 
     @Override
     public boolean isShuffleEnabled() {
         checkAvailable();
-        return impl.isShuffleEnabled(playerId);
+//        return impl.isShuffleEnabled(playerId);
+        return false;
     }
 
     @Override
@@ -412,17 +447,21 @@ public final class VLCPlayer extends AbstractMediaPlayer implements PlaylistSupp
 
     @Override
     public void setShuffleEnabled(final boolean enable) {
-        if (impl.isPlayerAvailable(playerId)) {
-            impl.setShuffleEnabled(playerId, enable);
+/*        if (impl.isPlayerAvailable(playerId)) {
+            impl.addToPlaylist(playerId, GWT.getModuleBaseURL() + "silence.mp3",
+                    enable ? " --loop " : " --no-loop ");
         } else {
-            addToPlayerReadyCommandQueue("shuffle", new Command() {
+            _playlistCache.add(new MRL(GWT.getModuleBaseURL() + "silence.mp3",
+                    enable ? " --loop " : " --no-loop "));
+        /*            addToPlayerReadyCommandQueue("shuffle", new Command() {
 
-                public void execute() {
-                    impl.setShuffleEnabled(playerId, enable);
-                }
-            });
+        public void execute() {
+        impl.addToPlaylist(playerId, "", enable ? "--random" : "--no-random");
         }
-    }
+        });
+         *
+        }
+*/    }
 
     public void clearPlaylist() {
         checkAvailable();
@@ -431,10 +470,7 @@ public final class VLCPlayer extends AbstractMediaPlayer implements PlaylistSupp
 
     public int getPlaylistSize() {
         checkAvailable();
-//        return impl.getPlaylistCount(playerId);
-        int sz = impl.getPlaylistCount(playerId);
-        fireDebug("Playlist size : " + sz);
-        return sz;
+        return impl.getPlaylistCount(playerId);
     }
 
     public void play(int index) throws IndexOutOfBoundsException {
@@ -444,14 +480,14 @@ public final class VLCPlayer extends AbstractMediaPlayer implements PlaylistSupp
 
     public void playNext() throws PlayException {
         checkAvailable();
-        if(!impl.playNext(playerId)) {
+        if (!impl.playNext(playerId)) {
             throw new PlayException("No more entries in playlist");
         }
     }
 
     public void playPrevious() throws PlayException {
         checkAvailable();
-        if(!impl.playPrevious(playerId)) {
+        if (!impl.playPrevious(playerId)) {
             throw new PlayException("Beginning of playlist reached");
         }
     }
@@ -467,6 +503,25 @@ public final class VLCPlayer extends AbstractMediaPlayer implements PlaylistSupp
     }
 
     public static enum AudioChannelMode {
+
         Disabled, Stereo, ReverseStereo, Left, Right, Dolby
+    }
+
+    private class MRL {
+
+        private String url,  option;
+
+        public MRL(String url, String option) {
+            this.url = url;
+            this.option = option;
+        }
+
+        public String getUrl() {
+            return url;
+        }
+
+        public String getOption() {
+            return option;
+        }
     }
 }

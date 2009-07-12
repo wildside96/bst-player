@@ -15,8 +15,14 @@
  */
 package com.bramosystems.oss.player.core.client.impl;
 
+import com.bramosystems.oss.player.core.event.client.PlayerStateEvent;
+import com.bramosystems.oss.player.core.event.client.HasMediaStateHandlers;
+import com.bramosystems.oss.player.core.event.client.PlayStateEvent;
+import com.bramosystems.oss.player.core.event.client.LoadingProgressEvent;
+import com.bramosystems.oss.player.core.event.client.DebugEvent;
 import com.bramosystems.oss.player.core.client.MediaStateListener;
 import com.bramosystems.oss.player.core.client.ui.VLCPlayer;
+import com.bramosystems.oss.player.core.event.*;
 import com.google.gwt.user.client.Timer;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -31,22 +37,22 @@ import java.util.HashMap;
 public class VLCPlayerImpl {
 
     private HashMap<String, StateHandler> cache;
-    private ArrayList<Integer> listIndexCache;
+    private ArrayList<Integer> playlistIndexCache;
 
     VLCPlayerImpl() {
         cache = new HashMap<String, StateHandler>();
-        listIndexCache = new ArrayList<Integer>();
+        playlistIndexCache = new ArrayList<Integer>();
     }
 
-    public void init(String playerId, MediaStateListener listener) {
-        cache.put(playerId, new StateHandler(playerId, listener));
+    public void init(String playerId, MediaStateListener listener, HasMediaStateHandlers handler) {
+        cache.put(playerId, new StateHandler(playerId, listener, handler));
     }
 
     public String getPlayerScript(String playerId, int height, int width) {
         return "<embed id='" + playerId + "' name='" + playerId + "' loop='false' " +
                 "target='' autoplay='false' type='application/x-vlc-plugin' " +
                 "version='VideoLAN.VLCPlugin.2' width='" + width + "px' " +
-                "height='" + height + "px'></embed>";
+                "height='" + height + "px' toolbar='false'></embed>";
     }
 
     public void initPlayer(String playerId, String mediaUrl, boolean autoplay, int height, int width) {
@@ -61,44 +67,40 @@ public class VLCPlayerImpl {
     }
 
     public void play(String playerId) {
-        cache.get(playerId).canFireStarted = true;
         playImpl(playerId);
     }
 
     public boolean playPrevious(String playerId) {
-        cache.get(playerId).canFireStarted = true;
         playPreviousImpl(playerId);
         return true;
     }
 
     public boolean playNext(String playerId) {
-        cache.get(playerId).canFireStarted = true;
         playNextImpl(playerId);
         return true;
     }
 
     public void playMedia(String playerId, int index) {
-        cache.get(playerId).canFireStarted = true;
-        playMediaImpl(playerId, listIndexCache.get(index));
+        playMediaImpl(playerId, playlistIndexCache.get(index));
     }
 
     public void stop(String playerId) {
-        cache.get(playerId).canFireStopped = true;
+        cache.get(playerId).stoppedByUser = true;
         stopImpl(playerId);
     }
 
     public void pause(String playerId) {
-        cache.get(playerId).canFirePaused = true;
         pauseImpl(playerId);
     }
 
     public void close(String playerId) {
+        cache.get(playerId).close();
         cache.remove(playerId);
     }
 
     public void load(String playerId, String mediaURL) {
         clearPlaylist(playerId);
-        addToPlaylist(playerId, mediaURL);
+        addToPlaylist(playerId, mediaURL, "");
     }
 
     public final int getLoopCount(String playerId) {
@@ -109,25 +111,25 @@ public class VLCPlayerImpl {
         cache.get(playerId).setLoopCount(count);
     }
 
-    public void setShuffleEnabled(String playerId, boolean enable) {
-        int index = setPlayerOptionImpl(playerId, enable ? "--random" : "--no-random");
-        cache.get(playerId).debug("Added '' to playlist @ #" + index);
-        listIndexCache.add(index);
-    }
-
-    public void addToPlaylist(String playerId, String mediaURL) {
-        int index = addToPlaylistImpl(playerId, mediaURL);
-        cache.get(playerId).debug("Added '" + mediaURL + "' to playlist @ #" + index);
-        listIndexCache.add(index);
+    public void addToPlaylist(String playerId, String mediaURL, String options) {
+        int index = 0;
+        if (options != null) {
+            index = addToPlaylistImpl(playerId, mediaURL, options);
+        } else {
+            index = addToPlaylistImpl(playerId, mediaURL);
+        }
+        cache.get(playerId).debug("Added '" + mediaURL + "' to playlist @ #" + index + " with options [" + options + "]");
+        playlistIndexCache.add(index);
     }
 
     public void removeFromPlaylist(String playerId, int index) {
-        removeFromPlaylistImpl(playerId, listIndexCache.get(index));
+        removeFromPlaylistImpl(playerId, playlistIndexCache.get(index));
+        playlistIndexCache.remove(index);
     }
 
     public void clearPlaylist(String playerId) {
         clearPlaylistImpl(playerId);
-        listIndexCache.clear();
+        playlistIndexCache.clear();
     }
 
     private native boolean isPlayerOnPage(String playerId) /*-{
@@ -191,12 +193,12 @@ public class VLCPlayerImpl {
 
     public native double getVolume(String playerId) /*-{
     var plyr = $doc.getElementById(playerId);
-    return plyr.audio.volume / 200.0;
+    return plyr.audio.volume / 100.0;
     }-*/;
 
     public native void setVolume(String playerId, double volume) /*-{
     var plyr = $doc.getElementById(playerId);
-    plyr.audio.volume = parseInt(volume * 200);
+    plyr.audio.volume = parseInt(volume * 100);
     }-*/;
 
     public native boolean isMute(String playerId) /*-{
@@ -259,6 +261,13 @@ public class VLCPlayerImpl {
     return plyr.playlist.add(mediaURL);
     }-*/;
 
+    private native int addToPlaylistImpl(String playerId, String mediaURL, String options) /*-{
+    var plyr = $doc.getElementById(playerId);
+    var opts = new Array();
+    opts.push(options);
+    return plyr.playlist.add(mediaURL, 'silence', opts);
+    }-*/;
+
     private native void removeFromPlaylistImpl(String playerId, int index) /*-{
     var player = $doc.getElementById(playerId);
     player.playlist.items.remove(index);
@@ -271,7 +280,7 @@ public class VLCPlayerImpl {
 
     public native int getPlaylistCount(String playerId) /*-{
     var player = $doc.getElementById(playerId);
-    return player.playlist.items.count;
+    return player.playlist.items.count - 1; // [vlc://quit is also part of playlist]
     }-*/;
 
     private native int getPlayerStateImpl(String playerId) /*-{
@@ -298,43 +307,37 @@ public class VLCPlayerImpl {
 //    var index = plyr.playlist.add('', '', enable ? '--random' : '--no-random');
 //     $wnd.alert('shuffle enabled');
 //    }-*/;
-
-    public native int setPlayerOptionImpl(String playerId, String options) /*-{
+    private native int setPlayerOptionImpl(String playerId, String options) /*-{
     var plyr = $doc.getElementById(playerId);
     return plyr.playlist.add('', '', options);
     }-*/;
 
     private class StateHandler {
 
-        private boolean canFireReady,  canFireStarted,  canFirePaused;
-        private boolean canFireStopped,  canFireFinished,  canFireBuffering;
-        private boolean isBuffering;
         private MediaStateListener listener;
         private String id;
         private Timer statePooler;
-        private final int poolerPeriod = 800;
-        private int loopCount, _loopCount;
+        private final int poolerPeriod = 200;
+        private int loopCount,  _loopCount,  previousState;
+        private HasMediaStateHandlers handlers;
+        private boolean isBuffering, wasPlaying, stoppedByUser;
 
-        public StateHandler(String _id, MediaStateListener listener) {
+        public StateHandler(String _id, MediaStateListener listener, HasMediaStateHandlers handlers) {
             this.id = _id;
             this.listener = listener;
+            this.handlers = handlers;
 
-            canFireFinished = false;
-            canFirePaused = false;
-            canFireReady = false;
-            canFireStarted = false;
-            canFireStopped = false;
-            canFireBuffering = true;
-            isBuffering = false;
             loopCount = 1;
             _loopCount = 1;
+            previousState = -10;
+            wasPlaying = false;
+            stoppedByUser = false;
 
             statePooler = new Timer() {
 
                 @Override
                 public void run() {
                     checkPlayState();
-                    schedule(poolerPeriod);
                 }
             };
         }
@@ -348,96 +351,96 @@ public class VLCPlayerImpl {
                     if (isPlayerOnPage(id)) {
                         cancel();
                         fixIEStyleBug(id, height, width);
-                        statePooler.run();
-                        initComplete();
-                        addToPlaylist(id, mediaUrl);
-                        playerReady();
-                        canFireReady = false;
-                        canFireStarted = true;
+
+                        // init complete ...
+                        debug("VLC Media Player plugin");
+                        debug("Version : " + getPluginVersionImpl(id));
+                        statePooler.scheduleRepeating(poolerPeriod);
+
+                        // load player ...
+                        addToPlaylist(id, mediaUrl, ":no-loop");
+
+                        // fire player ready ...
+                        debug("Plugin ready for media playback");
+          //            listener.onPlayerReady();
+                        PlayerStateEvent.fire(handlers, PlayerStateEvent.State.Ready);
+
+                        // and play if required ...
                         if (autoplay) {
                             play(id);
                         }
                     } else {
-                        schedule(500);
+                        schedule(700);
                     }
                 }
             };
-            t.run();
+            t.schedule(100);
         }
 
-        public int checkPlayState() {
+        private int checkPlayState() {
             int state = getPlayerStateImpl(id);
+
+            if (state == previousState) {
+                return state;
+            }
 
             switch (state) {
                 case -1:   // no input yet...
                     break;
                 case 0:    // idle/close
-                    if (canFireReady) {
-                        playerReady();
-                        canFireReady = false;
-                        canFireStarted = true;
+                    if(wasPlaying && stoppedByUser) {
+                        wasPlaying = false;
+                        PlayStateEvent.fire(handlers, PlayStateEvent.State.Stopped, 0);
+                    } else if(wasPlaying && !stoppedByUser) {
+                        // just in case we miss state 6 ...
+                        wasPlaying = false;
+                        PlayStateEvent.fire(handlers, PlayStateEvent.State.Finished, 0);
+                        debug("Media playback complete");
                     }
+                    break;
                 case 6:    // finished
-                    if(_loopCount > 1) {
+                    if (_loopCount > 1) {
                         _loopCount--;
-//                        canFireStarted = true;
                         playImpl(id);
-                    } else if(_loopCount < 0) {
+                    } else if (_loopCount < 0) {
                         playImpl(id);
-                    }else if (canFireFinished) {
-                        listener.onPlayFinished(0);
-                        listener.onDebug("Media playback complete");
-                        canFireFinished = false;
+                    } else {
+//                        listener.onPlayFinished(0);
+                        PlayStateEvent.fire(handlers, PlayStateEvent.State.Finished, 0);
+                        debug("Media playback complete");
                     }
                     break;
                 case 1:    // opening
-                    if (canFireReady) {
-                    }
                     break;
                 case 2:    // buffering
-                    if (canFireBuffering) {
-                        debug("Buffering started");
-                        canFireBuffering = false;
-                        listener.onBuffering(true);
-                        isBuffering = true;
-                    }
+                    debug("Buffering started");
+//                        listener.onBuffering(true);
+                    PlayerStateEvent.fire(handlers, PlayerStateEvent.State.BufferingStarted);
+                    isBuffering = true;
                     break;
                 case 3:    // playing
                     if (isBuffering) {
                         debug("Buffering stopped");
-                        listener.onBuffering(false);
+//                        listener.onBuffering(false);
+                        PlayerStateEvent.fire(handlers, PlayerStateEvent.State.BufferingFinished);
                         isBuffering = false;
                     }
 
-                    if (canFireStarted) {
-                        debug("Current Track : " + getCurrentAudioTrack(id));
-                        listener.onDebug("Media playback started");
-                        listener.onPlayStarted(0);
+                    debug("Current Track : " + getCurrentAudioTrack(id));
+                    debug("Media playback started");
+                    wasPlaying = true;
+                    stoppedByUser = false;
+                    PlayStateEvent.fire(handlers, PlayStateEvent.State.Started, 0);
+//                        listener.onPlayStarted(0);
 
-                        loadingComplete();
-                        canFireStarted = false;
-                        canFireFinished = true;
-                        canFirePaused = true;
-                        canFireStopped = true;
-                        canFireBuffering = true;
-                    }
+//                    loadingComplete();
                     break;
                 case 4:    // paused
-                    if (canFirePaused) {
-                        canFirePaused = false;
-                        canFireStarted = true;
-                        canFireStopped = true;
-                        canFireBuffering = true;
-                        listener.onDebug("Media playback paused");
-                    }
+                    debug("Media playback paused");
+                    PlayStateEvent.fire(handlers, PlayStateEvent.State.Paused, 0);
                     break;
                 case 5:    // stopping
-                    if (canFireStopped) {
-                        canFireStopped = false;
-                        canFireStarted = true;
-                        canFireBuffering = true;
-                        listener.onDebug("Media playback stopped");
-                    }
+                    PlayStateEvent.fire(handlers, PlayStateEvent.State.Stopped, 0);
                     break;
                 case 7:    // error
                     //                if(jso[playerId].canFirePlayerReady) {
@@ -451,30 +454,24 @@ public class VLCPlayerImpl {
                     //    }
                     break;
             }
+            previousState = state;
             return state;
         }
 
-        private void initComplete() {
-            listener.onDebug("VLC Media Player plugin");
-            listener.onDebug("Version : " + getPluginVersionImpl(id));
-            canFireReady = true;
+        private void loadingComplete() {
+//            listener.onLoadingComplete();
+            LoadingProgressEvent.fire(handlers, 1.0);
         }
 
-        private void playerReady() {
-            listener.onDebug("Plugin ready for media playback");
-            listener.onPlayerReady();
+        private void onError() {
+//            listener.onError("An error occured while loading media");
+            DebugEvent.fire(handlers, DebugEvent.MessageType.Error,
+                    "An error occured while loading media");
         }
 
-        public void loadingComplete() {
-            listener.onLoadingComplete();
-        }
-
-        public void onError() {
-            listener.onError("An error occured while loading media");
-        }
-
-        public void debug(String msg) {
-            listener.onDebug(msg);
+        private void debug(String msg) {
+//            listener.onDebug(msg);
+            DebugEvent.fire(handlers, DebugEvent.MessageType.Info, msg);
         }
 
         public int getLoopCount() {
@@ -487,5 +484,8 @@ public class VLCPlayerImpl {
             debug("Loop Count set : " + loopCount);
         }
 
+        public void close() {
+            statePooler.cancel();
+        }
     }
 }

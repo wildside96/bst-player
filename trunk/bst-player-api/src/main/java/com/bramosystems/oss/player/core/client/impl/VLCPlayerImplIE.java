@@ -33,7 +33,7 @@ public class VLCPlayerImplIE extends VLCPlayerImpl {
         return "<object id='" + playerId + "' events='True' width='" + width + "px' " +
                 "height='" + height + "px' classid='clsid:9BE31822-FDAD-461B-AD51-BE1D1C159921'>" +
                 "<param name='AutoPlay' value='False' />" +
-                "<param name='ShowDisplay' value='True' />" +
+//                "<param name='ShowDisplay' value='True' />" +
                 "<param name='AutoLoop' value='False' />" +
                 "<param name='Src' value='' />" +
                 "</object>";
@@ -45,5 +45,4 @@ public class VLCPlayerImplIE extends VLCPlayerImpl {
         DOM.setStyleAttribute(e, "height", height + "px");
         DOM.setStyleAttribute(e, "width", width + "px");
     }
-
 }

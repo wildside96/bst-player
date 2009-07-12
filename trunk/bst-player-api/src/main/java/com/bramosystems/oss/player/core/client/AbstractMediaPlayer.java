@@ -15,7 +15,20 @@
  */
 package com.bramosystems.oss.player.core.client;
 
+import com.bramosystems.oss.player.core.event.client.PlayerStateEvent;
+import com.bramosystems.oss.player.core.event.client.HasMediaStateHandlers;
+import com.bramosystems.oss.player.core.event.client.PlayStateHandler;
+import com.bramosystems.oss.player.core.event.client.MediaInfoHandler;
+import com.bramosystems.oss.player.core.event.client.PlayStateEvent;
+import com.bramosystems.oss.player.core.event.client.MediaInfoEvent;
+import com.bramosystems.oss.player.core.event.client.PlayerStateHandler;
+import com.bramosystems.oss.player.core.event.client.LoadingProgressEvent;
+import com.bramosystems.oss.player.core.event.client.LoadingProgressHandler;
+import com.bramosystems.oss.player.core.event.client.DebugHandler;
+import com.bramosystems.oss.player.core.event.client.DebugEvent;
 import com.bramosystems.oss.player.core.client.ui.Logger;
+import com.bramosystems.oss.player.core.event.*;
+import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.ui.Composite;
 import java.util.ArrayList;
@@ -28,7 +41,7 @@ import java.util.Iterator;
  *
  * @author Sikiru Braheem
  */
-public abstract class AbstractMediaPlayer extends Composite {
+public abstract class AbstractMediaPlayer extends Composite implements HasMediaStateHandlers {
 
     private ArrayList<MediaStateListener> callbacks;
     private HashMap<String, Command> readyCmdQueue;
@@ -41,6 +54,21 @@ public abstract class AbstractMediaPlayer extends Composite {
         callbacks = new ArrayList<MediaStateListener>();
         readyCmdQueue = new HashMap<String, Command>();
         cmdKeys = new ArrayList<String>();
+
+        addPlayerStateHandler(new PlayerStateHandler() {
+
+            public void onPlayerStateChanged(PlayerStateEvent event) {
+                if (event.getPlayerState().equals(PlayerStateEvent.State.Ready)) {
+                    // ensure commands are executed in the same sequence as added ...
+                    Iterator<String> keys = cmdKeys.iterator();
+                    while (keys.hasNext()) {
+                        readyCmdQueue.get(keys.next()).execute();
+                    }
+                    cmdKeys.clear();
+                    readyCmdQueue.clear();
+                }
+            }
+        });
     }
 
     /**
@@ -50,6 +78,7 @@ public abstract class AbstractMediaPlayer extends Composite {
      * @param listener the listener to add the player
      * @see MediaStateListener
      * @see #removeMediaStateListener(MediaStateListener)
+     * @deprecated Will be removed in a future version
      */
     public final void addMediaStateListener(MediaStateListener listener) {
         callbacks.add(listener);
@@ -61,6 +90,7 @@ public abstract class AbstractMediaPlayer extends Composite {
      * @param listener the listener to remove from the player.
      * @see MediaStateListener
      * @see #addMediaStateListener(MediaStateListener)
+     * @deprecated Will be removed in a future version
      */
     public final void removeMediaStateListener(MediaStateListener listener) {
         callbacks.remove(listener);
@@ -184,6 +214,7 @@ public abstract class AbstractMediaPlayer extends Composite {
      * Calls <code>onPlayFinished</code> on registered MediaStateListeners.
      *
      * @see MediaStateListener#onPlayFinished()
+     * @deprecated Will be removed in a future version
      */
     public final void firePlayFinished() {
         for (int i = 0; i < callbacks.size(); i++) {
@@ -195,6 +226,7 @@ public abstract class AbstractMediaPlayer extends Composite {
      * Calls <code>onPlayStarted</code> on registered MediaStateListeners.
      *
      * @see MediaStateListener#onPlayStarted()
+     * @deprecated Will be removed in a future version
      */
     public final void firePlayStarted() {
         for (int i = 0; i < callbacks.size(); i++) {
@@ -206,6 +238,7 @@ public abstract class AbstractMediaPlayer extends Composite {
      * Calls <code>onPlayerReady</code> on registered MediaStateListeners.
      *
      * @see MediaStateListener#onPlayerReady()
+     * @deprecated Will be removed in a future version
      */
     public final void firePlayerReady() {
         for (int i = 0; i < callbacks.size(); i++) {
@@ -225,6 +258,7 @@ public abstract class AbstractMediaPlayer extends Composite {
      * Calls <code>onLoadingComplete</code> on registered MediaStateListeners.
      *
      * @see MediaStateListener#onLoadingComplete()
+     * @deprecated Will be removed in a future version
      */
     public final void fireLoadingComplete() {
         for (int i = 0; i < callbacks.size(); i++) {
@@ -241,6 +275,7 @@ public abstract class AbstractMediaPlayer extends Composite {
         for (int i = 0; i < callbacks.size(); i++) {
             callbacks.get(i).onError(description);
         }
+        DebugEvent.fire(this, DebugEvent.MessageType.Error, description);
     }
 
     /**
@@ -253,6 +288,7 @@ public abstract class AbstractMediaPlayer extends Composite {
         for (int i = 0; i < callbacks.size(); i++) {
             callbacks.get(i).onDebug(report);
         }
+        DebugEvent.fire(this, DebugEvent.MessageType.Info, report);
     }
 
     /**
@@ -260,6 +296,7 @@ public abstract class AbstractMediaPlayer extends Composite {
      *
      * @param progress the progress of the loading operation
      * @see MediaStateListener#onLoadingProgress(double) 
+     * @deprecated Will be removed in a future version
      */
     public final void fireLoadingProgress(double progress) {
         for (int i = 0; i < callbacks.size(); i++) {
@@ -273,6 +310,7 @@ public abstract class AbstractMediaPlayer extends Composite {
      * @param info the metadata of the loaded media
      * @see MediaStateListener#onMediaInfoAvailable(MediaInfo)
      * @since 0.6
+     * @deprecated Will be removed in a future version
      */
     public final void fireMediaInfoAvailable(MediaInfo info) {
         for (int i = 0; i < callbacks.size(); i++) {
@@ -368,14 +406,14 @@ public abstract class AbstractMediaPlayer extends Composite {
         cmdKeys.remove(key);
         readyCmdQueue.remove(key);
     }
-
+/*
     /**
      * Calls <code>onPlayStarted</code> on registered MediaStateListeners.
      *
      * @param index the index of current media in the players' playlist
      * @see MediaStateListener#onPlayStarted(int)
      * @since 1.0
-     */
+     /
     public final void firePlayStarted(int index) {
         for (int i = 0; i < callbacks.size(); i++) {
             callbacks.get(i).onPlayStarted(index);
@@ -388,7 +426,7 @@ public abstract class AbstractMediaPlayer extends Composite {
      * @param index the index of current media in the players' playlist
      * @see MediaStateListener#onPlayFinished(int)
      * @since 1.0
-     */
+     /
     public final void firePlayFinished(int index) {
         for (int i = 0; i < callbacks.size(); i++) {
             callbacks.get(i).onPlayFinished(index);
@@ -401,11 +439,30 @@ public abstract class AbstractMediaPlayer extends Composite {
      * @param buffering <code>true</code> if buffering has started, <code>false</code> otherwise
      * @since 1.0
      * @see MediaStateListener#onBuffering(boolean)
-     */
+     /
     public final void fireBuffering(boolean buffering) {
         for (int i = 0; i < callbacks.size(); i++) {
             callbacks.get(i).onBuffering(buffering);
         }
     }
 
+*/
+    public final HandlerRegistration addLoadingProgressHandler(LoadingProgressHandler handler) {
+        return addHandler(handler, LoadingProgressEvent.TYPE);
+    }
+
+    public final HandlerRegistration addMediaInfoHandler(MediaInfoHandler handler) {
+        return addHandler(handler, MediaInfoEvent.TYPE);
+    }
+
+    public final HandlerRegistration addPlayStateHandler(PlayStateHandler handler) {
+        return addHandler(handler, PlayStateEvent.TYPE);
+    }
+
+    public final HandlerRegistration addPlayerStateHandler(PlayerStateHandler handler) {
+        return addHandler(handler, PlayerStateEvent.TYPE);
+    }
+    public final HandlerRegistration addDebugHandler(DebugHandler handler) {
+        return addHandler(handler, DebugEvent.TYPE);
+    }
 }

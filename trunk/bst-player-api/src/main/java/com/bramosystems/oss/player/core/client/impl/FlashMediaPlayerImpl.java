@@ -15,9 +15,16 @@
  */
 package com.bramosystems.oss.player.core.client.impl;
 
+import com.bramosystems.oss.player.core.event.client.PlayerStateEvent;
+import com.bramosystems.oss.player.core.event.client.HasMediaStateHandlers;
+import com.bramosystems.oss.player.core.event.client.PlayStateEvent;
+import com.bramosystems.oss.player.core.event.client.MediaInfoEvent;
+import com.bramosystems.oss.player.core.event.client.LoadingProgressEvent;
+import com.bramosystems.oss.player.core.event.client.DebugEvent;
 import com.bramosystems.oss.player.core.client.MediaInfo;
 import com.bramosystems.oss.player.core.client.MediaStateListener;
 import com.bramosystems.oss.player.core.client.ui.FlashMediaPlayer;
+import com.bramosystems.oss.player.core.event.*;
 import java.util.HashMap;
 
 /**
@@ -34,6 +41,11 @@ public class FlashMediaPlayerImpl {
     public FlashMediaPlayerImpl() {
         cache = new HashMap<String, EventHandler>();
         initGlobalCallbacks(this);
+    }
+
+    public final void init(String playerId, String mediaURL, boolean autoplay,
+            HasMediaStateHandlers handlers) {
+        cache.put(playerId, new EventHandler(playerId, mediaURL, autoplay, handlers));
     }
 
     public final void init(String playerId, String mediaURL, boolean autoplay,
@@ -252,6 +264,14 @@ public class FlashMediaPlayerImpl {
         private MediaStateListener listener;
         private String id,  mediaUrl;
         private boolean autoplay;
+        private HasMediaStateHandlers handler;
+
+        public EventHandler(String id, String mediaURL, boolean autoplay, HasMediaStateHandlers handler) {
+            this.handler = handler;
+            this.id = id;
+            this.mediaUrl = mediaURL;
+            this.autoplay = autoplay;
+        }
 
         public EventHandler(String id, String mediaURL, boolean autoplay, MediaStateListener listener) {
             this.listener = listener;
@@ -263,44 +283,58 @@ public class FlashMediaPlayerImpl {
         public void onStateChange(int newState, int listIndex) {
             switch (newState) {
                 case 1: // loading started...
-//                    listener.onPlayerReady();
+////                    listener.onPlayerReady();
                     break;
                 case 2: // play started...
-                    listener.onPlayStarted(listIndex);
+//                    listener.onPlayStarted(listIndex);
+                    PlayStateEvent.fire(handler, PlayStateEvent.State.Started, listIndex);
+                    break;
+                case 3: // play stopped...
+                    PlayStateEvent.fire(handler, PlayStateEvent.State.Stopped, listIndex);
+                    break;
+                case 4: // play paused...
+                    PlayStateEvent.fire(handler, PlayStateEvent.State.Paused, listIndex);
                     break;
                 case 9: // play finished...
-                    listener.onPlayFinished(listIndex);
+//                    listener.onPlayFinished(listIndex);
+                    PlayStateEvent.fire(handler, PlayStateEvent.State.Finished, listIndex);
                     break;
                 case 10: // loading complete ...
-                    listener.onLoadingComplete();
+//                    listener.onLoadingComplete();
+                    LoadingProgressEvent.fire(handler, 1.0);
                     break;
             }
         }
 
         public void initComplete() {
-            listener.onDebug("Flash Player plugin");
-            listener.onDebug("Version : " + getPluginVersion(id));
+            onDebug("Flash Player plugin");
+            onDebug("Version : " + getPluginVersion(id));
             loadMedia(id, mediaUrl);
-            listener.onPlayerReady();
+//            listener.onPlayerReady();
+            PlayerStateEvent.fire(handler, PlayerStateEvent.State.Ready);
             if (autoplay) {
                 playMedia(id);
             }
         }
 
         public void onLoading(double progress) {
-            listener.onLoadingProgress(progress);
+//            listener.onLoadingProgress(progress);
+            LoadingProgressEvent.fire(handler, progress);
         }
 
         public void onError(String description) {
-            listener.onError(description);
+//            listener.onError(description);
+            DebugEvent.fire(handler, DebugEvent.MessageType.Error, description);
         }
 
         public void onDebug(String message) {
-            listener.onDebug(message);
+            DebugEvent.fire(handler, DebugEvent.MessageType.Info, message);
+//            listener.onDebug(message);
         }
 
         public void onMediaInfo(MediaInfo info) {
-            listener.onMediaInfoAvailable(info);
+//            listener.onMediaInfoAvailable(info);
+            MediaInfoEvent.fire(handler, info);
         }
     }
 }

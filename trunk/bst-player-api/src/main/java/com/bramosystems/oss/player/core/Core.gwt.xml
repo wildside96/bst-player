@@ -17,13 +17,22 @@
 
 <module>
     <inherits name="com.google.gwt.user.User"/>
-    <public path="publicc" />
+    <inherits name="com.bramosystems.oss.player.core.event.Event" />
     <stylesheet src="player-flat-styles.css" />
 
 	<!-- WinMediaPlayer mapping for IE6 & IE7 -->
     <replace-with class="com.bramosystems.oss.player.core.client.impl.WinMediaPlayerImplIE">
         <when-type-is class="com.bramosystems.oss.player.core.client.impl.WinMediaPlayerImpl"/>
         <when-property-is name="user.agent" value="ie6"/>
+    </replace-with>
+
+	<!-- WinMediaPlayer mapping for Safari/Chrome/Opera. Pool player state instead of event based -->
+    <replace-with class="com.bramosystems.oss.player.core.client.impl.WinMediaPlayerImplNoEvent">
+        <when-type-is class="com.bramosystems.oss.player.core.client.impl.WinMediaPlayerImpl"/>
+        <any>
+            <when-property-is name="user.agent" value="safari" />
+            <when-property-is name="user.agent" value="opera" />
+        </any>
     </replace-with>
 
     <!-- QuickTimePlayer mapping for IE6 & IE7 -->
@@ -38,7 +47,7 @@
         <when-property-is name="user.agent" value="ie6" />
     </replace-with>
 
-    <!-- SWFObjectImpl mapping for IE6 & IE7 -->
+    <!-- SWFWidgetImpl mapping for IE6 & IE7 -->
     <replace-with class="com.bramosystems.oss.player.core.client.impl.SWFWidgetImplIE">
         <when-type-is class="com.bramosystems.oss.player.core.client.impl.SWFWidgetImpl"/>
         <when-property-is name="user.agent" value="ie6" />

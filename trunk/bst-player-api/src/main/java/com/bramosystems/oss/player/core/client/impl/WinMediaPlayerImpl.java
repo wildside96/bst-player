@@ -15,9 +15,16 @@
  */
 package com.bramosystems.oss.player.core.client.impl;
 
+import com.bramosystems.oss.player.core.event.client.PlayerStateEvent;
+import com.bramosystems.oss.player.core.event.client.HasMediaStateHandlers;
+import com.bramosystems.oss.player.core.event.client.PlayStateEvent;
+import com.bramosystems.oss.player.core.event.client.MediaInfoEvent;
+import com.bramosystems.oss.player.core.event.client.LoadingProgressEvent;
+import com.bramosystems.oss.player.core.event.client.DebugEvent;
 import com.bramosystems.oss.player.core.client.MediaInfo;
 import com.bramosystems.oss.player.core.client.MediaStateListener;
 import com.bramosystems.oss.player.core.client.ui.WinMediaPlayer;
+import com.bramosystems.oss.player.core.event.*;
 import com.google.gwt.user.client.Timer;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -38,8 +45,8 @@ public class WinMediaPlayerImpl {
         initGlobalEventListeners(this);
     }
 
-    public void init(String playerId, MediaStateListener listener) {
-        cache.put(playerId, new StateHandler(playerId, listener));
+    public void init(String playerId, MediaStateListener listener, HasMediaStateHandlers handler) {
+        cache.put(playerId, new StateHandler(playerId, listener, handler));
     }
 
     public String getPlayerScript(String mediaURL, String playerId, boolean autoplay,
@@ -56,18 +63,11 @@ public class WinMediaPlayerImpl {
         return cache.containsKey(playerId) && isPlayerOnPageImpl(playerId);
     }
 
-    public void play(String playerId) {
-        playImpl(playerId);
-    }
-
-    public void stop(String playerId) {
-        stopImpl(playerId);
-    }
-
     public void close(String playerId) {
         cache.remove(playerId);
     }
 
+    @SuppressWarnings("unused")
     private void firePlayStateChanged() {
         Iterator<String> keys = cache.keySet().iterator();
         while (keys.hasNext()) {
@@ -75,6 +75,7 @@ public class WinMediaPlayerImpl {
         }
     }
 
+    @SuppressWarnings("unused")
     private void fireError() {
         Iterator<String> keys = cache.keySet().iterator();
         while (keys.hasNext()) {
@@ -83,6 +84,7 @@ public class WinMediaPlayerImpl {
         }
     }
 
+    @SuppressWarnings("unused")
     private void fireBuffering(boolean buffering) {
         Iterator<String> keys = cache.keySet().iterator();
         while (keys.hasNext()) {
@@ -182,14 +184,14 @@ public class WinMediaPlayerImpl {
     }
     }-*/;
 
-    private native void playImpl(String playerId) /*-{
+    public native void play(String playerId) /*-{
     try {
     var playr = $doc.getElementById(playerId);
     playr.controls.play();
     } catch(e) {}
     }-*/;
 
-    private native void stopImpl(String playerId) /*-{
+    public native void stop(String playerId) /*-{
     try {
     var playr = $doc.getElementById(playerId);
     playr.controls.stop();
@@ -201,13 +203,16 @@ public class WinMediaPlayerImpl {
     return playr.versionInfo;
     }-*/;
 
-    private native int getPlayStateImpl(String playerId) /*-{
+    protected native int getPlayStateImpl(String playerId) /*-{
     var playr = $doc.getElementById(playerId);
+    if(playr) {
     var state = playr.playState;
     if(state == undefined) {
     return -10;
     }
-    return playr.playState;
+    return state;
+    }
+    return -10;
     }-*/;
 
     private native void fillMetadataImpl(String playerId, MediaInfo info, String errorMsg) /*-{
@@ -240,7 +245,7 @@ public class WinMediaPlayerImpl {
     return err.item(0).errorDescription;
     }-*/;
 
-    private native double getDownloadProgressImpl(String playerId) /*-{
+    protected native double getDownloadProgressImpl(String playerId) /*-{
     var playr = $doc.getElementById(playerId);
     if(playr.network) {
     return playr.network.downloadProgress / 100;
@@ -249,25 +254,45 @@ public class WinMediaPlayerImpl {
     }
     }-*/;
 
-    private native String getMediaURLImpl(String playerId) /*-{
+    protected native double getBufferingProgressImpl(String playerId) /*-{
+    var playr = $doc.getElementById(playerId);
+    if(playr.network) {
+    return playr.network.bufferingProgress / 100;
+    } else {
+    return -1;
+    }
+    }-*/;
+
+    protected native String getMediaURLImpl(String playerId) /*-{
     var player = $doc.getElementById(playerId);
     return player.URL;
     }-*/;
 
+    protected native void closeImpl(String playerId) /*-{
+    var playr = $doc.getElementById(playerId);
+    playr.close();
+    }-*/;
+
     protected class StateHandler {
 
-        private MediaStateListener listener;
-        private String id;
+        protected MediaStateListener listener;
+        protected HasMediaStateHandlers handlers;
+        protected String id;
+        protected boolean canDoMetadata,  playerInitd;
         private Timer downloadProgressTimer;
 
-        public StateHandler(final String id, MediaStateListener listener) {
+        public StateHandler(final String id, MediaStateListener _listener,
+                HasMediaStateHandlers _handlers) {
             this.id = id;
-            this.listener = listener;
+            this.handlers = _handlers;
+            this.listener = _listener;
+            canDoMetadata = false;
+            playerInitd = false;
             downloadProgressTimer = new Timer() {
 
                 @Override
                 public void run() {
-                    StateHandler.this.listener.onLoadingProgress(getDownloadProgressImpl(id));
+                    LoadingProgressEvent.fire(handlers, getDownloadProgressImpl(id));
                 }
             };
         }
@@ -282,62 +307,88 @@ public class WinMediaPlayerImpl {
                 return;
             }
 
-            switch (state) {
-                case 1:    // stopped..
-                    debug("Media playback stopped");
-                    break;
-                case 2:    // paused..
-                    debug("Media playback paused");
-                    break;
-                case 3:    // playing..
-                    listener.onPlayStarted(0);
-                    debug("Playing media at " + getMediaURLImpl(id));
-
-                    // do metadata ...
-                    doMetadata();
-                    break;
-                case 8:    // media ended...
-                    listener.onPlayFinished(0);
-                    listener.onDebug("Media playback finished");
-                    break;
-                case 10:    // player ready...
-                    listener.onPlayerReady();
-                    listener.onDebug("Windows Media Player plugin");
-                    listener.onDebug("Version : " + getPlayerVersionImpl(id));
-                    break;
-                case 6:    // buffering ...
-                case 11:    // reconnecting to stream  ...
-                    break;
-            }
+            processPlayState(state);
         }
 
         public void onError(String message) {
-            listener.onError(message);
+//            listener.onError(message);
+            DebugEvent.fire(handlers, DebugEvent.MessageType.Error, message);
         }
 
         public void debug(String msg) {
-            listener.onDebug(msg);
-        }
-
-        private void doMetadata() {
-            MediaInfo info = new MediaInfo();
-            String err = "";
-            fillMetadataImpl(id, info, err);
-            if (err.length() == 0) {
-                listener.onMediaInfoAvailable(info);
-            } else {
-                onError(err);
-            }
+            DebugEvent.fire(handlers, DebugEvent.MessageType.Info, msg);
+//            listener.onDebug(msg);
         }
 
         public void doBuffering(boolean buffering) {
-            listener.onBuffering(buffering);
+//            listener.onBuffering(buffering);
+            PlayerStateEvent.fire(handlers,
+                    buffering ? PlayerStateEvent.State.BufferingStarted : PlayerStateEvent.State.BufferingFinished);
+
+            debug("Buffering " + (buffering ? " started" : " stopped"));
             if (buffering) {
                 downloadProgressTimer.scheduleRepeating(1000);
             } else {
                 downloadProgressTimer.cancel();
-                listener.onLoadingComplete();
-                listener.onDebug("Media loading complete");
+                LoadingProgressEvent.fire(handlers, 1.0);
+//                listener.onLoadingComplete();
+                debug("Media loading complete");
+            }
+        }
+
+        public void processPlayState(int state) {
+            switch (state) {
+                case 1:    // stopped..
+                    debug("Media playback stopped");
+                    PlayStateEvent.fire(handlers, PlayStateEvent.State.Stopped, 0);
+                    break;
+                case 2:    // paused..
+                    debug("Media playback paused");
+                    PlayStateEvent.fire(handlers, PlayStateEvent.State.Paused, 0);
+                    break;
+                case 3:    // playing..
+//                    listener.onPlayStarted(0);
+                    PlayStateEvent.fire(handlers, PlayStateEvent.State.Started, 0);
+                    doMetadata();        // do metadata ...
+                    break;
+                case 8:    // media ended...
+                    PlayStateEvent.fire(handlers, PlayStateEvent.State.Finished, 0);
+//                    listener.onPlayFinished(0);
+                    debug("Media playback finished");
+                    break;
+                case 10:    // player ready...
+                    PlayerStateEvent.fire(handlers, PlayerStateEvent.State.Ready);
+//                    listener.onPlayerReady();
+                    if (!playerInitd) {
+                        debug("Windows Media Player plugin");
+                        debug("Version : " + getPlayerVersionImpl(id));
+                        playerInitd = true;
+                    }
+                    break;
+                case 6:    // buffering ...
+                case 11:    // reconnecting to stream  ...
+                    break;
+                case 9:     // preparing new item ...
+                    canDoMetadata = true;
+            }
+        }
+
+        protected void doMetadata() {
+            if (!canDoMetadata) {
+                debug("Media playback resumed");
+                return;
+            }
+            debug("Playing media at " + getMediaURLImpl(id));
+
+            MediaInfo info = new MediaInfo();
+            String err = "";
+            fillMetadataImpl(id, info, err);
+            if (err.length() == 0) {
+//                listener.onMediaInfoAvailable(info);
+                canDoMetadata = false;
+                MediaInfoEvent.fire(handlers, info);
+            } else {
+                onError(err);
             }
         }
     }

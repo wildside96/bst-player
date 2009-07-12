@@ -17,11 +17,24 @@ package com.bramosystems.oss.player.capsule.client;
 
 import com.bramosystems.oss.player.core.client.*;
 import com.bramosystems.oss.player.core.client.skin.*;
+import com.bramosystems.oss.player.core.event.client.DebugEvent;
+import com.bramosystems.oss.player.core.event.client.DebugHandler;
+import com.bramosystems.oss.player.core.event.client.LoadingProgressEvent;
+import com.bramosystems.oss.player.core.event.client.LoadingProgressHandler;
+import com.bramosystems.oss.player.core.event.client.MediaInfoEvent;
+import com.bramosystems.oss.player.core.event.client.MediaInfoHandler;
+import com.bramosystems.oss.player.core.event.client.PlayStateEvent;
+import com.bramosystems.oss.player.core.event.client.PlayStateHandler;
+import com.bramosystems.oss.player.core.event.client.PlayerStateEvent;
+import com.bramosystems.oss.player.core.event.client.PlayerStateHandler;
+import com.bramosystems.oss.player.core.event.client.SeekChangeEvent;
+import com.bramosystems.oss.player.core.event.client.SeekChangeHandler;
+import com.bramosystems.oss.player.core.event.client.VolumeChangeEvent;
+import com.bramosystems.oss.player.core.event.client.VolumeChangeHandler;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.Timer;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
 import java.util.ArrayList;
 
@@ -127,7 +140,7 @@ public class Capsule extends CustomAudioPlayer {
 
             @Override
             public void run() {
-                progress.setTime(getPlayPosition());
+                progress.setTime(getPlayPosition(), getMediaDuration());
             }
         };
         infoTimer = new Timer() {
@@ -165,7 +178,6 @@ public class Capsule extends CustomAudioPlayer {
                         break;
                     case Playing:
                         pauseMedia();
-                        toPlayState(PlayState.Pause);
                 }
             }
         });
@@ -177,7 +189,6 @@ public class Capsule extends CustomAudioPlayer {
 
             public void onClick(ClickEvent event) {
                 stopMedia();
-                toPlayState(PlayState.Stop);
             }
         });
         stop.getUpDisabledFace().setImage(imgPack.stopDisabled().createImage());
@@ -185,64 +196,71 @@ public class Capsule extends CustomAudioPlayer {
         stop.setEnabled(false);
 
         vc = new VolumeControl(imgPack.spk().createImage(), 5);
-        vc.addVolumeChangeListener(new VolumeChangeListener() {
+        vc.addVolumeChangeHandler(new VolumeChangeHandler() {
 
-            public void onVolumeChanged(double newValue) {
-                setVolume(newValue);
+            public void onVolumeChanged(VolumeChangeEvent event) {
+                setVolume(event.getValue());
             }
         });
         vc.setPopupStyleName("player-Capsule-volumeControl");
 
-        addMediaStateListener(new MediaStateListenerAdapter() {
+        addDebugHandler(new DebugHandler() {
 
-            @Override
-            public void onError(String description) {
-                Window.alert(description);
-                onDebug(description);
+            public void onDebug(DebugEvent event) {
+                logger.log(event.getMessage(), false);
             }
+        });
+        addLoadingProgressHandler(new LoadingProgressHandler() {
 
-            @Override
-            public void onLoadingComplete() {
-                progress.setLoadingProgress(1);
-                progress.setDuration(getMediaDuration());
-                progress.setTime(0);
+            public void onLoadingProgress(LoadingProgressEvent event) {
+                double prog = event.getProgress();
+                progress.setLoadingProgress(prog);
+                if(prog == 1.0){
+//                progress.setDuration(getMediaDuration());
+                progress.setTime(0, getMediaDuration());
                 vc.setVolume(getVolume());
+                }
             }
+        });
+        addMediaInfoHandler(new MediaInfoHandler() {
 
-            @Override
-            public void onPlayFinished(int index) {
-                toPlayState(PlayState.Stop);
-            }
-
-            @Override
-            public void onDebug(String report) {
-                logger.log(report, false);
-            }
-
-            @Override
-            public void onLoadingProgress(double progrezz) {
-                progress.setLoadingProgress(progrezz);
-            }
-
-            @Override
-            public void onPlayStarted(int index) {
-                toPlayState(PlayState.Playing);
-            }
-
-            @Override
-            public void onPlayerReady() {
-                play.setEnabled(true);
-                vc.setVolume(getVolume());
-            }
-
-            @Override
-            public void onMediaInfoAvailable(MediaInfo info) {
-                mInfo = info;
+            public void onMediaInfoAvailable(MediaInfoEvent event) {
+                mInfo = event.getMediaInfo();
                 mItems = mInfo.getAvailableItems();
                 mItems.remove(MediaInfo.MediaInfoKey.Comment);
                 mItems.remove(MediaInfo.MediaInfoKey.Duration);
                 mItems.remove(MediaInfo.MediaInfoKey.HardwareSoftwareRequirements);
-                logger.log(info.asHTMLString(), true);
+                logger.log(mInfo.asHTMLString(), true);
+            }
+        });
+        addPlayStateHandler(new PlayStateHandler() {
+
+            public void onPlayStateChanged(PlayStateEvent event) {
+                switch (event.getPlayState()) {
+                    case Stopped:
+                    case Finished:
+                        toPlayState(PlayState.Stop);
+                        break;
+                    case Paused:
+                        toPlayState(PlayState.Pause);
+                        break;
+                    case Started:
+                        toPlayState(PlayState.Playing);
+                        break;
+                }
+            }
+        });
+        addPlayerStateHandler(new PlayerStateHandler() {
+
+            public void onPlayerStateChanged(PlayerStateEvent event) {
+                switch (event.getPlayerState()) {
+                    case BufferingFinished:
+                    case BufferingStarted:
+                        break;
+                    case Ready:
+                        play.setEnabled(true);
+                        vc.setVolume(getVolume());
+                }
             }
         });
 
@@ -287,7 +305,7 @@ public class Capsule extends CustomAudioPlayer {
                 play.getUpHoveringFace().setImage(imgPack.pauseHover().createImage());
                 break;
             case Stop:
-                progress.setTime(0);
+                progress.setTime(0, getMediaDuration());
                 progress.setFinishedState();
                 stop.setEnabled(false);
                 playTimer.cancel();
@@ -304,8 +322,6 @@ public class Capsule extends CustomAudioPlayer {
 
         private MediaSeekBar seekBar;
         private Label timeLabel,  infoLabel;
-        private long duration;
-        private String durationString;
 
         public ProgressBar() {
             timeLabel = new Label("--:-- / --:--");
@@ -327,11 +343,10 @@ public class Capsule extends CustomAudioPlayer {
             seekBar = new CSSSeekBar(5);
             seekBar.setStylePrimaryName("player-Capsule-seekbar");
             seekBar.setWidth("100%");
-            seekBar.addSeekChangeListener(new SeekChangeListener() {
+            seekBar.addSeekChangeHandler(new SeekChangeHandler() {
 
-                public void onSeekChanged(double newValue) {
-                    double newTime = getMediaDuration() * newValue;
-                    setPlayPosition(newTime);
+                public void onSeekChanged(SeekChangeEvent event) {
+                    setPlayPosition(event.getValue() * getMediaDuration());
                 }
             });
 
@@ -345,18 +360,14 @@ public class Capsule extends CustomAudioPlayer {
             initWidget(main);
         }
 
-        public void setTime(double timeInMS) {
-            timeLabel.setText(PlayerUtil.formatMediaTime((long) timeInMS) + " / " + durationString);
-            seekBar.setPlayingProgress(timeInMS / (double) duration);
+        public void setTime(double timeInMS, double duration) {
+            timeLabel.setText(PlayerUtil.formatMediaTime((long) timeInMS) + " / " +
+                    PlayerUtil.formatMediaTime((long)duration));
+            seekBar.setPlayingProgress(timeInMS / duration);
         }
 
         public void setLoadingProgress(double progress) {
             seekBar.setLoadingProgress(progress);
-        }
-
-        public void setDuration(long duration) {
-            this.duration = duration;
-            durationString = PlayerUtil.formatMediaTime(duration);
         }
 
         public void setInfo(String info) {
@@ -364,7 +375,7 @@ public class Capsule extends CustomAudioPlayer {
         }
 
         public void setFinishedState() {
-            setTime(0);
+            setTime(0, getMediaDuration());
             seekBar.setPlayingProgress(0);
         }
     }

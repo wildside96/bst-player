@@ -17,6 +17,10 @@ package com.bramosystems.oss.player.core.client.ui;
 
 import com.bramosystems.oss.player.core.client.*;
 import com.bramosystems.oss.player.core.client.impl.WinMediaPlayerImpl;
+import com.bramosystems.oss.player.core.event.client.DebugEvent;
+import com.bramosystems.oss.player.core.event.client.DebugHandler;
+import com.bramosystems.oss.player.core.event.client.MediaInfoEvent;
+import com.bramosystems.oss.player.core.event.client.MediaInfoHandler;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.DOM;
@@ -103,6 +107,8 @@ public final class WinMediaPlayer extends AbstractMediaPlayer {
         this.autoplay = autoplay;
         this.mediaURL = mediaURL;
 
+        impl.init(playerId, new MediaStateListenerAdapter(), this);
+/*
         impl.init(playerId, new MediaStateListener() {
 
             public void onPlayStarted() {
@@ -149,6 +155,7 @@ public final class WinMediaPlayer extends AbstractMediaPlayer {
                 fireBuffering(buffering);
             }
         });
+*/
         DockPanel dp = new DockPanel();
 
         isEmbedded = (height == null) || (width == null);
@@ -156,6 +163,7 @@ public final class WinMediaPlayer extends AbstractMediaPlayer {
             logger = new Logger();
             logger.setVisible(false);
             dp.add(logger, DockPanel.SOUTH);
+            /*
             addMediaStateListener(new MediaStateListenerAdapter() {
 
                 @Override
@@ -172,6 +180,24 @@ public final class WinMediaPlayer extends AbstractMediaPlayer {
                 @Override
                 public void onMediaInfoAvailable(MediaInfo info) {
                     logger.log(info.asHTMLString(), true);
+                }
+            });
+            */
+            addDebugHandler(new DebugHandler() {
+
+                public void onDebug(DebugEvent event) {
+                    switch(event.getMessageType()) {
+                        case Error:
+                            Window.alert(event.getMessage());
+                        case Info:
+                            logger.log(event.getMessage(), false);
+                    }
+                }
+            });
+            addMediaInfoHandler(new MediaInfoHandler() {
+
+                public void onMediaInfoAvailable(MediaInfoEvent event) {
+                    logger.log(event.getMediaInfo().asHTMLString(), true);
                 }
             });
         } else {

@@ -41,7 +41,7 @@ public class WinMediaPlayerImplIE extends WinMediaPlayerImpl {
     }
 
     @Override
-    protected void initGlobalEventListeners(WinMediaPlayerImpl jso) {
+    protected void initGlobalEventListeners(WinMediaPlayerImpl impl) {
         // override this and do nothing to avoid IE errors. Method is just a
         // workaround for non IE browsers.
     }
@@ -54,7 +54,7 @@ public class WinMediaPlayerImplIE extends WinMediaPlayerImpl {
     private native void registerMediaStateListenerImpl(WinMediaPlayerImplIE impl, String playerId) /*-{
     var playr = $doc.getElementById(playerId);
     playr.attachEvent('playStateChange', function(NewState) {
-    impl.@com.bramosystems.oss.player.core.client.impl.WinMediaPlayerImplIE::firePlayStateChanged(Ljava/lang/String;)(playerId);
+    impl.@com.bramosystems.oss.player.core.client.impl.WinMediaPlayerImplIE::firePlayStateChanged(Ljava/lang/String;I)(playerId, NewState);
     });
     playr.attachEvent('buffering', function(Start) {
     impl.@com.bramosystems.oss.player.core.client.impl.WinMediaPlayerImplIE::fireBuffering(Ljava/lang/String;Z)(playerId, Start);
@@ -62,17 +62,20 @@ public class WinMediaPlayerImplIE extends WinMediaPlayerImpl {
     playr.attachEvent('error', function() {
     impl.@com.bramosystems.oss.player.core.client.impl.WinMediaPlayerImplIE::fireError(Ljava/lang/String;)(playerId);
     });
-    impl.@com.bramosystems.oss.player.core.client.impl.WinMediaPlayerImplIE::firePlayStateChanged(Ljava/lang/String;)(playerId);
+    impl.@com.bramosystems.oss.player.core.client.impl.WinMediaPlayerImplIE::firePlayStateChanged(Ljava/lang/String;I)(playerId, playr.playState);
     }-*/;
 
-    private void firePlayStateChanged(String playerId) {
-        cache.get(playerId).checkPlayState();
+    @SuppressWarnings("unused")
+    private void firePlayStateChanged(String playerId, int state) {
+        cache.get(playerId).processPlayState(state);
     }
 
+    @SuppressWarnings("unused")
     private void fireBuffering(String playerId, boolean buffering) {
         cache.get(playerId).doBuffering(buffering);
     }
 
+    @SuppressWarnings("unused")
     private void fireError(String playerId) {
         cache.get(playerId).onError(getErrorDiscriptionImpl(playerId));
     }
@@ -82,10 +85,4 @@ public class WinMediaPlayerImplIE extends WinMediaPlayerImpl {
         closeImpl(playerId);
         super.close(playerId);
     }
-
-    private native void closeImpl(String playerId) /*-{
-    var playr = $doc.getElementById(playerId);
-    playr.close();
-    }-*/;
-
 }

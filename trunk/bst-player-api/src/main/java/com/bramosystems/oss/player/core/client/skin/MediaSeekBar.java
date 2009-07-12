@@ -15,8 +15,12 @@
  */
 package com.bramosystems.oss.player.core.client.skin;
 
+import com.bramosystems.oss.player.core.event.client.HasSeekChangeHandlers;
+import com.bramosystems.oss.player.core.event.client.SeekChangeEvent;
+import com.bramosystems.oss.player.core.event.client.SeekChangeHandler;
 import com.google.gwt.event.dom.client.MouseUpEvent;
 import com.google.gwt.event.dom.client.MouseUpHandler;
+import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.user.client.ui.AbsolutePanel;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.Widget;
@@ -30,7 +34,7 @@ import java.util.ArrayList;
  *
  * @author Sikirulai Braheem
  */
-public abstract class MediaSeekBar extends Composite implements MouseUpHandler {
+public abstract class MediaSeekBar extends Composite implements MouseUpHandler, HasSeekChangeHandlers {
 
     private Widget playing,  loading;
     protected AbsolutePanel seekTrack;
@@ -107,7 +111,9 @@ public abstract class MediaSeekBar extends Composite implements MouseUpHandler {
     }
 
     public void onMouseUp(MouseUpEvent event) {
-        fireSeekChanged(event.getX() / (double) getOffsetWidth());
+        double value = event.getX() / (double) getOffsetWidth();
+        fireSeekChanged(value);
+        SeekChangeEvent.fire(this, value);
     }
 
     /**
@@ -116,6 +122,7 @@ public abstract class MediaSeekBar extends Composite implements MouseUpHandler {
      *
      * @param listener {@code SeekChangeListener} object to add to
      * the list of {@code SeekChangeListener}s.
+     * @deprecated
      */
     public void addSeekChangeListener(SeekChangeListener listener) {
         seekListeners.add(listener);
@@ -127,14 +134,24 @@ public abstract class MediaSeekBar extends Composite implements MouseUpHandler {
      *
      * @param listener {@code SeekChangeListener} object to remove from the
      * list of {@code SeekChangeListener}s.
+     * @deprecated
      */
     public void removeSeekChangeListener(SeekChangeListener listener) {
         seekListeners.remove(listener);
     }
 
+    /**
+     * @deprecated
+     * @param newValue
+     */
     private void fireSeekChanged(double newValue) {
         for (int i = 0; i < seekListeners.size(); i++) {
             seekListeners.get(i).onSeekChanged(newValue);
         }
     }
+
+    public final HandlerRegistration addSeekChangeHandler(SeekChangeHandler handler) {
+        return addHandler(handler, SeekChangeEvent.TYPE);
+    }
+
 }

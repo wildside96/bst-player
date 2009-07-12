@@ -16,6 +16,5 @@
 <!--                                                                        -->
 
 <module>
-    <inherits name="com.bramosystems.oss.player.core.Core"/>
-    <stylesheet src="capsule-styles.css" />
+	<inherits name="com.google.gwt.core.Core" />
 </module>
