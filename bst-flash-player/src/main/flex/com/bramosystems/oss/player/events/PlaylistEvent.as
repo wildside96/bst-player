@@ -4,7 +4,9 @@ package com.bramosystems.oss.player.events {
 
     public class PlaylistEvent extends Event {
 
-        public static const CHANGED:String = "listChanged";
+        public static const CLEARED:String = "listCleared";
+        public static const ADDED:String = "listAdded";
+        public static const REMOVED:String = "listRemoved";
 
         private var evtType:String;
 
