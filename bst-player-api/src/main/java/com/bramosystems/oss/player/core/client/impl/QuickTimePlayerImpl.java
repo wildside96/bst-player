@@ -15,9 +15,16 @@
  */
 package com.bramosystems.oss.player.core.client.impl;
 
+import com.bramosystems.oss.player.core.event.client.PlayerStateEvent;
+import com.bramosystems.oss.player.core.event.client.HasMediaStateHandlers;
+import com.bramosystems.oss.player.core.event.client.PlayStateEvent;
+import com.bramosystems.oss.player.core.event.client.MediaInfoEvent;
+import com.bramosystems.oss.player.core.event.client.LoadingProgressEvent;
+import com.bramosystems.oss.player.core.event.client.DebugEvent;
 import com.bramosystems.oss.player.core.client.MediaInfo;
 import com.bramosystems.oss.player.core.client.MediaStateListener;
 import com.bramosystems.oss.player.core.client.ui.QuickTimePlayer;
+import com.bramosystems.oss.player.core.event.*;
 import com.google.gwt.i18n.client.NumberFormat;
 import java.util.HashMap;
 
@@ -38,6 +45,10 @@ public class QuickTimePlayerImpl {
 
     public void init(String playerId, MediaStateListener listener) {
         cache.put(playerId, new EventHandler(playerId, listener));
+    }
+
+    public void init(String playerId, HasMediaStateHandlers handler) {
+        cache.put(playerId, new EventHandler(playerId, handler));
     }
 
     public String getPlayerScript(String playerId, String mediaSrc, boolean autoplay,
@@ -311,11 +322,18 @@ public class QuickTimePlayerImpl {
     public class EventHandler {
 
         protected MediaStateListener listener;
+        protected HasMediaStateHandlers handlers;
         protected String id;
         private int count;
         protected int _count;
         private NumberFormat volFmt = NumberFormat.getPercentFormat();
         private boolean isBuffering;
+
+        public EventHandler(String _id, HasMediaStateHandlers _handlers) {
+            handlers = _handlers;
+            id = _id;
+            isBuffering = false;
+        }
 
         public EventHandler(String _id, MediaStateListener _listener) {
             listener = _listener;
@@ -324,27 +342,31 @@ public class QuickTimePlayerImpl {
         }
 
         public void initComplete() {
-            listener.onDebug("QuickTime Player plugin");
-            listener.onDebug("Version : " + getPluginVersionImpl(id));
+            onDebug("QuickTime Player plugin");
+            onDebug("Version : " + getPluginVersionImpl(id));
         }
 
+        // TODO: check for a way of generating stopped event...
         public void onStateChange(int newState) {
             switch (newState) {
                 case 1: // plugin init complete ...
-                    listener.onDebug("QuickTime Player plugin");
-                    listener.onDebug("Version : " + getPluginVersionImpl(id));
+                    onDebug("QuickTime Player plugin");
+                    onDebug("Version : " + getPluginVersionImpl(id));
                     break;
                 case 2: // loading complete ...
                     onDebug("Media loading complete");
-                    listener.onLoadingComplete();
+//                    listener.onLoadingComplete();
+                    LoadingProgressEvent.fire(handlers, 1.0);
                     break;
                 case 3: // play started ...
                     if (isBuffering) {
                         isBuffering = false;
-                        listener.onBuffering(false);
+//                        listener.onBuffering(false);
+                        PlayerStateEvent.fire(handlers, PlayerStateEvent.State.BufferingFinished);
                         onDebug("Buffering ended ...");
                     }
-                    listener.onPlayStarted(0);
+//                    listener.onPlayStarted(0);
+                    PlayStateEvent.fire(handlers, PlayStateEvent.State.Started, 0);
                     onDebug("Playing media at " + getMovieURL(id));
                     break;
                 case 4: // play finished ...
@@ -352,36 +374,41 @@ public class QuickTimePlayerImpl {
                         _count--;
                         play(id);
                     } else {
-                        listener.onPlayFinished(0);
+//                        listener.onPlayFinished(0);
+                    PlayStateEvent.fire(handlers, PlayStateEvent.State.Finished, 0);
                         onDebug("Media playback complete");
                     }
                     break;
                 case 5: // player ready ...
                     onDebug("Plugin ready for media playback");
-                    listener.onPlayerReady();
-                    //
+//                    listener.onPlayerReady();
+                    PlayerStateEvent.fire(handlers, PlayerStateEvent.State.Ready);
                     break;
                 case 6: // volume changed ...
                     onDebug("Volume changed to " + volFmt.format(getVolume(id)));
                     break;
                 case 7: // progress changed ...
-                    listener.onLoadingProgress(getMaxBytesLoaded(id) / (double) getMovieSize(id));
+//                    listener.onLoadingProgress(getMaxBytesLoaded(id) / (double) getMovieSize(id));
+                    LoadingProgressEvent.fire(handlers, getMaxBytesLoaded(id) / (double) getMovieSize(id));
                     break;
                 case 8: // error event ...
-                    listener.onError(getStatus(id) + " occured while loading media!");
+                    onError(getStatus(id) + " occured while loading media!");
                     break;
                 case 9: // metadata stuffs ...
                     MediaInfo info = new MediaInfo();
                     fillMediaInfoImpl(id, info);
-                    listener.onMediaInfoAvailable(info);
+//                    listener.onMediaInfoAvailable(info);
+                    MediaInfoEvent.fire(handlers, info);
                     break;
                 case 10: // playback paused ...
-                    listener.onDebug("Playback paused");
+                    onDebug("Playback paused");
+                    PlayStateEvent.fire(handlers, PlayStateEvent.State.Paused, 0);
                     break;
                 case 11: // buffering ...
                     isBuffering = true;
                     onDebug("Buffering started ...");
-                    listener.onBuffering(true);
+                    PlayerStateEvent.fire(handlers, PlayerStateEvent.State.BufferingStarted);
+//                    listener.onBuffering(true);
                     break;
                 case 12: // stalled ...
                     onDebug("Player stalled !");
@@ -390,11 +417,13 @@ public class QuickTimePlayerImpl {
         }
 
         public void onError(String description) {
-            listener.onError(description);
+//            listener.onError(description);
+            DebugEvent.fire(handlers, DebugEvent.MessageType.Error, description);
         }
 
         public void onDebug(String message) {
-            listener.onDebug(message);
+//            listener.onDebug(message);
+            DebugEvent.fire(handlers, DebugEvent.MessageType.Info, message);
         }
 
         public void setLoopCount(int count) {

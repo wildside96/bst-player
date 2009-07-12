@@ -15,10 +15,14 @@
  */
 package com.bramosystems.oss.player.core.client.skin;
 
+import com.bramosystems.oss.player.core.event.client.HasVolumeChangeHandlers;
+import com.bramosystems.oss.player.core.event.client.VolumeChangeEvent;
+import com.bramosystems.oss.player.core.event.client.VolumeChangeHandler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.MouseUpEvent;
 import com.google.gwt.event.dom.client.MouseUpHandler;
+import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.user.client.ui.*;
 import java.util.ArrayList;
 
@@ -39,7 +43,7 @@ import java.util.ArrayList;
  * @see VolumeChangeListener
  * @author Sikirulai Braheem
  */
-public class VolumeControl extends Composite implements MouseUpHandler {
+public class VolumeControl extends Composite implements MouseUpHandler, HasVolumeChangeHandlers {
 
     private Label volume,  track;
     private ArrayList<VolumeChangeListener> seekListeners;
@@ -120,6 +124,7 @@ public class VolumeControl extends Composite implements MouseUpHandler {
         vol = event.getX() / (double) seekTrack.getOffsetWidth();
         setVolume(vol);
         fireVolumeChanged(vol);
+        VolumeChangeEvent.fire(this, vol);
     }
 
     /**
@@ -136,6 +141,7 @@ public class VolumeControl extends Composite implements MouseUpHandler {
      *
      * @param listener {@code VolumeChangeListener} object to add to
      * the list of {@code VolumeChangeListener}s.
+     * @deprecated
      */
     public void addVolumeChangeListener(VolumeChangeListener listener) {
         seekListeners.add(listener);
@@ -146,15 +152,24 @@ public class VolumeControl extends Composite implements MouseUpHandler {
      *
      * @param listener {@code VolumeChangeListener} object to remove to remove
      * from the list of {@code VolumeChangeListener}s
+     * @deprecated
      */
     public void removeVolumeChangeListener(VolumeChangeListener listener) {
         seekListeners.remove(listener);
     }
 
+    /**
+     * @deprecated
+     * @param newValue
+     */
     private void fireVolumeChanged(double newValue) {
         for (int i = 0; i < seekListeners.size(); i++) {
             seekListeners.get(i).onVolumeChanged(newValue);
         }
+    }
+
+    public HandlerRegistration addVolumeChangeHandler(VolumeChangeHandler handler) {
+        return addHandler(handler, VolumeChangeEvent.TYPE);
     }
 
     /**

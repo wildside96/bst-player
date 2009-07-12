@@ -42,7 +42,7 @@ public class PlayerUtilImpl {
         "mpg", "mpga", "mpega", "mpe", "vob", "mpg4", "avi", "ogg", "vlc", "asf", "asx", "wmv",
         "wav", "3gp", "3gpp", "3g2", "3gpp2", "divx", "flv", "mkv", "mka", "xspf", "m4a", "m3u", "wma"};
     protected final static String[] qtProt = {"rtsp", "rts"};
-    protected final static String[] vlcProt = {"rtp", "rtsp"};
+    protected final static String[] vlcProt = {"rtp", "rtsp", "mms", "udp"};
     protected final static String[] wmpProt = {"mms"};
 
     public PlayerUtilImpl() {

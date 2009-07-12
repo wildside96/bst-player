@@ -18,19 +18,19 @@ package com.bramosystems.oss.player.core.client.ui;
 import com.bramosystems.oss.player.core.client.LoadException;
 import com.bramosystems.oss.player.core.client.PluginVersion;
 import com.bramosystems.oss.player.core.client.PlayerUtil;
-import com.bramosystems.oss.player.core.client.MediaInfo;
 import com.bramosystems.oss.player.core.client.PluginVersionException;
 import com.bramosystems.oss.player.core.client.PlayException;
-import com.bramosystems.oss.player.core.client.MediaStateListener;
-import com.bramosystems.oss.player.core.client.MediaStateListenerAdapter;
 import com.bramosystems.oss.player.core.client.PluginNotFoundException;
 import com.bramosystems.oss.player.core.client.AbstractMediaPlayer;
 import com.bramosystems.oss.player.core.client.impl.QuickTimePlayerImpl;
+import com.bramosystems.oss.player.core.event.client.DebugEvent;
+import com.bramosystems.oss.player.core.event.client.DebugHandler;
+import com.bramosystems.oss.player.core.event.client.MediaInfoEvent;
+import com.bramosystems.oss.player.core.event.client.MediaInfoHandler;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Timer;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
 
 /**
@@ -113,6 +113,8 @@ public final class QuickTimePlayer extends AbstractMediaPlayer {
         mediaUrl = mediaURL;
         this.autoplay = autoplay;
 
+        impl.init(playerId, this);
+/*
         impl.init(playerId, new MediaStateListener() {
 
             public void onPlayFinished() {
@@ -159,7 +161,7 @@ public final class QuickTimePlayer extends AbstractMediaPlayer {
                fireBuffering(buffering);
             }
         });
-
+*/
         DockPanel dp = new DockPanel();
         initWidget(dp);
 
@@ -168,6 +170,7 @@ public final class QuickTimePlayer extends AbstractMediaPlayer {
             logger = new Logger();
             logger.setVisible(false);
             dp.add(logger, DockPanel.SOUTH);
+            /*
             addMediaStateListener(new MediaStateListenerAdapter() {
 
                 @Override
@@ -184,6 +187,19 @@ public final class QuickTimePlayer extends AbstractMediaPlayer {
                 @Override
                 public void onMediaInfoAvailable(MediaInfo info) {
                     logger.log(info.asHTMLString(), true);
+                }
+            });
+            */
+            addDebugHandler(new DebugHandler() {
+
+                public void onDebug(DebugEvent event) {
+                    logger.log(event.getMessage(), false);
+                }
+            });
+            addMediaInfoHandler(new MediaInfoHandler() {
+
+                public void onMediaInfoAvailable(MediaInfoEvent event) {
+                    logger.log(event.getMediaInfo().asHTMLString(), true);
                 }
             });
         } else {
@@ -416,10 +432,8 @@ public final class QuickTimePlayer extends AbstractMediaPlayer {
      * @param ty matrix element ty
      *
      * @since 1.0
-     * @see <a href='http://developers.apple.com'>QuickTime Movie Basics</a>
-     *
+     * @see <a href='http://developer.apple.com/documentation/QuickTime/RM/MovieBasics/MTEditing/A-Intro/1Introduction.htm1'>QuickTime Movie Basics</a>
      */
-    // TODO: Get movie basics URL
     public void setTransformationMatrix(double a, double b, double c, double d, double tx, double ty) {
         final String matrix = a + "," + b + ",0.0" + c + "," + d + ",0.0" + tx + "," + ty + ",1.0";
         if (impl.isPlayerAvailable(playerId)) {

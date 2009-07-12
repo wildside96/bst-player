@@ -17,17 +17,22 @@ package com.bramosystems.oss.player.core.client.ui;
 
 import com.bramosystems.oss.player.core.client.LoadException;
 import com.bramosystems.oss.player.core.client.PluginVersion;
-import com.bramosystems.oss.player.core.client.MediaInfo;
 import com.bramosystems.oss.player.core.client.PluginVersionException;
 import com.bramosystems.oss.player.core.client.PlayException;
 import com.bramosystems.oss.player.core.client.MediaStateListener;
-import com.bramosystems.oss.player.core.client.MediaStateListenerAdapter;
 import com.bramosystems.oss.player.core.client.PluginNotFoundException;
 import com.bramosystems.oss.player.core.client.AbstractMediaPlayer;
 import com.bramosystems.oss.player.core.client.PlaylistSupport;
 import com.bramosystems.oss.player.core.client.impl.FlashMediaPlayerImpl;
 import com.bramosystems.oss.player.core.client.skin.FlatCustomControl;
+import com.bramosystems.oss.player.core.event.client.DebugEvent;
+import com.bramosystems.oss.player.core.event.client.DebugHandler;
+import com.bramosystems.oss.player.core.event.client.MediaInfoEvent;
+import com.bramosystems.oss.player.core.event.client.MediaInfoHandler;
+import com.bramosystems.oss.player.core.event.client.PlayerStateEvent;
+import com.bramosystems.oss.player.core.event.client.PlayerStateHandler;
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.ui.*;
 import java.util.ArrayList;
@@ -120,74 +125,90 @@ public class FlashMediaPlayer extends AbstractMediaPlayer implements PlaylistSup
         swf.addProperty("allowScriptAccess", "sameDomain");
         swf.addProperty("bgcolor", "#000000");
 
+        impl.init(playerId, mediaURL, autoplay, this);
+        /*
         impl.init(playerId, mediaURL, autoplay, new MediaStateListener() {
 
-            public void onPlayFinished() {
-                firePlayFinished();
-            }
+        public void onPlayFinished() {
+        firePlayFinished();
+        }
 
-            public void onLoadingComplete() {
-                fireLoadingComplete();
-            }
+        public void onLoadingComplete() {
+        fireLoadingComplete();
+        }
 
-            public void onError(String description) {
-                fireError(description);
-            }
+        public void onError(String description) {
+        fireError(description);
+        }
 
-            public void onDebug(String report) {
-                fireDebug(report);
-            }
+        public void onDebug(String report) {
+        fireDebug(report);
+        }
 
-            public void onLoadingProgress(double progress) {
-                fireLoadingProgress(progress);
-            }
+        public void onLoadingProgress(double progress) {
+        fireLoadingProgress(progress);
+        }
 
-            public void onPlayStarted() {
-                firePlayStarted();
-            }
+        public void onPlayStarted() {
+        firePlayStarted();
+        }
 
-            public void onPlayerReady() {
-                firePlayerReady();
-            }
+        public void onPlayerReady() {
+        firePlayerReady();
+        }
 
-            public void onMediaInfoAvailable(MediaInfo info) {
-                fireMediaInfoAvailable(info);
-            }
+        public void onMediaInfoAvailable(MediaInfo info) {
+        fireMediaInfoAvailable(info);
+        }
 
-            public void onPlayStarted(int index) {
-                firePlayStarted(index);
-            }
+        public void onPlayStarted(int index) {
+        firePlayStarted(index);
+        }
 
-            public void onPlayFinished(int index) {
-                firePlayFinished(index);
-            }
+        public void onPlayFinished(int index) {
+        firePlayFinished(index);
+        }
 
-            public void onBuffering(boolean buffering) {
-                fireBuffering(buffering);
-            }
+        public void onBuffering(boolean buffering) {
+        fireBuffering(buffering);
+        }
         });
-
+         */
         DockPanel hp = new DockPanel();
 
         if (!isEmbedded) {
             logger = new Logger();
             logger.setVisible(false);
             hp.add(logger, DockPanel.SOUTH);
+            /*
             addMediaStateListener(new MediaStateListenerAdapter() {
 
-                @Override
-                public void onError(String description) {
-                    log(description, false);
-                }
+            @Override
+            public void onError(String description) {
+            log(description, false);
+            }
 
-                @Override
-                public void onDebug(String message) {
-                    log(message, false);
-                }
+            @Override
+            public void onDebug(String message) {
+            log(message, false);
+            }
 
-                @Override
-                public void onMediaInfoAvailable(MediaInfo info) {
-                    log(info.asHTMLString(), true);
+            @Override
+            public void onMediaInfoAvailable(MediaInfo info) {
+            log(info.asHTMLString(), true);
+            }
+            });
+             */
+            addDebugHandler(new DebugHandler() {
+
+                public void onDebug(DebugEvent event) {
+                    log(event.getMessage(), false);
+                }
+            });
+            addMediaInfoHandler(new MediaInfoHandler() {
+
+                public void onMediaInfoAvailable(MediaInfoEvent event) {
+                    log(event.getMediaInfo().asHTMLString(), true);
                 }
             });
             control = new FlatCustomControl(this);
@@ -355,12 +376,28 @@ public class FlashMediaPlayer extends AbstractMediaPlayer implements PlaylistSup
             });
         }
     }
+    private HandlerRegistration initListHandler;
 
     public void addToPlaylist(final String mediaURL) {
         if (impl.isPlayerAvailable(playerId)) {
             impl.addToPlaylist(playerId, mediaURL);
         } else {
-            if (!containsMediaStateListener(_onInitListListener)) {
+            if (initListHandler == null) {
+                initListHandler = addPlayerStateHandler(new PlayerStateHandler() {
+
+                    public void onPlayerStateChanged(PlayerStateEvent event) {
+                        switch (event.getPlayerState()) {
+                            case Ready:
+                                for (String url : _playlistCache) {
+                                    impl.addToPlaylist(playerId, url);
+                                }
+                                break;
+                        }
+                        initListHandler.removeHandler();
+                    }
+                });
+            }
+/*            if (!containsMediaStateListener(_onInitListListener)) {
                 _onInitListListener = new MediaStateListenerAdapter() {
 
                     @Override
@@ -373,6 +410,7 @@ public class FlashMediaPlayer extends AbstractMediaPlayer implements PlaylistSup
                 };
                 addMediaStateListener(_onInitListListener);
             }
+*/
             _playlistCache.add(mediaURL);
         }
     }
@@ -418,21 +456,21 @@ public class FlashMediaPlayer extends AbstractMediaPlayer implements PlaylistSup
 
     public void play(int index) throws IndexOutOfBoundsException {
         checkAvailable();
-        if(!impl.playMedia(playerId, index)) {
+        if (!impl.playMedia(playerId, index)) {
             throw new IndexOutOfBoundsException();
         }
     }
 
     public void playNext() throws PlayException {
         checkAvailable();
-        if(!impl.playNext(playerId)) {
+        if (!impl.playNext(playerId)) {
             throw new PlayException("No more entries in playlist");
         }
     }
 
     public void playPrevious() throws PlayException {
         checkAvailable();
-        if(!impl.playPrevious(playerId)) {
+        if (!impl.playPrevious(playerId)) {
             throw new PlayException("Beginning of playlist reached");
         }
     }

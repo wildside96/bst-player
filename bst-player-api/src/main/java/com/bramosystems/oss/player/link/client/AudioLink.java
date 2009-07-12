@@ -16,6 +16,16 @@
 package com.bramosystems.oss.player.link.client;
 
 import com.bramosystems.oss.player.core.client.*;
+import com.bramosystems.oss.player.core.event.client.DebugEvent;
+import com.bramosystems.oss.player.core.event.client.DebugHandler;
+import com.bramosystems.oss.player.core.event.client.LoadingProgressEvent;
+import com.bramosystems.oss.player.core.event.client.LoadingProgressHandler;
+import com.bramosystems.oss.player.core.event.client.MediaInfoEvent;
+import com.bramosystems.oss.player.core.event.client.MediaInfoHandler;
+import com.bramosystems.oss.player.core.event.client.PlayStateEvent;
+import com.bramosystems.oss.player.core.event.client.PlayStateHandler;
+import com.bramosystems.oss.player.core.event.client.PlayerStateEvent;
+import com.bramosystems.oss.player.core.event.client.PlayerStateHandler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.HorizontalPanel;
@@ -34,7 +44,7 @@ public class AudioLink extends AbstractMediaPlayer {
     public AudioLink(String mediaURL, String text, final boolean preload)
             throws PluginNotFoundException, PluginVersionException, LoadException {
         engine = PlayerUtil.getPlayer(mediaURL, false, null, null);
-        engine.addMediaStateListener(new MediaStateListener() {
+/*        engine.addMediaStateListener(new MediaStateListener() {
 
             public void onError(String description) {
                 fireError(description);
@@ -92,6 +102,37 @@ public class AudioLink extends AbstractMediaPlayer {
 
             public void onBuffering(boolean buffering) {
                 fireBuffering(buffering);
+            }
+        });
+*/
+        engine.addDebugHandler(new DebugHandler() {
+
+            public void onDebug(DebugEvent event) {
+                fireEvent(event);
+            }
+        });
+        engine.addLoadingProgressHandler(new LoadingProgressHandler() {
+
+            public void onLoadingProgress(LoadingProgressEvent event) {
+                fireEvent(event);
+            }
+        });
+        engine.addMediaInfoHandler(new MediaInfoHandler() {
+
+            public void onMediaInfoAvailable(MediaInfoEvent event) {
+                fireEvent(event);
+            }
+        });
+        engine.addPlayStateHandler(new PlayStateHandler() {
+
+            public void onPlayStateChanged(PlayStateEvent event) {
+                fireEvent(event);
+            }
+        });
+        engine.addPlayerStateHandler(new PlayerStateHandler() {
+
+            public void onPlayerStateChanged(PlayerStateEvent event) {
+                fireEvent(event);
             }
         });
 

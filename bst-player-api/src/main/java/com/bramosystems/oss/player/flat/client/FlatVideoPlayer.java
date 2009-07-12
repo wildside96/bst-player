@@ -13,15 +13,12 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-package com.bramosystems.oss.player.core.client.skin;
+package com.bramosystems.oss.player.flat.client;
 
-import com.bramosystems.oss.player.core.client.LoadException;
-import com.bramosystems.oss.player.core.client.MediaInfo;
-import com.bramosystems.oss.player.core.client.PluginVersionException;
-import com.bramosystems.oss.player.core.client.MediaStateListenerAdapter;
-import com.bramosystems.oss.player.core.client.PluginNotFoundException;
-import com.bramosystems.oss.player.core.client.Plugin;
+import com.bramosystems.oss.player.core.client.skin.*;
+import com.bramosystems.oss.player.core.client.*;
 import com.bramosystems.oss.player.core.client.ui.*;
+import com.bramosystems.oss.player.core.event.client.*;
 import com.google.gwt.user.client.ui.DockPanel;
 
 /**
@@ -91,6 +88,18 @@ public class FlatVideoPlayer extends CustomVideoPlayer {
         vp.add(new FlatCustomControl(this), DockPanel.SOUTH);
 
         setPlayerControlWidget(vp);
+        addDebugHandler(new DebugHandler() {
+
+            public void onDebug(DebugEvent event) {
+                logger.log(event.getMessage(), false);
+            }
+        });
+        addMediaInfoHandler(new MediaInfoHandler() {
+
+            public void onMediaInfoAvailable(MediaInfoEvent event) {
+                logger.log(event.getMediaInfo().asHTMLString(), true);
+            }
+        });
         addMediaStateListener(new MediaStateListenerAdapter() {
 
             @Override
@@ -109,7 +118,7 @@ public class FlatVideoPlayer extends CustomVideoPlayer {
             }
         });
 //        setSize(width, height);
-//        setWidth(width);
+        setWidth(width);
     }
 
     /**

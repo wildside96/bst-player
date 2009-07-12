@@ -17,6 +17,16 @@ package com.bramosystems.oss.player.core.client.skin;
 
 import com.bramosystems.oss.player.core.client.*;
 import com.bramosystems.oss.player.core.client.ui.*;
+import com.bramosystems.oss.player.core.event.client.DebugEvent;
+import com.bramosystems.oss.player.core.event.client.DebugHandler;
+import com.bramosystems.oss.player.core.event.client.LoadingProgressEvent;
+import com.bramosystems.oss.player.core.event.client.LoadingProgressHandler;
+import com.bramosystems.oss.player.core.event.client.MediaInfoEvent;
+import com.bramosystems.oss.player.core.event.client.MediaInfoHandler;
+import com.bramosystems.oss.player.core.event.client.PlayStateEvent;
+import com.bramosystems.oss.player.core.event.client.PlayStateHandler;
+import com.bramosystems.oss.player.core.event.client.PlayerStateEvent;
+import com.bramosystems.oss.player.core.event.client.PlayerStateHandler;
 import com.google.gwt.user.client.ui.AbsolutePanel;
 import com.google.gwt.user.client.ui.DockPanel;
 import com.google.gwt.user.client.ui.SimplePanel;
@@ -84,6 +94,37 @@ public abstract class CustomAudioPlayer extends AbstractMediaPlayer implements P
                 engine = PlayerUtil.getPlayer(playerPlugin, mediaURL, autoplay, null, null);
                 break;
         }
+        engine.addDebugHandler(new DebugHandler() {
+
+            public void onDebug(DebugEvent event) {
+                fireEvent(event);
+            }
+        });
+        engine.addLoadingProgressHandler(new LoadingProgressHandler() {
+
+            public void onLoadingProgress(LoadingProgressEvent event) {
+                fireEvent(event);
+            }
+        });
+        engine.addMediaInfoHandler(new MediaInfoHandler() {
+
+            public void onMediaInfoAvailable(MediaInfoEvent event) {
+                fireEvent(event);
+            }
+        });
+        engine.addPlayStateHandler(new PlayStateHandler() {
+
+            public void onPlayStateChanged(PlayStateEvent event) {
+                fireEvent(event);
+            }
+        });
+        engine.addPlayerStateHandler(new PlayerStateHandler() {
+
+            public void onPlayerStateChanged(PlayerStateEvent event) {
+                fireEvent(event);
+            }
+        });
+/*
         engine.addMediaStateListener(new MediaStateListener() {
 
             public void onError(String description) {
@@ -130,7 +171,7 @@ public abstract class CustomAudioPlayer extends AbstractMediaPlayer implements P
                 fireBuffering(buffering);
             }
         });
-
+*/
         container = new SimplePanel();
         container.setWidth("100%");
 
