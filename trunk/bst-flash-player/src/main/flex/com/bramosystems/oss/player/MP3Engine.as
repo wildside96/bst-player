@@ -17,6 +17,7 @@
 package com.bramosystems.oss.player {
     import com.bramosystems.oss.player.playlist.*;
     import com.bramosystems.oss.player.external.*;
+    import com.bramosystems.oss.player.events.*;
 
     import flash.display.Graphics;
     import flash.errors.*;
@@ -38,11 +39,9 @@ package com.bramosystems.oss.player {
             private var propagateID3:Boolean = false;
 
             private var playFinishedHandler:Function;
-            private var playStartedHandler:Function;
 
-            public function MP3Engine(playStartedHandler:Function, playFinishedHandler:Function) {
+            public function MP3Engine(playFinishedHandler:Function) {
                 this.playFinishedHandler = playFinishedHandler;
-                this.playStartedHandler = playStartedHandler;
             }
 
             public function _load(url:String):void {
@@ -69,7 +68,7 @@ package com.bramosystems.oss.player {
             public function setPlayPosition(channelPosition:Number):void {
                 if(isPaused || isPlaying) {
                     position = channelPosition;
-
+                    Log.info("Setting position : " + position);
                     if(isPlaying) {
                         play();
                     }
@@ -89,8 +88,7 @@ package com.bramosystems.oss.player {
                 channel.addEventListener(Event.SOUND_COMPLETE, _playFinishedHandler);
                 channel.addEventListener(Event.SOUND_COMPLETE, playFinishedHandler);
                 _playStartedHandler();
-                playStartedHandler();
-            }
+           }
 
             public function pause():void {
                 if(channel == null) {
@@ -103,7 +101,7 @@ package com.bramosystems.oss.player {
 
                 channel.stop();
                 isPlaying = false;
-                Log.info("Player paused");
+                dispatchEvent(new PlayStateEvent(PlayStateEvent.PLAY_PAUSED));
             }
 
             public function stop():void {
@@ -117,7 +115,7 @@ package com.bramosystems.oss.player {
 
                 channel.stop();
                 isPlaying = false;
-                Log.info("Player stopped");
+                dispatchEvent(new PlayStateEvent(PlayStateEvent.PLAY_STOPPED));
             }
 
             public function getPlayPosition():Number {
@@ -160,6 +158,7 @@ package com.bramosystems.oss.player {
             private function _playStartedHandler():void {
                 isPlaying = true;
                 isPaused = false;
+                dispatchEvent(new PlayStateEvent(PlayStateEvent.PLAY_STARTED));
             }
 
             private function loadingCompleteHandler(event:Event):void {

@@ -17,7 +17,7 @@
  *
 -->
 
-<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml" xmlns="*" applicationComplete="initApp()" 
+<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml" xmlns="*" applicationComplete="initApp()"
         horizontalAlign="center" verticalAlign="middle" backgroundAlpha="0.0"
         horizontalScrollPolicy="off" verticalScrollPolicy="off"
         paddingLeft="0" paddingTop="0" paddingBottom="0" paddingRight="0">
@@ -31,7 +31,7 @@
 
             import flash.external.*;
             import flash.display.*;
-    
+
             private var debug:Boolean = true;
             private var player:Engine, mp3:MP3Engine, vdu:VideoEngine;
             private var playlist:Playlist;
@@ -51,10 +51,17 @@
                         setting.addEventListener(SettingChangedEvent.VOLUME_CHANGED, updateVolume);
                         playlist = new Playlist();
                         listManager = new PlaylistManager(playlist, setting);
-                        mp3 = new MP3Engine(playStartedHandler, playFinishedHandler);
-                        vdu = new VideoEngine(playStartedHandler, playFinishedHandler);
 
+                        mp3 = new MP3Engine(playFinishedHandler);
+                        mp3.addEventListener(PlayStateEvent.PLAY_STARTED, playStarted);
+                        mp3.addEventListener(PlayStateEvent.PLAY_STOPPED, playStopped);
+                        mp3.addEventListener(PlayStateEvent.PLAY_PAUSED, playPaused);
                         mp3.setVolume(setting.getVolume());
+
+                        vdu = new VideoEngine(playFinishedHandler);
+                        vdu.addEventListener(PlayStateEvent.PLAY_STARTED, playStarted);
+                        vdu.addEventListener(PlayStateEvent.PLAY_STOPPED, playStopped);
+                        vdu.addEventListener(PlayStateEvent.PLAY_PAUSED, playPaused);
                         vdu.setVolume(setting.getVolume());
 
     //                    stage.scaleMode = StageScaleMode.NO_BORDER;
@@ -118,34 +125,39 @@
             }
 
             /**************************** PLAYER IMPL ******************************/
+            private const PLAYING:int = 0;
+            private const STOPPED:int = 1;
+            private const PAUSED:int = 2;
+            private const LOADED:int = 3;
+            private const FINISHED:int = 4;
+
             private var mediaURL:String;
-            private var isLoaded:Boolean = false, playPending:Boolean = false;
+            private var state:int = STOPPED;
 
             public function load(mediaURL:String):void {
+                playlist.addEventListener(PlaylistEvent.ADDED, playlistAddComplete);
                 playlist.clear();
                 playlist.add(mediaURL);
+            }
+
+            public function playlistAddComplete(event:PlaylistEvent):void {
+                playlist.removeEventListener(PlaylistEvent.ADDED, playlistAddComplete);
                 var url:String = listManager.getNextURLEntry();
                 _load(url);
-                playPending = true;
             }
 
             public function play():void {
-               if(isLoaded) {
-                    if(!playPending) {
-                        var url:String = listManager.getNextURLEntry();
-                        _load(url);
+                Log.info("state : " + state);
+                switch(state) {
+                    case LOADED:
+                    case PAUSED:
+                    case STOPPED:
                         player.play();
-                    } else {
-                        player.play();
-                        playPending = false;    // workaround for playing after loading fresh playlist :-)
-                    }
-               } else {
-                    try {
-                        player.play();
-                    } catch(e:Error) {
+                        break;
+                    case FINISHED:
                         playNext();
-                    }
-               }
+                        break;
+                }
             }
 
             public function playNext():Boolean {
@@ -155,6 +167,7 @@
                     player.play();
                     return true;
                 } else {
+                    state = STOPPED;
                     return false;
                 }
             }
@@ -166,6 +179,7 @@
                     player.play();
                     return true;
                 } else {
+                    state = STOPPED;
                     return false;
                 }
             }
@@ -177,6 +191,7 @@
                     player.play();
                     return true;
                 } else {
+                    state = STOPPED;
                     return false;
                 }
             }
@@ -184,7 +199,6 @@
             public function stop(rewind:Boolean):void {
                 if(rewind) {
                     player.stop();
-                    isLoaded = false;
                 } else {
                     player.pause();
                 }
@@ -212,14 +226,31 @@
             private function playFinishedHandler(event:Event):void {
                 EventUtil.fireMediaStateChanged(9, listManager.getListIndex());
                 if(!playNext()) {
+                    state = FINISHED;
                     Log.info("Media playback finished");
                     EventUtil.fireMediaStateChanged(9);
-                    isLoaded = false;
+//                    listManager.resetIndex();
                 }
             }
 
-            public function playStartedHandler():void {
-                Log.info("Playlist item " + listManager.getListIndex() + " : playback started");
+            private function playStopped(event:PlayStateEvent):void {
+                    state = STOPPED;
+  //                  listManager.resetIndex();
+                Log.info("Playback stopped");
+                EventUtil.fireMediaStateChanged(3, listManager.getListIndex());
+            }
+
+            private function playPaused(event:PlayStateEvent):void {
+                    state = PAUSED;
+                Log.info("Playback paused");
+                EventUtil.fireMediaStateChanged(4, listManager.getListIndex());
+            }
+
+            private function playStarted(event:PlayStateEvent):void {
+                if(state == STOPPED) {
+                    Log.info("Playlist item " + listManager.getListIndex() + " : playback started");
+                }
+                state = PLAYING;
                 EventUtil.fireMediaStateChanged(2, listManager.getListIndex());
             }
 
@@ -229,6 +260,8 @@
                     player.stop(); // stop playback if any ...
                     removeChildAt(0);
                 }
+                state = STOPPED;
+                Log.info("Loading media at '" + mediaURL + "'");
 
                 if(mediaURL.search(".mp3") >= 0) {
                     player = mp3
@@ -240,9 +273,8 @@
                     Log.info("Using VideoEngine");
                 }
 
-                Log.info("Loading media at '" + mediaURL + "'");
                 player._load(mediaURL);
-                isLoaded = true;
+                state = LOADED;
             }
 
             private function updateVolume(event:SettingChangedEvent):void {

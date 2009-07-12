@@ -38,15 +38,15 @@ package com.bramosystems.oss.player.playlist {
         public function clear():void {
             playlist.splice(0);
             _size = 0;
-            dispatchEvent(new PlaylistEvent(PlaylistEvent.CHANGED));
             Log.info("Playlist cleared");
+            dispatchEvent(new PlaylistEvent(PlaylistEvent.CLEARED));
         }
 
         public function remove(index:int):void {
             Log.info("'" + playlist.splice(index, 1) + "' removed from playlist!");
 //            playlist.splice(index, 1);
             _size = playlist.length;
-            dispatchEvent(new PlaylistEvent(PlaylistEvent.CHANGED));
+            dispatchEvent(new PlaylistEvent(PlaylistEvent.REMOVED));
             Log.info(_size + " entries left in playlist");
         }
 
@@ -61,8 +61,8 @@ package com.bramosystems.oss.player.playlist {
             } else {    // add single file...
                 Log.info("Adding '" + mediaUrl + "' to playlist");
                 _size = playlist.push(new PlaylistEntry(0, mediaUrl, mediaUrl));
-                dispatchEvent(new PlaylistEvent(PlaylistEvent.CHANGED));
                 Log.info(_size + (_size > 1 ? " entries in playlist!" : " entry in playlist!"));
+                dispatchEvent(new PlaylistEvent(PlaylistEvent.ADDED));
              }
         }
 
@@ -115,7 +115,7 @@ package com.bramosystems.oss.player.playlist {
             for(var i:uint = 0; i < mp3s.length; i++) {
                 _size = playlist.push(mp3s[i]);
             }
-            dispatchEvent(new PlaylistEvent(PlaylistEvent.CHANGED));
+            dispatchEvent(new PlaylistEvent(PlaylistEvent.ADDED));
             Log.info("Playlist Entries : " + _size);
         }
 

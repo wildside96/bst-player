@@ -17,6 +17,7 @@
 package com.bramosystems.oss.player {
     import com.bramosystems.oss.player.playlist.*;
     import com.bramosystems.oss.player.external.*;
+    import com.bramosystems.oss.player.events.*;
 
     import flash.media.*;
     import flash.events.*;
@@ -25,10 +26,7 @@ package com.bramosystems.oss.player {
 
     public class VideoEngine extends VideoDisplay implements Engine {
 
-            private var playStartedHandler:Function;
-
-            public function VideoEngine(playStartedHandler:Function, playFinishedHandler:Function) {
-                this.playStartedHandler = playStartedHandler;
+            public function VideoEngine(playFinishedHandler:Function) {
                 addEventListener(ProgressEvent.PROGRESS, loadingProgressHandler);
                 addEventListener(MetadataEvent.METADATA_RECEIVED, metadataHandler);
                 addEventListener(VideoEvent.COMPLETE, playFinishedHandler);
@@ -137,13 +135,13 @@ package com.bramosystems.oss.player {
             private function stateHandler(event:VideoEvent):void {
                 switch(event.state) {
                     case VideoEvent.PLAYING:
-                        playStartedHandler();
+                        dispatchEvent(new PlayStateEvent(PlayStateEvent.PLAY_STARTED));
                         break;
                     case VideoEvent.STOPPED:
-                        Log.info("Media playback stopped");
+                        dispatchEvent(new PlayStateEvent(PlayStateEvent.PLAY_STOPPED));
                         break;
                     case VideoEvent.PAUSED:
-                        Log.info("Playback paused ...");
+                        dispatchEvent(new PlayStateEvent(PlayStateEvent.PLAY_PAUSED));
                         break;
 //                    case NetStream.Play.StreamNotFound:
 //                        Log.error("Media file not found. If the file is located on the " +

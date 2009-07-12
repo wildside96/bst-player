@@ -31,17 +31,23 @@ package com.bramosystems.oss.player.playlist {
 
         public function PlaylistManager(playlist:Playlist, setting:Setting) {
             this.playlist = playlist;
-            listIndex = -1;
+            resetIndex();
 
             shuffleOn = setting.isShuffleEnabled();
             loopCount = setting.getLoopCount();
             setting.addEventListener(SettingChangedEvent.SHUFFLE_CHANGED, updateShuffle);
             setting.addEventListener(SettingChangedEvent.LOOP_COUNT_CHANGED, updateLoopCount);
-            playlist.addEventListener(PlaylistEvent.CHANGED, updatePlaylist);
+            playlist.addEventListener(PlaylistEvent.CLEARED, updatePlaylist);
+            playlist.addEventListener(PlaylistEvent.ADDED, updatePlaylist);
+            playlist.addEventListener(PlaylistEvent.REMOVED, updatePlaylist);
 
             if(shuffleOn) {
                 shuffleList();
             }
+        }
+
+        public function resetIndex():void {
+            listIndex = -1;
         }
 
         public function getListIndex():int {
