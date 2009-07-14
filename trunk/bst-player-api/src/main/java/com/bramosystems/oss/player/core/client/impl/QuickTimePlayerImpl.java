@@ -57,7 +57,7 @@ public class QuickTimePlayerImpl {
                 "autoplay='" + autoplay + "' src='" + mediaSrc + "' " +
                 "width='" + width + "' height='" + height + "' " +
                 "type='video/quicktime' postdomevents='true' kioskmode='true' " +
-                "controller='true' EnableJavaScript='true' scale='Aspect' " + //ToFit' " +
+                "controller='true' EnableJavaScript='true' scale='1'" +
                 "bgcolor='#000000' showlogo='false' targetcache='false'></embed>";
     }
 
@@ -105,6 +105,7 @@ public class QuickTimePlayerImpl {
     var plyr = $doc.getElementById(playerId);
     id3.@com.bramosystems.oss.player.core.client.MediaInfo::year = plyr.GetUserData("&#xA9;day");
     id3.@com.bramosystems.oss.player.core.client.MediaInfo::albumTitle = plyr.GetUserData("name");
+    id3.@com.bramosystems.oss.player.core.client.MediaInfo::duration = parseFloat(plyr.GetDuration() / plyr.GetTimeScale() * 1000);
     id3.@com.bramosystems.oss.player.core.client.MediaInfo::artists = plyr.GetUserData('@prf');
     id3.@com.bramosystems.oss.player.core.client.MediaInfo::comment = plyr.GetUserData('info');
     id3.@com.bramosystems.oss.player.core.client.MediaInfo::title = plyr.GetUserData('name');
@@ -115,6 +116,10 @@ public class QuickTimePlayerImpl {
     id3.@com.bramosystems.oss.player.core.client.MediaInfo::genre = '';
     id3.@com.bramosystems.oss.player.core.client.MediaInfo::internetStationOwner = '';
     id3.@com.bramosystems.oss.player.core.client.MediaInfo::internetStationName = '';
+
+    var rect = plyr.GetRectangle().split(',');
+    id3.@com.bramosystems.oss.player.core.client.MediaInfo::videoWidth = parseInt(rect[2]) - parseInt(rect[0]);
+    id3.@com.bramosystems.oss.player.core.client.MediaInfo::videoHeight = parseInt(rect[3]) - parseInt(rect[1]);
     } catch(e) {
     }
     }-*/;
@@ -286,12 +291,12 @@ public class QuickTimePlayerImpl {
 
     public native void setRectangle(String playerId, String rect) /*-{
     var plyr = $doc.getElementById(playerId);
-    plyr.SetRectange(rect);
+    plyr.SetRectangle(rect);
     }-*/;
 
     public native String getRectangle(String playerId) /*-{
     var plyr = $doc.getElementById(playerId);
-    return plyr.GetRectange();
+    return plyr.GetRectangle();
     }-*/;
 
     public native void setKioskMode(String playerId, boolean kioskMode) /*-{
@@ -375,7 +380,7 @@ public class QuickTimePlayerImpl {
                         play(id);
                     } else {
 //                        listener.onPlayFinished(0);
-                    PlayStateEvent.fire(handlers, PlayStateEvent.State.Finished, 0);
+                        PlayStateEvent.fire(handlers, PlayStateEvent.State.Finished, 0);
                         onDebug("Media playback complete");
                     }
                     break;

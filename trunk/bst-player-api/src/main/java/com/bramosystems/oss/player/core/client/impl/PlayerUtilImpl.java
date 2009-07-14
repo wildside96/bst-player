@@ -36,7 +36,7 @@ public class PlayerUtilImpl {
         "sdv", "m1s", "m1a", "m1v", "mpm", "mpv", "mpa", "m2a", "m4a", "m4p", "m4b"};
     protected final static String[] wmpPool = {"asf", "asx", "wmv", "wvx", "wm",
         "wma", "wax", "wav", "mp3", "mid", "midi", "smf", "m3u"};
-    protected final static String[] flvPool = {"flv", "mp4", "f4v", "m4a", "mov",
+    protected final static String[] flvPool = {"flv", "mp4", "f4v", "m4a", // "mov",
         "mp4v", "mp3", "m3u"}; // "3gp", "3g2"
     protected final static String[] vlcPool = {"3gp2", "mp2", "mp3", "mp4", "mov", "qt", "mpeg",
         "mpg", "mpga", "mpega", "mpe", "vob", "mpg4", "avi", "ogg", "vlc", "asf", "asx", "wmv",

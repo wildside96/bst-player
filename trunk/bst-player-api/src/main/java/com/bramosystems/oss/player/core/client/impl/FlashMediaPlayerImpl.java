@@ -125,7 +125,7 @@ public class FlashMediaPlayerImpl {
     // parse from CSV like values ...
     // year[$]albumTitle[$]artists[$]comment[$]genre[$]title[$]
     // contentProviders[$]copyright[$]duration[$]hardwareSoftwareRequirements[$]
-    // publisher[$]internetStationOwner[$]internetStationName
+    // publisher[$]internetStationOwner[$]internetStationName[$]videoWidth[$]videoHeight
 
     csv = infoCSV.split("[$]");
     mData.@com.bramosystems.oss.player.core.client.MediaInfo::year = csv[0];
@@ -141,6 +141,8 @@ public class FlashMediaPlayerImpl {
     mData.@com.bramosystems.oss.player.core.client.MediaInfo::publisher = csv[10];
     mData.@com.bramosystems.oss.player.core.client.MediaInfo::internetStationOwner = csv[11];
     mData.@com.bramosystems.oss.player.core.client.MediaInfo::internetStationName = csv[12];
+    mData.@com.bramosystems.oss.player.core.client.MediaInfo::videoWidth = csv[13];
+    mData.@com.bramosystems.oss.player.core.client.MediaInfo::videoHeight = csv[14];
     }-*/;
 
     private native String getPluginVersion(String playerId) /*-{
@@ -257,6 +259,16 @@ public class FlashMediaPlayerImpl {
     public native void setShuffleEnabled(String playerId, boolean enable) /*-{
     var player = $doc.getElementById(playerId);
     player.setMdaShuffleEnabled(enable);
+    }-*/;
+
+    public native int getVideoHeight(String playerId) /*-{
+    var player = $doc.getElementById(playerId);
+    return player.getMdaVideoHeight();
+    }-*/;
+
+    public native int getVideoWidth(String playerId) /*-{
+    var player = $doc.getElementById(playerId);
+    return player.getMdaVideoWidth();
     }-*/;
 
     private class EventHandler {

@@ -22,6 +22,8 @@ import com.bramosystems.oss.player.core.client.PlayException;
 import com.bramosystems.oss.player.core.client.MediaStateListener;
 import com.bramosystems.oss.player.core.client.PluginNotFoundException;
 import com.bramosystems.oss.player.core.client.AbstractMediaPlayer;
+import com.bramosystems.oss.player.core.client.MediaInfo;
+import com.bramosystems.oss.player.core.client.MediaInfo.MediaInfoKey;
 import com.bramosystems.oss.player.core.client.PlaylistSupport;
 import com.bramosystems.oss.player.core.client.impl.FlashMediaPlayerImpl;
 import com.bramosystems.oss.player.core.client.skin.FlatCustomControl;
@@ -80,11 +82,14 @@ public class FlashMediaPlayer extends AbstractMediaPlayer implements PlaylistSup
 
     private static FlashMediaPlayerImpl impl = new FlashMediaPlayerImpl();
     private String playerId;
-    private boolean isEmbedded;
+    private boolean isEmbedded, resizeToVideoSize;
     private Logger logger;
     private FlatCustomControl control;
     private MediaStateListener _onInitListListener;
     private ArrayList<String> _playlistCache;
+    private DockPanel panel;
+    private SWFWidget swf;
+    private String _height,  _width;
 
     /**
      * Constructs <code>FlashMediaPlayer</code> with the specified {@code height} and
@@ -111,14 +116,17 @@ public class FlashMediaPlayer extends AbstractMediaPlayer implements PlaylistSup
             throws PluginNotFoundException, PluginVersionException, LoadException {
 
         _playlistCache = new ArrayList<String>();
+        _height = height;
+        _width = width;
+        resizeToVideoSize = false;
 
         isEmbedded = (height == null) || (width == null);
         if (isEmbedded) {
-            height = "0px";
-            width = "0px";
+            _height = "0px";
+            _width = "0px";
         }
 
-        SWFWidget swf = new SWFWidget(GWT.getModuleBaseURL() + "bst-flash-player-1.0-SNAPSHOT.swf",
+        swf = new SWFWidget(GWT.getModuleBaseURL() + "bst-flash-player-1.0-SNAPSHOT.swf",
                 "100%", "100%", PluginVersion.get(9, 0, 0));
         playerId = swf.getId();
         swf.addProperty("flashVars", "playerId=" + playerId);
@@ -126,79 +134,16 @@ public class FlashMediaPlayer extends AbstractMediaPlayer implements PlaylistSup
         swf.addProperty("bgcolor", "#000000");
 
         impl.init(playerId, mediaURL, autoplay, this);
-        /*
-        impl.init(playerId, mediaURL, autoplay, new MediaStateListener() {
 
-        public void onPlayFinished() {
-        firePlayFinished();
-        }
-
-        public void onLoadingComplete() {
-        fireLoadingComplete();
-        }
-
-        public void onError(String description) {
-        fireError(description);
-        }
-
-        public void onDebug(String report) {
-        fireDebug(report);
-        }
-
-        public void onLoadingProgress(double progress) {
-        fireLoadingProgress(progress);
-        }
-
-        public void onPlayStarted() {
-        firePlayStarted();
-        }
-
-        public void onPlayerReady() {
-        firePlayerReady();
-        }
-
-        public void onMediaInfoAvailable(MediaInfo info) {
-        fireMediaInfoAvailable(info);
-        }
-
-        public void onPlayStarted(int index) {
-        firePlayStarted(index);
-        }
-
-        public void onPlayFinished(int index) {
-        firePlayFinished(index);
-        }
-
-        public void onBuffering(boolean buffering) {
-        fireBuffering(buffering);
-        }
-        });
-         */
-        DockPanel hp = new DockPanel();
+        panel = new DockPanel();
+        panel.setStyleName("");
+        panel.setWidth("100%");
 
         if (!isEmbedded) {
             logger = new Logger();
             logger.setVisible(false);
-            hp.add(logger, DockPanel.SOUTH);
-            /*
-            addMediaStateListener(new MediaStateListenerAdapter() {
+            panel.add(logger, DockPanel.SOUTH);
 
-            @Override
-            public void onError(String description) {
-            log(description, false);
-            }
-
-            @Override
-            public void onDebug(String message) {
-            log(message, false);
-            }
-
-            @Override
-            public void onMediaInfoAvailable(MediaInfo info) {
-            log(info.asHTMLString(), true);
-            }
-            });
-             */
             addDebugHandler(new DebugHandler() {
 
                 public void onDebug(DebugEvent event) {
@@ -209,17 +154,23 @@ public class FlashMediaPlayer extends AbstractMediaPlayer implements PlaylistSup
 
                 public void onMediaInfoAvailable(MediaInfoEvent event) {
                     log(event.getMediaInfo().asHTMLString(), true);
+                    MediaInfo info = event.getMediaInfo();
+                    if (info.getAvailableItems().contains(MediaInfoKey.VideoHeight) ||
+                            info.getAvailableItems().contains(MediaInfoKey.VideoWidth)) {
+                        checkVideoSize(Integer.parseInt(info.getItem(MediaInfoKey.VideoHeight)),
+                                Integer.parseInt(info.getItem(MediaInfoKey.VideoWidth)));
+                    }
                 }
             });
             control = new FlatCustomControl(this);
-            hp.add(control, DockPanel.SOUTH);
+            panel.add(control, DockPanel.SOUTH);
         }
 
-        hp.add(swf, DockPanel.CENTER);
-        hp.setCellHeight(swf, height);
-        hp.setCellWidth(swf, width);
-        initWidget(hp);
-        setWidth(width);
+        panel.add(swf, DockPanel.CENTER);
+        panel.setCellHeight(swf, _height);
+        panel.setCellWidth(swf, _width);
+        initWidget(panel);
+        setWidth(_width);
     }
 
     /**
@@ -260,8 +211,18 @@ public class FlashMediaPlayer extends AbstractMediaPlayer implements PlaylistSup
         this(mediaURL, autoplay, "0px", "100%");
     }
 
-    public void close() {
-        impl.closeMedia(playerId);
+    private void checkVideoSize(int vidHeight, int vidWidth) {
+        String _h = _height, _w = _width;
+        if (resizeToVideoSize) {
+            if ((vidHeight > 0) && (vidWidth > 0)) {
+                // adjust to video size ...
+                fireDebug("Resizing Player : " + vidWidth + " x " + vidHeight);
+                _h = vidHeight + "px";
+                _w = vidWidth + "px";
+            }
+        }
+        panel.setCellHeight(swf, _h);
+        setWidth(_w);
     }
 
     private void checkAvailable() {
@@ -270,6 +231,10 @@ public class FlashMediaPlayer extends AbstractMediaPlayer implements PlaylistSup
             fireDebug(message);
             throw new IllegalStateException(message);
         }
+    }
+
+    public void close() {
+        impl.closeMedia(playerId);
     }
 
     public long getMediaDuration() {
@@ -397,20 +362,6 @@ public class FlashMediaPlayer extends AbstractMediaPlayer implements PlaylistSup
                     }
                 });
             }
-/*            if (!containsMediaStateListener(_onInitListListener)) {
-                _onInitListListener = new MediaStateListenerAdapter() {
-
-                    @Override
-                    public void onPlayerReady() {
-                        for (String url : _playlistCache) {
-                            impl.addToPlaylist(playerId, url);
-                        }
-                        removeMediaStateListener(_onInitListListener);
-                    }
-                };
-                addMediaStateListener(_onInitListListener);
-            }
-*/
             _playlistCache.add(mediaURL);
         }
     }
@@ -473,5 +424,30 @@ public class FlashMediaPlayer extends AbstractMediaPlayer implements PlaylistSup
         if (!impl.playPrevious(playerId)) {
             throw new PlayException("Beginning of playlist reached");
         }
+    }
+
+    public int getVideoHeight() {
+        checkAvailable();
+        return impl.getVideoHeight(playerId);
+    }
+
+    public int getVideoWidth() {
+        checkAvailable();
+        return impl.getVideoWidth(playerId);
+    }
+
+    @Override
+    public void setResizeToVideoSize(boolean resize) {
+        resizeToVideoSize = resize;
+        if (impl.isPlayerAvailable(playerId)) {
+            // if player is on panel now update its size, otherwise
+            // allow it to be handled by the MediaInfoHandler...
+            checkVideoSize(impl.getVideoHeight(playerId), impl.getVideoWidth(playerId));
+        }
+    }
+
+    @Override
+    public boolean isResizeToVideoSize() {
+        return resizeToVideoSize;
     }
 }

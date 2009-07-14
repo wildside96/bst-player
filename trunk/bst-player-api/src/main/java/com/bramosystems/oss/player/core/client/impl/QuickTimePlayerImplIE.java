@@ -53,8 +53,7 @@ public class QuickTimePlayerImplIE extends QuickTimePlayerImpl {
                 "<param name='controller' value='true' />" +
                 "<param name='bgcolor' value='#000000' />" +
                 "<param name='showlogo' value='false' />" +
-                "<param name='Scale' value='Aspect' />" +
-//                "<param name='Scale' value='ToFit' />" +
+                "<param name='Scale' value='1' />" +
                 "<param name='KioskMode' value='true' />" +
                 "<param name='postdomevents' value='true' />" +
                 "<param name='targetcache' value='false' />" +
