@@ -67,6 +67,10 @@ public class WinMediaPlayerImpl {
         cache.remove(playerId);
     }
 
+    public void requestAccessRightsOnInit(String playerId, String level) {
+        cache.get(playerId).setMediaAccessRightOnInit(level);
+    }
+
     @SuppressWarnings("unused")
     private void firePlayStateChanged() {
         Iterator<String> keys = cache.keySet().iterator();
@@ -231,6 +235,8 @@ public class WinMediaPlayerImpl {
     info.@com.bramosystems.oss.player.core.client.MediaInfo::internetStationOwner = plyrMedia.getItemInfo('WM/RadioStationOwner');
     info.@com.bramosystems.oss.player.core.client.MediaInfo::internetStationName = plyrMedia.getItemInfo('WM/RadioStationName');
     info.@com.bramosystems.oss.player.core.client.MediaInfo::hardwareSoftwareRequirements = plyrMedia.getItemInfo('WM/EncodingSettings');
+    info.@com.bramosystems.oss.player.core.client.MediaInfo::videoWidth = plyrMedia.getItemInfo('WM/VideoWidth');
+    info.@com.bramosystems.oss.player.core.client.MediaInfo::videoHeight = plyrMedia.getItemInfo('WM/VideoHeight');
     } catch(e) {
     errorMsg = e;
     }
@@ -273,11 +279,48 @@ public class WinMediaPlayerImpl {
     playr.close();
     }-*/;
 
+    public native int getVideoHeight(String playerId) /*-{
+    try {
+    var plyrMedia = $doc.getElementById(playerId).currentMedia;
+    return plyrMedia.getItemInfo('WM/VideoHeight');
+    } catch(e) {
+    return 0;
+    }
+    }-*/;
+
+    public native int getVideoWidth(String playerId) /*-{
+    try {
+    var plyrMedia = $doc.getElementById(playerId).currentMedia;
+    return plyrMedia.getItemInfo('WM/VideoWidth');
+    } catch(e) {
+    return 0;
+    }
+    }-*/;
+
+    public native String getAspectRatio(String playerId) /*-{
+    try {
+    var plyrMedia = $doc.getElementById(playerId).currentMedia;
+    return plyrMedia.getItemInfo('PixelAspectRatioX')+':'+plyrMedia.getItemInfo('PixelAspectRatioY');
+    } catch(e) {
+    return 0;
+    }
+    }-*/;
+
+    public native boolean requestMediaAccessRight(String playerId, String accessLevel) /*-{
+    var plyr = $doc.getElementById(playerId);
+    return plyr.settings.requestMediaAccessRights(accessLevel);
+    }-*/;
+
+    public native String getMediaAccessRight(String playerId) /*-{
+    var plyr = $doc.getElementById(playerId);
+    return plyr.settings.mediaAccessRights;
+    }-*/;
+
     protected class StateHandler {
 
         protected MediaStateListener listener;
         protected HasMediaStateHandlers handlers;
-        protected String id;
+        protected String id, mediaAccessRightsOnInit;
         protected boolean canDoMetadata,  playerInitd;
         private Timer downloadProgressTimer;
 
@@ -299,6 +342,10 @@ public class WinMediaPlayerImpl {
 
         public String getId() {
             return id;
+        }
+
+        public void setMediaAccessRightOnInit(String level){
+            mediaAccessRightsOnInit = level;
         }
 
         public void checkPlayState() {
@@ -363,6 +410,9 @@ public class WinMediaPlayerImpl {
                         debug("Windows Media Player plugin");
                         debug("Version : " + getPlayerVersionImpl(id));
                         playerInitd = true;
+                        if(mediaAccessRightsOnInit != null) {
+                            requestMediaAccessRight(id, mediaAccessRightsOnInit);
+                        }
                     }
                     break;
                 case 6:    // buffering ...

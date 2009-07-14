@@ -15,18 +15,15 @@
  */
 package com.bramosystems.oss.player.core.client.skin;
 
-import com.bramosystems.oss.player.core.client.MediaInfo;
 import com.bramosystems.oss.player.core.client.PlayerUtil;
 import com.bramosystems.oss.player.core.client.PlayException;
 import com.bramosystems.oss.player.core.client.AbstractMediaPlayer;
-import com.bramosystems.oss.player.core.client.MediaStateListener;
 import com.bramosystems.oss.player.core.client.PlaylistSupport;
 import com.bramosystems.oss.player.core.event.client.*;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.Timer;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
 
 /**
@@ -124,13 +121,6 @@ public class FlatCustomControl extends Composite {
         seekbar.setStylePrimaryName(STYLE_NAME);
         seekbar.addStyleDependentName("seekbar");
         seekbar.setWidth("95%");
-        seekbar.addSeekChangeListener(new SeekChangeListener() {
-
-            public void onSeekChanged(double newValue) {
-                player.setPlayPosition(player.getMediaDuration() * newValue);
-            }
-        });
-
         seekbar.addSeekChangeHandler(new SeekChangeHandler() {
 
             public void onSeekChanged(SeekChangeEvent event) {
@@ -155,7 +145,8 @@ public class FlatCustomControl extends Composite {
                         try { // play media...
                             player.playMedia();
                         } catch (PlayException ex) {
-                            player.fireError(ex.getMessage());
+//                            player.fireError(ex.getMessage());
+                            DebugEvent.fire(player, DebugEvent.MessageType.Error, ex.getMessage());
                         }
                         break;
                     case Playing:
@@ -164,6 +155,7 @@ public class FlatCustomControl extends Composite {
             }
         });
         play.getUpDisabledFace().setImage(imgPack.playDisabled().createImage());
+        play.setStyleName("");
         play.setEnabled(false);
 
         stop = new PushButton(imgPack.stop().createImage(), new ClickHandler() {
@@ -174,6 +166,7 @@ public class FlatCustomControl extends Composite {
         });
         stop.getUpDisabledFace().setImage(imgPack.stopDisabled().createImage());
         stop.getUpHoveringFace().setImage(imgPack.stopHover().createImage());
+        stop.setStyleName("");
         stop.setEnabled(false);
 
         prev = new PushButton(imgPack.prev().createImage(), new ClickHandler() {
@@ -184,13 +177,15 @@ public class FlatCustomControl extends Composite {
                         ((PlaylistSupport) player).playPrevious();
                     } catch (PlayException ex) {
                         next.setEnabled(false);
-                        player.fireDebug(ex.getMessage());
+//                        player.fireDebug(ex.getMessage());
+                        DebugEvent.fire(player, DebugEvent.MessageType.Info, ex.getMessage());
                     }
                 }
             }
         });
         prev.getUpDisabledFace().setImage(imgPack.prevDisabled().createImage());
         prev.getUpHoveringFace().setImage(imgPack.prevHover().createImage());
+        prev.setStyleName("");
         prev.setEnabled(false);
 
         next = new PushButton(imgPack.next().createImage(), new ClickHandler() {
@@ -201,23 +196,19 @@ public class FlatCustomControl extends Composite {
                         ((PlaylistSupport) player).playNext();
                     } catch (PlayException ex) {
                         next.setEnabled(false);
-                        player.fireDebug(ex.getMessage());
+                        DebugEvent.fire(player, DebugEvent.MessageType.Info, ex.getMessage());
+//                        player.fireDebug(ex.getMessage());
                     }
                 }
             }
         });
         next.getUpDisabledFace().setImage(imgPack.nextDisabled().createImage());
         next.getUpHoveringFace().setImage(imgPack.nextHover().createImage());
+        next.setStyleName("");
         next.setEnabled(false);
 
         vc = new VolumeControl(imgPack.spk().createImage(), 5);
         vc.setPopupStyleName(STYLE_NAME + "-volumeControl");
-        vc.addVolumeChangeListener(new VolumeChangeListener() {
-
-            public void onVolumeChanged(double newValue) {
-                player.setVolume(newValue);
-            }
-        });
         vc.addVolumeChangeHandler(new VolumeChangeHandler() {
 
             public void onVolumeChanged(VolumeChangeEvent event) {
@@ -267,65 +258,6 @@ public class FlatCustomControl extends Composite {
             }
         });
 
-        player.addMediaStateListener(new MediaStateListener() {
-
-            @Override
-            public void onError(String description) {
-                Window.alert(description);
-                onDebug(description);
-            }
-
-            @Override
-            public void onLoadingComplete() {
-                seekbar.setLoadingProgress(1.0);
-                vc.setVolume(player.getVolume());
-                updateSeekState();
-            }
-
-            @Override
-            public void onPlayFinished() {
-                toPlayState(PlayState.Stop);
-            }
-
-            @Override
-            public void onLoadingProgress(double progress) {
-                seekbar.setLoadingProgress(progress);
-                updateSeekState();
-            }
-
-            @Override
-            public void onPlayStarted() {
-                toPlayState(PlayState.Playing);
-            }
-
-            @Override
-            public void onPlayerReady() {
-                play.setEnabled(true);
-                vc.setVolume(player.getVolume());
-            }
-
-            public void onDebug(String message) {
-            }
-
-            public void onMediaInfoAvailable(MediaInfo info) {
-            }
-
-            public void onBuffering(boolean buffering) {
-            }
-
-            public void onPlayStarted(int index) {
-                toPlayState(PlayState.Playing);
-                next.setEnabled(index < (((PlaylistSupport) player).getPlaylistSize() - 1));
-                prev.setEnabled(index > 0);
-            }
-
-            public void onPlayFinished(int index) {
-                toPlayState(PlayState.Stop);
-                next.setEnabled(index >= 1);
-                prev.setEnabled(index >= 1);
-            }
-        });
-
         // Time label..
         timeLabel = new Label("--:-- / --:--");
         timeLabel.setWordWrap(false);
@@ -333,6 +265,7 @@ public class FlatCustomControl extends Composite {
 
         // build the UI...
         DockPanel face = new DockPanel();
+        face.setStyleName("");
         face.setVerticalAlignment(DockPanel.ALIGN_MIDDLE);
         face.setSpacing(3);
         face.add(vc, DockPanel.WEST);

@@ -15,6 +15,7 @@
  */
 package com.bramosystems.oss.player.core.client.impl;
 
+import com.bramosystems.oss.player.core.client.MediaInfo;
 import com.bramosystems.oss.player.core.event.client.PlayerStateEvent;
 import com.bramosystems.oss.player.core.event.client.HasMediaStateHandlers;
 import com.bramosystems.oss.player.core.event.client.PlayStateEvent;
@@ -23,6 +24,7 @@ import com.bramosystems.oss.player.core.event.client.DebugEvent;
 import com.bramosystems.oss.player.core.client.MediaStateListener;
 import com.bramosystems.oss.player.core.client.ui.VLCPlayer;
 import com.bramosystems.oss.player.core.event.*;
+import com.bramosystems.oss.player.core.event.client.MediaInfoEvent;
 import com.google.gwt.user.client.Timer;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -231,6 +233,20 @@ public class VLCPlayerImpl {
     plyr.video.aspectRatio = aspect;
     }-*/;
 
+    public native String getVideoWidth(String playerId) /*-{
+    var plyr = $doc.getElementById(playerId);
+    if(plyr.input.hasVout)
+        return plyr.video.width;
+     return 0;
+    }-*/;
+
+    public native String getVideoHeight(String playerId) /*-{
+    var plyr = $doc.getElementById(playerId);
+    if(plyr.input.hasVout)
+        return plyr.video.height;
+     return 0;
+    }-*/;
+
     public native void toggleFullScreen(String playerId) /*-{
     var plyr = $doc.getElementById(playerId);
     plyr.video.toggleFullscreen();
@@ -312,15 +328,42 @@ public class VLCPlayerImpl {
     return plyr.playlist.add('', '', options);
     }-*/;
 
+    private native void fillMediaInfoImpl(String playerId, MediaInfo id3) /*-{
+    try {
+    var plyr = $doc.getElementById(playerId);
+//    id3.@com.bramosystems.oss.player.core.client.MediaInfo::year = ;
+//    id3.@com.bramosystems.oss.player.core.client.MediaInfo::albumTitle = ;
+//    id3.@com.bramosystems.oss.player.core.client.MediaInfo::artists = ;
+//    id3.@com.bramosystems.oss.player.core.client.MediaInfo::comment = ;
+//    id3.@com.bramosystems.oss.player.core.client.MediaInfo::title = ;
+//    id3.@com.bramosystems.oss.player.core.client.MediaInfo::contentProviders = ;
+//    id3.@com.bramosystems.oss.player.core.client.MediaInfo::copyright = ;
+//    id3.@com.bramosystems.oss.player.core.client.MediaInfo::hardwareSoftwareRequirements = ;
+//    id3.@com.bramosystems.oss.player.core.client.MediaInfo::publisher =;
+//    id3.@com.bramosystems.oss.player.core.client.MediaInfo::genre = ;
+//    id3.@com.bramosystems.oss.player.core.client.MediaInfo::internetStationOwner = '';
+//    id3.@com.bramosystems.oss.player.core.client.MediaInfo::internetStationName = '';
+    id3.@com.bramosystems.oss.player.core.client.MediaInfo::duration = parseFloat(plyr.input.length);
+
+    if(plyr.input.hasVout) {
+    id3.@com.bramosystems.oss.player.core.client.MediaInfo::videoWidth = plyr.video.width;
+    id3.@com.bramosystems.oss.player.core.client.MediaInfo::videoHeight = plyr.video.height;
+     }
+    } catch(e) {
+    }
+    }-*/;
+
+
     private class StateHandler {
 
+        // TODO: handle metadata firing for VLC
         private MediaStateListener listener;
         private String id;
         private Timer statePooler;
         private final int poolerPeriod = 200;
         private int loopCount,  _loopCount,  previousState;
         private HasMediaStateHandlers handlers;
-        private boolean isBuffering, wasPlaying, stoppedByUser;
+        private boolean isBuffering, wasPlaying, stoppedByUser, canDoMetadata;
 
         public StateHandler(String _id, MediaStateListener listener, HasMediaStateHandlers handlers) {
             this.id = _id;
@@ -332,6 +375,7 @@ public class VLCPlayerImpl {
             previousState = -10;
             wasPlaying = false;
             stoppedByUser = false;
+            canDoMetadata = true;
 
             statePooler = new Timer() {
 
@@ -390,12 +434,13 @@ public class VLCPlayerImpl {
                 case 0:    // idle/close
                     if(wasPlaying && stoppedByUser) {
                         wasPlaying = false;
+                        debug("Media playback stopped");
                         PlayStateEvent.fire(handlers, PlayStateEvent.State.Stopped, 0);
                     } else if(wasPlaying && !stoppedByUser) {
                         // just in case we miss state 6 ...
                         wasPlaying = false;
-                        PlayStateEvent.fire(handlers, PlayStateEvent.State.Finished, 0);
                         debug("Media playback complete");
+                        PlayStateEvent.fire(handlers, PlayStateEvent.State.Finished, 0);
                     }
                     break;
                 case 6:    // finished
@@ -410,7 +455,9 @@ public class VLCPlayerImpl {
                         debug("Media playback complete");
                     }
                     break;
-                case 1:    // opening
+                case 1:    // opening media
+                    debug("Opening media ...");
+                    canDoMetadata = true;
                     break;
                 case 2:    // buffering
                     debug("Buffering started");
@@ -424,6 +471,13 @@ public class VLCPlayerImpl {
 //                        listener.onBuffering(false);
                         PlayerStateEvent.fire(handlers, PlayerStateEvent.State.BufferingFinished);
                         isBuffering = false;
+                    }
+
+                    if(canDoMetadata) {
+                        canDoMetadata = false;
+                        MediaInfo info = new MediaInfo();
+                        fillMediaInfoImpl(id, info);
+                        MediaInfoEvent.fire(handlers, info);
                     }
 
                     debug("Current Track : " + getCurrentAudioTrack(id));

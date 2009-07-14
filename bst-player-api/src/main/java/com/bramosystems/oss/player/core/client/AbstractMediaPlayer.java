@@ -271,7 +271,7 @@ public abstract class AbstractMediaPlayer extends Composite implements HasMediaS
      *
      * @see MediaStateListener#onError(java.lang.String) 
      */
-    public final void fireError(String description) {
+    protected final void fireError(String description) {
         for (int i = 0; i < callbacks.size(); i++) {
             callbacks.get(i).onError(description);
         }
@@ -284,7 +284,7 @@ public abstract class AbstractMediaPlayer extends Composite implements HasMediaS
      * @param report the message that is sent to a debugging console
      * @see MediaStateListener#onDebug(java.lang.String)
      */
-    public final void fireDebug(String report) {
+    protected final void fireDebug(String report) {
         for (int i = 0; i < callbacks.size(); i++) {
             callbacks.get(i).onDebug(report);
         }
@@ -377,13 +377,14 @@ public abstract class AbstractMediaPlayer extends Composite implements HasMediaS
      * is a hash-map of commands that are schedule for execution as soon as the underlying
      * plugin is ready for javascript interaction.
      *
-     * <p>The execution of the commands is tied to the <code>onPlayerReady</code> event
-     * of the underlying plugin.  All scheduled commands are executed exactly once.
+     * <p>The execution of the commands is tied to the <code>Ready</code> state of the 
+     * <code>PlayerState</code> event of the underlying plugin.
+     * All scheduled commands are executed exactly once.
      *
      * <p><b>Note:</b> If multiple commands use the same key, only the last command is executed.
      *
      * @param key key with which the specified command is to be associated
-     * @param command the command to execute when the player is ready for interaction
+     * @param command the command to execute when the player plugin is ready for interaction
      * @since 1.0
      */
     protected final void addToPlayerReadyCommandQueue(String key, Command command) {
@@ -406,63 +407,86 @@ public abstract class AbstractMediaPlayer extends Composite implements HasMediaS
         cmdKeys.remove(key);
         readyCmdQueue.remove(key);
     }
-/*
-    /**
-     * Calls <code>onPlayStarted</code> on registered MediaStateListeners.
-     *
-     * @param index the index of current media in the players' playlist
-     * @see MediaStateListener#onPlayStarted(int)
-     * @since 1.0
-     /
-    public final void firePlayStarted(int index) {
-        for (int i = 0; i < callbacks.size(); i++) {
-            callbacks.get(i).onPlayStarted(index);
-        }
-    }
 
     /**
-     * Calls <code>onPlayFinished</code> on registered MediaStateListeners.
+     * Adds the specified loading progress handler to the player
      *
-     * @param index the index of current media in the players' playlist
-     * @see MediaStateListener#onPlayFinished(int)
+     * @param handler the handler
+     * @return the HandlerRegistration used to remove the handler
      * @since 1.0
-     /
-    public final void firePlayFinished(int index) {
-        for (int i = 0; i < callbacks.size(); i++) {
-            callbacks.get(i).onPlayFinished(index);
-        }
-    }
-
-    /**
-     * Calls <code>onBuffering</code> on registered MediaStateListeners.
-     *
-     * @param buffering <code>true</code> if buffering has started, <code>false</code> otherwise
-     * @since 1.0
-     * @see MediaStateListener#onBuffering(boolean)
-     /
-    public final void fireBuffering(boolean buffering) {
-        for (int i = 0; i < callbacks.size(); i++) {
-            callbacks.get(i).onBuffering(buffering);
-        }
-    }
-
-*/
+     * @see LoadingProgressHandler
+     */
     public final HandlerRegistration addLoadingProgressHandler(LoadingProgressHandler handler) {
         return addHandler(handler, LoadingProgressEvent.TYPE);
     }
 
+    /**
+     * Adds the specified MediaInfo handler to the player
+     *
+     * @param handler the handler
+     * @return the HandlerRegistration used to remove the handler
+     * @since 1.0
+     * @see MediaInfoHandler
+     */
     public final HandlerRegistration addMediaInfoHandler(MediaInfoHandler handler) {
         return addHandler(handler, MediaInfoEvent.TYPE);
     }
 
+    /**
+     * Adds the specified play-state handler to the player
+     *
+     * @param handler the handler
+     * @return the HandlerRegistration used to remove the handler
+     * @see PlayStateHandler
+     * @since 1.0
+     */
     public final HandlerRegistration addPlayStateHandler(PlayStateHandler handler) {
         return addHandler(handler, PlayStateEvent.TYPE);
     }
 
+    /**
+     * Adds the specified player-state handler to the player
+     *
+     * @param handler the handler
+     * @return the HandlerRegistration used to remove the handler
+     * @since 1.0
+     * @see PlayerStateHandler
+     */
     public final HandlerRegistration addPlayerStateHandler(PlayerStateHandler handler) {
         return addHandler(handler, PlayerStateEvent.TYPE);
     }
+
+    /**
+     * Adds the specified debug handler to the player
+     *
+     * @param handler the handler
+     * @return the HandlerRegistration used to remove the handler
+     * @see DebugHandler
+     * @since 1.0
+     */
     public final HandlerRegistration addDebugHandler(DebugHandler handler) {
         return addHandler(handler, DebugEvent.TYPE);
+    }
+
+    /**
+     * If the current media is a video, sets the player to adjust its size to match the
+     * dimensions of the video
+     *
+     * @param resize <code>true</code> if player should adjust its size,
+     * <code>false</code> otherwise
+     *
+     * @since 1.0
+     */
+    public void setResizeToVideoSize(boolean resize) {
+    }
+
+    /**
+     * Checks if player is set to adjust its size to match the dimensions of a video.
+     *
+     * @return <code>true</code> if player adjusts its size, <code>false</code> otherwise
+     * @since 1.0
+     */
+    public boolean isResizeToVideoSize(){
+        return false;
     }
 }

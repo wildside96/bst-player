@@ -216,7 +216,6 @@ public class Capsule extends CustomAudioPlayer {
                 double prog = event.getProgress();
                 progress.setLoadingProgress(prog);
                 if(prog == 1.0){
-//                progress.setDuration(getMediaDuration());
                 progress.setTime(0, getMediaDuration());
                 vc.setVolume(getVolume());
                 }
@@ -230,6 +229,8 @@ public class Capsule extends CustomAudioPlayer {
                 mItems.remove(MediaInfo.MediaInfoKey.Comment);
                 mItems.remove(MediaInfo.MediaInfoKey.Duration);
                 mItems.remove(MediaInfo.MediaInfoKey.HardwareSoftwareRequirements);
+                mItems.remove(MediaInfo.MediaInfoKey.VideoHeight);
+                mItems.remove(MediaInfo.MediaInfoKey.VideoWidth);
                 logger.log(mInfo.asHTMLString(), true);
             }
         });

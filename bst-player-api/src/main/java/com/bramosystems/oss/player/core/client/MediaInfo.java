@@ -31,6 +31,7 @@ public class MediaInfo {
     private String internetStationName,  internetStationOwner,  publisher;
     private String hardwareSoftwareRequirements,  copyright,  contentProviders;
     private double duration;
+    private String videoWidth, videoHeight;
 
     @Override
     public String toString() {
@@ -45,7 +46,9 @@ public class MediaInfo {
                 ", Hardware/Software Requirements : " + getItem(MediaInfoKey.HardwareSoftwareRequirements) +
                 ", Station Name : " + getItem(MediaInfoKey.StationName) +
                 ", Station Owner : " + getItem(MediaInfoKey.StationOwner) +
-                ", Comment : " + getItem(MediaInfoKey.Comment);
+                ", Comment : " + getItem(MediaInfoKey.Comment) +
+                ", Video Width : " + getItem(MediaInfoKey.VideoWidth) +
+                ", Video Height : " + getItem(MediaInfoKey.VideoHeight);
     }
 
     /**
@@ -74,6 +77,9 @@ public class MediaInfo {
                 "<tr class='info_odd'><td>Station Owner</td><td>" +
                 getItem(MediaInfoKey.StationOwner) + "</td></tr>" +
                 "<tr><td>Comment</td><td>" + getItem(MediaInfoKey.Comment) + "</td></tr>" +
+                "<tr class='info_odd'><td>Video Width</td><td>" +
+                getItem(MediaInfoKey.VideoWidth) + "</td></tr>" +
+                "<tr><td>Video Height</td><td>" + getItem(MediaInfoKey.VideoHeight) + "</td></tr>" +
                 "</tbody></table>";
     }
 
@@ -125,6 +131,12 @@ public class MediaInfo {
         }
         if (!isEmpty(hardwareSoftwareRequirements)) {
             items.add(MediaInfoKey.HardwareSoftwareRequirements);
+        }
+        if (!isEmpty(videoHeight)) {
+            items.add(MediaInfoKey.VideoHeight);
+        }
+        if (!isEmpty(videoWidth)) {
+            items.add(MediaInfoKey.VideoWidth);
         }
         if (duration > 0) {
             items.add(MediaInfoKey.Duration);
@@ -182,6 +194,12 @@ public class MediaInfo {
             case Year:
                 value = year;
                 break;
+            case VideoHeight:
+                value = videoHeight;
+                break;
+            case VideoWidth:
+                value = videoWidth;
+                break;
         }
         if (isEmpty(value)) {
             return "";
@@ -225,7 +243,9 @@ public class MediaInfo {
         Comment("Comment"),
         Duration("Duration"),
         HardwareSoftwareRequirements("Hardware/Software Requirements"),
-        Copyright("Copyright");
+        Copyright("Copyright"),
+        VideoWidth("Video Width"),
+        VideoHeight("Video Height");
         private String itemName;
 
         MediaInfoKey(String itemName) {

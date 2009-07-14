@@ -108,54 +108,7 @@ public final class WinMediaPlayer extends AbstractMediaPlayer {
         this.mediaURL = mediaURL;
 
         impl.init(playerId, new MediaStateListenerAdapter(), this);
-/*
-        impl.init(playerId, new MediaStateListener() {
 
-            public void onPlayStarted() {
-                firePlayStarted();
-            }
-
-            public void onPlayFinished() {
-                firePlayFinished();
-            }
-
-            public void onLoadingComplete() {
-                fireLoadingComplete();
-            }
-
-            public void onLoadingProgress(double progress) {
-                fireLoadingProgress(progress);
-            }
-
-            public void onError(String description) {
-                fireError(description);
-            }
-
-            public void onDebug(String message) {
-                fireDebug(message);
-            }
-
-            public void onPlayerReady() {
-                firePlayerReady();
-            }
-
-            public void onMediaInfoAvailable(MediaInfo info) {
-                fireMediaInfoAvailable(info);
-            }
-
-            public void onPlayStarted(int index) {
-                firePlayStarted(index);
-            }
-
-            public void onPlayFinished(int index) {
-                firePlayFinished(index);
-            }
-
-            public void onBuffering(boolean buffering) {
-                fireBuffering(buffering);
-            }
-        });
-*/
         DockPanel dp = new DockPanel();
 
         isEmbedded = (height == null) || (width == null);
@@ -163,26 +116,7 @@ public final class WinMediaPlayer extends AbstractMediaPlayer {
             logger = new Logger();
             logger.setVisible(false);
             dp.add(logger, DockPanel.SOUTH);
-            /*
-            addMediaStateListener(new MediaStateListenerAdapter() {
 
-                @Override
-                public void onError(String description) {
-                    Window.alert(description);
-                    logger.log(description, false);
-                }
-
-                @Override
-                public void onDebug(String message) {
-                    logger.log(message, false);
-                }
-
-                @Override
-                public void onMediaInfoAvailable(MediaInfo info) {
-                    logger.log(info.asHTMLString(), true);
-                }
-            });
-            */
             addDebugHandler(new DebugHandler() {
 
                 public void onDebug(DebugEvent event) {
@@ -393,6 +327,61 @@ public final class WinMediaPlayer extends AbstractMediaPlayer {
                 }
             });
         }
+    }
+
+    /**
+     * Retrieves the current media library access rights of the player
+     *
+     * @return current media access rights
+     * @since 1.0
+     */
+    public MediaAccessRights getMediaAccessRights() {
+        checkAvailable();
+        return MediaAccessRights.valueOf(impl.getMediaAccessRight(playerId).toLowerCase());
+    }
+
+    /**
+     * Sets the media library access rights level of the player.
+     *
+     * <p>If the player is not attached to a player, this call is scheduled for execution
+     * when the underlying plugin is initialized.
+     *
+     * <p><em>Note:</em> The request succeeds IF AND ONLY IF the user grants this permission.
+     * <p><em>Note:</em> This operation ALWAYS FAIL on browsers using the Windows Media Player
+     * plugin for Firefox.
+     *
+     * @param accessRights access level
+     * @since 1.0
+     */
+    public void setMediaAccessRights(MediaAccessRights accessRights) {
+        if(impl.isPlayerAvailable(playerId)) {
+            impl.requestMediaAccessRight(playerId, accessRights.name().toLowerCase());
+        } else {
+            impl.requestAccessRightsOnInit(playerId, accessRights.name().toLowerCase());
+        }
+    }
+
+    /**
+     * Specifies the Library Access levels of the Windows Media Player plugin.
+     *
+     * @since 1.0
+     * @author Sikirulai Braheem
+     */
+    public static enum MediaAccessRights {
+        /**
+         * No access
+         */
+        NONE,
+
+        /**
+         * Read only access
+         */
+        READ,
+
+        /**
+         * Read/write access
+         */
+        FULL
     }
 
     private final String UI_MODE_FULL = "full";
