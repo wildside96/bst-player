@@ -118,8 +118,8 @@ public class QuickTimePlayerImpl {
     id3.@com.bramosystems.oss.player.core.client.MediaInfo::internetStationName = '';
 
     var rect = plyr.GetRectangle().split(',');
-    id3.@com.bramosystems.oss.player.core.client.MediaInfo::videoWidth = parseInt(rect[2]) - parseInt(rect[0]);
-    id3.@com.bramosystems.oss.player.core.client.MediaInfo::videoHeight = parseInt(rect[3]) - parseInt(rect[1]);
+    id3.@com.bramosystems.oss.player.core.client.MediaInfo::videoWidth = String(parseInt(rect[2]) - parseInt(rect[0]));
+    id3.@com.bramosystems.oss.player.core.client.MediaInfo::videoHeight = String(parseInt(rect[3]) - parseInt(rect[1]));
     } catch(e) {
     }
     }-*/;

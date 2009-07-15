@@ -16,6 +16,7 @@
 package com.bramosystems.oss.player.core.client.ui;
 
 import com.bramosystems.oss.player.core.client.*;
+import com.bramosystems.oss.player.core.client.MediaInfo.MediaInfoKey;
 import com.bramosystems.oss.player.core.client.impl.WinMediaPlayerImpl;
 import com.bramosystems.oss.player.core.event.client.DebugEvent;
 import com.bramosystems.oss.player.core.event.client.DebugHandler;
@@ -24,6 +25,7 @@ import com.bramosystems.oss.player.core.event.client.MediaInfoHandler;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.DOM;
+import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
@@ -61,10 +63,11 @@ import com.google.gwt.user.client.ui.*;
 public final class WinMediaPlayer extends AbstractMediaPlayer {
 
     private static WinMediaPlayerImpl impl;
-    private String playerId,  uiMode = "full",  mediaURL;
+    private String playerId,  uiMode = "full",  mediaURL, _width, _height;
     private HTML playerDiv;
     private Logger logger;
-    private boolean isEmbedded, autoplay;
+    private boolean isEmbedded, autoplay, resizeToVideoSize;
+    private DockPanel panel;
 
     private WinMediaPlayer() throws PluginNotFoundException, PluginVersionException {
         PluginVersion v = PlayerUtil.getWindowsMediaPlayerPluginVersion();
@@ -77,6 +80,7 @@ public final class WinMediaPlayer extends AbstractMediaPlayer {
         }
 
         playerId = DOM.createUniqueId().replace("-", "");
+        resizeToVideoSize = false;
     }
 
     /**
@@ -106,16 +110,23 @@ public final class WinMediaPlayer extends AbstractMediaPlayer {
 
         this.autoplay = autoplay;
         this.mediaURL = mediaURL;
+        _height = height;
+        _width = width;
 
         impl.init(playerId, new MediaStateListenerAdapter(), this);
 
-        DockPanel dp = new DockPanel();
+        panel = new DockPanel();
+        panel.setStyleName("");
+        panel.setWidth("100%");
+        panel.setHorizontalAlignment(DockPanel.ALIGN_CENTER);
+        initWidget(panel);
 
         isEmbedded = (height == null) || (width == null);
         if (!isEmbedded) {
             logger = new Logger();
             logger.setVisible(false);
-            dp.add(logger, DockPanel.SOUTH);
+            panel.add(logger, DockPanel.SOUTH);
+            panel.setCellWidth(logger, "100%");
 
             addDebugHandler(new DebugHandler() {
 
@@ -131,22 +142,27 @@ public final class WinMediaPlayer extends AbstractMediaPlayer {
             addMediaInfoHandler(new MediaInfoHandler() {
 
                 public void onMediaInfoAvailable(MediaInfoEvent event) {
+                    MediaInfo info = event.getMediaInfo();
+                    if (info.getAvailableItems().contains(MediaInfoKey.VideoHeight) ||
+                            info.getAvailableItems().contains(MediaInfoKey.VideoWidth)) {
+                        checkVideoSize(Integer.parseInt(info.getItem(MediaInfoKey.VideoHeight)) + 16,
+                                Integer.parseInt(info.getItem(MediaInfoKey.VideoWidth)));
+                    }
                     logger.log(event.getMediaInfo().asHTMLString(), true);
                 }
             });
         } else {
-            width = "0px";
-            height = "0px";
+            _width = "0px";
+            _height = "0px";
         }
 
         playerDiv = new HTML();
         playerDiv.setStyleName("");
-        playerDiv.setHorizontalAlignment(HTML.ALIGN_CENTER);
-        playerDiv.setHeight(height);
-        dp.add(playerDiv, DockPanel.CENTER);
+        playerDiv.setSize("100%", "100%");
+        panel.add(playerDiv, DockPanel.CENTER);
+        panel.setCellHeight(playerDiv, _height);
 
-        initWidget(dp);
-        setWidth(width);
+        setWidth(_width);
     }
 
     /**
@@ -338,6 +354,57 @@ public final class WinMediaPlayer extends AbstractMediaPlayer {
     public MediaAccessRights getMediaAccessRights() {
         checkAvailable();
         return MediaAccessRights.valueOf(impl.getMediaAccessRight(playerId).toLowerCase());
+    }
+
+    @Override
+    public int getVideoHeight() {
+        checkAvailable();
+        return impl.getVideoHeight(playerId);
+    }
+
+    @Override
+    public int getVideoWidth() {
+        checkAvailable();
+        return impl.getVideoWidth(playerId);
+    }
+
+    @Override
+    public void setResizeToVideoSize(boolean resize) {
+        resizeToVideoSize = resize;
+        if (impl.isPlayerAvailable(playerId)) {
+            // if player is on panel now update its size, otherwise
+            // allow it to be handled by the MediaInfoHandler...
+            checkVideoSize(getVideoHeight() + 50, getVideoWidth());
+        }
+    }
+
+    @Override
+    public boolean isResizeToVideoSize() {
+        return resizeToVideoSize;
+    }
+
+    private void checkVideoSize(int vidHeight, int vidWidth) {
+        String _h = _height, _w = _width;
+        boolean stretch = false;
+        if (resizeToVideoSize) {
+            if ((vidHeight > 0) && (vidWidth > 0)) {
+                // adjust to video size ...
+                fireDebug("Resizing Player : " + vidWidth + " x " + vidHeight);
+                _w = vidWidth + "px";
+                _h = vidHeight + "px";
+                stretch = true;
+            }
+        }
+
+        impl.setStretchToFit(playerId, stretch);
+        Element pe = DOM.getElementById(playerId);
+//        DOM.setStyleAttribute(pe, "width", _w);
+//        DOM.setStyleAttribute(pe, "height", _h);
+        DOM.setElementAttribute(pe, "width", _w);
+        DOM.setElementAttribute(pe, "height", _h);
+        setWidth(_w);
+        panel.setCellHeight(playerDiv, _h);
+        logger.log("Stretch to fit : " + impl.isStretchToFit(playerId), false);
     }
 
     /**

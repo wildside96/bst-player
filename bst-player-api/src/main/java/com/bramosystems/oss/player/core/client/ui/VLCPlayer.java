@@ -146,13 +146,13 @@ public final class VLCPlayer extends AbstractMediaPlayer implements PlaylistSupp
             addMediaInfoHandler(new MediaInfoHandler() {
 
                 public void onMediaInfoAvailable(MediaInfoEvent event) {
-                    logger.log(event.getMediaInfo().asHTMLString(), true);
                     MediaInfo info = event.getMediaInfo();
                     if (info.getAvailableItems().contains(MediaInfoKey.VideoHeight) ||
                             info.getAvailableItems().contains(MediaInfoKey.VideoWidth)) {
-                        checkVideoSize(Integer.parseInt(info.getItem(MediaInfoKey.VideoHeight)),
+                        checkVideoSize(Integer.parseInt(info.getItem(MediaInfoKey.VideoHeight)) + 16,
                                 Integer.parseInt(info.getItem(MediaInfoKey.VideoWidth)));
                     }
+                    logger.log(event.getMediaInfo().asHTMLString(), true);
                 }
             });
         } else {
@@ -430,11 +430,13 @@ public final class VLCPlayer extends AbstractMediaPlayer implements PlaylistSupp
         return AudioChannelMode.values()[impl.getAudioChannelMode(playerId)];
     }
 
+    @Override
     public int getVideoHeight() {
         checkAvailable();
         return Integer.parseInt(impl.getVideoHeight(playerId));
     }
 
+    @Override
     public int getVideoWidth() {
         checkAvailable();
         return Integer.parseInt(impl.getVideoWidth(playerId));
