@@ -489,4 +489,24 @@ public abstract class AbstractMediaPlayer extends Composite implements HasMediaS
     public boolean isResizeToVideoSize(){
         return false;
     }
+
+    /**
+     * Returns the height of the current media
+     * 
+     * @return the height in pixels
+     * @since 1.0
+     */
+    public int getVideoHeight() {
+        return 0;
+    }
+
+    /**
+     * Returns the width of the current media
+     *
+     * @return the width in pixels
+     * @since 1.0
+     */
+    public int getVideoWidth() {
+        return 0;
+    }
 }

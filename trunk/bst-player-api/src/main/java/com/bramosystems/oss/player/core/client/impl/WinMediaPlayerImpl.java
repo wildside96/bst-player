@@ -235,8 +235,8 @@ public class WinMediaPlayerImpl {
     info.@com.bramosystems.oss.player.core.client.MediaInfo::internetStationOwner = plyrMedia.getItemInfo('WM/RadioStationOwner');
     info.@com.bramosystems.oss.player.core.client.MediaInfo::internetStationName = plyrMedia.getItemInfo('WM/RadioStationName');
     info.@com.bramosystems.oss.player.core.client.MediaInfo::hardwareSoftwareRequirements = plyrMedia.getItemInfo('WM/EncodingSettings');
-    info.@com.bramosystems.oss.player.core.client.MediaInfo::videoWidth = plyrMedia.getItemInfo('WM/VideoWidth');
-    info.@com.bramosystems.oss.player.core.client.MediaInfo::videoHeight = plyrMedia.getItemInfo('WM/VideoHeight');
+    info.@com.bramosystems.oss.player.core.client.MediaInfo::videoWidth = plyrMedia.imageSourceWidth;
+    info.@com.bramosystems.oss.player.core.client.MediaInfo::videoHeight = plyrMedia.imageSourceHeight;
     } catch(e) {
     errorMsg = e;
     }
@@ -282,7 +282,7 @@ public class WinMediaPlayerImpl {
     public native int getVideoHeight(String playerId) /*-{
     try {
     var plyrMedia = $doc.getElementById(playerId).currentMedia;
-    return plyrMedia.getItemInfo('WM/VideoHeight');
+    return plyrMedia.imageSourceHeight;
     } catch(e) {
     return 0;
     }
@@ -291,12 +291,22 @@ public class WinMediaPlayerImpl {
     public native int getVideoWidth(String playerId) /*-{
     try {
     var plyrMedia = $doc.getElementById(playerId).currentMedia;
-    return plyrMedia.getItemInfo('WM/VideoWidth');
+    return plyrMedia.imageSourceWidth;
     } catch(e) {
     return 0;
     }
     }-*/;
 
+    public native void setStretchToFit(String playerId, boolean stretch) /*-{
+    var plyr = $doc.getElementById(playerId);
+    plyr.stretchToFit = stretch;
+    }-*/;
+
+    public native boolean isStretchToFit(String playerId) /*-{
+    var plyr = $doc.getElementById(playerId);
+    return plyr.stretchToFit;
+    }-*/;
+    
     public native String getAspectRatio(String playerId) /*-{
     try {
     var plyrMedia = $doc.getElementById(playerId).currentMedia;

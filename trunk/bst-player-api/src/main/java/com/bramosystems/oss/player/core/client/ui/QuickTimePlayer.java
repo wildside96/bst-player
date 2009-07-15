@@ -138,13 +138,13 @@ public final class QuickTimePlayer extends AbstractMediaPlayer {
             addMediaInfoHandler(new MediaInfoHandler() {
 
                 public void onMediaInfoAvailable(MediaInfoEvent event) {
-                    logger.log(event.getMediaInfo().asHTMLString(), true);
                     MediaInfo info = event.getMediaInfo();
                     if (info.getAvailableItems().contains(MediaInfoKey.VideoHeight) ||
                             info.getAvailableItems().contains(MediaInfoKey.VideoWidth)) {
                         checkVideoSize(Integer.parseInt(info.getItem(MediaInfoKey.VideoHeight)) + 16,
                                 Integer.parseInt(info.getItem(MediaInfoKey.VideoWidth)));
                     }
+                    logger.log(event.getMediaInfo().asHTMLString(), true);
                 }
             });
         } else {
@@ -425,13 +425,17 @@ public final class QuickTimePlayer extends AbstractMediaPlayer {
         impl.setRectangle(playerId, bounds);
     }
 
+    @Override
     public int getVideoHeight() {
+        checkAvailable();
         String bounds[] = getRectangleBounds().split(",");
         int height = Integer.parseInt(bounds[3]) - Integer.parseInt(bounds[1]);
         return height > 0 ? height : 0;
     }
 
+    @Override
     public int getVideoWidth() {
+        checkAvailable();
         String bounds[] = getRectangleBounds().split(",");
         int width = Integer.parseInt(bounds[2]) - Integer.parseInt(bounds[0]);
         return width > 0 ? width : 0;

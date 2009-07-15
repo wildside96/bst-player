@@ -153,13 +153,13 @@ public class FlashMediaPlayer extends AbstractMediaPlayer implements PlaylistSup
             addMediaInfoHandler(new MediaInfoHandler() {
 
                 public void onMediaInfoAvailable(MediaInfoEvent event) {
-                    log(event.getMediaInfo().asHTMLString(), true);
                     MediaInfo info = event.getMediaInfo();
                     if (info.getAvailableItems().contains(MediaInfoKey.VideoHeight) ||
                             info.getAvailableItems().contains(MediaInfoKey.VideoWidth)) {
-                        checkVideoSize(Integer.parseInt(info.getItem(MediaInfoKey.VideoHeight)),
+                        checkVideoSize(Integer.parseInt(info.getItem(MediaInfoKey.VideoHeight)) + 16,
                                 Integer.parseInt(info.getItem(MediaInfoKey.VideoWidth)));
                     }
+                    log(event.getMediaInfo().asHTMLString(), true);
                 }
             });
             control = new FlatCustomControl(this);
@@ -426,11 +426,13 @@ public class FlashMediaPlayer extends AbstractMediaPlayer implements PlaylistSup
         }
     }
 
+    @Override
     public int getVideoHeight() {
         checkAvailable();
         return impl.getVideoHeight(playerId);
     }
 
+    @Override
     public int getVideoWidth() {
         checkAvailable();
         return impl.getVideoWidth(playerId);
