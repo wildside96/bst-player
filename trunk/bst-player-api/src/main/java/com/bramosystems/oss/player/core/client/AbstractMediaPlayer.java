@@ -15,6 +15,7 @@
  */
 package com.bramosystems.oss.player.core.client;
 
+import com.bramosystems.oss.player.core.client.ui.Logger;
 import com.bramosystems.oss.player.core.event.client.PlayerStateEvent;
 import com.bramosystems.oss.player.core.event.client.HasMediaStateHandlers;
 import com.bramosystems.oss.player.core.event.client.PlayStateHandler;
@@ -26,8 +27,6 @@ import com.bramosystems.oss.player.core.event.client.LoadingProgressEvent;
 import com.bramosystems.oss.player.core.event.client.LoadingProgressHandler;
 import com.bramosystems.oss.player.core.event.client.DebugHandler;
 import com.bramosystems.oss.player.core.event.client.DebugEvent;
-import com.bramosystems.oss.player.core.client.ui.Logger;
-import com.bramosystems.oss.player.core.event.*;
 import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.ui.Composite;
@@ -225,13 +224,19 @@ public abstract class AbstractMediaPlayer extends Composite implements HasMediaS
     /**
      * Calls <code>onPlayStarted</code> on registered MediaStateListeners.
      *
-     * @see MediaStateListener#onPlayStarted()
-     * @deprecated Will be removed in a future version
      */
-    public final void firePlayStarted() {
-        for (int i = 0; i < callbacks.size(); i++) {
-            callbacks.get(i).onPlayStarted(0);
-        }
+    protected final void firePlayStateEvent(PlayStateEvent.State state, int itemIndex) {
+        PlayStateEvent.fire(this, state, itemIndex);
+    }
+
+    /**
+     * Calls <code>onPlayStarted</code> on registered MediaStateListeners.
+     * TODO: update docs -- Convinience method to fire events on registered handlers.
+     *
+     * @param state
+     */
+    protected final void firePlayerStateEvent(PlayerStateEvent.State state) {
+        PlayerStateEvent.fire(this, state);
     }
 
     /**
@@ -252,18 +257,6 @@ public abstract class AbstractMediaPlayer extends Composite implements HasMediaS
         }
         cmdKeys.clear();
         readyCmdQueue.clear();
-    }
-
-    /**
-     * Calls <code>onLoadingComplete</code> on registered MediaStateListeners.
-     *
-     * @see MediaStateListener#onLoadingComplete()
-     * @deprecated Will be removed in a future version
-     */
-    public final void fireLoadingComplete() {
-        for (int i = 0; i < callbacks.size(); i++) {
-            callbacks.get(i).onLoadingComplete();
-        }
     }
 
     /**
@@ -296,26 +289,25 @@ public abstract class AbstractMediaPlayer extends Composite implements HasMediaS
      *
      * @param progress the progress of the loading operation
      * @see MediaStateListener#onLoadingProgress(double) 
-     * @deprecated Will be removed in a future version
      */
     public final void fireLoadingProgress(double progress) {
         for (int i = 0; i < callbacks.size(); i++) {
             callbacks.get(i).onLoadingProgress(progress);
         }
+        LoadingProgressEvent.fire(this, progress);
     }
 
     /**
      * Calls <code>onMediaInfoAvailable</code> on registered MediaStateListeners.
      *
      * @param info the metadata of the loaded media
-     * @see MediaStateListener#onMediaInfoAvailable(MediaInfo)
-     * @since 0.6
-     * @deprecated Will be removed in a future version
+     * @see MediaInfoHandler#onMediaInfoAvailable(MediaInfoEvent)
      */
     public final void fireMediaInfoAvailable(MediaInfo info) {
         for (int i = 0; i < callbacks.size(); i++) {
             callbacks.get(i).onMediaInfoAvailable(info);
         }
+        MediaInfoEvent.fire(this, info);
     }
 
     /**
@@ -486,7 +478,7 @@ public abstract class AbstractMediaPlayer extends Composite implements HasMediaS
      * @return <code>true</code> if player adjusts its size, <code>false</code> otherwise
      * @since 1.0
      */
-    public boolean isResizeToVideoSize(){
+    public boolean isResizeToVideoSize() {
         return false;
     }
 
