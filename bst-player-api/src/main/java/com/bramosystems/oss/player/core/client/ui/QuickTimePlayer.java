@@ -71,9 +71,10 @@ public final class QuickTimePlayer extends AbstractMediaPlayer {
     private String _height,  _width;
 
     private QuickTimePlayer() throws PluginNotFoundException, PluginVersionException {
+        PluginVersion req = Plugin.QuickTimePlayer.getVersion();
         PluginVersion v = PlayerUtil.getQuickTimePluginVersion();
-        if (v.compareTo(7, 2, 1) < 0) {
-            throw new PluginVersionException("7.2.1", v.toString());
+        if (v.compareTo(req) < 0) {
+            throw new PluginVersionException(req.toString(), v.toString());
         }
 
         if (impl == null) {
@@ -251,6 +252,7 @@ public final class QuickTimePlayer extends AbstractMediaPlayer {
     public void close() {
         checkAvailable();
         impl.close(playerId);
+        playerDiv.getElement().setInnerText("");
     }
 
     public long getMediaDuration() {

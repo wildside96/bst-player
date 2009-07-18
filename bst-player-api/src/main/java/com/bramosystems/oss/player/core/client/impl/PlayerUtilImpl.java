@@ -63,7 +63,7 @@ public class PlayerUtilImpl {
                 // check if plugin is available...
                 pv = new PluginVersion();
                 getFlashPluginVersion(pv);          // SWF plugin supported ext....
-                if (pv.compareTo(9, 0, 0) < 0) {   // req SWF plugin not found...
+                if (pv.compareTo(plugin.getVersion()) < 0) {   // req SWF plugin not found...
                     break;
                 }
                 canHandle = Arrays.binarySearch(flvPool, ext.toLowerCase()) >= 0;
@@ -72,7 +72,7 @@ public class PlayerUtilImpl {
                 // check if plugin is available...
                 pv = new PluginVersion();
                 getQuickTimePluginVersion(pv);
-                if (pv.compareTo(7, 2, 1) < 0) {   // req QT plugin not found...
+                if (pv.compareTo(plugin.getVersion()) < 0) {   // req QT plugin not found...
                     break;
                 }
 
@@ -88,7 +88,7 @@ public class PlayerUtilImpl {
                 // check if plugin is available...
                 pv = new PluginVersion();
                 getWindowsMediaPlayerVersion(pv);
-                if (pv.compareTo(1, 1, 1) < 0) {   // req WMP plugin not found...
+                if (pv.compareTo(plugin.getVersion()) < 0) {   // req WMP plugin not found...
                     break;
                 }
 
@@ -103,7 +103,7 @@ public class PlayerUtilImpl {
                 // check if plugin is available...
                 pv = new PluginVersion();
                 getVLCPluginVersion(pv);
-                if (pv.compareTo(0, 8, 6) < 0) {   // req VLC plugin not found...
+                if (pv.compareTo(plugin.getVersion()) < 0) {   // req VLC plugin not found...
                     break;
                 }
 
@@ -171,6 +171,8 @@ public class PlayerUtilImpl {
      * simply checks if Windows Media Player plugin is available.
      *
      * @param version wraps the detected version numbers.
+     *
+     * TODO:  find work around for VLC mappings
      */
     public native void getWindowsMediaPlayerVersion(PluginVersion version) /*-{
     var wmp = false;

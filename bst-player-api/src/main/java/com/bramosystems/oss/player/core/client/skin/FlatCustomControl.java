@@ -144,6 +144,7 @@ public class FlatCustomControl extends Composite {
                     case Pause:
                         try { // play media...
                             player.playMedia();
+                            play.setEnabled(false);
                         } catch (PlayException ex) {
 //                            player.fireError(ex.getMessage());
                             DebugEvent.fire(player, DebugEvent.MessageType.Error, ex.getMessage());
@@ -316,7 +317,11 @@ public class FlatCustomControl extends Composite {
         double pos = player.getPlayPosition();
         long duration = player.getMediaDuration();
         setTime((long) pos, duration);
-        seekbar.setPlayingProgress(pos / duration);
+        if (duration > 0) {
+            seekbar.setPlayingProgress(pos / duration);
+        } else {
+            seekbar.setPlayingProgress(0);
+        }
     }
 
     private enum PlayState {

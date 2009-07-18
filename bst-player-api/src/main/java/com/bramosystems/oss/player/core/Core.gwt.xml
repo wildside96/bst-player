@@ -20,10 +20,13 @@
     <inherits name="com.bramosystems.oss.player.core.event.Event" />
     <stylesheet src="player-flat-styles.css" />
 
-	<!-- WinMediaPlayer mapping for IE6 & IE7 -->
+	<!-- WinMediaPlayer mapping for IE6/7/8 -->
     <replace-with class="com.bramosystems.oss.player.core.client.impl.WinMediaPlayerImplIE">
         <when-type-is class="com.bramosystems.oss.player.core.client.impl.WinMediaPlayerImpl"/>
-        <when-property-is name="user.agent" value="ie6"/>
+        <any>
+            <when-property-is name="user.agent" value="ie6"/>
+            <when-property-is name="user.agent" value="ie8"/>
+        </any>
     </replace-with>
 
 	<!-- WinMediaPlayer mapping for Safari/Chrome/Opera. Pool player state instead of event based -->
@@ -38,24 +41,36 @@
     <!-- QuickTimePlayer mapping for IE6 & IE7 -->
     <replace-with class="com.bramosystems.oss.player.core.client.impl.QuickTimePlayerImplIE">
         <when-type-is class="com.bramosystems.oss.player.core.client.impl.QuickTimePlayerImpl"/>
-        <when-property-is name="user.agent" value="ie6"/>
+        <any>
+            <when-property-is name="user.agent" value="ie6"/>
+            <when-property-is name="user.agent" value="ie8"/>
+        </any>
     </replace-with>
 
     <!-- PluginUtilImpl mapping for IE6 & IE7 -->
     <replace-with class="com.bramosystems.oss.player.core.client.impl.PlayerUtilImplIE">
         <when-type-is class="com.bramosystems.oss.player.core.client.impl.PlayerUtilImpl"/>
-        <when-property-is name="user.agent" value="ie6" />
+        <any>
+            <when-property-is name="user.agent" value="ie6"/>
+            <when-property-is name="user.agent" value="ie8"/>
+        </any>
     </replace-with>
 
     <!-- SWFWidgetImpl mapping for IE6 & IE7 -->
     <replace-with class="com.bramosystems.oss.player.core.client.impl.SWFWidgetImplIE">
         <when-type-is class="com.bramosystems.oss.player.core.client.impl.SWFWidgetImpl"/>
-        <when-property-is name="user.agent" value="ie6" />
+        <any>
+            <when-property-is name="user.agent" value="ie6"/>
+            <when-property-is name="user.agent" value="ie8"/>
+        </any>
     </replace-with>
 
     <!-- VLCPlayerImpl mapping for IE6 & IE7 -->
     <replace-with class="com.bramosystems.oss.player.core.client.impl.VLCPlayerImplIE">
         <when-type-is class="com.bramosystems.oss.player.core.client.impl.VLCPlayerImpl"/>
-        <when-property-is name="user.agent" value="ie6" />
+        <any>
+            <when-property-is name="user.agent" value="ie6"/>
+            <when-property-is name="user.agent" value="ie8"/>
+        </any>
     </replace-with>
 </module>

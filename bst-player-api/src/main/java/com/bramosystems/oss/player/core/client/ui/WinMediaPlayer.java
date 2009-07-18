@@ -70,9 +70,10 @@ public final class WinMediaPlayer extends AbstractMediaPlayer {
     private DockPanel panel;
 
     private WinMediaPlayer() throws PluginNotFoundException, PluginVersionException {
+        PluginVersion req = Plugin.WinMediaPlayer.getVersion();
         PluginVersion v = PlayerUtil.getWindowsMediaPlayerPluginVersion();
-        if (v.compareTo(1, 1, 1) < 0) {
-            throw new PluginVersionException("1.1.1", v.toString());
+        if (v.compareTo(req) < 0) {
+            throw new PluginVersionException(req.toString(), v.toString());
         }
 
         if (impl == null) {
@@ -248,7 +249,9 @@ public final class WinMediaPlayer extends AbstractMediaPlayer {
     }
 
     public void close() {
+        checkAvailable();
         impl.close(playerId);
+        playerDiv.setText("");
     }
 
     public long getMediaDuration() {

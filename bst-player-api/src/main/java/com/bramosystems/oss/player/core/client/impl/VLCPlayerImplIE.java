@@ -16,8 +16,6 @@
 package com.bramosystems.oss.player.core.client.impl;
 
 import com.bramosystems.oss.player.core.client.ui.VLCPlayer;
-import com.google.gwt.user.client.DOM;
-import com.google.gwt.user.client.Element;
 
 /**
  * IE specific native implementation of the VLCPlayer class. It is not recommended to
@@ -33,16 +31,9 @@ public class VLCPlayerImplIE extends VLCPlayerImpl {
         return "<object id='" + playerId + "' events='True' width='" + width + "px' " +
                 "height='" + height + "px' classid='clsid:9BE31822-FDAD-461B-AD51-BE1D1C159921'>" +
                 "<param name='AutoPlay' value='False' />" +
-//                "<param name='ShowDisplay' value='True' />" +
                 "<param name='AutoLoop' value='False' />" +
+                "<param name='Toolbar' value='True' />" +
                 "<param name='Src' value='' />" +
                 "</object>";
-    }
-
-    @Override
-    protected void fixIEStyleBug(String playerId, int height, int width) {
-        Element e = DOM.getElementById(playerId);
-        DOM.setStyleAttribute(e, "height", height + "px");
-        DOM.setStyleAttribute(e, "width", width + "px");
     }
 }

@@ -30,7 +30,7 @@ public enum Plugin {
      *
      * @see PlayerUtil#getPlayer(java.lang.String, boolean, java.lang.String, java.lang.String)
      */
-    Auto(""),
+    Auto("", 0,0,0),
 
     /**
      * Similar to {@linkplain #Auto}, specifies any media player plugin that supports
@@ -41,33 +41,35 @@ public enum Plugin {
      * @see PlaylistSupport
      * @since 1.0
      */
-    PlaylistSupport(""),
+    PlaylistSupport("", 0, 0, 0),
 
     /**
      * Specifies the Window Media Player&trade; plugin
      */
-    WinMediaPlayer("http://www.microsoft.com/windowsmedia"),
+    WinMediaPlayer("http://www.microsoft.com/windowsmedia", 1, 1, 1),
 
     /**
      * Specifies the QuickTime&trade; Player plugin
      */
-    QuickTimePlayer("http://www.apple.com/quicktime/download"),
+    QuickTimePlayer("http://www.apple.com/quicktime/download", 7, 2, 1),
 
     /**
      * Specifies the Flash Player plugin
      */
-    FlashPlayer("http://www.adobe.com/go/getflash"),
+    FlashPlayer("http://www.adobe.com/go/getflash", 9, 0, 0),
     
     /**
      * Specifies the VLC Media Player plugin
      * @since 1.0
      */
-    VLCPlayer("http://www.videolan.org");
+    VLCPlayer("http://www.videolan.org", 1, 0, 0);
 
     private String downloadURL;
+    private PluginVersion version;
 
-    Plugin(String downloadURL) {
+    Plugin(String downloadURL, int majorVersion, int minorVersion, int revision) {
         this.downloadURL = downloadURL;
+        version = PluginVersion.get(majorVersion, minorVersion, revision);
     }
 
     /**
@@ -78,5 +80,15 @@ public enum Plugin {
      */
     public String getDownloadURL() {
         return downloadURL;
+    }
+
+    /**
+     * Gets the minimum version required by this plugin
+     *
+     * @return the minimum version of the plugin
+     * @since 1.0
+     */
+    public PluginVersion getVersion() {
+        return version;
     }
 }

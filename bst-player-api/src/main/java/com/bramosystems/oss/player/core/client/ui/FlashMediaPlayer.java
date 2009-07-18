@@ -16,7 +16,6 @@
 package com.bramosystems.oss.player.core.client.ui;
 
 import com.bramosystems.oss.player.core.client.LoadException;
-import com.bramosystems.oss.player.core.client.PluginVersion;
 import com.bramosystems.oss.player.core.client.PluginVersionException;
 import com.bramosystems.oss.player.core.client.PlayException;
 import com.bramosystems.oss.player.core.client.MediaStateListener;
@@ -25,6 +24,7 @@ import com.bramosystems.oss.player.core.client.AbstractMediaPlayer;
 import com.bramosystems.oss.player.core.client.MediaInfo;
 import com.bramosystems.oss.player.core.client.MediaInfo.MediaInfoKey;
 import com.bramosystems.oss.player.core.client.PlaylistSupport;
+import com.bramosystems.oss.player.core.client.Plugin;
 import com.bramosystems.oss.player.core.client.impl.FlashMediaPlayerImpl;
 import com.bramosystems.oss.player.core.client.skin.FlatCustomControl;
 import com.bramosystems.oss.player.core.event.client.DebugEvent;
@@ -127,7 +127,7 @@ public class FlashMediaPlayer extends AbstractMediaPlayer implements PlaylistSup
         }
 
         swf = new SWFWidget(GWT.getModuleBaseURL() + "bst-flash-player-1.0-SNAPSHOT.swf",
-                "100%", "100%", PluginVersion.get(9, 0, 0));
+                "100%", "100%", Plugin.FlashPlayer.getVersion());
         playerId = swf.getId();
         swf.addProperty("flashVars", "playerId=" + playerId);
         swf.addProperty("allowScriptAccess", "sameDomain");
