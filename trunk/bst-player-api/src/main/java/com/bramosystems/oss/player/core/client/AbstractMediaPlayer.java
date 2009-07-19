@@ -501,4 +501,19 @@ public abstract class AbstractMediaPlayer extends Composite implements HasMediaS
     public int getVideoWidth() {
         return 0;
     }
+
+    /**
+     * Checks if the player plugin with the specified playerId is attached to the
+     * browsers' DOM
+     *
+     * <p>This method is provided for the convenience of player implementation classes.
+     *
+     * @param playerId the object ID of the player plugin
+     * @return <code>true</code> if player plugin is attached, <code>false</code>
+     * otherwise.
+     * @since 1.0
+     */
+    protected static final native boolean isPlayerAvailable(String playerId) /*-{
+    return ($doc.getElementById(playerId) != null);
+    }-*/;
 }
