@@ -15,19 +15,19 @@
  */
 package com.bramosystems.oss.player.core.client.impl;
 
-import com.bramosystems.oss.player.core.client.ui.VLCPlayer;
+import com.bramosystems.oss.player.core.client.impl.PlayerScriptUtil.PlayerScriptUtilImpl;
 
 /**
- * IE specific native implementation of the VLCPlayer class. It is not recommended to
+ * IE specific native implementation of the PlayerScriptUtil class. It is not recommended to
  * interact with this class directly.
  *
  * @author Sikirulai Braheem
- * @see VLCPlayer
+ * @see PlayerScriptUtil
  */
-public class VLCPlayerImplIE extends VLCPlayerImpl {
+public class PlayerScriptUtilImplIE extends PlayerScriptUtilImpl {
 
     @Override
-    public String getPlayerScript(String playerId, int height, int width) {
+    public String getVLCPlayerScript(String playerId, int height, int width) {
         return "<object id='" + playerId + "' events='True' width='" + width + "px' " +
                 "height='" + height + "px' classid='clsid:9BE31822-FDAD-461B-AD51-BE1D1C159921'>" +
                 "<param name='AutoPlay' value='False' />" +
