@@ -22,21 +22,21 @@
         <resources>
             <resource>
                 <directory>src/main/java</directory>
+                <filtering>true</filtering>
+                <includes>
+                    <include>**/FlashMediaPlayer.java</include>
+                </includes>
+            </resource>
+            <resource>
+                <directory>src/main/java</directory>
+                <filtering>false</filtering>
+                <excludes>
+                    <exclude>**/FlashMediaPlayer.java</exclude>
+                </excludes>
             </resource>
         </resources>
 
         <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <configuration>
-                    <additionalClasspathElements>
-                        <additionalClasspathElement>${basedir}/src/test/java</additionalClasspathElement>
-                    </additionalClasspathElements>
-                    <useSystemClassLoader>false</useSystemClassLoader>
-                    <argLine>-Xmx256M</argLine>
-                </configuration>
-            </plugin>
             <plugin>
                 <groupId>net.israfil.mojo</groupId>
                 <artifactId>maven-flex2-plugin</artifactId>
@@ -59,32 +59,20 @@
                     </execution>
                 </executions>
             </plugin>
-            <!--plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-dependency-plugin</artifactId>
+
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>gwt-maven-plugin</artifactId>
                 <executions>
                     <execution>
-                        <id>unpack-gwt-lib</id>
-                        <phase>test-compile</phase>
+                        <id>test-api</id>
                         <goals>
-                            <goal>unpack</goal>
+                            <goal>test</goal>
                         </goals>
-                        <configuration>
-                            <artifactItems>
-                                <artifactItem>
-                                    <groupId>com.google.gwt</groupId>
-                                    <artifactId>gwt-dev</artifactId>
-                                    <version>${gwtVersion}</version>
-                                    <classifier>${gwtPlatform}-libs</classifier>
-                                    <type>zip</type>
-                                    <overWrite>false</overWrite>
-                                    <outputDirectory>${settings.localRepository}/com/google/gwt/gwt-dev/${gwtVersion}</outputDirectory>
-                                </artifactItem>
-                            </artifactItems>
-                        </configuration>
                     </execution>
                 </executions>
-            </plugin-->
+            </plugin>
+
         </plugins>
     </build>
 
@@ -99,11 +87,6 @@
         <dependency>
             <groupId>com.google.gwt</groupId>
             <artifactId>gwt-user</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.google.gwt</groupId>
-            <artifactId>gwt-dev</artifactId>
-            <classifier>${gwtPlatform}</classifier>
         </dependency>
         <dependency>
             <groupId>junit</groupId>

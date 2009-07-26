@@ -13,26 +13,22 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-
 package com.bramosystems.oss.player.core.event.client;
 
-import com.bramosystems.oss.player.core.client.skin.MediaSeekBar;
+import com.bramosystems.oss.player.core.client.skin.VolumeControl;
 import com.google.gwt.event.shared.EventHandler;
 
 /**
- * Implement this interface to receive seek change updates from a {@code MediaSeekBar}
- * implementation.
+ * Handler interface for {@link VolumeChangeEvent} events.
  *
- * @see MediaSeekBar
  * @author Sikirulai Braheem <sbraheem at gmail.com>
  */
 public interface VolumeChangeHandler extends EventHandler {
 
     /**
-     * Fired when the state of a {@code MediaSeekBar} implementation is changed.
+     * Called when the state of a {@link VolumeControl} implementation is changed.
      *
-     * @param newValue between {@code 0} (start of media) to {@code 1} (end
-     * of media).
+     * @param event the VolumeChangeEvent that was fired
      */
     public void onVolumeChanged(VolumeChangeEvent event);
 }

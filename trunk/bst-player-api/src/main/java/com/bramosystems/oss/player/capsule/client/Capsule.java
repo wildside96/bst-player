@@ -171,6 +171,7 @@ public class Capsule extends CustomAudioPlayer {
                     case Stop:
                     case Pause:
                         try { // play media...
+                            play.setEnabled(false);
                             playMedia();
                         } catch (PlayException ex) {
                             fireError(ex.getMessage());
@@ -199,7 +200,7 @@ public class Capsule extends CustomAudioPlayer {
         vc.addVolumeChangeHandler(new VolumeChangeHandler() {
 
             public void onVolumeChanged(VolumeChangeEvent event) {
-                setVolume(event.getValue());
+                setVolume(event.getNewVolume());
             }
         });
         vc.setPopupStyleName("player-Capsule-volumeControl");
@@ -347,7 +348,7 @@ public class Capsule extends CustomAudioPlayer {
             seekBar.addSeekChangeHandler(new SeekChangeHandler() {
 
                 public void onSeekChanged(SeekChangeEvent event) {
-                    setPlayPosition(event.getValue() * getMediaDuration());
+                    setPlayPosition(event.getSeekPosition() * getMediaDuration());
                 }
             });
 

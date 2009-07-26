@@ -15,5 +15,10 @@
  *  under the License.
  */
 
+/**
+ * Provides interfaces and classes for dealing with different types of events fired
+ * by player widget components.
+ *
+ */
 package com.bramosystems.oss.player.core.event.client;
 

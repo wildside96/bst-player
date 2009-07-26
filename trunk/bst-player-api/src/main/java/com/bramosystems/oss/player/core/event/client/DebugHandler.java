@@ -18,11 +18,16 @@ package com.bramosystems.oss.player.core.event.client;
 import com.google.gwt.event.shared.EventHandler;
 
 /**
- * Interface definition for media state handlers.
+ * Handler interface for {@link DebugEvent} events.
  *
  * @author Sikirulai Braheem
  */
 public interface DebugHandler extends EventHandler {
 
+    /**
+     * Called when DebugEvent is fired
+     *
+     * @param event the DebugEvent that was fired
+     */
     public void onDebug(DebugEvent event);
 }

@@ -13,28 +13,41 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-
 package com.bramosystems.oss.player.core.event.client;
 
 import com.google.gwt.event.shared.GwtEvent;
 import com.google.gwt.event.shared.GwtEvent.Type;
 
 /**
+ * The event fired when the state of media playback changes
  *
- * @author Sikirulai Braheem <sbraheem at bramosystems.com>
+ * @author Sikirulai Braheem
  */
 public class PlayStateEvent extends GwtEvent<PlayStateHandler> {
+
     public static final Type<PlayStateHandler> TYPE = new Type<PlayStateHandler>();
     private State state;
     private int itemIndex;
 
+    /**
+     * Creates a new play state event
+     *
+     * @param state the new state
+     * @param itemIndex the playlist index of the media
+     */
     protected PlayStateEvent(State state, int itemIndex) {
         this.state = state;
         this.itemIndex = itemIndex;
     }
 
-    public static <S extends HasMediaStateHandlers> void fire(S source,
-            State state, int itemIndex) {
+    /**
+     * Fires play state events on all registered handlers
+     *
+     * @param source the source of the event
+     * @param state the new state of the media
+     * @param itemIndex the playlist index of the media
+     */
+    public static void fire(HasMediaStateHandlers source, State state, int itemIndex) {
         source.fireEvent(new PlayStateEvent(state, itemIndex));
     }
 
@@ -47,17 +60,45 @@ public class PlayStateEvent extends GwtEvent<PlayStateHandler> {
     protected void dispatch(PlayStateHandler handler) {
         handler.onPlayStateChanged(this);
     }
-    
+
+    /**
+     * Retrieves the new state of media playback
+     *
+     * @return the state of the playback
+     */
     public State getPlayState() {
         return state;
     }
-    
+
+    /**
+     * Retrieves the index of the media item in the playlist
+     *
+     * @return the index of the media item in the playlist
+     */
     public int getItemIndex() {
         return itemIndex;
     }
 
+    /**
+     * An enum of playback states
+     */
     public enum State {
-        Started, Finished, Paused, Stopped
-    }
 
+        /**
+         * Media playback has started
+         */
+        Started,
+        /**
+         * Media playback has finished
+         */
+        Finished,
+        /**
+         * Media playback is currently paused
+         */
+        Paused,
+        /**
+         * Media playback is currently stopped
+         */
+        Stopped
+    }
 }

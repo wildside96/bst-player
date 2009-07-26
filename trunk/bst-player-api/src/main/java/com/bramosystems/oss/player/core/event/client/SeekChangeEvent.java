@@ -21,23 +21,32 @@ import com.google.gwt.event.shared.GwtEvent;
 import com.google.gwt.event.shared.GwtEvent.Type;
 
 /**
- * Implement this interface to receive seek change updates from a {@code MediaSeekBar}
- * implementation.
- *
- * @see MediaSeekBar
- * @author Sikirulai Braheem <sbraheem at gmail.com>
+ * The event fired by {@link MediaSeekBar} widgets when the position of the
+ * seek bar has changed.
+ * 
+ * @author Sikirulai Braheem
  */
 public class SeekChangeEvent extends GwtEvent<SeekChangeHandler> {
-    private double value;
+    private double seekPosition;
     public static Type<SeekChangeHandler> TYPE = new Type<SeekChangeHandler>();
 
-    public static <S extends HasSeekChangeHandlers> void fire(S source,
-            double value) {
-        source.fireEvent(new SeekChangeEvent(value));
+    /**
+     * Fires seek change event on all registered handlers
+     *
+     * @param source the source of the event
+     * @param seekPosition the new position of the seek bar
+     */
+    public static void fire(HasSeekChangeHandlers source, double seekPosition) {
+        source.fireEvent(new SeekChangeEvent(seekPosition));
     }
 
-    protected SeekChangeEvent(double value) {
-        this.value = value;
+    /**
+     * Creates a new seek change event
+     *
+     * @param seekPosition the new position of the seek bar
+     */
+    protected SeekChangeEvent(double seekPosition) {
+        this.seekPosition = seekPosition;
     }
     
     @Override
@@ -50,7 +59,12 @@ public class SeekChangeEvent extends GwtEvent<SeekChangeHandler> {
         handler.onSeekChanged(this);
     }
 
-    public double getValue() {
-        return value;
+    /**
+     * Retrieves the new position of the seek bar
+     *
+     * @return the new position of the seek bar
+     */
+    public double getSeekPosition() {
+        return seekPosition;
     }
 }

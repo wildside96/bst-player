@@ -19,12 +19,16 @@ import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.event.shared.HasHandlers;
 
 /**
- * Interface definition for media state handlers.
+ * Interface definition for widgets that provide registration for volume change handlers.
  *
  * @author Sikirulai Braheem
  */
 public interface HasVolumeChangeHandlers extends HasHandlers {
 
+    /**
+     * Adds a {@link VolumeChangeHandler} handler
+     * @param handler the volume change handler
+     * @return {@link HandlerRegistration} used to remove the handler
+     */
     public HandlerRegistration addVolumeChangeHandler(VolumeChangeHandler handler);
-
 }

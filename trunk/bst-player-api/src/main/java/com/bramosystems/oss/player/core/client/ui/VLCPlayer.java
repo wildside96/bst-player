@@ -15,15 +15,23 @@
  */
 package com.bramosystems.oss.player.core.client.ui;
 
-import com.bramosystems.oss.player.core.event.client.*;
+import com.bramosystems.oss.player.core.event.client.PlayerStateHandler;
+import com.bramosystems.oss.player.core.event.client.PlayStateHandler;
+import com.bramosystems.oss.player.core.event.client.PlayStateEvent;
+import com.bramosystems.oss.player.core.event.client.PlayerStateEvent;
+import com.bramosystems.oss.player.core.event.client.MediaInfoEvent;
+import com.bramosystems.oss.player.core.event.client.DebugEvent;
+import com.bramosystems.oss.player.core.event.client.MediaInfoHandler;
+import com.bramosystems.oss.player.core.event.client.DebugHandler;
 import com.bramosystems.oss.player.core.client.*;
 import com.bramosystems.oss.player.core.client.MediaInfo.MediaInfoKey;
 import com.bramosystems.oss.player.core.client.impl.PlayerScriptUtil;
 import com.bramosystems.oss.player.core.client.impl.VLCPlayerImpl;
-import com.bramosystems.oss.player.core.client.skin.FlatCustomControl;
+import com.bramosystems.oss.player.core.client.skin.CustomPlayerControl;
 import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.DOM;
+import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
@@ -70,7 +78,7 @@ public final class VLCPlayer extends AbstractMediaPlayer implements PlaylistSupp
     private boolean isEmbedded,  autoplay,  resizeToVideoSize,  shuffleOn;
     private HandlerRegistration initListHandler;
     private ArrayList<MRL> _playlistCache;
-    private FlatCustomControl control;
+    private CustomPlayerControl control;
     private DockPanel panel;
     private StateHandler stateHandler;
 
@@ -129,7 +137,7 @@ public final class VLCPlayer extends AbstractMediaPlayer implements PlaylistSupp
             logger.setVisible(false);
             panel.add(logger, DockPanel.SOUTH);
 
-            control = new FlatCustomControl(this);
+            control = new CustomPlayerControl(this);
             panel.add(control, DockPanel.SOUTH);
 
             addDebugHandler(new DebugHandler() {
@@ -167,6 +175,8 @@ public final class VLCPlayer extends AbstractMediaPlayer implements PlaylistSupp
         panel.setCellHeight(playerDiv, _height);
         panel.setCellWidth(playerDiv, _width);
         setWidth(_width);
+
+        DOM.setStyleAttribute(playerDiv.getElement(), "backgroundColor", "#000");   // IE workaround
     }
 
     /**
@@ -217,7 +227,7 @@ public final class VLCPlayer extends AbstractMediaPlayer implements PlaylistSupp
 
                     @Override
                     public void run() {
-                        if (isPlayerAvailable(playerId)) {
+                        if (isPlayerOnPage(playerId)) {
                             cancel();
                             impl = VLCPlayerImpl.getPlayer(playerId);
 
@@ -328,7 +338,7 @@ public final class VLCPlayer extends AbstractMediaPlayer implements PlaylistSupp
     }
 
     private void checkAvailable() {
-        if (!isPlayerAvailable(playerId)) {
+        if (!isPlayerOnPage(playerId)) {
             String message = "Player closed already, create another instance";
             fireDebug(message);
             throw new IllegalStateException(message);
@@ -368,7 +378,7 @@ public final class VLCPlayer extends AbstractMediaPlayer implements PlaylistSupp
      */
     @Override
     public void setLoopCount(final int loop) {
-        if (isPlayerAvailable(playerId)) {
+        if (isPlayerOnPage(playerId)) {
             stateHandler.setLoopCount(loop);
         } else {
             addToPlayerReadyCommandQueue("loopcount", new Command() {
@@ -382,7 +392,7 @@ public final class VLCPlayer extends AbstractMediaPlayer implements PlaylistSupp
 
     @Override
     public void addToPlaylist(String mediaURL) {
-        if (isPlayerAvailable(playerId)) {
+        if (isPlayerOnPage(playerId)) {
             stateHandler.addToPlaylist(mediaURL, null);
         } else {
             if (initListHandler == null) {
@@ -498,7 +508,7 @@ public final class VLCPlayer extends AbstractMediaPlayer implements PlaylistSupp
     @Override
     public void setResizeToVideoSize(boolean resize) {
         resizeToVideoSize = resize;
-        if (isPlayerAvailable(playerId)) {
+        if (isPlayerOnPage(playerId)) {
             // if player is on panel now update its size, otherwise
             // allow it to be handled by the MediaInfoHandler...
             checkVideoSize(getVideoHeight(), getVideoWidth());
@@ -520,11 +530,17 @@ public final class VLCPlayer extends AbstractMediaPlayer implements PlaylistSupp
                 _w = vidWidth + "px";
             }
         }
+        
         setWidth(_w);
         panel.setCellHeight(playerDiv, _h);
-        panel.setCellWidth(playerDiv, _w);
-        DOM.getElementById(playerId).setAttribute("width", _w);
-        DOM.getElementById(playerId).setAttribute("height", _h);
+
+        Element e = DOM.getElementById(playerId);
+        DOM.setStyleAttribute(e, "width", _w);
+        DOM.setStyleAttribute(e, "height", _h);
+        
+        if (!_height.equals(_h) && !_width.equals(_w)) {
+            firePlayerStateEvent(PlayerStateEvent.State.DimensionChangedOnVideo);
+        }
     }
 
     private class MRL {
@@ -611,7 +627,7 @@ public final class VLCPlayer extends AbstractMediaPlayer implements PlaylistSupp
                         fireDebug("Media playback complete");
                     }
                 } catch (PlayException ex1) {
-                    logger.log(ex1.getMessage(), false);
+                    fireDebug(ex1.getMessage());
                 }
             }
         }

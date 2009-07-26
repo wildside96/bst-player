@@ -207,7 +207,7 @@ public class SWFWidget extends Composite {
     }
 
     /**
-     * Convinience method to get a widget that may be used to notify the user when
+     * Convenience method to get a widget that may be used to notify the user when
      * the required Flash plugin is not available.
      *
      * <p>This is same as calling {@code getMissingPluginNotice("Missing Plugin",

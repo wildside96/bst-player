@@ -18,11 +18,16 @@ package com.bramosystems.oss.player.core.event.client;
 import com.google.gwt.event.shared.EventHandler;
 
 /**
- * Interface definition for media state handlers.
+ * Handler interface for {@link MediaInfoEvent} events.
  *
  * @author Sikirulai Braheem
  */
 public interface MediaInfoHandler extends EventHandler {
 
+    /**
+     * Called when MediaInfoEvent is fired
+     *
+     * @param event the MediaInfoEvent that was fired
+     */
     public void onMediaInfoAvailable(MediaInfoEvent event);
 }

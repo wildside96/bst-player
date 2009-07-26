@@ -18,7 +18,6 @@ package com.bramosystems.oss.player.core.client.ui;
 import com.bramosystems.oss.player.core.client.LoadException;
 import com.bramosystems.oss.player.core.client.PluginVersionException;
 import com.bramosystems.oss.player.core.client.PlayException;
-import com.bramosystems.oss.player.core.client.MediaStateListener;
 import com.bramosystems.oss.player.core.client.PluginNotFoundException;
 import com.bramosystems.oss.player.core.client.AbstractMediaPlayer;
 import com.bramosystems.oss.player.core.client.MediaInfo;
@@ -26,7 +25,7 @@ import com.bramosystems.oss.player.core.client.MediaInfo.MediaInfoKey;
 import com.bramosystems.oss.player.core.client.PlaylistSupport;
 import com.bramosystems.oss.player.core.client.Plugin;
 import com.bramosystems.oss.player.core.client.impl.FlashMediaPlayerImpl;
-import com.bramosystems.oss.player.core.client.skin.FlatCustomControl;
+import com.bramosystems.oss.player.core.client.skin.CustomPlayerControl;
 import com.bramosystems.oss.player.core.event.client.DebugEvent;
 import com.bramosystems.oss.player.core.event.client.DebugHandler;
 import com.bramosystems.oss.player.core.event.client.MediaInfoEvent;
@@ -84,8 +83,7 @@ public class FlashMediaPlayer extends AbstractMediaPlayer implements PlaylistSup
     private String playerId;
     private boolean isEmbedded, resizeToVideoSize;
     private Logger logger;
-    private FlatCustomControl control;
-    private MediaStateListener _onInitListListener;
+    private CustomPlayerControl control;
     private ArrayList<String> _playlistCache;
     private DockPanel panel;
     private SWFWidget swf;
@@ -126,7 +124,9 @@ public class FlashMediaPlayer extends AbstractMediaPlayer implements PlaylistSup
             _width = "0px";
         }
 
-        swf = new SWFWidget(GWT.getModuleBaseURL() + "bst-flash-player-1.0-SNAPSHOT.swf",
+        // inject bst-flash-player version via maven resources filter...
+        String playerAppFile = "bst-flash-player-${version}.swf";
+        swf = new SWFWidget(GWT.getModuleBaseURL() + playerAppFile,
                 "100%", "100%", Plugin.FlashPlayer.getVersion());
         playerId = swf.getId();
         swf.addProperty("flashVars", "playerId=" + playerId);
@@ -156,13 +156,13 @@ public class FlashMediaPlayer extends AbstractMediaPlayer implements PlaylistSup
                     MediaInfo info = event.getMediaInfo();
                     if (info.getAvailableItems().contains(MediaInfoKey.VideoHeight) ||
                             info.getAvailableItems().contains(MediaInfoKey.VideoWidth)) {
-                        checkVideoSize(Integer.parseInt(info.getItem(MediaInfoKey.VideoHeight)) + 16,
+                        checkVideoSize(Integer.parseInt(info.getItem(MediaInfoKey.VideoHeight)),
                                 Integer.parseInt(info.getItem(MediaInfoKey.VideoWidth)));
                     }
                     log(event.getMediaInfo().asHTMLString(), true);
                 }
             });
-            control = new FlatCustomControl(this);
+            control = new CustomPlayerControl(this);
             panel.add(control, DockPanel.SOUTH);
         }
 
@@ -213,6 +213,10 @@ public class FlashMediaPlayer extends AbstractMediaPlayer implements PlaylistSup
 
     private void checkVideoSize(int vidHeight, int vidWidth) {
         String _h = _height, _w = _width;
+        if(vidHeight == 0) {
+            _h = "0px"; // suppress SWF app height for audio files ...
+        }
+
         if (resizeToVideoSize) {
             if ((vidHeight > 0) && (vidWidth > 0)) {
                 // adjust to video size ...
@@ -221,8 +225,13 @@ public class FlashMediaPlayer extends AbstractMediaPlayer implements PlaylistSup
                 _w = vidWidth + "px";
             }
         }
+        
         panel.setCellHeight(swf, _h);
         setWidth(_w);
+
+        if (!_height.equals(_h) && !_width.equals(_w)) {
+            firePlayerStateEvent(PlayerStateEvent.State.DimensionChangedOnVideo);
+        }
     }
 
     private void checkAvailable() {

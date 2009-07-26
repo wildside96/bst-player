@@ -18,9 +18,9 @@ import static org.junit.Assert.*;
  *
  * @author Sikirulai Braheem <sbraheem at gmail.com>
  */
-public class PlayerUtilTest extends GWTTestCase {
+public class TxtPlayerUtil extends GWTTestCase {
 
-    public PlayerUtilTest() {
+    public TxtPlayerUtil() {
     }
 
     @BeforeClass

@@ -35,6 +35,10 @@ public class VLCPlayerImpl extends JavaScriptObject {
     protected VLCPlayerImpl() {
     }
 
+    public final native String getPluginVersion() /*-{
+    return this.VersionInfo;
+    }-*/;
+
     public final native void play() /*-{
     this.playlist.play();
     }-*/;
@@ -201,7 +205,7 @@ public class VLCPlayerImpl extends JavaScriptObject {
     try{
     var opts = new Array();
     opts.push(options);
-    return this.playlist.add(mediaURL, 'silence', opts);
+    return this.playlist.add(mediaURL, '', opts);
     } catch(e){
     return -1;
     }
@@ -235,10 +239,6 @@ public class VLCPlayerImpl extends JavaScriptObject {
     }
     }-*/;
 
-    public final native String getPluginVersion() /*-{
-    return this.VersionInfo;
-    }-*/;
-
     public final native void fillMediaInfo(MediaInfo id3) /*-{
     try {
     //    id3.@com.bramosystems.oss.player.core.client.MediaInfo::year = ;
@@ -256,11 +256,8 @@ public class VLCPlayerImpl extends JavaScriptObject {
     id3.@com.bramosystems.oss.player.core.client.MediaInfo::duration = parseFloat(this.input.length);
 
     if(this.input.hasVout) {
-    id3.@com.bramosystems.oss.player.core.client.MediaInfo::videoWidth = this.video.width;
-    id3.@com.bramosystems.oss.player.core.client.MediaInfo::videoHeight = this.video.height;
-    } else {
-    id3.@com.bramosystems.oss.player.core.client.MediaInfo::videoWidth = 0;
-    id3.@com.bramosystems.oss.player.core.client.MediaInfo::videoHeight = 0;
+    id3.@com.bramosystems.oss.player.core.client.MediaInfo::videoWidth = String(this.video.width);
+    id3.@com.bramosystems.oss.player.core.client.MediaInfo::videoHeight = String(this.video.height);
     }
     } catch(e) {
     }

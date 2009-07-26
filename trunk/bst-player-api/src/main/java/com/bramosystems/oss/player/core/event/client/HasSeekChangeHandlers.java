@@ -19,12 +19,16 @@ import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.event.shared.HasHandlers;
 
 /**
- * Interface definition for media state handlers.
+ * Interface definition for widgets that provide registration of seek change handlers.
  *
  * @author Sikirulai Braheem
  */
 public interface HasSeekChangeHandlers extends HasHandlers {
 
+    /**
+     * Adds a {@link SeekChangeHandler} handler
+     * @param handler the seek change handler
+     * @return {@link HandlerRegistration} used to remove the handler
+     */
     public HandlerRegistration addSeekChangeHandler(SeekChangeHandler handler);
-
 }

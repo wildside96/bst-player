@@ -16,7 +16,5 @@
 <!--                                                                        -->
 
 <module>
-    <inherits name="com.bramosystems.oss.player.capsule.Capsule"/>
-    <inherits name="com.bramosystems.oss.player.flat.FlatVideoPlayer"/>
-    <inherits name="com.bramosystems.oss.player.link.PlayableLink"/>
+	<inherits name="com.google.gwt.core.Core" />
 </module>

@@ -22,6 +22,7 @@ import com.bramosystems.oss.player.core.event.client.DebugEvent;
 import com.bramosystems.oss.player.core.event.client.DebugHandler;
 import com.bramosystems.oss.player.core.event.client.MediaInfoEvent;
 import com.bramosystems.oss.player.core.event.client.MediaInfoHandler;
+import com.bramosystems.oss.player.core.event.client.PlayerStateEvent;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.DOM;
@@ -474,6 +475,10 @@ public final class QuickTimePlayer extends AbstractMediaPlayer {
         Element pe = DOM.getElementById(playerId);
         DOM.setStyleAttribute(pe, "width", _w);
         DOM.setStyleAttribute(pe, "height", _h);
+
+        if (!_height.equals(_h) && !_width.equals(_w)) {
+            firePlayerStateEvent(PlayerStateEvent.State.DimensionChangedOnVideo);
+        }
     }
 
     /**

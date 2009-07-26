@@ -159,7 +159,7 @@ public class PluginVersion implements IsSerializable, Serializable, Comparable<P
     }
 
     /**
-     * Convinience method to compare this PluginVersion with a PluginVersion with the
+     * Convenience method to compare this PluginVersion with a PluginVersion with the
      * specified major, minor and revision numbers.
      *
      * @param major major version number

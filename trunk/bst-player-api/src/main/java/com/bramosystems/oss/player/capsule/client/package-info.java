@@ -17,6 +17,10 @@
 
 /**
  * Sample custom sound player implementation
+ * 
+ * <h3>Required Module</h3>
+ * Modules that use the classes and interfaces in this package should inherit
+ * the <code>com.bramosystems.oss.player.capsule.Capsule</code> module.
  */
 package com.bramosystems.oss.player.capsule.client;
 

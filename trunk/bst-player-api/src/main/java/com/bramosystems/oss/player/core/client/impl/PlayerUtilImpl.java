@@ -18,6 +18,8 @@ package com.bramosystems.oss.player.core.client.impl;
 import com.bramosystems.oss.player.core.client.PlayerUtil;
 import com.bramosystems.oss.player.core.client.PluginVersion;
 import com.bramosystems.oss.player.core.client.Plugin;
+import com.bramosystems.oss.player.util.client.BrowserPlugin;
+import com.bramosystems.oss.player.util.client.MimeType;
 import java.util.Arrays;
 
 /**
@@ -147,62 +149,86 @@ public class PlayerUtilImpl {
     }
     }-*/;
 
-    /**
-     * Native implementation of QuickTime plugin detection
-     * @param version wraps the detected version numbers.
-     */
-    public native void getQuickTimePluginVersion(PluginVersion version) /*-{
-    if (navigator.plugins && navigator.plugins.length > 0) {
-    for(i = 0; i < navigator.plugins.length; i++) {
-    if(navigator.plugins[i].name.indexOf("QuickTime") > -1) {
-    ver = navigator.plugins[i].name.toLowerCase().replace("quicktime plug-in", "");
-    ver = ver.split(".");
-    version.@com.bramosystems.oss.player.core.client.PluginVersion::setMajor(I)(parseInt(ver[0]));
-    version.@com.bramosystems.oss.player.core.client.PluginVersion::setMinor(I)(parseInt(ver[1]));
-    version.@com.bramosystems.oss.player.core.client.PluginVersion::setRevision(I)(parseInt(ver[2]));
-    break;
+    // TODO: find out about adobe flash versioning scheme
+    public void getFlashPluginVersion2(PluginVersion version) {
+        MimeType mt = MimeType.getMimeType("application/x-shockwave-flash");  // get SWF mime type...
+        if (mt != null) {   // plugin present
+            if (mt.getEnabledPlugin().getName().contains("Shockwave Flash")) {
+                // the type is enabled for SWF
+                String desc = mt.getEnabledPlugin().getDescription();
+                String ver[] = executeRegex(desc, "\\d+.\\d+ [d|b|r]\\d+", "").split("\\.");
+                version.setMajor(Integer.parseInt(ver[0].trim()));
+                version.setMinor(Integer.parseInt(ver[1].trim()));
+                version.setRevision(Integer.parseInt(ver[2].trim()));
+            }
+        }
     }
-    }
-    }
-    }-*/;
 
     /**
-     * Native implementation of Windows Media Player plugin detection. The method
+     * QuickTime plugin detection
+     * @param version wraps the detected version numbers.
+     */
+    public void getQuickTimePluginVersion(PluginVersion version) {
+        MimeType mt = MimeType.getMimeType("video/quicktime");  // get quicktime mime type...
+        if (mt != null) {   // plugin present
+            String name = mt.getEnabledPlugin().getName().toLowerCase();
+            if (name.contains("quicktime")) {    // the type is enabled for QuickTime (not VLC)...
+                String ver[] = executeRegex(name, "\\d+.\\d+.\\d+", "").split("\\.");
+                version.setMajor(Integer.parseInt(ver[0]));
+                version.setMinor(Integer.parseInt(ver[1]));
+                version.setRevision(Integer.parseInt(ver[2]));
+            }
+        }
+    }
+
+    /**
+     * Windows Media Player plugin detection. The method
      * simply checks if Windows Media Player plugin is available.
      *
      * @param version wraps the detected version numbers.
-     *
-     * TODO:  find work around for VLC mappings
      */
-    public native void getWindowsMediaPlayerVersion(PluginVersion version) /*-{
-    var wmp = false;
-    if (navigator.mimeTypes && navigator.mimeTypes['application/x-ms-wmp']) {
-    wmp = true; // wmp for firefox
-    } else if (navigator.mimeTypes && navigator.mimeTypes['application/x-mplayer2']) {
-    wmp = true; // generic wmp
-    }
+    public void getWindowsMediaPlayerVersion(PluginVersion version) {
+        // check for WMP firefox plugin mime type
+        boolean found = false;
+        MimeType mt = MimeType.getMimeType("application/x-ms-wmp");
+        if (mt != null) {   // firefox plugin present...
+            found = true;
+        } else {
+            // firefox plugin not found check for generic..
+            mt = MimeType.getMimeType("application/x-mplayer2");
+            BrowserPlugin plug = mt.getEnabledPlugin(); // who's got the mime ? (WMP / VLC)
+            if (plug.getName().contains("Windows Media Player")) {
+                found = true;
+            }
+        }
 
-    if(wmp){
-    version.@com.bramosystems.oss.player.core.client.PluginVersion::setMajor(I)(parseInt(1));
-    version.@com.bramosystems.oss.player.core.client.PluginVersion::setMinor(I)(parseInt(1));
-    version.@com.bramosystems.oss.player.core.client.PluginVersion::setRevision(I)(parseInt(1));
+        if (found) {
+            version.setMajor(1);
+            version.setMinor(1);
+            version.setRevision(1);
+        }
     }
-    }-*/;
 
     /**
-     * Native implementation of VLC plugin detection
+     * VLC plugin detection
      * @param version wraps the detected version numbers.
      */
-    public native void getVLCPluginVersion(PluginVersion version) /*-{
-    if (navigator.plugins != null && navigator.plugins.length > 0 &&
-    navigator.plugins["VLC Multimedia Plug-in"]) {
-    var desc = navigator.plugins["VLC Multimedia Plug-in"].description;
-    var descRegex = new RegExp("\\d+.\\d+.\\d+", "");
-    var verArray = (descRegex.exec(desc))[0].split(".");
-
-    version.@com.bramosystems.oss.player.core.client.PluginVersion::setMajor(I)(parseInt(verArray[0]));
-    version.@com.bramosystems.oss.player.core.client.PluginVersion::setMinor(I)(parseInt(verArray[1]));
-    version.@com.bramosystems.oss.player.core.client.PluginVersion::setRevision(I)(parseInt(verArray[2]));
+    public void getVLCPluginVersion(PluginVersion version) {
+        // check for VLC plugin mime type
+        MimeType mt = MimeType.getMimeType("application/x-vlc-plugin");
+        if (mt != null) {   // plugin present...
+            String desc = mt.getEnabledPlugin().getDescription();
+            if (mt.getEnabledPlugin().getName().toLowerCase().contains("vlc")) {
+                String ver[] = executeRegex(desc, "\\d+.\\d+.\\d+", "").split("\\.");
+                version.setMajor(Integer.parseInt(ver[0].trim()));
+                version.setMinor(Integer.parseInt(ver[1].trim()));
+                version.setRevision(Integer.parseInt(ver[2].trim()));
+            }
+        }
     }
+
+    private native String executeRegex(String string, String regex, String flags) /*-{
+    var _regex = new RegExp(regex, flags);
+    return (_regex.exec(string))[0];
     }-*/;
 }

@@ -36,4 +36,15 @@ public class PlayerScriptUtilImplIE extends PlayerScriptUtilImpl {
                 "<param name='Src' value='' />" +
                 "</object>";
     }
+
+    @Override
+    public String getWMPlayerScript(String mediaURL, String playerId, boolean autoplay,
+            int height, int width) {
+        return "<object id='" + playerId + "' classid='CLSID:6BF52A52-394A-11d3-B153-00C04F79FAA6' " +
+                "width='" + width + "px' height='" + height + "px' >" +
+                "<param name='autoStart' value='" + autoplay + "' />" +
+                "<param name='URL' value='" + mediaURL + "' />" +
+                "</object>";
+    }
+
 }

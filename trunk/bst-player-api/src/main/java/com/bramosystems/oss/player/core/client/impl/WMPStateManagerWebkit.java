@@ -18,76 +18,70 @@ package com.bramosystems.oss.player.core.client.impl;
 import com.bramosystems.oss.player.core.event.client.PlayerStateEvent;
 import com.bramosystems.oss.player.core.event.client.HasMediaStateHandlers;
 import com.bramosystems.oss.player.core.event.client.LoadingProgressEvent;
-import com.bramosystems.oss.player.core.client.MediaStateListener;
-import com.bramosystems.oss.player.core.client.ui.WinMediaPlayer;
-import com.bramosystems.oss.player.core.event.*;
 import com.google.gwt.user.client.Timer;
 
 /**
- * Non Firefox browser specific native implementation of the WinMediaPlayer class. It is not recommended to
+ * Webkit browser specific implementation of the WMPStateManager class. It is not recommended to
  * interact with this class directly.
  *
  * @author Sikirulai Braheem
- * @see WinMediaPlayer
  */
-public class WinMediaPlayerImplNoEvent extends WinMediaPlayerImpl {
+public class WMPStateManagerWebkit extends WMPStateManager {
 
-    WinMediaPlayerImplNoEvent() {
+    WMPStateManagerWebkit() {
     }
 
     @Override
-    public void init(String playerId, MediaStateListener listener, HasMediaStateHandlers handler) {
-        cache.put(playerId, new StatePoolingHandler(playerId, listener, handler));
+    public void init(WinMediaPlayerImpl player, HasMediaStateHandlers handler, boolean resizing) {
+        cache.put(player.getPlayerId(), new PoolingStateManager(player, handler, resizing));
     }
 
     @Override
     public void close(String playerId) {
-        ((StatePoolingHandler) cache.get(playerId)).close();
-        closeImpl(playerId);
+        ((PoolingStateManager) cache.get(playerId)).close();
         cache.remove(playerId);
     }
 
     @Override
-    protected void initGlobalEventListeners(WinMediaPlayerImpl impl) {
+    protected void initGlobalEventListeners(WMPStateManager impl) {
         // do nothing, provided for Global event registration in firefox browsers.
     }
 
     @Override
-    public void registerMediaStateListener(String playerId) {
+    public void registerMediaStateHandlers(WinMediaPlayerImpl player) {
         // do nothing, provided for DOM event registration in IE.
     }
 
     @Override
     public void stop(String playerId) {
-        ((StatePoolingHandler) cache.get(playerId)).stoppedByUser = true;
-        super.stop(playerId);
+        ((PoolingStateManager) cache.get(playerId)).stoppedByUser = true;
     }
 
     /*
      * Override generic implementation to pool for WMP play state instead,
      * player not generating events as expected.
      */
-    protected class StatePoolingHandler extends StateHandler {
+    protected class PoolingStateManager extends StateManager {
 
         private Timer playStateTimer;
         private int previousState,  stateTimerPeriod = 200;
         private Timer downloadProgressTimer;
         private boolean stoppedByUser,  isBuffering;
 
-        public StatePoolingHandler(final String id, MediaStateListener _listener,
-                HasMediaStateHandlers _handlers) {
-            super(id, _listener, _handlers);
+
+        public PoolingStateManager(final WinMediaPlayerImpl _player,
+                HasMediaStateHandlers _handlers, boolean _resizing) {
+            super(_player, _handlers, _resizing);
             previousState = -9;
             stoppedByUser = false;
             downloadProgressTimer = new Timer() {
 
                 @Override
                 public void run() {
-                    double prog = getDownloadProgressImpl(id);
+                    double prog = player.getDownloadProgress();
                     if (prog == 1.0) {
                         cancel();
                         debug("Media loading complete");
-//                listener.onLoadingComplete();
                     }
                     LoadingProgressEvent.fire(handlers, prog);
                 }
@@ -143,7 +137,6 @@ public class WinMediaPlayerImplNoEvent extends WinMediaPlayerImpl {
         }
 
         private void fireBuffering(boolean buffering) {
-//            listener.onBuffering(buffering);
             isBuffering = buffering;
             debug("Buffering " + (buffering ? " started" : " stopped"));
             PlayerStateEvent.fire(handlers,

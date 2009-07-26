@@ -20,19 +20,30 @@ import com.google.gwt.event.shared.GwtEvent;
 import com.google.gwt.event.shared.GwtEvent.Type;
 
 /**
+ * The event fired when the state of the player changes
  *
  * @author Sikirulai Braheem <sbraheem at bramosystems.com>
  */
 public class PlayerStateEvent extends GwtEvent<PlayerStateHandler> {
     public static final Type<PlayerStateHandler> TYPE = new Type<PlayerStateHandler>();
     private State state;
-  
+
+    /**
+     * Creates a new player state event
+     *
+     * @param state the new state
+     */
     protected PlayerStateEvent(State state) {
         this.state = state;
     }
 
-    public static <S extends HasMediaStateHandlers> void fire(S source,
-            State state) {
+    /**
+     * Fires player state event on all registered handlers
+     *
+     * @param source the source the event
+     * @param state the new player state
+     */
+    public static void fire(HasMediaStateHandlers source, State state) {
         source.fireEvent(new PlayerStateEvent(state));
     }
 
@@ -45,12 +56,40 @@ public class PlayerStateEvent extends GwtEvent<PlayerStateHandler> {
     protected void dispatch(PlayerStateHandler handler) {
         handler.onPlayerStateChanged(this);
     }
-    
+
+    /**
+     * Retrieves the new player state
+     *
+     * @return the new player state
+     */
     public State getPlayerState() {
         return state;
     }
-    
+
+    /**
+     * An enum of media player states
+     */
     public enum State {
-        Ready, BufferingStarted, BufferingFinished
+        /**
+         * The player is initialized and ready
+         */
+        Ready, 
+        
+        /**
+         * The player has started buffering
+         */
+        BufferingStarted,
+        /**
+         * The player has stopped buffering
+         */
+        BufferingFinished,
+
+        /**
+         * The dimension of the player has changed.
+         *
+         * <p>This state is raised when the dimension of the player changes to match the
+         * size of the current media (especially video).
+         */
+        DimensionChangedOnVideo
     }
 }

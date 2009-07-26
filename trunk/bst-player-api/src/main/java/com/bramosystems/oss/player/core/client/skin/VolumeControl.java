@@ -23,15 +23,19 @@ import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.MouseUpEvent;
 import com.google.gwt.event.dom.client.MouseUpHandler;
 import com.google.gwt.event.shared.HandlerRegistration;
-import com.google.gwt.user.client.ui.*;
-import java.util.ArrayList;
+import com.google.gwt.user.client.ui.AbsolutePanel;
+import com.google.gwt.user.client.ui.Composite;
+import com.google.gwt.user.client.ui.Image;
+import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.PopupPanel;
+import com.google.gwt.user.client.ui.Widget;
 
 /**
  * Widget to control the volume of a player.  The control is placed on a player
  * as an icon which when clicked upon, opens a popup panel containing the
  * slider widget for the volume.
  *
- * <p>{@code VolumeChangeListener}s are notified whenever the slider is adjusted.
+ * <p>{@code VolumeChangeHandler}s are notified whenever the slider is adjusted.
  *
  * <h4>CSS Styles</h4>
  * <code><pre>
@@ -40,13 +44,12 @@ import java.util.ArrayList;
  * .player-VolumeControl .track  { the sliders' track indicator }
  * </pre></code>
  *
- * @see VolumeChangeListener
+ * @see VolumeChangeHandler
  * @author Sikirulai Braheem
  */
 public class VolumeControl extends Composite implements MouseUpHandler, HasVolumeChangeHandlers {
 
     private Label volume,  track;
-    private ArrayList<VolumeChangeListener> seekListeners;
     private PopupPanel volumePanel;
     private AbsolutePanel seekTrack;
 
@@ -73,8 +76,6 @@ public class VolumeControl extends Composite implements MouseUpHandler, HasVolum
             }
         });
         super.initWidget(icon);
-
-        seekListeners = new ArrayList<VolumeChangeListener>();
 
         volume = new Label();
         volume.addMouseUpHandler(this);
@@ -123,7 +124,6 @@ public class VolumeControl extends Composite implements MouseUpHandler, HasVolum
         double vol = 0;
         vol = event.getX() / (double) seekTrack.getOffsetWidth();
         setVolume(vol);
-        fireVolumeChanged(vol);
         VolumeChangeEvent.fire(this, vol);
     }
 
@@ -136,60 +136,15 @@ public class VolumeControl extends Composite implements MouseUpHandler, HasVolum
     }
 
     /**
-     * Adds {@code VolumeChangeListener} object to this control.  The listener
-     * is notified whenever the state of the volume slider changes.
+     * Adds the specified handler to the player.  The handler is called whenever the state
+     * of the volume slider changes.
      *
-     * @param listener {@code VolumeChangeListener} object to add to
-     * the list of {@code VolumeChangeListener}s.
-     * @deprecated
+     * @param handler the handler
+     * @return the HandlerRegistration used to remove the handler
+     * @see VolumeChangeHandler
      */
-    public void addVolumeChangeListener(VolumeChangeListener listener) {
-        seekListeners.add(listener);
-    }
-
-    /**
-     * Removes {@code VolumeChangeListener} object from the list of registered listeners.
-     *
-     * @param listener {@code VolumeChangeListener} object to remove to remove
-     * from the list of {@code VolumeChangeListener}s
-     * @deprecated
-     */
-    public void removeVolumeChangeListener(VolumeChangeListener listener) {
-        seekListeners.remove(listener);
-    }
-
-    /**
-     * @deprecated
-     * @param newValue
-     */
-    private void fireVolumeChanged(double newValue) {
-        for (int i = 0; i < seekListeners.size(); i++) {
-            seekListeners.get(i).onVolumeChanged(newValue);
-        }
-    }
-
     public HandlerRegistration addVolumeChangeHandler(VolumeChangeHandler handler) {
         return addHandler(handler, VolumeChangeEvent.TYPE);
-    }
-
-    /**
-     * Assigns a CSS style class name to the volume indicator
-     *
-     * @param styleName CSS style class name
-     * @deprecated Use appropriate style in a stylesheet instead. Will be removed in a future version
-     */
-    public void setVolumeIndicatorStyleName(String styleName) {
-//        volume.setStyleName(styleName);
-    }
-
-    /**
-     * Assigns a CSS style class name to the volume track
-     *
-     * @param styleName CSS style class name
-     * @deprecated Use appropriate style in a stylesheet instead. Will be removed in a future version
-     */
-    public void setTrackStyleName(String styleName) {
-//        track.setStyleName(styleName);
     }
 
     /**
@@ -199,41 +154,5 @@ public class VolumeControl extends Composite implements MouseUpHandler, HasVolum
      */
     public void setPopupStyleName(String styleName) {
         volumePanel.setStylePrimaryName(styleName);
-    }
-
-    /**
-     * Assigns the specified style value to the named style on the
-     * volume indicator.
-     *
-     * @param name name of style e.g. {@code background, cursor etc}
-     * @param value the style.
-     * @deprecated Use appropriate style in a stylesheet instead. Will be removed in a future version
-     */
-    public void setVolumeIndicatorStyle(String name, String value) {
-//        DOM.setStyleAttribute(volume.getElement(), name, value);
-    }
-
-    /**
-     * Assigns the specified style value to the named style on the
-     * volume track.
-     *
-     * @param name name of style e.g. {@code background, cursor etc}
-     * @param value the style.
-     * @deprecated Use appropriate style in a stylesheet instead. Will be removed in a future version
-     */
-    public void setTrackStyle(String name, String value) {
-//        DOM.setStyleAttribute(track.getElement(), name, value);
-    }
-
-    /**
-     * Assigns the specified style value to the named style on the
-     * volume slider popup panel.
-     *
-     * @param name name of style e.g. {@code background, cursor etc}
-     * @param value the style.
-     * @deprecated Use appropriate style in a stylesheet instead. Will be removed in a future version
-     */
-    public void setPopupStyle(String name, String value) {
-//        DOM.setStyleAttribute(volumePanel.getElement(), name, value);
     }
 }

@@ -18,8 +18,6 @@
 package com.bramosystems.oss.player.core.client.video;
 
 import com.google.gwt.junit.client.GWTTestCase;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
@@ -27,17 +25,9 @@ import static org.junit.Assert.*;
  *
  * @author Sikirulai Braheem <sbraheem at bramosystems dot com>
  */
-public class AspectRatioTest extends GWTTestCase {
+public class TxtAspectRatio extends GWTTestCase {
 
-    public AspectRatioTest() {
-    }
-
-    @BeforeClass
-    public static void setUpClass() throws Exception {
-    }
-
-    @AfterClass
-    public static void tearDownClass() throws Exception {
+    public TxtAspectRatio() {
     }
 
     @Test

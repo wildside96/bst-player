@@ -20,8 +20,7 @@ import com.bramosystems.oss.player.core.client.skin.MediaSeekBar;
 import com.google.gwt.event.shared.EventHandler;
 
 /**
- * Implement this interface to receive seek change updates from a {@code MediaSeekBar}
- * implementation.
+ * Handler interface for MediaSeekBar {@link SeekChangeEvent} events.
  *
  * @see MediaSeekBar
  * @author Sikirulai Braheem <sbraheem at gmail.com>
@@ -29,10 +28,9 @@ import com.google.gwt.event.shared.EventHandler;
 public interface SeekChangeHandler extends EventHandler {
 
     /**
-     * Fired when the state of a {@code MediaSeekBar} implementation is changed.
+     * Called when the state of a {@code MediaSeekBar} implementation is changed.
      *
-     * @param newValue between {@code 0} (start of media) to {@code 1} (end
-     * of media).
+     * @param event the SeekChangeEvent that was fired
      */
     public void onSeekChanged(SeekChangeEvent event);
 }

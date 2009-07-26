@@ -17,15 +17,17 @@ package com.bramosystems.oss.player.core.client.ui;
 
 import com.bramosystems.oss.player.core.client.*;
 import com.bramosystems.oss.player.core.client.MediaInfo.MediaInfoKey;
+import com.bramosystems.oss.player.core.client.impl.PlayerScriptUtil;
+import com.bramosystems.oss.player.core.client.impl.WMPStateManager;
 import com.bramosystems.oss.player.core.client.impl.WinMediaPlayerImpl;
 import com.bramosystems.oss.player.core.event.client.DebugEvent;
 import com.bramosystems.oss.player.core.event.client.DebugHandler;
 import com.bramosystems.oss.player.core.event.client.MediaInfoEvent;
 import com.bramosystems.oss.player.core.event.client.MediaInfoHandler;
+import com.bramosystems.oss.player.core.event.client.PlayerStateEvent.State;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.DOM;
-import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
@@ -62,12 +64,14 @@ import com.google.gwt.user.client.ui.*;
  */
 public final class WinMediaPlayer extends AbstractMediaPlayer {
 
-    private static WinMediaPlayerImpl impl;
-    private String playerId,  uiMode = "full",  mediaURL, _width, _height;
+    private static WMPStateManager stateManager;
+    private WinMediaPlayerImpl impl;
+    private String playerId,  mediaURL,  _width,  _height;
     private HTML playerDiv;
     private Logger logger;
-    private boolean isEmbedded, autoplay, resizeToVideoSize;
+    private boolean isEmbedded,  autoplay,  resizeToVideoSize;
     private DockPanel panel;
+    private UIMode uiMode;
 
     private WinMediaPlayer() throws PluginNotFoundException, PluginVersionException {
         PluginVersion req = Plugin.WinMediaPlayer.getVersion();
@@ -76,8 +80,8 @@ public final class WinMediaPlayer extends AbstractMediaPlayer {
             throw new PluginVersionException(req.toString(), v.toString());
         }
 
-        if (impl == null) {
-            impl = GWT.create(WinMediaPlayerImpl.class);
+        if (stateManager == null) {
+            stateManager = GWT.create(WMPStateManager.class);
         }
 
         playerId = DOM.createUniqueId().replace("-", "");
@@ -114,8 +118,6 @@ public final class WinMediaPlayer extends AbstractMediaPlayer {
         _height = height;
         _width = width;
 
-        impl.init(playerId, new MediaStateListenerAdapter(), this);
-
         panel = new DockPanel();
         panel.setStyleName("");
         panel.setWidth("100%");
@@ -132,7 +134,7 @@ public final class WinMediaPlayer extends AbstractMediaPlayer {
             addDebugHandler(new DebugHandler() {
 
                 public void onDebug(DebugEvent event) {
-                    switch(event.getMessageType()) {
+                    switch (event.getMessageType()) {
                         case Error:
                             Window.alert(event.getMessage());
                         case Info:
@@ -143,18 +145,20 @@ public final class WinMediaPlayer extends AbstractMediaPlayer {
             addMediaInfoHandler(new MediaInfoHandler() {
 
                 public void onMediaInfoAvailable(MediaInfoEvent event) {
+                    logger.log(event.getMediaInfo().asHTMLString(), true);
                     MediaInfo info = event.getMediaInfo();
                     if (info.getAvailableItems().contains(MediaInfoKey.VideoHeight) ||
                             info.getAvailableItems().contains(MediaInfoKey.VideoWidth)) {
                         checkVideoSize(Integer.parseInt(info.getItem(MediaInfoKey.VideoHeight)) + 16,
                                 Integer.parseInt(info.getItem(MediaInfoKey.VideoWidth)));
                     }
-                    logger.log(event.getMediaInfo().asHTMLString(), true);
                 }
             });
+            setUIMode(UIMode.FULL);
         } else {
             _width = "0px";
             _height = "0px";
+            setUIMode(UIMode.INVISIBLE);
         }
 
         playerDiv = new HTML();
@@ -211,12 +215,42 @@ public final class WinMediaPlayer extends AbstractMediaPlayer {
 
             @Override
             public void run() {
-                playerDiv.setHTML(impl.getPlayerScript(mediaURL, playerId, autoplay,
-                        uiMode, playerDiv.getOffsetHeight(), playerDiv.getOffsetWidth()));
-                impl.registerMediaStateListener(playerId);
+                setupPlayer(false);
             }
         };
         t.schedule(200);            // IE workarround...
+    }
+
+    /**
+     * TODO: look for more elegant solutions. This is rather dirty :-;
+     *
+     * Quick resizing-fix for non-IE browsers. Method replaces player object
+     * with another using video size of previously loaded media metadata.
+     *
+     * @param isResizing
+     */
+    private void setupPlayer(final boolean isResizing) {
+        playerDiv.setHTML(PlayerScriptUtil.getWMPlayerScript(mediaURL, playerId, autoplay,
+                playerDiv.getOffsetHeight(), playerDiv.getOffsetWidth()));
+        Timer tt = new Timer() {
+
+            @Override
+            public void run() {
+                if (isPlayerOnPage(playerId)) {
+                    impl = WinMediaPlayerImpl.getPlayer(playerId);
+                    stateManager.init(impl, WinMediaPlayer.this, isResizing);
+                    stateManager.registerMediaStateHandlers(impl);
+                    setUIMode(uiMode);
+
+                    if (isResizing) {
+                        impl.play();
+                    }
+                } else {
+                    schedule(100);
+                }
+            }
+        };
+        tt.schedule(100);
     }
 
     /**
@@ -224,65 +258,71 @@ public final class WinMediaPlayer extends AbstractMediaPlayer {
      */
     @Override
     protected void onUnload() {
-        impl.close(playerId);
+        impl.close();
         playerDiv.setText("");
     }
 
     public void loadMedia(String mediaURL) throws LoadException {
         checkAvailable();
-        impl.loadSound(playerId, mediaURL);
+        impl.setURL(mediaURL);
     }
 
     public void playMedia() throws PlayException {
         checkAvailable();
-        impl.play(playerId);
+        impl.play();
     }
 
     public void stopMedia() {
         checkAvailable();
-        impl.stop(playerId);
+        stateManager.stop(playerId);
+        impl.stop();
     }
 
     public void pauseMedia() {
         checkAvailable();
-        impl.pause(playerId);
+        impl.pause();
     }
 
     public void close() {
         checkAvailable();
-        impl.close(playerId);
+        stateManager.close(playerId);
+        impl.close();
         playerDiv.setText("");
     }
 
     public long getMediaDuration() {
         checkAvailable();
-        return (long) impl.getDuration(playerId);
+        return (long) impl.getDuration();
     }
 
     public double getPlayPosition() {
         checkAvailable();
-        return impl.getCurrentPosition(playerId);
+        return impl.getCurrentPosition();
     }
 
     public void setPlayPosition(double position) {
         checkAvailable();
-        impl.setCurrentPosition(playerId, position);
+        impl.setCurrentPosition(position);
     }
 
     public double getVolume() {
         checkAvailable();
-        return impl.getVolume(playerId) / (double) 100;
+        return impl.getVolume() / (double) 100;
     }
 
     public void setVolume(double volume) {
         checkAvailable();
         volume *= 100;
-        impl.setVolume(playerId, (int) volume);
+        impl.setVolume((int) volume);
         fireDebug("Volume set to " + ((int) volume) + "%");
     }
 
+    private boolean isAvailable() {
+        return isPlayerOnPage(playerId) && stateManager.isPlayerStateManaged(playerId);
+    }
+
     private void checkAvailable() {
-        if (!impl.isPlayerAvailable(playerId)) {
+        if (!isAvailable()) {
             String message = "Player closed already, create another instance";
             fireDebug(message);
             throw new IllegalStateException(message);
@@ -301,15 +341,13 @@ public final class WinMediaPlayer extends AbstractMediaPlayer {
      */
     @Override
     public void setControllerVisible(boolean show) {
+        UIMode mode = null;
         if (show) {
-            uiMode = isEmbedded ? UI_MODE_INVISIBLE : UI_MODE_FULL;
+            mode = isEmbedded ? UIMode.INVISIBLE : UIMode.FULL;
         } else {
-            uiMode = isEmbedded ? UI_MODE_INVISIBLE : UI_MODE_NONE;
+            mode = isEmbedded ? UIMode.INVISIBLE : UIMode.NONE;
         }
-
-        if (impl.isPlayerAvailable(playerId)) {
-            impl.setUIMode(playerId, uiMode);
-        }
+        setUIMode(mode);
     }
 
     /**
@@ -317,15 +355,17 @@ public final class WinMediaPlayer extends AbstractMediaPlayer {
      */
     @Override
     public boolean isControllerVisible() {
-        return uiMode.equals(UI_MODE_FULL);
+        UIMode mode = getUIMode();
+        return mode.equals(UIMode.FULL) || mode.equals(UIMode.MINI);
     }
+
     /**
      * Returns the number of times this player repeats playback before stopping.
      */
     @Override
     public int getLoopCount() {
         checkAvailable();
-        return impl.getLoopCount(playerId);
+        return impl.getLoopCount();
     }
 
     /**
@@ -336,45 +376,34 @@ public final class WinMediaPlayer extends AbstractMediaPlayer {
      */
     @Override
     public void setLoopCount(final int loop) {
-        if (impl.isPlayerAvailable(playerId)) {
-            impl.setLoopCount(playerId, loop);
+        if (isAvailable()) {
+            impl.setLoopCount(loop);
         } else {
             addToPlayerReadyCommandQueue("loopcount", new Command() {
 
                 public void execute() {
-                    impl.setLoopCount(playerId, loop);
+                    impl.setLoopCount(loop);
                 }
             });
         }
     }
 
-    /**
-     * Retrieves the current media library access rights of the player
-     *
-     * @return current media access rights
-     * @since 1.0
-     */
-    public MediaAccessRights getMediaAccessRights() {
-        checkAvailable();
-        return MediaAccessRights.valueOf(impl.getMediaAccessRight(playerId).toLowerCase());
-    }
-
     @Override
     public int getVideoHeight() {
         checkAvailable();
-        return impl.getVideoHeight(playerId);
+        return impl.getVideoHeight();
     }
 
     @Override
     public int getVideoWidth() {
         checkAvailable();
-        return impl.getVideoWidth(playerId);
+        return impl.getVideoWidth();
     }
 
     @Override
     public void setResizeToVideoSize(boolean resize) {
         resizeToVideoSize = resize;
-        if (impl.isPlayerAvailable(playerId)) {
+        if (isAvailable()) {
             // if player is on panel now update its size, otherwise
             // allow it to be handled by the MediaInfoHandler...
             checkVideoSize(getVideoHeight() + 50, getVideoWidth());
@@ -388,26 +417,37 @@ public final class WinMediaPlayer extends AbstractMediaPlayer {
 
     private void checkVideoSize(int vidHeight, int vidWidth) {
         String _h = _height, _w = _width;
-        boolean stretch = false;
         if (resizeToVideoSize) {
             if ((vidHeight > 0) && (vidWidth > 0)) {
                 // adjust to video size ...
                 fireDebug("Resizing Player : " + vidWidth + " x " + vidHeight);
                 _w = vidWidth + "px";
                 _h = vidHeight + "px";
-                stretch = true;
             }
         }
 
-        impl.setStretchToFit(playerId, stretch);
-        Element pe = DOM.getElementById(playerId);
-//        DOM.setStyleAttribute(pe, "width", _w);
-//        DOM.setStyleAttribute(pe, "height", _h);
-        DOM.setElementAttribute(pe, "width", _w);
-        DOM.setElementAttribute(pe, "height", _h);
         setWidth(_w);
         panel.setCellHeight(playerDiv, _h);
-        logger.log("Stretch to fit : " + impl.isStretchToFit(playerId), false);
+        DOM.getElementById(playerId).setAttribute("width", _w);
+        DOM.getElementById(playerId).setAttribute("height", _h);
+
+        if (!_height.equals(_h) && !_width.equals(_w)) {
+            if (stateManager.shouldRunResizeQuickFix()) {
+                setupPlayer(true);
+            }
+            firePlayerStateEvent(State.DimensionChangedOnVideo);
+        }
+    }
+
+    /**
+     * Retrieves the current media library access rights of the player
+     *
+     * @return current media access rights
+     * @since 1.0
+     */
+    public MediaAccessRights getMediaAccessRights() {
+        checkAvailable();
+        return MediaAccessRights.valueOf(impl.getMediaAccessRight().toLowerCase());
     }
 
     /**
@@ -423,38 +463,105 @@ public final class WinMediaPlayer extends AbstractMediaPlayer {
      * @param accessRights access level
      * @since 1.0
      */
-    public void setMediaAccessRights(MediaAccessRights accessRights) {
-        if(impl.isPlayerAvailable(playerId)) {
-            impl.requestMediaAccessRight(playerId, accessRights.name().toLowerCase());
+    public void setMediaAccessRights(final MediaAccessRights accessRights) {
+        if (isAvailable()) {
+            impl.requestMediaAccessRight(accessRights.name().toLowerCase());
         } else {
-            impl.requestAccessRightsOnInit(playerId, accessRights.name().toLowerCase());
+            addToPlayerReadyCommandQueue("accessright", new Command() {
+
+                public void execute() {
+                    impl.requestMediaAccessRight(accessRights.name().toLowerCase());
+                }
+            });
         }
     }
 
     /**
-     * Specifies the Library Access levels of the Windows Media Player plugin.
+     * Sets the UI mode of the player
+     *
+     * <p>If the player is not attached to a player, this call is scheduled for execution
+     * when the underlying plugin is initialized.
+     *
+     * @since 1.0
+     * @param uiMode the UI mode to set
+     */
+    public void setUIMode(final UIMode uiMode) {
+        this.uiMode = uiMode;
+        if (isAvailable()) {
+            impl.setUIMode(uiMode.name().toLowerCase());
+        } else {
+            addToPlayerReadyCommandQueue("uimode", new Command() {
+
+                public void execute() {
+                    impl.setUIMode(uiMode.name().toLowerCase());
+                }
+            });
+        }
+    }
+
+    /**
+     * Retrieves the current UI mode of the player
+     *
+     * @return current UI mode
+     * @since 1.0
+     */
+    public UIMode getUIMode() {
+        checkAvailable();
+        return UIMode.valueOf(impl.getUIMode().toUpperCase());
+    }
+
+    /**
+     * An enum of Library Access levels of the Windows Media Player&trade; plugin.
      *
      * @since 1.0
      * @author Sikirulai Braheem
      */
     public static enum MediaAccessRights {
+
         /**
          * No access
          */
         NONE,
-
         /**
          * Read only access
          */
         READ,
-
         /**
          * Read/write access
          */
         FULL
     }
 
-    private final String UI_MODE_FULL = "full";
-    private final String UI_MODE_NONE = "none";
-    private final String UI_MODE_INVISIBLE = "invisible";
+    /**
+     * An enum of user interface modes of the Windows Media Player&trade; plugin.
+     *
+     * <p>The mode indicates which controls are shown in the user interface.
+     *
+     * @since 1.0
+     * @author Sikirulai Braheem
+     */
+    public static enum UIMode {
+
+        /**
+         * The player is embedded without any visible user interface
+         * (controls, video or visualization window).
+         */
+        INVISIBLE,
+        /**
+         * The player is embedded without controls, and with only the video or
+         * visualization window displayed.
+         */
+        NONE,
+        /**
+         * The player is embedded with the status window, play/pause, stop, mute, and
+         * volume controls shown in addition to the video or visualization window.
+         */
+        MINI,
+        /**
+         * The player is embedded with the status window, seek bar, play/pause,
+         * stop, mute, next, previous, fast forward, fast reverse, and
+         * volume controls in addition to the video or visualization window.
+         */
+        FULL
+    }
 }

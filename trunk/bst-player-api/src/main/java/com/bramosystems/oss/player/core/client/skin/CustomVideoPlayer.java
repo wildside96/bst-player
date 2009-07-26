@@ -132,58 +132,17 @@ public abstract class CustomVideoPlayer extends AbstractMediaPlayer implements P
         engine.addPlayerStateHandler(new PlayerStateHandler() {
 
             public void onPlayerStateChanged(PlayerStateEvent event) {
-                fireEvent(event);
+                switch (event.getPlayerState()) {
+                    case DimensionChangedOnVideo:
+                        onVideoDimensionChanged(engine.getOffsetWidth(),
+                                engine.getOffsetHeight());
+                        break;
+                    default:
+                        fireEvent(event);
+                }
             }
         });
 
-        /*
-        engine.addMediaStateListener(new MediaStateListener() {
-
-            public void onError(String description) {
-                fireError(description);
-            }
-
-            public void onLoadingComplete() {
-                fireLoadingComplete();
-            }
-
-            public void onPlayFinished() {
-                firePlayFinished();
-            }
-
-            public void onDebug(String report) {
-                fireDebug(report);
-            }
-
-            public void onLoadingProgress(double progress) {
-                fireLoadingProgress(progress);
-            }
-
-            public void onPlayStarted() {
-                firePlayStarted();
-            }
-
-            public void onPlayerReady() {
-                firePlayerReady();
-            }
-
-            public void onMediaInfoAvailable(MediaInfo info) {
-                fireMediaInfoAvailable(info);
-            }
-            
-            public void onPlayStarted(int index) {
-                firePlayStarted(index);
-            }
-
-            public void onPlayFinished(int index) {
-                firePlayFinished(index);
-            }
-
-            public void onBuffering(boolean buffering) {
-                fireBuffering(buffering);
-            }
-        });
-        */
         engine.setControllerVisible(false);
         engine.showLogger(false);
 
@@ -195,6 +154,7 @@ public abstract class CustomVideoPlayer extends AbstractMediaPlayer implements P
         hp.setVerticalAlignment(VerticalPanel.ALIGN_MIDDLE);
         hp.add(container, DockPanel.SOUTH);
         hp.add(engine, DockPanel.CENTER);
+
         super.initWidget(hp);
         setSize(width, height);
     }
@@ -331,4 +291,51 @@ public abstract class CustomVideoPlayer extends AbstractMediaPlayer implements P
             ((PlaylistSupport) engine).playPrevious();
         }
     }
+
+    @Override
+    public int getVideoHeight() {
+        return engine.getVideoHeight();
+    }
+
+    @Override
+    public int getVideoWidth() {
+        return engine.getVideoWidth();
+    }
+
+    @Override
+    public boolean isControllerVisible() {
+        return engine.isControllerVisible();
+    }
+
+    @Override
+    public boolean isResizeToVideoSize() {
+        return engine.isResizeToVideoSize();
+    }
+
+    @Override
+    public void setControllerVisible(boolean show) {
+        engine.setControllerVisible(show);
+    }
+
+    @Override
+    public void setResizeToVideoSize(boolean resize) {
+        engine.setResizeToVideoSize(resize);
+    }
+
+    @Override
+    public void showLogger(boolean show) {
+        engine.showLogger(show);
+    }
+
+    /**
+     * Called when the size of the embedded player changes to match the dimension of
+     * the media (especially video)
+     *
+     * <p>This method is called whenever the {@link PlayerStateEvent} event is fired
+     * with <code>State.DimensionChangedOnVideo</code> state.
+     *
+     * @param width the width of the media (in pixels)
+     * @param height the height of the media (in pixels)
+     */
+    protected abstract void onVideoDimensionChanged(int width, int height);
 }
