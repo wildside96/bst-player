@@ -4,9 +4,10 @@
     <parent>
         <artifactId>bst-player</artifactId>
         <groupId>com.bramosystems.oss.player</groupId>
-        <version>1.0</version>
+        <version>1.0.1</version>
     </parent>
     <artifactId>bst-flash-player</artifactId>
+  <version>1.0.1-SNAPSHOT</version>
     <packaging>swf</packaging>
     <name>BST Flash Player</name>
 
