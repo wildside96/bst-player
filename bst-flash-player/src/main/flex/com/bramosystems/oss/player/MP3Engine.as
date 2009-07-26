@@ -38,10 +38,7 @@ package com.bramosystems.oss.player {
             private var isPlaying:Boolean = false, isPaused:Boolean = false;
             private var propagateID3:Boolean = false;
 
-            private var playFinishedHandler:Function;
-
-            public function MP3Engine(playFinishedHandler:Function) {
-                this.playFinishedHandler = playFinishedHandler;
+            public function MP3Engine() {
             }
 
             public function _load(url:String):void {
@@ -65,16 +62,6 @@ package com.bramosystems.oss.player {
                 }
             }
 
-            public function setPlayPosition(channelPosition:Number):void {
-                if(isPaused || isPlaying) {
-                    position = channelPosition;
-                    Log.info("Setting position : " + position);
-                    if(isPlaying) {
-                        play();
-                    }
-                }
-            }
-
             public function play():void {
                 if(sound == null) {
                     Log.info("Player not loaded, load player first");
@@ -86,7 +73,6 @@ package com.bramosystems.oss.player {
                 }
                 channel = sound.play(position, 0, sndTransform);
                 channel.addEventListener(Event.SOUND_COMPLETE, _playFinishedHandler);
-                channel.addEventListener(Event.SOUND_COMPLETE, playFinishedHandler);
                 _playStartedHandler();
            }
 
@@ -116,6 +102,15 @@ package com.bramosystems.oss.player {
                 channel.stop();
                 isPlaying = false;
                 dispatchEvent(new PlayStateEvent(PlayStateEvent.PLAY_STOPPED));
+            }
+
+            public function setPlayPosition(channelPosition:Number):void {
+                if(isPaused || isPlaying) {
+                    position = channelPosition;
+                    if(isPlaying) {
+                        play();
+                    }
+                }
             }
 
             public function getPlayPosition():Number {
@@ -201,6 +196,7 @@ package com.bramosystems.oss.player {
             private function _playFinishedHandler(event:Event):void {
                 position = 0;
 //                removeEventListener(Event.ENTER_FRAME, onEnterFrame);
+                dispatchEvent(new PlayStateEvent(PlayStateEvent.PLAY_FINISHED));
             }
 
 

@@ -26,10 +26,9 @@ package com.bramosystems.oss.player {
 
     public class VideoEngine extends VideoDisplay implements Engine {
 
-            public function VideoEngine(playFinishedHandler:Function) {
+            public function VideoEngine() {
                 addEventListener(ProgressEvent.PROGRESS, loadingProgressHandler);
                 addEventListener(MetadataEvent.METADATA_RECEIVED, metadataHandler);
-                addEventListener(VideoEvent.COMPLETE, playFinishedHandler);
                 addEventListener(VideoEvent.STATE_CHANGE, stateHandler);
             }
 
@@ -123,17 +122,18 @@ package com.bramosystems.oss.player {
                     }
                     hdwr += ", Video data rate: " + meta.info.videodatarate;
                     hdwr += ", Frame rate: " + meta.info.framerate;
-                    hdwr += ", Height: " + meta.info.height;
-                    hdwr += ", Width: " + meta.info.width;
 
                     Log.info("Media Metadata available");
-                    EventUtil.fireVideoMetadata(meta.info.duration, hdwr);
+                    EventUtil.fireVideoMetadata(meta.info.duration, hdwr, meta.info.width, meta.info.height);
                     propagateMeta = false;
                 }
             }
 
             private function stateHandler(event:VideoEvent):void {
                 switch(event.state) {
+                    case VideoEvent.COMPLETE:
+                        dispatchEvent(new PlayStateEvent(PlayStateEvent.PLAY_FINISHED));
+                        break;
                     case VideoEvent.PLAYING:
                         dispatchEvent(new PlayStateEvent(PlayStateEvent.PLAY_STARTED));
                         break;

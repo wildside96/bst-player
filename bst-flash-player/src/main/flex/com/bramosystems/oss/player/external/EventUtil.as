@@ -37,24 +37,24 @@ package com.bramosystems.oss.player.external {
             // parse into CSV like values ...
             // year[$]albumTitle[$]artists[$]comment[$]genre[$]title[$]
             // contentProviders[$]copyright[$]duration[$]hardwareSoftwareRequirements[$]
-            // publisher[$]internetStationOwner[$]internetStationName
+            // publisher[$]internetStationOwner[$]internetStationName[$]videoWidth[$]videoHeight
 
             var id3:String = info.year + "[$]" + info.album + "[$]" + info.artist  + "[$]" +
                                 info.comment + "[$]" + info.genre + "[$]" + info.songName + "[$]" +
                                 info.TOLY + "[$]" + info.TOWN + "[$]" + info.TLEN + "[$]" +
                                 info.TSSE + "[$]" + info.TPUB + "[$]" + info.TRSO + "[$]" +
-                                info.TRSN;
+                                info.TRSN + "[$]0[$]0";
             ExternalInterface.call("bstSwfMdaMetadata", playerId, id3);
         }
 
-        public static function fireVideoMetadata(duration:Number, info:String):void {
+        public static function fireVideoMetadata(duration:Number, info:String, width:Number, height:Number):void {
             // parse into CSV like values ...
             // year[$]albumTitle[$]artists[$]comment[$]genre[$]title[$]
             // contentProviders[$]copyright[$]duration[$]hardwareSoftwareRequirements[$]
-            // publisher[$]internetStationOwner[$]internetStationName
+            // publisher[$]internetStationOwner[$]internetStationName[$]videoWidth[$]videoHeight
 
             var id3:String = "0[$] [$] [$] [$] [$] [$] [$] [$]" + (duration * 1000) +
-                             "[$]" + info + "[$] [$] [$] ";
+                             "[$]" + info + "[$] [$] [$] [$]" + width + "[$]" + height;
             ExternalInterface.call("bstSwfMdaMetadata", playerId, id3);
         }
     }
