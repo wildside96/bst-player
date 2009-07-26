@@ -1,26 +1,17 @@
 <html>
-    <head>
-        <title></title>
-        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-    </head>
-    <body>
-        <div class="section-desc">Playing MP3 media automatically</div>
-        <pre><code>Widget mp = null;
+    <pre><code>Widget mp = null;
 try {
-    mp = new FlashMP3Player(
-        GWT.getHostPageBaseURL() +
+    mp = new FlashMediaPlayer(GWT.getHostPageBaseURL() +
         "media/applause.mp3");
 } catch (LoadException ex) {
     Window.alert("Load exp");
 } catch (PluginVersionException ex) {
     mp = PlayerUtil.getMissingPluginNotice(
-        Plugin.FlashMP3Player,
-        ex.getRequiredVersion());
+        Plugin.FlashPlayer, ex.getRequiredVersion());
 } catch (PluginNotFoundException ex) {
     mp = PlayerUtil.getMissingPluginNotice(
-        Plugin.FlashMP3Player);
+        Plugin.FlashPlayer);
 }
 panel.add(mp);
-        </code></pre>
-    </body>
+    </code></pre>
 </html>

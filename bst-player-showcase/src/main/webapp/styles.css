@@ -7,17 +7,17 @@ Purpose of the stylesheet follows.
 */
 
 body {
-    font-family: Georgia,'Times New Roman',times,serif;
-    font-size: 12pt;
+    font-family: Georgia;
+    font-size: 14px;
     padding: 5px;
 }
 
 pre code {
     display: block;
-	background-color: #f5f5f5;
-	padding-left: 10px;
-	border-left: solid 1px #ccc;
-    font-size: 11pt;
+    background-color: #f5f5f5;
+    padding-left: 10px;
+    border-left: solid 1px #ccc;
+    font-size: 90%;
     color: #4b4b93;
 }
 
@@ -31,58 +31,49 @@ pre code {
 }
 
 .section-desc {
-	background-color: #f5f5f5;
+    background-color: #f5f5f5;
     font-weight: bold;
     color: #4b4b93;
 }
 
 .media-desc {
     margin-top: 5px;
-    font-size: 11pt;
+    font-size: 90%;
     font-style: italic;
 }
 
 .showcase-Banner {
-    margin-bottom: 20px;
-    font-size: 24pt;
+    margin-bottom: 10px;
+    font-size: 200%;
     color: #4b4b93;
     font-weight: bold;
-    border-bottom-style: solid;
-    border-bottom-width: 5px;
-    border-bottom-color: #4b4b93;
+    border-bottom: solid 5px #4b4b93;
 }
 
 .showcase-Summary {
-    background-color: #b1b1db;
-    font-size: 16pt;
-    padding: 10px;
+    background-image: url(images/showcase-bg.png);
+    background-repeat: repeat-x;
+    border: outset 1px silver;
+    font-size: 150%;
+    padding: 7px;
 }
 
 .showcase-Case {
-    border: solid 3px #b1b1db;
     margin-bottom: 20px;
+    border: 1px solid silver;
 }
 
-.showcase-Menu {
-    border-left: solid 2px #b1b1db;
-    border-top: solid 2px #b1b1db;
-    border-bottom: solid 2px #b1b1db;
-    background-color: #b1b1db;
-    padding: 5px;
-}
-.showcase-Menu:hover {
-    cursor: pointer;
-	background-color: #f5f5f5;
-    border-left: solid 2px #b1b1db;
-    border-top: solid 2px #b1b1db;
-    border-bottom: solid 2px #b1b1db;
+.showcase-Footer {
+    font-size: 80%;
+    text-align:center;
+    border-top: solid 2px #4b4b93;
+    margin-top: 10px;
+    padding-top: 5px;
 }
 
 .player-MissingPlugin {
-    border-style: solid;
-    border-width: 3px;
-    border-color: #b1b1db;
-    font-size: 10pt;
+    border: solid 3px #b1b1db;
+    font-size: 70%;
 }
 
 .player-MissingPlugin-title {
@@ -122,9 +113,36 @@ pre code {
     border: thin groove #cccccc;
     background-color: #b1b1b1;
     cursor: pointer;
- }
+}
 
 .gwt-TabBar .gwt-TabBarItem-selected {
     background-color: #b1b1db;
     border-bottom: none;
 }
+
+.gwt-StackPanel {
+    border: 1px solid silver;
+    border-top: none;
+    text-indent: 5px;
+}
+
+.gwt-StackPanel .gwt-StackPanelItem {
+    background-image: url(images/showcase-bg.png);
+    background-repeat: repeat-x;
+    border-top: 1px solid silver;
+    font-weight: bold;
+    cursor: pointer;
+    line-height: 2;
+}
+
+.gwt-StackPanel .gwt-StackPanelItem-selected {
+    border-bottom: 1px solid #97947f;
+}
+
+.gwt-StackPanel .gwt-StackPanelContent {
+}
+
+.gwt-StackPanel .gwt-StackPanelContent a {
+    text-decoration: none;
+}
+
