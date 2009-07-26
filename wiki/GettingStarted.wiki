@@ -1,6 +1,10 @@
 #labels Featured
 = Getting Started with BST Player =
 
+== Note: ==
+The information in this document applies to Version 0.6 and below.  Check [http://oss.bramosystems.com/bst-player/getting-started.html here] for Version 1.0 or later.
+
+== Overview ==
 BST Player API makes adding Windows Media Player, QuickTime player and Flash player plugins to GWT applications much like other GWT widgets. 
 
 The API features a set of classes and interfaces that presents a consistent means of interacting with the supported player plugins.  Therefore, knowing how to use one player widget means one is well at home with other player widgets.
