@@ -15,11 +15,21 @@
  */
 package com.bramosystems.oss.player.core.client.skin;
 
+import com.bramosystems.oss.player.core.event.client.LoadingProgressEvent;
+import com.bramosystems.oss.player.core.event.client.VolumeChangeHandler;
+import com.bramosystems.oss.player.core.event.client.LoadingProgressHandler;
+import com.bramosystems.oss.player.core.event.client.PlayStateHandler;
+import com.bramosystems.oss.player.core.event.client.PlayerStateHandler;
+import com.bramosystems.oss.player.core.event.client.PlayStateEvent;
+import com.bramosystems.oss.player.core.event.client.PlayerStateEvent;
+import com.bramosystems.oss.player.core.event.client.SeekChangeHandler;
+import com.bramosystems.oss.player.core.event.client.VolumeChangeEvent;
+import com.bramosystems.oss.player.core.event.client.DebugEvent;
+import com.bramosystems.oss.player.core.event.client.SeekChangeEvent;
 import com.bramosystems.oss.player.core.client.PlayerUtil;
 import com.bramosystems.oss.player.core.client.PlayException;
 import com.bramosystems.oss.player.core.client.AbstractMediaPlayer;
 import com.bramosystems.oss.player.core.client.PlaylistSupport;
-import com.bramosystems.oss.player.core.event.client.*;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
@@ -31,23 +41,22 @@ import com.google.gwt.user.client.ui.*;
  *
  * <h4>CSS Styles</h4>
  * <code><pre>
- * .player-FlatCustomControl { the player control }
- * .player-FlatCustomControl-seekbar { the seekbar of the control }
- * .player-FlatCustomControl-seekbar .loading { the seekbars' loading progress indicator }
- * .player-FlatCustomControl-seekbar .playing { the seekbars' playing progress indicator }
- * .player-FlatCustomControl-volumeControl { the volume controls' slider widget }
- * .player-FlatCustomControl-volumeControl .volume { the volume level indicator }
- * .player-FlatCustomControl-volumeControl .track  { the volume sliders' track indicator }
+ * .player-CustomPlayerControl { the player control }
+ * .player-CustomPlayerControl-seekbar { the seekbar of the control }
+ * .player-CustomPlayerControl-seekbar .loading { the seekbars' loading progress indicator }
+ * .player-CustomPlayerControl-seekbar .playing { the seekbars' playing progress indicator }
+ * .player-CustomPlayerControl-volumeControl { the volume controls' slider widget }
+ * .player-CustomPlayerControl-volumeControl .volume { the volume level indicator }
+ * .player-CustomPlayerControl-volumeControl .track  { the volume sliders' track indicator }
  * </pre></code>
  *
  * @author Sikirulai Braheem
- * @since 0.6
  */
-public class FlatCustomControl extends Composite {
+public class CustomPlayerControl extends Composite {
 
-    private final String STYLE_NAME = "player-FlatCustomControl";
+    private final String STYLE_NAME = "player-CustomPlayerControl";
     private ImagePack imgPack;
-    private PushButton play,  stop,  prev,  next;
+    private PushButton play, stop,  prev,  next;
     private Timer playTimer;
     private CSSSeekBar seekbar;
     private Label timeLabel;
@@ -56,23 +65,22 @@ public class FlatCustomControl extends Composite {
     private VolumeControl vc;
 
     /**
-     * Contructs FlatCustomControl object.
+     * Contructs CustomPlayerControl object.
      *
      * @param player the player object to control
      */
-    public FlatCustomControl(AbstractMediaPlayer player) {
+    public CustomPlayerControl(AbstractMediaPlayer player) {
         this(player, (ImagePack) GWT.create(ImagePack.class));
     }
 
     /**
-     * Constructs FlatCustomControl to control the specified player using the
+     * Constructs CustomPlayerControl to control the specified player using the
      * specified image icons for the control buttons.
      *
      * @param player the player object to control
      * @param imagePack the control button icons
-     * @since 1.0
      */
-    public FlatCustomControl(AbstractMediaPlayer player, ImagePack imagePack) {
+    public CustomPlayerControl(AbstractMediaPlayer player, ImagePack imagePack) {
         this.player = player;
         this.imgPack = imagePack;
         playState = PlayState.Stop;
@@ -124,7 +132,7 @@ public class FlatCustomControl extends Composite {
         seekbar.addSeekChangeHandler(new SeekChangeHandler() {
 
             public void onSeekChanged(SeekChangeEvent event) {
-                player.setPlayPosition(event.getValue() * player.getMediaDuration());
+                player.setPlayPosition(event.getSeekPosition() * player.getMediaDuration());
             }
         });
 
@@ -143,10 +151,9 @@ public class FlatCustomControl extends Composite {
                     case Stop:
                     case Pause:
                         try { // play media...
+                            play.setEnabled(false); // avoid multiple clicks
                             player.playMedia();
-                            play.setEnabled(false);
                         } catch (PlayException ex) {
-//                            player.fireError(ex.getMessage());
                             DebugEvent.fire(player, DebugEvent.MessageType.Error, ex.getMessage());
                         }
                         break;
@@ -178,7 +185,6 @@ public class FlatCustomControl extends Composite {
                         ((PlaylistSupport) player).playPrevious();
                     } catch (PlayException ex) {
                         next.setEnabled(false);
-//                        player.fireDebug(ex.getMessage());
                         DebugEvent.fire(player, DebugEvent.MessageType.Info, ex.getMessage());
                     }
                 }
@@ -198,7 +204,6 @@ public class FlatCustomControl extends Composite {
                     } catch (PlayException ex) {
                         next.setEnabled(false);
                         DebugEvent.fire(player, DebugEvent.MessageType.Info, ex.getMessage());
-//                        player.fireDebug(ex.getMessage());
                     }
                 }
             }
@@ -213,7 +218,7 @@ public class FlatCustomControl extends Composite {
         vc.addVolumeChangeHandler(new VolumeChangeHandler() {
 
             public void onVolumeChanged(VolumeChangeEvent event) {
-                player.setVolume(event.getValue());
+                player.setVolume(event.getNewVolume());
             }
         });
 
@@ -290,11 +295,11 @@ public class FlatCustomControl extends Composite {
     private void toPlayState(PlayState state) {
         switch (state) {
             case Playing:
-                play.setEnabled(true);
                 playTimer.scheduleRepeating(1000);
-                stop.setEnabled(true);
                 vc.setVolume(player.getVolume());
 
+                stop.setEnabled(true);
+                play.setEnabled(true);
                 play.getUpFace().setImage(imgPack.pause().createImage());
                 play.getUpHoveringFace().setImage(imgPack.pauseHover().createImage());
                 break;
@@ -308,6 +313,7 @@ public class FlatCustomControl extends Composite {
             case Pause:
                 play.getUpFace().setImage(imgPack.play().createImage());
                 play.getUpHoveringFace().setImage(imgPack.playHover().createImage());
+                play.setEnabled(true);
                 break;
         }
         playState = state;
@@ -330,7 +336,7 @@ public class FlatCustomControl extends Composite {
     }
 
     /**
-     * ImageBundle definition for the FlatCustomControl class
+     * ImageBundle definition for the CustomPlayerControl class
      */
     public interface ImagePack extends ImageBundle {
 

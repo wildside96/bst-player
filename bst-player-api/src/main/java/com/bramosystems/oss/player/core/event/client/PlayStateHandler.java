@@ -18,12 +18,17 @@ package com.bramosystems.oss.player.core.event.client;
 import com.google.gwt.event.shared.EventHandler;
 
 /**
- * Interface definition for media state handlers.
+ * Handler interface for {@link PlayStateEvent} events.
  *
  * @author Sikirulai Braheem
  */
 public interface PlayStateHandler extends EventHandler {
 
+    /**
+     * Called when PlayStateEvent is fired
+     *
+     * @param event the PlayStateEvent that was fired
+     */
     public void onPlayStateChanged(PlayStateEvent event);
     
 }

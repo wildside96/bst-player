@@ -31,7 +31,7 @@ public class MediaInfo {
     private String internetStationName,  internetStationOwner,  publisher;
     private String hardwareSoftwareRequirements,  copyright,  contentProviders;
     private double duration;
-    private String videoWidth, videoHeight;
+    private String videoWidth = "0", videoHeight = "0";
 
     @Override
     public String toString() {

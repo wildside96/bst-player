@@ -22,9 +22,7 @@ import com.bramosystems.oss.player.core.event.client.MediaInfoEvent;
 import com.bramosystems.oss.player.core.event.client.LoadingProgressEvent;
 import com.bramosystems.oss.player.core.event.client.DebugEvent;
 import com.bramosystems.oss.player.core.client.MediaInfo;
-import com.bramosystems.oss.player.core.client.MediaStateListener;
 import com.bramosystems.oss.player.core.client.ui.QuickTimePlayer;
-import com.bramosystems.oss.player.core.event.*;
 import com.google.gwt.i18n.client.NumberFormat;
 import java.util.HashMap;
 
@@ -41,10 +39,6 @@ public class QuickTimePlayerImpl {
 
     public QuickTimePlayerImpl() {
         cache = new HashMap<String, EventHandler>();
-    }
-
-    public void init(String playerId, MediaStateListener listener) {
-        cache.put(playerId, new EventHandler(playerId, listener));
     }
 
     public void init(String playerId, HasMediaStateHandlers handler) {
@@ -326,7 +320,6 @@ public class QuickTimePlayerImpl {
 
     public class EventHandler {
 
-        protected MediaStateListener listener;
         protected HasMediaStateHandlers handlers;
         protected String id;
         private int count;
@@ -336,12 +329,6 @@ public class QuickTimePlayerImpl {
 
         public EventHandler(String _id, HasMediaStateHandlers _handlers) {
             handlers = _handlers;
-            id = _id;
-            isBuffering = false;
-        }
-
-        public EventHandler(String _id, MediaStateListener _listener) {
-            listener = _listener;
             id = _id;
             isBuffering = false;
         }

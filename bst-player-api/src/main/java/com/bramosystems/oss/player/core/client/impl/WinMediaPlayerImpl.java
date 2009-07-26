@@ -15,19 +15,9 @@
  */
 package com.bramosystems.oss.player.core.client.impl;
 
-import com.bramosystems.oss.player.core.event.client.PlayerStateEvent;
-import com.bramosystems.oss.player.core.event.client.HasMediaStateHandlers;
-import com.bramosystems.oss.player.core.event.client.PlayStateEvent;
-import com.bramosystems.oss.player.core.event.client.MediaInfoEvent;
-import com.bramosystems.oss.player.core.event.client.LoadingProgressEvent;
-import com.bramosystems.oss.player.core.event.client.DebugEvent;
 import com.bramosystems.oss.player.core.client.MediaInfo;
-import com.bramosystems.oss.player.core.client.MediaStateListener;
 import com.bramosystems.oss.player.core.client.ui.WinMediaPlayer;
-import com.bramosystems.oss.player.core.event.*;
-import com.google.gwt.user.client.Timer;
-import java.util.HashMap;
-import java.util.Iterator;
+import com.google.gwt.core.client.JavaScriptObject;
 
 /**
  * Native implementation of the WinMediaPlayer class. It is not recommended to
@@ -36,192 +26,104 @@ import java.util.Iterator;
  * @author Sikirulai Braheem
  * @see WinMediaPlayer
  */
-public class WinMediaPlayerImpl {
+public class WinMediaPlayerImpl extends JavaScriptObject {
 
-    protected HashMap<String, StateHandler> cache;
-
-    WinMediaPlayerImpl() {
-        cache = new HashMap<String, StateHandler>();
-        initGlobalEventListeners(this);
+    protected WinMediaPlayerImpl() {
     }
 
-    public void init(String playerId, MediaStateListener listener, HasMediaStateHandlers handler) {
-        cache.put(playerId, new StateHandler(playerId, listener, handler));
-    }
-
-    public String getPlayerScript(String mediaURL, String playerId, boolean autoplay,
-            String uiMode, int height, int width) {
-        return "<object id='" + playerId + "' type='" + getPluginType() + "' " +
-                "width='" + width + "px' height='" + height + "px' >" +
-                "<param name='autostart' value='" + autoplay + "' />" +
-                "<param name='URL' value='" + mediaURL + "' />" +
-                "<param name='uiMode' value='" + uiMode + "' /> " +
-                "</object>";
-    }
-
-    public final boolean isPlayerAvailable(String playerId) {
-        return cache.containsKey(playerId) && isPlayerOnPageImpl(playerId);
-    }
-
-    public void close(String playerId) {
-        cache.remove(playerId);
-    }
-
-    public void requestAccessRightsOnInit(String playerId, String level) {
-        cache.get(playerId).setMediaAccessRightOnInit(level);
-    }
-
-    @SuppressWarnings("unused")
-    private void firePlayStateChanged() {
-        Iterator<String> keys = cache.keySet().iterator();
-        while (keys.hasNext()) {
-            cache.get(keys.next()).checkPlayState();
-        }
-    }
-
-    @SuppressWarnings("unused")
-    private void fireError() {
-        Iterator<String> keys = cache.keySet().iterator();
-        while (keys.hasNext()) {
-            String id = keys.next();
-            cache.get(id).onError(getErrorDiscriptionImpl(id));
-        }
-    }
-
-    @SuppressWarnings("unused")
-    private void fireBuffering(boolean buffering) {
-        Iterator<String> keys = cache.keySet().iterator();
-        while (keys.hasNext()) {
-            cache.get(keys.next()).doBuffering(buffering);
-        }
-    }
-
-    protected native void initGlobalEventListeners(WinMediaPlayerImpl impl) /*-{
-    $wnd.OnDSPlayStateChangeEvt = function(NewState) {
-    impl.@com.bramosystems.oss.player.core.client.impl.WinMediaPlayerImpl::firePlayStateChanged()();
-    }
-    $wnd.OnDSErrorEvt = function() {
-    impl.@com.bramosystems.oss.player.core.client.impl.WinMediaPlayerImpl::fireError()();
-    }
-    $wnd.OnDSBufferingEvt = function(Start) {
-    impl.@com.bramosystems.oss.player.core.client.impl.WinMediaPlayerImpl::fireBuffering(Z)(Start);
-    }
+    public static native WinMediaPlayerImpl getPlayer(String playerId) /*-{
+    return $doc.getElementById(playerId);
     }-*/;
 
-    public void registerMediaStateListener(String playerId) {
-        // do nothing, provided for DOM event registration in IE.
-    }
-
-    /**
-     * Gets WMP plugin type based on mime types available
-     * @return
-     */
-    private native String getPluginType() /*-{
-    if (navigator.mimeTypes && navigator.mimeTypes['application/x-ms-wmp']) {
-    return "application/x-ms-wmp"; // wmp plugin for firefox
-    } else {
-    return "application/x-mplayer2"; // generic wmp
-    }
+    public final native void setURL(String mediaURL) /*-{
+    this.URL = mediaURL;
     }-*/;
 
-    private native boolean isPlayerOnPageImpl(String playerId) /*-{
-    return ($doc.getElementById(playerId) != null);
+    public final native String getURL() /*-{
+    return this.URL;
     }-*/;
 
-    public native void loadSound(String playerId, String mediaURL) /*-{
-    var player = $doc.getElementById(playerId);
-    player.URL = mediaURL;
-    }-*/;
-
-    public native void pause(String playerId) /*-{
-    var player = $doc.getElementById(playerId);
-    player.controls.pause();
-    }-*/;
-
-    public native double getDuration(String playerId) /*-{
-    var player = $doc.getElementById(playerId);
-    return player.currentMedia.duration * 1000;
-    }-*/;
-
-    public native double getCurrentPosition(String playerId) /*-{
-    var player = $doc.getElementById(playerId);
-    return player.controls.currentPosition * 1000;
-    }-*/;
-
-    public native void setCurrentPosition(String playerId, double position) /*-{
-    var player = $doc.getElementById(playerId);
-    player.controls.currentPosition = position / 1000;
-    }-*/;
-
-    public native int getVolume(String playerId) /*-{
-    var player = $doc.getElementById(playerId);
-    return player.settings.volume;
-    }-*/;
-
-    public native void setVolume(String playerId, int volume) /*-{
-    var player = $doc.getElementById(playerId);
-    player.settings.volume = volume;
-    }-*/;
-
-    public native void setUIMode(String playerId, String uiMode) /*-{
-    var player = $doc.getElementById(playerId);
-    player.uiMode = uiMode;
-    }-*/;
-
-    public native void setLoopCount(String playerId, int count) /*-{
+    public final native void play() /*-{
     try {
-    var playr = $doc.getElementById(playerId);
-    playr.settings.playCount = count;
+    this.controls.play();
     } catch(e) {}
     }-*/;
 
-    public native int getLoopCount(String playerId) /*-{
+    public final native void stop() /*-{
     try {
-    var playr = $doc.getElementById(playerId);
-    if(playr.settings.getMode("loop")){
+    this.controls.stop();
+    } catch(e) {}
+    }-*/;
+
+    public final native void pause() /*-{
+    this.controls.pause();
+    }-*/;
+
+    public final native void close() /*-{
+    this.close();
+    }-*/;
+
+    public final native double getDuration() /*-{
+    return this.currentMedia.duration * 1000;
+    }-*/;
+
+    public final native double getCurrentPosition() /*-{
+    return this.controls.currentPosition * 1000;
+    }-*/;
+
+    public final native void setCurrentPosition(double position) /*-{
+    this.controls.currentPosition = position / 1000;
+    }-*/;
+
+    public final native int getVolume() /*-{
+    return this.settings.volume;
+    }-*/;
+
+    public final native void setVolume(int volume) /*-{
+    this.settings.volume = volume;
+    }-*/;
+
+    public final native void setUIMode(String mode) /*-{
+    this.uiMode = mode;
+    }-*/;
+
+    public final native String getUIMode() /*-{
+    return this.uiMode;
+    }-*/;
+
+    public final native void setLoopCount(int count) /*-{
+    try {
+    this.settings.playCount = count;
+    } catch(e) {}
+    }-*/;
+
+    public final native int getLoopCount() /*-{
+    try {
+    if(this.settings.getMode("loop")){
     return -1;
     }else {
-    return playr.settings.playCount;
+    return this.settings.playCount;
     }
     } catch(e) {
     return 0;
     }
     }-*/;
 
-    public native void play(String playerId) /*-{
-    try {
-    var playr = $doc.getElementById(playerId);
-    playr.controls.play();
-    } catch(e) {}
+    public final native String getPlayerVersion() /*-{
+    return this.versionInfo;
     }-*/;
 
-    public native void stop(String playerId) /*-{
-    try {
-    var playr = $doc.getElementById(playerId);
-    playr.controls.stop();
-    } catch(e) {}
-    }-*/;
-
-    private native String getPlayerVersionImpl(String playerId) /*-{
-    var playr = $doc.getElementById(playerId);
-    return playr.versionInfo;
-    }-*/;
-
-    protected native int getPlayStateImpl(String playerId) /*-{
-    var playr = $doc.getElementById(playerId);
-    if(playr) {
-    var state = playr.playState;
+    public final native int getPlayState() /*-{
+    var state = this.playState;
     if(state == undefined) {
     return -10;
     }
     return state;
-    }
-    return -10;
     }-*/;
 
-    private native void fillMetadataImpl(String playerId, MediaInfo info, String errorMsg) /*-{
+    public final native void fillMetadata(MediaInfo info, String errorMsg) /*-{
     try {
-    var plyrMedia = $doc.getElementById(playerId).currentMedia;
+    var plyrMedia = this.currentMedia;
     info.@com.bramosystems.oss.player.core.client.MediaInfo::title = plyrMedia.getItemInfo('Title');
     info.@com.bramosystems.oss.player.core.client.MediaInfo::copyright = plyrMedia.getItemInfo('Copyright');
     info.@com.bramosystems.oss.player.core.client.MediaInfo::duration = parseFloat(plyrMedia.getItemInfo('Duration')) * 1000;
@@ -235,221 +137,86 @@ public class WinMediaPlayerImpl {
     info.@com.bramosystems.oss.player.core.client.MediaInfo::internetStationOwner = plyrMedia.getItemInfo('WM/RadioStationOwner');
     info.@com.bramosystems.oss.player.core.client.MediaInfo::internetStationName = plyrMedia.getItemInfo('WM/RadioStationName');
     info.@com.bramosystems.oss.player.core.client.MediaInfo::hardwareSoftwareRequirements = plyrMedia.getItemInfo('WM/EncodingSettings');
-    info.@com.bramosystems.oss.player.core.client.MediaInfo::videoWidth = plyrMedia.imageSourceWidth;
-    info.@com.bramosystems.oss.player.core.client.MediaInfo::videoHeight = plyrMedia.imageSourceHeight;
+    info.@com.bramosystems.oss.player.core.client.MediaInfo::videoWidth = String(plyrMedia.imageSourceWidth);
+    info.@com.bramosystems.oss.player.core.client.MediaInfo::videoHeight = String(plyrMedia.imageSourceHeight);
     } catch(e) {
     errorMsg = e;
     }
     }-*/;
 
-    protected native String getErrorDiscriptionImpl(String playerId) /*-{
-    var playr = $doc.getElementById(playerId);
-    var err = playr.error;
+    public final native String getErrorDiscription() /*-{
+    var err = this.error;
     if(err == undefined)
     return '';
 
     return err.item(0).errorDescription;
     }-*/;
 
-    protected native double getDownloadProgressImpl(String playerId) /*-{
-    var playr = $doc.getElementById(playerId);
-    if(playr.network) {
-    return playr.network.downloadProgress / 100;
+    public final native double getDownloadProgress() /*-{
+    if(this.network) {
+    return this.network.downloadProgress / 100;
     } else {
     return -1;
     }
     }-*/;
 
-    protected native double getBufferingProgressImpl(String playerId) /*-{
-    var playr = $doc.getElementById(playerId);
-    if(playr.network) {
-    return playr.network.bufferingProgress / 100;
+    public final native double getBufferingProgress() /*-{
+    if(this.network) {
+    return this.network.bufferingProgress / 100;
     } else {
     return -1;
     }
     }-*/;
 
-    protected native String getMediaURLImpl(String playerId) /*-{
-    var player = $doc.getElementById(playerId);
-    return player.URL;
-    }-*/;
-
-    protected native void closeImpl(String playerId) /*-{
-    var playr = $doc.getElementById(playerId);
-    playr.close();
-    }-*/;
-
-    public native int getVideoHeight(String playerId) /*-{
+    public final native int getVideoHeight() /*-{
     try {
-    var plyrMedia = $doc.getElementById(playerId).currentMedia;
-    return plyrMedia.imageSourceHeight;
+    return this.currentMedia.imageSourceHeight;
     } catch(e) {
     return 0;
     }
     }-*/;
 
-    public native int getVideoWidth(String playerId) /*-{
+    public final native int getVideoWidth() /*-{
     try {
-    var plyrMedia = $doc.getElementById(playerId).currentMedia;
-    return plyrMedia.imageSourceWidth;
+    return this.currentMedia.imageSourceWidth;
     } catch(e) {
     return 0;
     }
     }-*/;
 
-    public native void setStretchToFit(String playerId, boolean stretch) /*-{
-    var plyr = $doc.getElementById(playerId);
-    plyr.stretchToFit = stretch;
+    public final native void setStretchToFit(boolean stretch) /*-{
+    this.stretchToFit = stretch;
     }-*/;
 
-    public native boolean isStretchToFit(String playerId) /*-{
-    var plyr = $doc.getElementById(playerId);
-    return plyr.stretchToFit;
+    public final native boolean isStretchToFit() /*-{
+    return this.stretchToFit;
     }-*/;
-    
-    public native String getAspectRatio(String playerId) /*-{
+
+    public final native void setWindowlessVideo(boolean windowless) /*-{
+    this.windowlessVideo = windowless;
+    }-*/;
+
+    public final native boolean isWindowlessVideo() /*-{
+    return this.windowlessVideo;
+    }-*/;
+
+    public final native String getAspectRatio() /*-{
     try {
-    var plyrMedia = $doc.getElementById(playerId).currentMedia;
-    return plyrMedia.getItemInfo('PixelAspectRatioX')+':'+plyrMedia.getItemInfo('PixelAspectRatioY');
+    return this.getItemInfo('PixelAspectRatioX')+':'+this.getItemInfo('PixelAspectRatioY');
     } catch(e) {
     return 0;
     }
     }-*/;
 
-    public native boolean requestMediaAccessRight(String playerId, String accessLevel) /*-{
-    var plyr = $doc.getElementById(playerId);
-    return plyr.settings.requestMediaAccessRights(accessLevel);
+    public final native boolean requestMediaAccessRight(String accessLevel) /*-{
+    return this.settings.requestMediaAccessRights(accessLevel);
     }-*/;
 
-    public native String getMediaAccessRight(String playerId) /*-{
-    var plyr = $doc.getElementById(playerId);
-    return plyr.settings.mediaAccessRights;
+    public final native String getMediaAccessRight() /*-{
+    return this.settings.mediaAccessRights;
     }-*/;
 
-    protected class StateHandler {
-
-        protected MediaStateListener listener;
-        protected HasMediaStateHandlers handlers;
-        protected String id, mediaAccessRightsOnInit;
-        protected boolean canDoMetadata,  playerInitd;
-        private Timer downloadProgressTimer;
-
-        public StateHandler(final String id, MediaStateListener _listener,
-                HasMediaStateHandlers _handlers) {
-            this.id = id;
-            this.handlers = _handlers;
-            this.listener = _listener;
-            canDoMetadata = false;
-            playerInitd = false;
-            downloadProgressTimer = new Timer() {
-
-                @Override
-                public void run() {
-                    LoadingProgressEvent.fire(handlers, getDownloadProgressImpl(id));
-                }
-            };
-        }
-
-        public String getId() {
-            return id;
-        }
-
-        public void setMediaAccessRightOnInit(String level){
-            mediaAccessRightsOnInit = level;
-        }
-
-        public void checkPlayState() {
-            int state = getPlayStateImpl(id);
-            if (state < 0) {
-                return;
-            }
-
-            processPlayState(state);
-        }
-
-        public void onError(String message) {
-//            listener.onError(message);
-            DebugEvent.fire(handlers, DebugEvent.MessageType.Error, message);
-        }
-
-        public void debug(String msg) {
-            DebugEvent.fire(handlers, DebugEvent.MessageType.Info, msg);
-//            listener.onDebug(msg);
-        }
-
-        public void doBuffering(boolean buffering) {
-//            listener.onBuffering(buffering);
-            PlayerStateEvent.fire(handlers,
-                    buffering ? PlayerStateEvent.State.BufferingStarted : PlayerStateEvent.State.BufferingFinished);
-
-            debug("Buffering " + (buffering ? " started" : " stopped"));
-            if (buffering) {
-                downloadProgressTimer.scheduleRepeating(1000);
-            } else {
-                downloadProgressTimer.cancel();
-                LoadingProgressEvent.fire(handlers, 1.0);
-//                listener.onLoadingComplete();
-                debug("Media loading complete");
-            }
-        }
-
-        public void processPlayState(int state) {
-            switch (state) {
-                case 1:    // stopped..
-                    debug("Media playback stopped");
-                    PlayStateEvent.fire(handlers, PlayStateEvent.State.Stopped, 0);
-                    break;
-                case 2:    // paused..
-                    debug("Media playback paused");
-                    PlayStateEvent.fire(handlers, PlayStateEvent.State.Paused, 0);
-                    break;
-                case 3:    // playing..
-//                    listener.onPlayStarted(0);
-                    PlayStateEvent.fire(handlers, PlayStateEvent.State.Started, 0);
-                    doMetadata();        // do metadata ...
-                    break;
-                case 8:    // media ended...
-                    PlayStateEvent.fire(handlers, PlayStateEvent.State.Finished, 0);
-//                    listener.onPlayFinished(0);
-                    debug("Media playback finished");
-                    break;
-                case 10:    // player ready...
-                    PlayerStateEvent.fire(handlers, PlayerStateEvent.State.Ready);
-//                    listener.onPlayerReady();
-                    if (!playerInitd) {
-                        debug("Windows Media Player plugin");
-                        debug("Version : " + getPlayerVersionImpl(id));
-                        playerInitd = true;
-                        if(mediaAccessRightsOnInit != null) {
-                            requestMediaAccessRight(id, mediaAccessRightsOnInit);
-                        }
-                    }
-                    break;
-                case 6:    // buffering ...
-                case 11:    // reconnecting to stream  ...
-                    break;
-                case 9:     // preparing new item ...
-                    canDoMetadata = true;
-            }
-        }
-
-        protected void doMetadata() {
-            if (!canDoMetadata) {
-                debug("Media playback resumed");
-                return;
-            }
-            debug("Playing media at " + getMediaURLImpl(id));
-
-            MediaInfo info = new MediaInfo();
-            String err = "";
-            fillMetadataImpl(id, info, err);
-            if (err.length() == 0) {
-//                listener.onMediaInfoAvailable(info);
-                canDoMetadata = false;
-                MediaInfoEvent.fire(handlers, info);
-            } else {
-                onError(err);
-            }
-        }
-    }
+    public final native String getPlayerId() /*-{
+    return this.id;
+    }-*/;
 }

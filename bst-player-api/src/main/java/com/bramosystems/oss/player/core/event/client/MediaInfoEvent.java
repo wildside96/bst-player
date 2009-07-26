@@ -21,19 +21,32 @@ import com.google.gwt.event.shared.GwtEvent;
 import com.google.gwt.event.shared.GwtEvent.Type;
 
 /**
+ * The event fired when the media metadata is available.
  *
- * @author Sikirulai Braheem <sbraheem at bramosystems.com>
+ * <p>The metadata is wrapped in a {@link MediaInfo} object
+ *
+ * @author Sikirulai Braheem
  */
 public class MediaInfoEvent extends GwtEvent<MediaInfoHandler> {
     public static final Type<MediaInfoHandler> TYPE = new Type<MediaInfoHandler>();
     private MediaInfo info;
 
+    /**
+     * Creates a new MediaInfoEvent object
+     *
+     * @param info the media metadata
+     */
     protected MediaInfoEvent(MediaInfo info) {
         this.info = info;
     }
 
-    public static <S extends HasMediaStateHandlers> void fire(S source,
-            MediaInfo info) {
+    /**
+     * Fires MediaInfoEvent on all registered handlers
+     *
+     * @param source the source of the event
+     * @param info the metadata of the media
+     */
+    public static void fire(HasMediaStateHandlers source, MediaInfo info) {
         source.fireEvent(new MediaInfoEvent(info));
     }
 
@@ -47,6 +60,11 @@ public class MediaInfoEvent extends GwtEvent<MediaInfoHandler> {
         handler.onMediaInfoAvailable(this);
     }
 
+    /**
+     * Returns the metadata of the media item
+     *
+     * @return the metadata of the media item
+     */
     public MediaInfo getMediaInfo() {
         return info;
     }

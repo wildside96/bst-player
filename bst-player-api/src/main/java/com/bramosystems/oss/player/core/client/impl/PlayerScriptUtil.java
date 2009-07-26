@@ -16,6 +16,7 @@
 package com.bramosystems.oss.player.core.client.impl;
 
 import com.bramosystems.oss.player.core.client.PlayerUtil;
+import com.bramosystems.oss.player.util.client.MimeType;
 import com.google.gwt.core.client.GWT;
 
 /**
@@ -34,6 +35,11 @@ public class PlayerScriptUtil {
         return impl.getVLCPlayerScript(playerId, height, width);
     }
 
+    public static String getWMPlayerScript(String mediaURL, String playerId, boolean autoplay,
+            int height, int width) {
+        return impl.getWMPlayerScript(mediaURL, playerId, autoplay, height, width);
+    }
+
     public static class PlayerScriptUtilImpl {
 
         public String getVLCPlayerScript(String playerId, int height, int width) {
@@ -41,6 +47,31 @@ public class PlayerScriptUtil {
                     "target='' autoplay='false' type='application/x-vlc-plugin' " +
                     "version='VideoLAN.VLCPlugin.2' width='" + width + "px' " +
                     "height='" + height + "px' toolbar='true'></embed>";
+        }
+
+        public String getWMPlayerScript(String mediaURL, String playerId, boolean autoplay,
+                int height, int width) {
+            return "<object id='" + playerId + "' type='" + getWMPPluginType() + "' " +
+                    "width='" + width + "px' height='" + height + "px' >" +
+                    "<param name='autostart' value='" + autoplay + "' />" +
+                    "<param name='URL' value='" + mediaURL + "' />" +
+                    "</object>";
+        }
+
+        /**
+         * Gets WMP plugin type based on mime types available
+         * @return
+         */
+        private String getWMPPluginType() {
+            // check for firefox plugin mime type...
+            String ffMime = "application/x-ms-wmp";
+            String genericMime = "application/x-mplayer2";
+            MimeType mt = MimeType.getMimeType(ffMime);
+            if(mt != null) {
+                return ffMime;
+            } else {
+                return genericMime;
+            }
         }
     }
 }

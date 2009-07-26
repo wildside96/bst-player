@@ -20,19 +20,30 @@ import com.google.gwt.event.shared.GwtEvent;
 import com.google.gwt.event.shared.GwtEvent.Type;
 
 /**
+ * The event fired when the loading progress of a media item has changed
  *
- * @author Sikirulai Braheem <sbraheem at bramosystems.com>
+ * @author Sikirulai Braheem
  */
 public class LoadingProgressEvent extends GwtEvent<LoadingProgressHandler> {
     public static final Type<LoadingProgressHandler> TYPE = new Type<LoadingProgressHandler>();
     private double progress;
-  
+
+    /**
+     * Constructs a new LoadingProgressEvent object
+     *
+     * @param progress the new loading progress
+     */
     protected LoadingProgressEvent(double progress) {
         this.progress = progress;
     }
 
-    public static <S extends HasMediaStateHandlers> void fire(S source,
-            double progress) {
+    /**
+     * Fires loading progress event on all registered handlers
+     *
+     * @param source the source of the event
+     * @param progress the new loading progress
+     */
+    public static void fire(HasMediaStateHandlers source, double progress) {
         source.fireEvent(new LoadingProgressEvent(progress));
     }
 
@@ -45,7 +56,15 @@ public class LoadingProgressEvent extends GwtEvent<LoadingProgressHandler> {
     protected void dispatch(LoadingProgressHandler handler) {
         handler.onLoadingProgress(this);
     }
-    
+
+    /**
+     * Retrieves the new loading progress
+     *
+     * <p>The loading progress ranges between {@code 0} and {@code 1}. A value of
+     * {@code 1} indicates that media loading is complete
+     *
+     * @return the loading progress.
+     */
     public double getProgress() {
         return progress;
     }

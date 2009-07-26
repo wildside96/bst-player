@@ -44,67 +44,6 @@ public class AudioLink extends AbstractMediaPlayer {
     public AudioLink(String mediaURL, String text, final boolean preload)
             throws PluginNotFoundException, PluginVersionException, LoadException {
         engine = PlayerUtil.getPlayer(mediaURL, false, null, null);
-/*        engine.addMediaStateListener(new MediaStateListener() {
-
-            public void onError(String description) {
-                fireError(description);
-            }
-
-            public void onLoadingComplete() {
-                fireLoadingComplete();
-            }
-
-            public void onPlayFinished() {
-                toPlayState(State.stop);
-                firePlayFinished();
-            }
-
-            public void onDebug(String report) {
-                fireDebug(report);
-            }
-
-            public void onLoadingProgress(double progress) {
-                fireLoadingProgress(progress);
-            }
-
-            public void onPlayStarted() {
-                firePlayStarted();
-            }
-
-            public void onPlayerReady() {
-                if (!isRealized) {
-                    isRealized = true;
-                    if (!preload) {
-                        doPlay();
-                    }
-                }
-                firePlayerReady();
-            }
-
-            public void onMediaInfoAvailable(MediaInfo info) {
-                // build media info ...
-                StringBuilder b = new StringBuilder();
-                b.append(info.getItem(MediaInfo.MediaInfoKey.Title));
-                b.append(" - " + info.getItem(MediaInfo.MediaInfoKey.Artists));
-                b.append(" - " + info.getItem(MediaInfo.MediaInfoKey.AlbumTitle));
-                setTitle(b.toString());
-                
-                fireMediaInfoAvailable(info);
-            }
-
-            public void onPlayStarted(int index) {
-                firePlayStarted(index);
-            }
-
-            public void onPlayFinished(int index) {
-                firePlayFinished(index);
-            }
-
-            public void onBuffering(boolean buffering) {
-                fireBuffering(buffering);
-            }
-        });
-*/
         engine.addDebugHandler(new DebugHandler() {
 
             public void onDebug(DebugEvent event) {

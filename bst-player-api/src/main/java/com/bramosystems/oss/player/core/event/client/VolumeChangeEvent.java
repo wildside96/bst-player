@@ -16,32 +16,47 @@
 
 package com.bramosystems.oss.player.core.event.client;
 
-import com.bramosystems.oss.player.core.client.skin.MediaSeekBar;
+import com.bramosystems.oss.player.core.client.skin.VolumeControl;
 import com.google.gwt.event.shared.GwtEvent;
 import com.google.gwt.event.shared.GwtEvent.Type;
 
 /**
- * Implement this interface to receive seek change updates from a {@code MediaSeekBar}
- * implementation.
+ * The volume change event fired by {@link VolumeControl} widgets when the
+ * volumes' slider has changed.
  *
- * @see MediaSeekBar
- * @author Sikirulai Braheem <sbraheem at gmail.com>
+ * @author Sikirulai Braheem
  */
 public class VolumeChangeEvent extends GwtEvent<VolumeChangeHandler> {
-    private double value;
+    private double volume;
     public static Type<VolumeChangeHandler> TYPE = new Type<VolumeChangeHandler>();
 
-    public static <S extends HasVolumeChangeHandlers> void fire(S source,
-            double value) {
-        source.fireEvent(new VolumeChangeEvent(value));
+    /**
+     * Fires volume change event on all registered handlers
+     *
+     * @param source the source of the handlers
+     * @param volume the new volume
+     */
+    public static void fire(HasVolumeChangeHandlers source, double volume) {
+        source.fireEvent(new VolumeChangeEvent(volume));
     }
 
-    protected VolumeChangeEvent(double value) {
-        this.value = value;
+    /**
+     * Creates a new volume change event
+     *
+     * @param volume the new volume in the range {@code 0} silence to {@code 1} maximum volume
+     */
+    protected VolumeChangeEvent(double volume) {
+        this.volume = volume;
     }
-    
-    public double getValue() {
-        return value;
+
+    /**
+     * Retrieves the new volume.  The volume ranges between {@code 0} silence and
+     * {@code 1} maximum volume
+     *
+     * @return the volume
+     */
+    public double getNewVolume() {
+        return volume;
     }
 
     @Override

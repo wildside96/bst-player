@@ -14,35 +14,25 @@
  *  limitations under the License.
  *  under the License.
  */
-
 package com.bramosystems.oss.player.core;
 
-import com.bramosystems.oss.player.core.client.video.AspectRatioTest;
+import com.bramosystems.oss.player.core.client.TxtPlayerUtil;
+import com.bramosystems.oss.player.core.client.impl.TxtPlayerUtilImpl;
+import com.bramosystems.oss.player.core.client.video.TxtAspectRatio;
 import com.google.gwt.junit.tools.GWTTestSuite;
-import junit.framework.TestSuite;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.runner.RunWith;
-import org.junit.runners.Suite;
+import junit.framework.Test;
 
 /**
  *
  * @author Sikirulai Braheem <sbraheem at bramosystems dot com>
  */
-@RunWith(Suite.class)
-@Suite.SuiteClasses({})
-public class CoreTestSuite {
+public class GwtCoreTestSuite extends GWTTestSuite {
 
-    @BeforeClass
-    public static void setUpClass() throws Exception {
-    }
-
-    @AfterClass
-    public static void tearDownClass() throws Exception {
-    }
-
-    public CoreTestSuite() {
-        TestSuite suite = new GWTTestSuite();
-        suite.addTest(new AspectRatioTest());
+    public static Test suite() {
+        GWTTestSuite suite = new GWTTestSuite("Test Core Module");
+        suite.addTestSuite(TxtPlayerUtil.class);
+        suite.addTestSuite(TxtAspectRatio.class);
+        suite.addTestSuite(TxtPlayerUtilImpl.class);
+        return suite;
     }
 }

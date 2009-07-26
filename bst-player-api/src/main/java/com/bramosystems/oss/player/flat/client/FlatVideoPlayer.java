@@ -15,14 +15,17 @@
  */
 package com.bramosystems.oss.player.flat.client;
 
+import com.bramosystems.oss.player.core.event.client.MediaInfoEvent;
+import com.bramosystems.oss.player.core.event.client.DebugEvent;
+import com.bramosystems.oss.player.core.event.client.MediaInfoHandler;
+import com.bramosystems.oss.player.core.event.client.DebugHandler;
 import com.bramosystems.oss.player.core.client.skin.*;
 import com.bramosystems.oss.player.core.client.*;
 import com.bramosystems.oss.player.core.client.ui.*;
-import com.bramosystems.oss.player.core.event.client.*;
 import com.google.gwt.user.client.ui.DockPanel;
 
 /**
- * Custom video player implementation using FlatCustomControl
+ * Custom video player implementation using CustomPlayerControl
  *
  * <h3>Usage Example</h3>
  *
@@ -50,7 +53,6 @@ import com.google.gwt.user.client.ui.DockPanel;
  * </pre></code>
  *
  * @author Sikirulai Braheem
- * @since 0.6
  */
 public class FlatVideoPlayer extends CustomVideoPlayer {
 
@@ -85,7 +87,7 @@ public class FlatVideoPlayer extends CustomVideoPlayer {
         vp.setSpacing(0);
         vp.setWidth("100%");
         vp.add(logger, DockPanel.SOUTH);
-        vp.add(new FlatCustomControl(this), DockPanel.SOUTH);
+        vp.add(new CustomPlayerControl(this), DockPanel.SOUTH);
 
         setPlayerControlWidget(vp);
         addDebugHandler(new DebugHandler() {
@@ -100,24 +102,6 @@ public class FlatVideoPlayer extends CustomVideoPlayer {
                 logger.log(event.getMediaInfo().asHTMLString(), true);
             }
         });
-        addMediaStateListener(new MediaStateListenerAdapter() {
-
-            @Override
-            public void onError(String description) {
-                logger.log(description, false);
-            }
-
-            @Override
-            public void onDebug(String message) {
-                logger.log(message, false);
-            }
-
-            @Override
-            public void onMediaInfoAvailable(MediaInfo info) {
-                logger.log(info.asHTMLString(), true);
-            }
-        });
-//        setSize(width, height);
         setWidth(width);
     }
 
@@ -151,5 +135,10 @@ public class FlatVideoPlayer extends CustomVideoPlayer {
     @Override
     public void showLogger(boolean enable) {
         logger.setVisible(enable);
+    }
+
+    @Override
+    protected void onVideoDimensionChanged(int width, int height) {
+        setSize(width + "px", height + "px");
     }
 }

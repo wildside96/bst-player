@@ -42,7 +42,6 @@ import java.util.Iterator;
  */
 public abstract class AbstractMediaPlayer extends Composite implements HasMediaStateHandlers {
 
-    private ArrayList<MediaStateListener> callbacks;
     private HashMap<String, Command> readyCmdQueue;
     private ArrayList<String> cmdKeys;
 
@@ -50,7 +49,6 @@ public abstract class AbstractMediaPlayer extends Composite implements HasMediaS
      * Constructor method.
      */
     public AbstractMediaPlayer() {
-        callbacks = new ArrayList<MediaStateListener>();
         readyCmdQueue = new HashMap<String, Command>();
         cmdKeys = new ArrayList<String>();
 
@@ -71,45 +69,6 @@ public abstract class AbstractMediaPlayer extends Composite implements HasMediaS
     }
 
     /**
-     * Adds a {@code MediaStateListener} object to the player implementation. The listener is
-     * notified of media state changes.
-     *
-     * @param listener the listener to add the player
-     * @see MediaStateListener
-     * @see #removeMediaStateListener(MediaStateListener)
-     * @deprecated Will be removed in a future version
-     */
-    public final void addMediaStateListener(MediaStateListener listener) {
-        callbacks.add(listener);
-    }
-
-    /**
-     * Removes specified listener for the list of registered {@code MediaStateListener}s object.
-     *
-     * @param listener the listener to remove from the player.
-     * @see MediaStateListener
-     * @see #addMediaStateListener(MediaStateListener)
-     * @deprecated Will be removed in a future version
-     */
-    public final void removeMediaStateListener(MediaStateListener listener) {
-        callbacks.remove(listener);
-    }
-
-    /**
-     * Returns true if this player contains the specified listener.
-     *
-     * @param listener whose presence in this player is to be tested
-     * @return true if this list contains the specified element
-     * @since 1.0
-     */
-    public final boolean containsMediaStateListener(MediaStateListener listener) {
-        if (listener == null) {
-            return false;
-        }
-        return callbacks.contains(listener);
-    }
-
-    /**
      * Loads the media at the specified URL into the player.
      *
      * <p>In respect of the <code>same domain</code> policy of some plugins,
@@ -119,7 +78,8 @@ public abstract class AbstractMediaPlayer extends Composite implements HasMediaS
      * @param mediaURL the URL of the media to load into the player.
      * @throws LoadException if an error occurs while loading the media
      * @throws IllegalStateException if the player is not available, this is the case
-     * after the <code>{@link #close()}</code> method has been called on this player.
+     * if the player is not attached to the DOM yet or after the
+     * <code>{@link #close()}</code> method has been called on this player.
      */
     public abstract void loadMedia(String mediaURL) throws LoadException;
 
@@ -129,7 +89,8 @@ public abstract class AbstractMediaPlayer extends Composite implements HasMediaS
      * @throws PlayException if an error occurs
      * during media playback.
      * @throws IllegalStateException if the player is not available, this is the case
-     * after the <code>{@link #close()}</code> method has been called on this player.
+     * if the player is not attached to the DOM yet or after the
+     * <code>{@link #close()}</code> method has been called on this player.
      */
     public abstract void playMedia() throws PlayException;
 
@@ -137,7 +98,8 @@ public abstract class AbstractMediaPlayer extends Composite implements HasMediaS
      * Stops the media playback.
      *
      * @throws IllegalStateException if the player is not available, this is the case
-     * after the <code>{@link #close()}</code> method has been called on this player.
+     * if the player is not attached to the DOM yet or after the
+     * <code>{@link #close()}</code> method has been called on this player.
      */
     public abstract void stopMedia();
 
@@ -145,13 +107,14 @@ public abstract class AbstractMediaPlayer extends Composite implements HasMediaS
      * Pause the media playback
      *
      * @throws IllegalStateException if the player is not available, this is the case
-     * after the <code>{@link #close()}</code> method has been called on this player.
+     * if the player is not attached to the DOM yet or after the
+     * <code>{@link #close()}</code> method has been called on this player.
      */
     public abstract void pauseMedia();
 
     /**
-     * Closes the player and all associated resources such as removing the media player
-     * plugin from the page.
+     * Closes the player and releases all associated resources (such as removing the media player
+     * plugin from the page).
      *
      * Note: The player will remain unavailable after this method returns.  A new
      * instance will have to created.
@@ -165,7 +128,8 @@ public abstract class AbstractMediaPlayer extends Composite implements HasMediaS
      * @return the duration of the loaded media in milliseconds.
      *
      * @throws IllegalStateException if the player is not available, this is the case
-     * after the <code>{@link #close()}</code> method has been called on this player.
+     * if the player is not attached to the DOM yet or after the
+     * <code>{@link #close()}</code> method has been called on this player.
      */
     public abstract long getMediaDuration();
 
@@ -175,7 +139,8 @@ public abstract class AbstractMediaPlayer extends Composite implements HasMediaS
      * @return the current position of the media being played.
      *
      * @throws IllegalStateException if the player is not available, this is the case
-     * after the <code>{@link #close()}</code> method has been called on this player.
+     * if the player is not attached to the DOM yet or after the
+     * <code>{@link #close()}</code> method has been called on this player.
      */
     public abstract double getPlayPosition();
 
@@ -185,7 +150,8 @@ public abstract class AbstractMediaPlayer extends Composite implements HasMediaS
      * @param position the new position from where to start playback
      *
      * @throws IllegalStateException if the player is not available, this is the case
-     * after the <code>{@link #close()}</code> method has been called on this player.
+     * if the player is not attached to the DOM yet or after the
+     * <code>{@link #close()}</code> method has been called on this player.
      */
     public abstract void setPlayPosition(double position);
 
@@ -195,7 +161,8 @@ public abstract class AbstractMediaPlayer extends Composite implements HasMediaS
      * @return volume.
      *
      * @throws IllegalStateException if the player is not available, this is the case
-     * after the <code>{@link #close()}</code> method has been called on this player.
+     * if the player is not attached to the DOM yet or after the
+     * <code>{@link #close()}</code> method has been called on this player.
      */
     public abstract double getVolume();
 
@@ -205,108 +172,69 @@ public abstract class AbstractMediaPlayer extends Composite implements HasMediaS
      * @param volume {@code 0} (silent) to {@code 1} (full volume).
      *
      * @throws IllegalStateException if the player is not available, this is the case
-     * after the <code>{@link #close()}</code> method has been called on this player.
+     * if the player is not attached to the DOM yet or after the
+     * <code>{@link #close()}</code> method has been called on this player.
      */
     public abstract void setVolume(double volume);
 
     /**
-     * Calls <code>onPlayFinished</code> on registered MediaStateListeners.
+     * Convenience method to fire <code>PlayStateEvent</code>'s on registered handlers.
      *
-     * @see MediaStateListener#onPlayFinished()
-     * @deprecated Will be removed in a future version
-     */
-    public final void firePlayFinished() {
-        for (int i = 0; i < callbacks.size(); i++) {
-            callbacks.get(i).onPlayFinished(0);
-        }
-    }
-
-    /**
-     * Calls <code>onPlayStarted</code> on registered MediaStateListeners.
-     *
+     * @param state the state of the player
+     * @see PlayStateEvent
      */
     protected final void firePlayStateEvent(PlayStateEvent.State state, int itemIndex) {
         PlayStateEvent.fire(this, state, itemIndex);
     }
 
     /**
-     * Calls <code>onPlayStarted</code> on registered MediaStateListeners.
-     * TODO: update docs -- Convinience method to fire events on registered handlers.
+     * Convenience method to fire <code>PlayerStateEvent</code>'s on registered handlers.
      *
-     * @param state
+     * @param state the state of the player
+     * @see PlayerStateEvent
      */
     protected final void firePlayerStateEvent(PlayerStateEvent.State state) {
         PlayerStateEvent.fire(this, state);
     }
 
     /**
-     * Calls <code>onPlayerReady</code> on registered MediaStateListeners.
+     * Convenience method to fire error type <code>DebugEvent</code>'s on registered handlers.
      *
-     * @see MediaStateListener#onPlayerReady()
-     * @deprecated Will be removed in a future version
-     */
-    public final void firePlayerReady() {
-        for (int i = 0; i < callbacks.size(); i++) {
-            callbacks.get(i).onPlayerReady();
-        }
-
-        // ensure commands are executed in the same sequence as added ...
-        Iterator<String> keys = cmdKeys.iterator();
-        while (keys.hasNext()) {
-            readyCmdQueue.get(keys.next()).execute();
-        }
-        cmdKeys.clear();
-        readyCmdQueue.clear();
-    }
-
-    /**
-     * Calls <code>onError</code> on registered MediaStateListeners.
-     *
-     * @see MediaStateListener#onError(java.lang.String) 
+     * @param description the description of the error
+     * @see DebugEvent
      */
     protected final void fireError(String description) {
-        for (int i = 0; i < callbacks.size(); i++) {
-            callbacks.get(i).onError(description);
-        }
         DebugEvent.fire(this, DebugEvent.MessageType.Error, description);
     }
 
     /**
-     * Calls <code>onDebug</code> on registered MediaStateListeners.
+     * Convenience method to fire <code>DebugEvent</code>'s with informational messages
+     * on registered handlers.
      *
-     * @param report the message that is sent to a debugging console
-     * @see MediaStateListener#onDebug(java.lang.String)
+     * @param message the message
+     * @see DebugEvent
      */
-    protected final void fireDebug(String report) {
-        for (int i = 0; i < callbacks.size(); i++) {
-            callbacks.get(i).onDebug(report);
-        }
-        DebugEvent.fire(this, DebugEvent.MessageType.Info, report);
+    protected final void fireDebug(String message) {
+        DebugEvent.fire(this, DebugEvent.MessageType.Info, message);
     }
 
     /**
-     * Calls <code>onLoadingProgress</code> on registered MediaStateListeners.
+     * Convenience method to fire <code>LoadingProgressEvent</code>'s on registered handlers.
      *
      * @param progress the progress of the loading operation
-     * @see MediaStateListener#onLoadingProgress(double) 
+     * @see LoadingProgressEvent
      */
     public final void fireLoadingProgress(double progress) {
-        for (int i = 0; i < callbacks.size(); i++) {
-            callbacks.get(i).onLoadingProgress(progress);
-        }
         LoadingProgressEvent.fire(this, progress);
     }
 
     /**
-     * Calls <code>onMediaInfoAvailable</code> on registered MediaStateListeners.
+     * Convenience method to fire <code>MediaInfoEvent</code>'s on registered handlers.
      *
      * @param info the metadata of the loaded media
-     * @see MediaInfoHandler#onMediaInfoAvailable(MediaInfoEvent)
+     * @see MediaInfoEvent
      */
     public final void fireMediaInfoAvailable(MediaInfo info) {
-        for (int i = 0; i < callbacks.size(); i++) {
-            callbacks.get(i).onMediaInfoAvailable(info);
-        }
         MediaInfoEvent.fire(this, info);
     }
 
@@ -513,7 +441,7 @@ public abstract class AbstractMediaPlayer extends Composite implements HasMediaS
      * otherwise.
      * @since 1.0
      */
-    protected static final native boolean isPlayerAvailable(String playerId) /*-{
+    protected static final native boolean isPlayerOnPage(String playerId) /*-{
     return ($doc.getElementById(playerId) != null);
     }-*/;
 }

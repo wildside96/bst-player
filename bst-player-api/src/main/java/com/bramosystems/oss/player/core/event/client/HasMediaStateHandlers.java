@@ -19,19 +19,44 @@ import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.event.shared.HasHandlers;
 
 /**
- * Interface definition for media state handlers.
+ * Interface definition for widgets that provide registration of media state handlers.
  *
  * @author Sikirulai Braheem
  */
 public interface HasMediaStateHandlers extends HasHandlers {
 
+    /**
+     * Adds a {@link DebugHandler} handler
+     * @param handler debug handler
+     * @return {@link HandlerRegistration} used to remove the handler
+     */
     public HandlerRegistration addDebugHandler(DebugHandler handler);
 
+    /**
+     * Adds a {@link PlayStateHandler} handler
+     * @param handler the  play state handler
+     * @return {@link HandlerRegistration} used to remove the handler
+     */
     public HandlerRegistration addPlayStateHandler(PlayStateHandler handler);
 
+    /**
+     * Adds a {@link PlayerStateHandler} handler
+     * @param handler the  player state handler
+     * @return {@link HandlerRegistration} used to remove the handler
+     */
     public HandlerRegistration addPlayerStateHandler(PlayerStateHandler handler);
 
+    /**
+     * Adds a {@link LoadingProgressHandler} handler
+     * @param handler the  loading progress handler
+     * @return {@link HandlerRegistration} used to remove the handler
+     */
     public HandlerRegistration addLoadingProgressHandler(LoadingProgressHandler handler);
 
+    /**
+     * Adds a {@link MediaInfoHandler} handler
+     * @param handler the  media info handler
+     * @return {@link HandlerRegistration} used to remove the handler
+     */
     public HandlerRegistration addMediaInfoHandler(MediaInfoHandler handler);
 }

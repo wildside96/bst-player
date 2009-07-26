@@ -18,11 +18,16 @@ package com.bramosystems.oss.player.core.event.client;
 import com.google.gwt.event.shared.EventHandler;
 
 /**
- * Interface definition for media state handlers.
+ * Handler interface for {@link LoadingProgressEvent} events.
  *
  * @author Sikirulai Braheem
  */
 public interface LoadingProgressHandler extends EventHandler {
 
+    /**
+     * Called when LoadingProgressEvent is fired
+     *
+     * @param event the LoadingProgressEvent that was fired
+     */
     public void onLoadingProgress(LoadingProgressEvent event);
 }

@@ -1,5 +1,5 @@
 /*
- *  Copyright 2009 Sikirulai Braheem <sbraheem at bramosystems.com>.
+ *  Copyright 2009 Sikirulai Braheem <sbraheem at bramosystems dot com>.
  * 
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -16,11 +16,11 @@
  */
 
 /**
- * Provides the core classes for BST Player API
+ * Sample custom video player implementation
  *
  * <h3>Required Module</h3>
- * Modules that use the classes and interfaces in this package and its sub-packages
- * should inherit the <code>com.bramosystems.oss.player.core.Core</code> module.
+ * Modules that use the classes and interfaces in this package should inherit
+ * the <code>com.bramosystems.oss.player.flat.FlatVideoPlayer</code> module.
  */
-package com.bramosystems.oss.player.core.client;
+package com.bramosystems.oss.player.flat.client;
 

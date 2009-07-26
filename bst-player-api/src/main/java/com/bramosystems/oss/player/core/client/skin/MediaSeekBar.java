@@ -24,7 +24,6 @@ import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.user.client.ui.AbsolutePanel;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.Widget;
-import java.util.ArrayList;
 
 /**
  * Abstract base class for seek bar implementations.
@@ -38,7 +37,6 @@ public abstract class MediaSeekBar extends Composite implements MouseUpHandler, 
 
     private Widget playing,  loading;
     protected AbsolutePanel seekTrack;
-    private ArrayList<SeekChangeListener> seekListeners;
 
     /**
      * Constructs <code>MediaSeekBar</code> of the specified height.
@@ -49,8 +47,6 @@ public abstract class MediaSeekBar extends Composite implements MouseUpHandler, 
         seekTrack = new AbsolutePanel();
         seekTrack.setSize("100%", height + "px");
         super.initWidget(seekTrack);
-
-        seekListeners = new ArrayList<SeekChangeListener>();
     }
 
     /**
@@ -112,44 +108,17 @@ public abstract class MediaSeekBar extends Composite implements MouseUpHandler, 
 
     public void onMouseUp(MouseUpEvent event) {
         double value = event.getX() / (double) getOffsetWidth();
-        fireSeekChanged(value);
         SeekChangeEvent.fire(this, value);
     }
 
     /**
-     * Adds {@code SeekChangeListener} objects.  The listener
-     * is notified whenever the state of the seek bar changes.
+     * Adds the specified handler to the player.  The handler is called
+     * whenever the state of the seek bar changes.
      *
-     * @param listener {@code SeekChangeListener} object to add to
-     * the list of {@code SeekChangeListener}s.
-     * @deprecated
+     * @param handler the handler
+     * @return the HandlerRegistration used to remove the handler
+     * @see SeekChangeHandler
      */
-    public void addSeekChangeListener(SeekChangeListener listener) {
-        seekListeners.add(listener);
-    }
-
-    /**
-     * Removes the specified {@code SeekChangeListener} object from the list of
-     * registered listeners.
-     *
-     * @param listener {@code SeekChangeListener} object to remove from the
-     * list of {@code SeekChangeListener}s.
-     * @deprecated
-     */
-    public void removeSeekChangeListener(SeekChangeListener listener) {
-        seekListeners.remove(listener);
-    }
-
-    /**
-     * @deprecated
-     * @param newValue
-     */
-    private void fireSeekChanged(double newValue) {
-        for (int i = 0; i < seekListeners.size(); i++) {
-            seekListeners.get(i).onSeekChanged(newValue);
-        }
-    }
-
     public final HandlerRegistration addSeekChangeHandler(SeekChangeHandler handler) {
         return addHandler(handler, SeekChangeEvent.TYPE);
     }
