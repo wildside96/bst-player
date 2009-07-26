@@ -1,0 +1,228 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<document xmlns="http://maven.apache.org/XDOC/2.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/XDOC/2.0 http://maven.apache.org/xsd/xdoc-2.0.xsd">
+
+    <properties>
+        <title>Getting Started</title>
+    </properties>
+    <head>
+        <meta name="description" content="Get started adding sound and video to GWT
+        applications using with your favourite plugins." />
+        <meta name="robots" content="index,follow" />
+    </head>
+    <body>
+        <section name="Getting Started">
+            <p>
+                The information in this document applies to version 1.0 and later. Check
+                <a href="http://code.google.com/p/bst-player/wiki/GettingStarted">here</a> for
+                previous versions.
+            </p>
+            
+            <p>
+                <macro name="toc">
+                    <param name="section" value="0"/>
+                </macro>
+            </p>
+        </section>
+
+        <section name="Developing with BST Player">
+
+            <p>
+                The following sections describe the basic usage of the library.  Before getting started, 
+                add the library to your application classpath and ensure your application module
+                inherits the
+                <i>com.bramosystems.gwt.player.core.Core</i> module.
+            </p>
+
+            <subsection name="Embedding Windows Media Player">
+                <p>
+                    The
+                    <b>WinMediaPlayer</b> class in the
+                    <i>com.bramosystems.gwt.player.core.client.ui</i>
+                    package wraps the Windows Media Player plugin as a GWT widget.
+                    The following code block describes an example:
+                </p>
+
+                <source>
+SimplePanel panel = new SimplePanel();   // create panel to hold the player
+AbstractMediaPlayer player = null;
+try {
+     // create the player, specifing URL of media
+     player = new WinMediaPlayer("www.example.com/mediafile.wma");
+     panel.setWidget(player); // add player to panel.
+} catch(LoadException e) {
+     // catch loading exception and alert user
+     Window.alert("An error occured while loading");
+} catch(PluginVersionException e) {
+     // required plugin version is not available, alert user
+     // possibly providing a link to the plugin download page.
+     panel.setWidget(new HTML(".. some nice message telling the user
+           to download plugin first .."));
+} catch(PluginNotFoundException e) {
+     // catch PluginNotFoundException and display a friendly notice.
+     panel.setWidget(PlayerUtil.getMissingPluginNotice(Plugin.WinMediaPlayer));
+}
+                </source>
+
+                <p>
+                    The above code adds a Windows Media Player object to the panel and
+                    load the media at the specified URL.  Controlling the plugin is straight
+                    forward as shown below:
+                </p>
+                <source>
+player.playMedia();  // starts playback
+player.pauseMedia();  // pauses playback
+player.stopMedia();  // stops playback
+player.setVolume(0.8); // sets the playback volume to 80% of maximum
+                </source>
+
+                <p>
+                    Refer to the API documentation for details.
+                </p>
+                <p>
+                    <b>
+                        <i>NOTE:- The WinMediaPlayer class requires Windows Media Player 7 or later</i>
+                    </b>
+                </p>
+                <div class="top">
+                    <a href="#">Top</a>
+                </div>
+            </subsection>
+
+            <subsection name="Working with QuickTime Player">
+                <p>
+                    Similar to the WinMediaPlayer class, the
+                    <b>QuickTimePlayer</b> class in the
+                    <i>com.bramosystems.gwt.player.core.client.ui</i> package wraps the
+                    QuickTime plugin.
+                </p>
+                <p>
+                    The following code block describes an example:
+                </p>
+                <source>
+SimplePanel panel = new SimplePanel();   // create panel to hold the player
+AbstractMediaPlayer player = null;
+try {
+     // create the player, specifing URL of media
+     player = new QuickTimePlayer("www.example.com/mediafile.mp3");
+     panel.setWidget(player); // add player to panel.
+} catch(LoadException e) {
+     // catch loading exception and alert user
+     Window.alert("An error occured while loading");
+} catch(PluginVersionException e) {
+     // required plugin version is not available, alert user
+     // possibly providing a link to the plugin download page.
+     panel.setWidget(new HTML(".. some nice message telling the user
+           to download plugin first .."));
+} catch(PluginNotFoundException e) {
+     // catch PluginNotFoundException and display a friendly notice.
+     panel.setWidget(PlayerUtil.getMissingPluginNotice(Plugin.QuickTimePlayer));
+}
+                </source>
+                <p>
+                    <b>
+                        <i>NOTE:- The QuickTimePlayer class requires QuickTime 7.2.1 or later</i>
+                    </b>
+                </p>
+                <div class="top">
+                    <a href="#">Top</a>
+                </div>
+            </subsection>
+
+
+            <subsection name="Playing Flash supported media">
+                <p>
+                    The
+                    <b>FlashMediaPlayer</b> class in the
+                    <i>com.bramosystems.gwt.player.core.client.ui</i> package is designed
+                    to handle playback of MP3 media and all video formats
+                    supported by the Flash plugin. However, only FLV video, MPEG 4 video and
+                    sound as well as MOV media formats are fully tested.
+                </p>
+                <p>
+                    Similar to the previous examples the following code block shows how simple
+                    it can be:
+                </p>
+                <source>
+SimplePanel panel = new SimplePanel();   // create panel to hold the player
+AbstractMediaPlayer player = null;
+try {
+     // create the player, specifing URL of media
+     player = new FlashMediaPlayer("www.example.com/mediafile.mp4");
+     panel.setWidget(player); // add player to panel.
+} catch(LoadException e) {
+     // catch loading exception and alert user
+     Window.alert("An error occured while loading");
+} catch(PluginVersionException e) {
+     // required plugin version is not available,
+     // alert user possibly providing a link to the plugin download page.
+     panel.setWidget(new HTML(".. some nice message telling the " +
+           "user to download plugin first .."));
+} catch(PluginNotFoundException e) {
+     // catch PluginNotFoundException and display a friendly notice.
+     panel.setWidget(PlayerUtil.getMissingPluginNotice(Plugin.FlashPlayer));
+} </source>
+                <p>
+                    <b>
+                        <i>NOTE:- Adobe Flash 9.0 or later is required</i>
+                    </b>
+                </p>
+                <div class="top">
+                    <a href="#">Top</a>
+                </div>
+            </subsection>
+
+            <subsection name="Embedding VLC Media Player">
+                <p>
+                    The 
+                    <b>VLCPlayer</b> class in the
+                    <i>com.bramosystems.gwt.player.core.client.ui</i>
+                    package wraps the VLC Media Player plugin.  The plugin is awesome for its support
+                    of numerous media formats.
+                </p>
+                <p>
+                    The following example gives shows a basic usage:
+                </p>
+                <source>
+SimplePanel panel = new SimplePanel();   // create panel to hold the player
+AbstractMediaPlayer player = null;
+try {
+     // create the player, specifing URL of media
+     player = new VLCPlayer("www.example.com/mediafile.vob");
+     panel.setWidget(player); // add player to panel.
+} catch(LoadException e) {
+     // catch loading exception and alert user
+     Window.alert("An error occured while loading");
+} catch(PluginVersionException e) {
+     // required plugin version is not available,
+     // alert user possibly providing a link to the plugin download page.
+     panel.setWidget(new HTML(".. some nice message telling the " +
+           "user to download plugin first .."));
+} catch(PluginNotFoundException e) {
+     // catch PluginNotFoundException and display a friendly notice.
+     panel.setWidget(PlayerUtil.getMissingPluginNotice(Plugin.VLCPlayer));
+}
+                </source>
+                <p>
+                    <b>
+                        <i>NOTE:- VLC Player plugin 1.0.0 or later is required</i>
+                    </b>
+                </p>
+            </subsection>
+        </section>
+
+        <section name="Conclusion">
+            <p>
+                With a simple set of API, BST Player provides an abstraction of popular media player
+                plugins available on the web, therefore making media playback control much more
+                fun filled.  Even more appealing is the dynamic player plugin selection that makes
+                the development of custom media player controls more interesting.
+            </p>
+            <div class="top">
+                <a href="#">Top</a>
+            </div>
+        </section>
+
+    </body>
+</document>

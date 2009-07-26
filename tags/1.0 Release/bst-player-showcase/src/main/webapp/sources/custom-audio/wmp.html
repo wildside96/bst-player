@@ -1,0 +1,19 @@
+<html>
+        <pre><code>Widget c = null;
+try {
+    c = new Capsule(Plugin.WinMediaPlayer,
+            GWT.getHostPageBaseURL() +
+            "media/o-na-som.mp3", false);
+} catch (LoadException ex) {
+    Window.alert("Load exp");
+} catch (PluginVersionException ex) {
+    c = PlayerUtil.getMissingPluginNotice(
+            Plugin.WinMediaPlayer,
+            ex.getRequiredVersion());
+} catch (PluginNotFoundException ex) {
+    c = PlayerUtil.getMissingPluginNotice(
+            Plugin.WinMediaPlayer);
+}
+panel.add(c);
+        </code></pre>
+</html>

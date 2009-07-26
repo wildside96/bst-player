@@ -1,0 +1,17 @@
+<html>
+    <pre><code>Widget mp = null;
+try {
+    mp = new FlashMediaPlayer(GWT.getHostPageBaseURL() +
+        "media/applause.mp3");
+} catch (LoadException ex) {
+    Window.alert("Load exp");
+} catch (PluginVersionException ex) {
+    mp = PlayerUtil.getMissingPluginNotice(
+        Plugin.FlashPlayer, ex.getRequiredVersion());
+} catch (PluginNotFoundException ex) {
+    mp = PlayerUtil.getMissingPluginNotice(
+        Plugin.FlashPlayer);
+}
+panel.add(mp);
+    </code></pre>
+</html>

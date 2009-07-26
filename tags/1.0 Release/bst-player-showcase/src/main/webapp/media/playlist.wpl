@@ -1,0 +1,16 @@
+<?wpl version="1.0"?>
+<smil>
+    <head>
+        <meta name="TotalDuration" content="81"/>
+        <meta name="ItemCount" content="3"/>
+        <author/>
+        <title>Test Playlist</title>
+    </head>
+    <body>
+        <seq>
+            <media src="thunder.mp3"/>
+            <media src="o-na-som.mp3"/>
+            <media src="applause.mp3"/>
+        </seq>
+    </body>
+</smil>

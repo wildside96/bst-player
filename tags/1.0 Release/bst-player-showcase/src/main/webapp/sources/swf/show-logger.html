@@ -1,0 +1,18 @@
+<html>
+    <pre><code>Widget mp = null;
+try {
+    FlashMediaPlayer p = new FlashMediaPlayer(
+        GWT.getHostPageBaseURL()+ "media/o-na-som.mp3", false);
+    p.showLogger(true);
+    mp = p;
+} catch (LoadException ex) {
+    Window.alert("Load exp");
+} catch (PluginVersionException ex) {
+    mp = PlayerUtil.getMissingPluginNotice(Plugin.FlashPlayer,
+            ex.getRequiredVersion());
+} catch (PluginNotFoundException ex) {
+    mp = PlayerUtil.getMissingPluginNotice(Plugin.FlashPlayer);
+}
+panel.add(mp);
+    </code></pre>
+</html>
