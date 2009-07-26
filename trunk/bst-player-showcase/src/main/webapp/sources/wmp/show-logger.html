@@ -1,12 +1,5 @@
 <html>
-    <head>
-        <title></title>
-        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-    </head>
-    <body>
-        <div class="section-desc">Playing sound with logger widget visible</div>
-        <div class="media-desc"></div>
-            <pre><code>Widget wmp = null;
+    <pre><code>Widget wmp = null;
 try {
     WinMediaPlayer p = new WinMediaPlayer(
         GWT.getHostPageBaseURL() +
@@ -22,6 +15,12 @@ try {
     wmp = PlayerUtil.getMissingPluginNotice(
             Plugin.WinMediaPlayer);
 }
-panel.add(wmp);</code></pre>
-    </body>
+panel.add(wmp);
+    </code></pre>
+
+    <p>
+        The attached logger widget displays all debug and error messages generated
+        by the embedded plugin. It provides useful insights into what's going on
+        "under the hood".
+    </p>
 </html>

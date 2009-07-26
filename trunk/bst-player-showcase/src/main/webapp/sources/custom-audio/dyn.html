@@ -1,33 +1,21 @@
 <html>
-    <head>
-        <title></title>
-        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-    </head>
-    <body>
-        <div class="section-desc">Using a dynamically determined media plugin</div>
-        <div class="media-desc">Use the logger to check which plugin is in use</div>
-        <pre><code>Widget c = null;
+    <pre><code>Widget c = null;
 try {
-    Capsule cap = new Capsule(
-            GWT.getHostPageBaseURL() +
-            "media/o-na-som.mp3",
-            false);
+    Capsule cap = new Capsule( GWT.getHostPageBaseURL() +
+            "media/o-na-som.mp3", false);
     cap.showLogger(true);
     c = cap;
 } catch (LoadException ex) {
     Window.alert("Load exp");
 } catch (PluginVersionException ex) {
-    c = PlayerUtil.getMissingPluginNotice(
-            Plugin.Auto, "No Plugin",
-            "A compatible sound plugin " +
+    c = PlayerUtil.getMissingPluginNotice(Plugin.Auto,
+            "No Plugin", "A compatible sound plugin " +
             "could not be found", false);
 } catch (PluginNotFoundException ex) {
-    c = PlayerUtil.getMissingPluginNotice(
-            Plugin.Auto, "No Plugin",
-            "A compatible sound plugin " +
+    c = PlayerUtil.getMissingPluginNotice(Plugin.Auto,
+            "No Plugin", "A compatible sound plugin " +
             "could not be found", false);
 }
 panel.add(c);
-        </code></pre>
-    </body>
+    </code></pre>
 </html>

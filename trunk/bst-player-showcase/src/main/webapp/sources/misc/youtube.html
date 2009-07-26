@@ -1,27 +1,20 @@
 <html>
-    <head>
-        <title></title>
-        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-    </head>
     <body>
-        <div class="section-desc">Embedding YouTube video</div>
-        <div class="media-desc">President Barack Obama on election night (online)</div>
-        <pre><code>Widget mp = null;
+        <div class="media-desc">&copy; AssociatedPress Channel</div>
+        <pre><code>Widget w = null;
+PluginVersion plugVer = PluginVersion.get(9, 0, 0);
 try {
-    SWFWidget swf = new SWFWidget(
-     "http://www.youtube.com/v/HfHbw3n0EIM" +
-     "&hl=en&fs=1", "100%", "350px",
-     PluginVersion.get(9, 0, 0));
-    swf.addProperty("bgcolor", "#000000");
-    mp = swf;
+    SWFWidget v = new SWFWidget(
+        "http://www.youtube.com/v/QbwZL-EK6CY&hl=en&fs=1&",
+        "100%", "350px", plugVer);
+    v.addProperty("bgcolor", "#000000");
+    w = v;
 } catch (PluginVersionException ex) {
-    mp = SWFWidget.getMissingPluginNotice(
-            PluginVersion.get(9, 0, 0));
+    w = SWFWidget.getMissingPluginNotice(plugVer);
 } catch (PluginNotFoundException ex) {
-    mp = SWFWidget.getMissingPluginNotice(
-            PluginVersion.get(9, 0, 0));
+    w = SWFWidget.getMissingPluginNotice(plugVer);
 }
-panel.add(mp);
+panel.add(w);
         </code></pre>
     </body>
 </html>

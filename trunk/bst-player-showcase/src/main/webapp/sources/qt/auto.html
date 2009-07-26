@@ -1,14 +1,7 @@
 <html>
-    <head>
-        <title></title>
-        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-    </head>
-    <body>
-        <div class="section-desc">Playing sound automatically</div>
-        <pre><code>Widget qt = null;
+    <pre><code>Widget qt = null;
 try {
-    qt = new QuickTimePlayer(
-            GWT.getHostPageBaseURL() +
+    qt = new QuickTimePlayer(GWT.getHostPageBaseURL() +
             "media/thunder.mp3");
 } catch (LoadException ex) {
     Window.alert("Load exp");
@@ -20,6 +13,5 @@ try {
             Plugin.QuickTimePlayer);
 }
 panel.add(qt);
-        </code></pre>
-    </body>
+    </code></pre>
 </html>

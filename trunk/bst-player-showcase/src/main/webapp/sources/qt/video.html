@@ -1,17 +1,9 @@
 <html>
-    <head>
-        <title></title>
-        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-    </head>
-    <body>
-        <div class="section-desc">Embedding video</div>
-        <div class="media-desc">Star Trek Movie Trailer (online)</div>
-            <pre><code>Widget qt = null;
+    <pre><code>Widget qt = null;
 try {
     QuickTimePlayer p = new QuickTimePlayer(
-       "http://movies.apple.com/movies/" +
-       "paramount/star_trek/startrek-" +
-       "tlr3_h.640.mov", false, "220px", "100%");
+        GWT.getHostPageBaseURL() + "media/traffic.mp4",
+        false, "350px", "100%");
     p.showLogger(true);
     qt = p;
 } catch (LoadException ex) {
@@ -24,6 +16,6 @@ try {
     qt = PlayerUtil.getMissingPluginNotice(
             Plugin.QuickTimePlayer);
 }
-panel.add(qt);</code></pre>
-    </body>
+panel.add(qt);
+    </code></pre>
 </html>
