@@ -1,0 +1,23 @@
+<html>
+    <body>
+        <pre><code>Widget w = null;
+try {
+    AbstractMediaPlayer mp = PlayerUtil.getPlayer(
+            GWT.getHostPageBaseURL() +
+            "media/applause.mp3",
+            false, "50px", "100%");
+    mp.showLogger(true);
+    w = mp;
+} catch (LoadException ex) {
+    Window.alert("Load Exp");
+} catch (PluginVersionException ex) {
+    w = PlayerUtil.getMissingPluginNotice(
+            Plugin.Auto);
+} catch (PluginNotFoundException ex) {
+    w = PlayerUtil.getMissingPluginNotice(
+            Plugin.Auto);
+}
+panel.add(w);
+        </code></pre>
+    </body>
+</html>

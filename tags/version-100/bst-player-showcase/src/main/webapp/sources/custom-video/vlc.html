@@ -1,0 +1,22 @@
+<html>
+    <body>
+        <pre><code>Widget v = null;
+try {
+    FlatVideoPlayer vp = new FlatVideoPlayer(
+        Plugin.VLCPlayer, GWT.getHostPageBaseURL() +
+            "media/traffic.mp4",
+        false, "350px", "100%");
+    vp.showLogger(true);
+    v = vp;
+} catch (LoadException ex) {
+    Window.alert("Load exp");
+} catch (PluginVersionException ex) {
+    v = PlayerUtil.getMissingPluginNotice(Plugin.VLCPlayer,
+            ex.getRequiredVersion());
+} catch (PluginNotFoundException ex) {
+    v = PlayerUtil.getMissingPluginNotice(Plugin.VLCPlayer);
+}
+panel.add(v);
+        </code></pre>
+    </body>
+</html>
