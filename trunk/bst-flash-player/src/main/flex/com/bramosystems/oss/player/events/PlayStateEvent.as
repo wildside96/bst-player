@@ -7,6 +7,7 @@ package com.bramosystems.oss.player.events {
         public static const PLAY_STARTED:String = "playstarted";
         public static const PLAY_PAUSED:String = "playpaused";
         public static const PLAY_STOPPED:String = "playstopped";
+        public static const PLAY_FINISHED:String = "playfinished";
 
         private var evtType:String;
 

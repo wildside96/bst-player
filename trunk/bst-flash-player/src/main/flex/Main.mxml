@@ -52,16 +52,18 @@
                         playlist = new Playlist();
                         listManager = new PlaylistManager(playlist, setting);
 
-                        mp3 = new MP3Engine(playFinishedHandler);
+                        mp3 = new MP3Engine();
                         mp3.addEventListener(PlayStateEvent.PLAY_STARTED, playStarted);
                         mp3.addEventListener(PlayStateEvent.PLAY_STOPPED, playStopped);
                         mp3.addEventListener(PlayStateEvent.PLAY_PAUSED, playPaused);
+                        mp3.addEventListener(PlayStateEvent.PLAY_FINISHED, playFinished);
                         mp3.setVolume(setting.getVolume());
 
-                        vdu = new VideoEngine(playFinishedHandler);
+                        vdu = new VideoEngine();
                         vdu.addEventListener(PlayStateEvent.PLAY_STARTED, playStarted);
                         vdu.addEventListener(PlayStateEvent.PLAY_STOPPED, playStopped);
                         vdu.addEventListener(PlayStateEvent.PLAY_PAUSED, playPaused);
+                        vdu.addEventListener(PlayStateEvent.PLAY_FINISHED, playFinished);
                         vdu.setVolume(setting.getVolume());
 
     //                    stage.scaleMode = StageScaleMode.NO_BORDER;
@@ -93,6 +95,8 @@
                 // setup callback interfaces...
                 ExternalInterface.addCallback("closeMda", close);
                 ExternalInterface.addCallback("getMdaPlayerVer", getFlashVersion);
+                ExternalInterface.addCallback("getMdaVideoHeight", getVideoHeight);
+                ExternalInterface.addCallback("getMdaVideoWidth", getVideoWidth);
 
                 // settings stuffs ...
                 ExternalInterface.addCallback("getMdaVolume", setting.getVolume);
@@ -125,11 +129,11 @@
             }
 
             /**************************** PLAYER IMPL ******************************/
-            private const PLAYING:int = 0;
-            private const STOPPED:int = 1;
-            private const PAUSED:int = 2;
-            private const LOADED:int = 3;
-            private const FINISHED:int = 4;
+            private const PLAYING:int = 1;
+            private const STOPPED:int = 2;
+            private const PAUSED:int = 3;
+            private const LOADED:int = 4;
+            private const FINISHED:int = 5;
 
             private var mediaURL:String;
             private var state:int = STOPPED;
@@ -147,7 +151,6 @@
             }
 
             public function play():void {
-                Log.info("state : " + state);
                 switch(state) {
                     case LOADED:
                     case PAUSED:
@@ -222,33 +225,49 @@
                 }
             }
 
+            public function getVideoHeight():Number {
+                if((player is VideoEngine) && (vdu.metadata.videodatarate)) {
+                    return vdu.metadata.height;
+                }
+                return 0;
+            }
+
+            public function getVideoWidth():Number {
+                if((player is VideoEngine) && (vdu.metadata.videodatarate)) {
+                    return vdu.metadata.width;
+                }
+                return 0;
+            }
+
             /*************************** PLAY STATE HANDLERS *********************/
-            private function playFinishedHandler(event:Event):void {
+            private function playFinished(event:PlayStateEvent):void {
                 EventUtil.fireMediaStateChanged(9, listManager.getListIndex());
                 if(!playNext()) {
-                    state = FINISHED;
                     Log.info("Media playback finished");
                     EventUtil.fireMediaStateChanged(9);
-//                    listManager.resetIndex();
+                    state = FINISHED;
                 }
             }
 
             private function playStopped(event:PlayStateEvent):void {
-                    state = STOPPED;
-  //                  listManager.resetIndex();
+                state = STOPPED;
                 Log.info("Playback stopped");
                 EventUtil.fireMediaStateChanged(3, listManager.getListIndex());
             }
 
             private function playPaused(event:PlayStateEvent):void {
-                    state = PAUSED;
+                state = PAUSED;
                 Log.info("Playback paused");
                 EventUtil.fireMediaStateChanged(4, listManager.getListIndex());
             }
 
             private function playStarted(event:PlayStateEvent):void {
-                if(state == STOPPED) {
-                    Log.info("Playlist item " + listManager.getListIndex() + " : playback started");
+                switch(state) {
+                    case PAUSED:
+                        Log.info("Playback resumed");
+                        break;
+                    default:
+                        Log.info("Playlist item " + listManager.getListIndex() + " : playback started");
                 }
                 state = PLAYING;
                 EventUtil.fireMediaStateChanged(2, listManager.getListIndex());
@@ -266,11 +285,11 @@
                 if(mediaURL.search(".mp3") >= 0) {
                     player = mp3
                     addChild(mp3);
-                    Log.info("Using MP3Engine");
+                    Log.info("Using MP3Engine ...");
                 } else {
                     player = vdu;
                     addChild(vdu);
-                    Log.info("Using VideoEngine");
+                    Log.info("Using VideoEngine ...");
                 }
 
                 player._load(mediaURL);
