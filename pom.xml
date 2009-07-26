@@ -17,18 +17,21 @@
             <distribution>repo</distribution>
         </license>
     </licenses>
-
     <developers>
         <developer>
             <id>sbraheem</id>
             <name>Sikiru Braheem</name>
-            <roles>
-                <role>Developer</role>
-            </roles>
-            <timezone>+1</timezone>
             <email>sbraheem@bramosystems.com</email>
         </developer>
     </developers>
+    <contributors>
+        <contributor>
+            <name>Brett Wooldridge</name>
+        </contributor>
+        <contributor>
+            <name>Matthew Gressek</name>
+        </contributor>
+    </contributors>
 
     <scm>
         <connection>scm:svn:http://bst-player.googlecode.com/svn/trunk</connection>
@@ -61,8 +64,21 @@
                         <target>1.5</target>
                     </configuration>
                 </plugin>
+                <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>gwt-maven-plugin</artifactId>
+                    <version>1.1</version>
+                </plugin>
             </plugins>
         </pluginManagement>
+        
+        <extensions>
+            <!--extension>
+                <groupId>org.apache.maven.wagon</groupId>
+                <artifactId>wagon-ftp</artifactId>
+                <version>1.0-alpha-6</version>
+            </extension-->
+        </extensions>
     </build>
 
     <properties>
@@ -74,7 +90,7 @@
             <dependency>
                 <groupId>junit</groupId>
                 <artifactId>junit</artifactId>
-                <version>4.3</version>
+                <version>4.1</version>
                 <scope>test</scope>
             </dependency>
 
@@ -83,13 +99,6 @@
                 <artifactId>gwt-user</artifactId>
                 <version>${gwtVersion}</version>
                 <scope>provided</scope>
-            </dependency>
-            <dependency>
-                <groupId>com.google.gwt</groupId>
-                <artifactId>gwt-dev</artifactId>
-                <version>${gwtVersion}</version>
-                <scope>test</scope>
-                <classifier>${gwtPlatform}</classifier>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -131,7 +140,7 @@
                     </reportSet>
                 </reportSets>
                 <configuration>
-                    <excludePackageNames>*.impl;*.link.*</excludePackageNames>
+                    <excludePackageNames>*.impl;*.link.*;*.video</excludePackageNames>
                     <doctitle>${project.name} ${project.version}</doctitle>
                     <windowtitle>${project.name} ${project.version}</windowtitle>
                 </configuration>
@@ -139,46 +148,32 @@
         </plugins>
     </reporting>
 
-    <!--distributionManagement>
-        <site>
-            <id>website</id>
-            <url>file://oss.bramosystems.com/bst-player</url>
-        </site>
-    </distributionManagement-->
+    <distributionManagement>
+        <repository>
+            <id>maven_bramosystems.com</id>
+            <url>ftp://ftp.bramosystems.com/releases</url>
+        </repository>
+        <snapshotRepository>
+            <id>maven_bramosystems.com</id>
+            <url>ftp://ftp.bramosystems.com/snapshots</url>
+        </snapshotRepository>
+    </distributionManagement>
 
     <profiles>
         <profile>
-            <id>gwt-windows</id>
-            <properties>
-                <gwtPlatform>windows</gwtPlatform>
-            </properties>
-            <activation>
-                <os>
-                    <family>windows</family>
-                </os>
-            </activation>
-        </profile>
-        <profile>
-            <id>gwt-mac</id>
-            <properties>
-                <gwtPlatform>mac</gwtPlatform>
-            </properties>
-            <activation>
-                <os>
-                    <family>mac</family>
-                </os>
-            </activation>
-        </profile>
-        <profile>
-            <id>gwt-linux</id>
-            <properties>
-                <gwtPlatform>linux</gwtPlatform>
-            </properties>
-            <activation>
-                <os>
-                    <name>linux</name>
-                </os>
-            </activation>
+            <id>oss-lab-site</id>
+            <reporting>
+                <plugins>
+                    <plugin>
+                        <artifactId>maven-site-plugin</artifactId>
+                        <version>2.0-beta-7</version>
+                        <configuration>
+                            <siteDirectory>src/site/osslab</siteDirectory>
+                            <xdocDirectory>src/site/xdoc</xdocDirectory>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </reporting>
         </profile>
     </profiles>
 </project>
