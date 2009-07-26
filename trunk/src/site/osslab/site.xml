@@ -18,12 +18,12 @@
         <menu ref="modules" />
     </body>
     <poweredBy>
-        <logo name="Maven" href="http://maven.apache.org/" 
+        <logo name="Maven" href="http://maven.apache.org/"
         img="http://oss.bramosystems.com/bst-player/images/logos/build-by-maven-white.png" />
     </poweredBy>
     <skin>
-        <groupId>org.apache.maven.skins</groupId>
-        <artifactId>maven-default-skin</artifactId>
+        <groupId>com.bramosystems.sites</groupId>
+        <artifactId>maven-oss-site</artifactId>
         <version>1.0</version>
     </skin>
 </project>

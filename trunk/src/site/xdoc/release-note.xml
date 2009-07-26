@@ -3,7 +3,7 @@
 <document xmlns="http://maven.apache.org/XDOC/2.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://maven.apache.org/XDOC/2.0 http://maven.apache.org/xsd/xdoc-2.0.xsd">
     <head>
-        <meta name="description" content="BST Player: Release Notes" />
+        <meta name="description" content="Information about released packages" />
         <meta name="robots" content="index,follow" />
     </head>
 
@@ -17,14 +17,16 @@
                 This page contains information on the various released packages of the project.
             </p>
 
-            <subsection name="13 March 2009 - Version 1.0">
+            <subsection name="26 July 2009 - Version 1.0">
                 <p>
                     <b>New Features</b>
                 </p>
 
                 <ul>
                     <li>Introduces VLCPlayer widget to embed VLC Media Player plugin.</li>
+                    <li>Players can auto-adjust size to match the dimension of videos</li>
                     <li>Client-side playlists support added</li>
+                    <li>Introduces automatic player selection based on desired plugin features</li>
                 </ul>
 
                 <p>
@@ -33,10 +35,16 @@
 
                 <ul>
                     <li>Code refactoring: library split into modules and packages renamed.</li>
+                    <li>MediaStateListeners replaced with media state handlers inline
+                    with GWT 1.6 event system
+                    </li>
                     <li>FlashMP3Player and FlashVideoPlayer widgets replaced
-                    with the new FlashMediaPlayer widget</li>
+                    with the new FlashMediaPlayer widget
+                    </li>
+                    <li>FlatCustomControl widget replaced with the new CustomPlayerControl widget</li>
                     <li>JSNI implementation of player widgets reworked to reduce memory leaks</li>
-                    <li>MediaStateListeners now notified when media stream buffering starts/stops</li>
+                    <li>More plugin-specific accessors added
+                    (<a href="http://code.google.com/p/bst-player/issues/detail?id=5">Issue #5</a>)</li>
                 </ul>
 
                 <p>
@@ -74,7 +82,8 @@
                 </p>
                 <ul >
                     <li>
-                        Issue 2 - All constructors now work fine for WinMediaPlayer
+                        All WinMediaPlayer constructors work as expected -
+                        (<a href="http://code.google.com/p/bst-player/issues/detail?id=2">Issue 2</a>)
                     </li>
                 </ul>
 

@@ -1,8 +1,8 @@
 .top {
     text-align:right;
 }
-.source {
-    font-size:120%;
+.source, code {
+    font-size: 120%;
 }
 
 #ohloh {

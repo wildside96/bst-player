@@ -6,6 +6,11 @@
     <properties>
         <title>Getting Started</title>
     </properties>
+    <head>
+        <meta name="description" content="Get started adding sound and video to GWT
+        applications using with your favourite plugins." />
+        <meta name="robots" content="index,follow" />
+    </head>
     <body>
         <section name="Getting Started">
             <p>
@@ -27,7 +32,7 @@
                 The following sections describe the basic usage of the library.  Before getting started, 
                 add the library to your application classpath and ensure your application module
                 inherits the
-                <code>com.bramosystems.gwt.player.core.Core</code> module.
+                <i>com.bramosystems.gwt.player.core.Core</i> module.
             </p>
 
             <subsection name="Embedding Windows Media Player">
@@ -89,7 +94,7 @@ player.setVolume(0.8); // sets the playback volume to 80% of maximum
                 <p>
                     Similar to the WinMediaPlayer class, the
                     <b>QuickTimePlayer</b> class in the
-                    <code>com.bramosystems.gwt.player.core.client.ui</code> package wraps the
+                    <i>com.bramosystems.gwt.player.core.client.ui</i> package wraps the
                     QuickTime plugin.
                 </p>
                 <p>
@@ -130,7 +135,7 @@ try {
                 <p>
                     The
                     <b>FlashMediaPlayer</b> class in the
-                    <code>com.bramosystems.gwt.player.core.client.ui</code> package is designed
+                    <i>com.bramosystems.gwt.player.core.client.ui</i> package is designed
                     to handle playback of MP3 media and all video formats
                     supported by the Flash plugin. However, only FLV video, MPEG 4 video and
                     sound as well as MOV media formats are fully tested.
@@ -157,8 +162,7 @@ try {
 } catch(PluginNotFoundException e) {
      // catch PluginNotFoundException and display a friendly notice.
      panel.setWidget(PlayerUtil.getMissingPluginNotice(Plugin.FlashPlayer));
-}
-                </source>
+} </source>
                 <p>
                     <b>
                         <i>NOTE:- Adobe Flash 9.0 or later is required</i>
@@ -173,7 +177,7 @@ try {
                 <p>
                     The 
                     <b>VLCPlayer</b> class in the
-                    <code>com.bramosystems.gwt.player.core.client.ui</code>
+                    <i>com.bramosystems.gwt.player.core.client.ui</i>
                     package wraps the VLC Media Player plugin.  The plugin is awesome for its support
                     of numerous media formats.
                 </p>
@@ -202,7 +206,7 @@ try {
                 </source>
                 <p>
                     <b>
-                        <i>NOTE:- VLC Player plugin 0.9.9 or later is required</i>
+                        <i>NOTE:- VLC Player plugin 1.0.0 or later is required</i>
                     </b>
                 </p>
             </subsection>
@@ -210,11 +214,10 @@ try {
 
         <section name="Conclusion">
             <p>
-                With a simple set of API, BST Player provides an abstraction
-                of the popular media player plugins available on the web, therefore making
-                media playback control much more fun filled.  Even more appealing is the
-                dynamic player plugin selection that makes the development of custom media player
-                controls more interesting.
+                With a simple set of API, BST Player provides an abstraction of popular media player
+                plugins available on the web, therefore making media playback control much more
+                fun filled.  Even more appealing is the dynamic player plugin selection that makes
+                the development of custom media player controls more interesting.
             </p>
             <div class="top">
                 <a href="#">Top</a>

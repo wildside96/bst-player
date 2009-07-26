@@ -7,8 +7,18 @@
         <title>Overview</title>
     </properties>
     
+    <head>
+        <meta name="description" content="Add sound and video to GWT applications
+        using Windows Media Player, QuickTime, Flash plugins or even yours the GWT way!." />
+        <meta name="robots" content="index,follow" />
+    </head>
     <body>
         <section name="Overview">
+            <div id="ohloh">
+                <script type="text/javascript"
+                src="http://www.ohloh.net/p/315620/widgets/project_thin_badge.js">
+                </script>
+            </div>
             <p>
                 The API makes Windows Media Player, QuickTime player, Flash player and VLC Media Player
                 plugins available in GWT applications like other GWT widgets.
@@ -22,19 +32,20 @@
                 Each player widget exposes methods to load media files, initiate playback,
                 pause, stop, change playback position and volume.  General media plugin events
                 such as loading progress, playback started, playback finished, IO errors are also
-                supported via event listeners.
+                supported via event handlers
             </p>
             <p>
                 The API also feature plugin detection, which is central to the smooth operation of
                 the library as well as classes to facilitate the development of custom HTML-based player
-                controls (skins).  The custom players can be used like a cross browser media
+                controls (skins).  The custom players can be used like a cross-browser media
                 player in GWT applications. Exceptions are thrown in the absence of a required plugin,
                 hence allowing you to display an alternative message (or widget).
             </p>
 
             <subsection name="Demo">
                 <p>
-                    The <a href="./demo">BST Player Showcase</a> application showcase
+                    The
+                    <a href="demo/showcase/index.html">BST Player Showcase</a> application showcase
                     the various features of the API.
                 </p>
             </subsection>
@@ -49,8 +60,8 @@
 
             <subsection name="Suggestions and Issues">
                 <p>
-                    Suggestions are always welcome as regards improving the project. You may post your
-                    suggestions and all issues on the
+                    Suggestions and feedbacks are always welcome as regards improving the project.
+                    You may post your suggestions and all issues on the
                     <a href="http://code.google.com/p/bst-player/issues/">Issues page</a>.
                 </p>
                 <p>Happy coding ...</p>
