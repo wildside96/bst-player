@@ -1,7 +1,7 @@
 #labels Featured
 = Release Notes =
 
-This page contains information on the various released packages of the project.
+This page contains information about the released versions 0.6 and below, please check [http://oss.bramosystems.com/bst-player/release-note.html here] for version 1.0 or later.
 
 ----
 
