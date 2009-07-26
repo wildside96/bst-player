@@ -1,4 +1,3 @@
-#labels Featured
 = Getting Started with BST Player =
 
 == Note: ==
