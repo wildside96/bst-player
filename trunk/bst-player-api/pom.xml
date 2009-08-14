@@ -4,7 +4,7 @@
     <parent>
         <artifactId>bst-player</artifactId>
         <groupId>com.bramosystems.oss.player</groupId>
-        <version>1.0.1-SNAPSHOT</version>
+        <version>1.1-SNAPSHOT</version>
     </parent>
     <artifactId>bst-player-api</artifactId>
     <name>BST Player API</name>
@@ -72,7 +72,6 @@
                     </execution>
                 </executions>
             </plugin>
-
         </plugins>
     </build>
 
