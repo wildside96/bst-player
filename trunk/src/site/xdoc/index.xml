@@ -4,13 +4,12 @@
   xsi:schemaLocation="http://maven.apache.org/XDOC/2.0 http://maven.apache.org/xsd/xdoc-2.0.xsd">
 
     <properties>
-        <title>Overview</title>
+        <title>Search</title>
     </properties>
     
     <head>
-        <meta name="description" content="Add sound and video to GWT applications
-        using Windows Media Player, QuickTime, Flash plugins or even yours the GWT way!." />
-        <meta name="robots" content="index,follow" />
+        <meta name="description" content="search results" />
+        <meta name="robots" content="nofollow" />
     </head>
     <body>
         <section name="Overview">

@@ -35,8 +35,9 @@ public class DynaShowcase extends AbstractCase {
             "Media Player plugin", "Custom controls with Flash plugin",
             "Custom controls with QuickTime plugin",
             "Custom controls with VLC Player Plugin",
+            "Custom controls with HTML 5 Native player",
             "Plugin determined at runtime"};
-    public static String[] caseLinks = {"dyn/wmp", "dyn/swf", "dyn/qt", "dyn/vlc", "dyn/dyna"};
+    public static String[] caseLinks = {"dyn/wmp", "dyn/swf", "dyn/qt", "dyn/vlc", "dyn/native", "dyn/dyna"};
 
     public DynaShowcase() {
     }
@@ -112,6 +113,21 @@ public class DynaShowcase extends AbstractCase {
                         v, "sources/custom-audio/vlc.html");
                 break;
             case 4:
+                try {
+                    Capsule cv = new Capsule(Plugin.Native, GWT.getHostPageBaseURL() + "media/thunder.mp3", false);
+                    cv.showLogger(true);
+                    v = cv;
+                } catch (LoadException ex) {
+                    Window.alert("Load exp");
+                } catch (PluginVersionException ex) {
+                    v = PlayerUtil.getMissingPluginNotice(Plugin.Native, ex.getRequiredVersion());
+                } catch (PluginNotFoundException ex) {
+                    v = PlayerUtil.getMissingPluginNotice(Plugin.Native);
+                }
+                addCase("Playback with HTML 5 Native Player plugin", null,
+                        v, "sources/custom-audio/vlc.html");
+                break;
+            case 5:
                 try {
                     Capsule cap = new Capsule(GWT.getHostPageBaseURL() + "media/o-na-som.mp3", false);
                     cap.showLogger(true);

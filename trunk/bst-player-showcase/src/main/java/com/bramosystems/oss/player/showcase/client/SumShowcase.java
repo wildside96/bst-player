@@ -54,43 +54,43 @@ public class SumShowcase extends AbstractCase {
                 t.schedule(3000);
                 break;
             /*                FlexTable table = new FlexTable();
-            table.setCellSpacing(5);
-            table.setCellPadding(5);
+                table.setCellSpacing(5);
+                table.setCellPadding(5);
 
-            table.setHTML(0, 0, "Name");
-            table.setHTML(0, 1, "FileName");
-            table.setHTML(0, 2, "Description");
+                table.setHTML(0, 0, "Name");
+                table.setHTML(0, 1, "FileName");
+                table.setHTML(0, 2, "Description");
 
-            JsArray<BrowserPlugin> plugins = BrowserPlugin.getPlugins();
-            for (int row = 1; row < plugins.length(); row++) {
-            BrowserPlugin bp = plugins.get(row);
-            table.setHTML(row, 0, bp.getName());
-            table.setHTML(row, 1, bp.getFileName());
-            table.setHTML(row, 2, bp.getDescription());
-            }
-            addCase("Browser Plugins", null, table, null);
-            break;
+                JsArray<BrowserPlugin> plugins = BrowserPlugin.getPlugins();
+                for (int row = 1; row < plugins.length(); row++) {
+                    BrowserPlugin bp = plugins.get(row);
+                    table.setHTML(row, 0, bp.getName());
+                    table.setHTML(row, 1, bp.getFileName());
+                    table.setHTML(row, 2, bp.getDescription());
+                }
+                addCase("Browser Plugins", null, table, null);
+                break;
             case 2:
-            FlexTable tble = new FlexTable();
-            tble.setCellSpacing(5);
-            tble.setCellPadding(5);
+                FlexTable tble = new FlexTable();
+                tble.setCellSpacing(5);
+                tble.setCellPadding(5);
 
-            tble.setHTML(0, 0, "Type");
-            tble.setHTML(0, 1, "Description");
-            tble.setHTML(0, 2, "Enabled");
-            tble.setHTML(0, 3, "Suffixes");
+                tble.setHTML(0, 0, "Type");
+                tble.setHTML(0, 1, "Description");
+                tble.setHTML(0, 2, "Enabled");
+                tble.setHTML(0, 3, "Suffixes");
 
-            JsArray<MimeType> mimes = MimeType.getMimeTypes();
-            for (int row = 1; row < mimes.length(); row++) {
-            MimeType bp = mimes.get(row);
-            tble.setHTML(row, 0, bp.getType());
-            tble.setHTML(row, 1, bp.getDescription());
+                JsArray<MimeType> mimes = MimeType.getMimeTypes();
+                for (int row = 1; row < mimes.length(); row++) {
+                    MimeType bp = mimes.get(row);
+                    tble.setHTML(row, 0, bp.getType());
+                    tble.setHTML(row, 1, bp.getDescription());
             tble.setHTML(row, 2, bp.getEnabledPlugin() != null ?
             bp.getEnabledPlugin().getName() : "");
-            tble.setHTML(row, 3, bp.getSuffixes());
-            }
-            addCase("Registered Mime Types", null, tble, null);
-            break;
+                    tble.setHTML(row, 3, bp.getSuffixes());
+                }
+                addCase("Registered Mime Types", null, tble, null);
+                break;
              */
             default:
                 addCase(null, null, null, "sources/index.html");

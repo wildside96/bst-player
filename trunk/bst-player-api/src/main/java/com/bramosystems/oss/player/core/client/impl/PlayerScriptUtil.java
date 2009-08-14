@@ -16,12 +16,13 @@
 package com.bramosystems.oss.player.core.client.impl;
 
 import com.bramosystems.oss.player.core.client.PlayerUtil;
+import com.bramosystems.oss.player.core.client.ui.NativePlayer.MediaItem;
 import com.bramosystems.oss.player.util.client.MimeType;
 import com.google.gwt.core.client.GWT;
+import java.util.ArrayList;
 
 /**
- * Native implementation of the PlayerUtil class. It is not recommended to
- * interact with this class directly.
+ * It is not recommended to interact with this class directly.
  *
  * @see PlayerUtil
  * @author Sikirulai Braheem
@@ -38,6 +39,24 @@ public class PlayerScriptUtil {
     public static String getWMPlayerScript(String mediaURL, String playerId, boolean autoplay,
             int height, int width) {
         return impl.getWMPlayerScript(mediaURL, playerId, autoplay, height, width);
+    }
+
+    public static String getNativePlayerScript(String playerId, ArrayList<MediaItem> sources, boolean autoplay,
+            int height, int width) {
+        String src = "";
+        for (MediaItem item : sources) {
+            src += "<source src='" + item.getSource() + "' type='" + item.getType() + "'/>";
+        }
+        return "<video id='" + playerId + "' " + (autoplay ? "autoplay='true' " : "") +
+                "width='" + width + "px' height='" + height + "px' controls='true' >" +
+                src + "</video>";
+    }
+
+    public static String getNativePlayerScript(String playerId, String mediaURL, boolean autoplay,
+            int height, int width) {
+        return "<video id='" + playerId + "' src='" + mediaURL + "' " + (autoplay ? "autoplay='true' " : "") +
+                "width='" + width + "px' height='" + height + "px' controls='true' >" +
+                "</video>";
     }
 
     public static class PlayerScriptUtilImpl {
@@ -67,7 +86,7 @@ public class PlayerScriptUtil {
             String ffMime = "application/x-ms-wmp";
             String genericMime = "application/x-mplayer2";
             MimeType mt = MimeType.getMimeType(ffMime);
-            if(mt != null) {
+            if (mt != null) {
                 return ffMime;
             } else {
                 return genericMime;

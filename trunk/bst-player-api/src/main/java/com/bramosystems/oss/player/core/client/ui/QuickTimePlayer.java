@@ -146,7 +146,7 @@ public final class QuickTimePlayer extends AbstractMediaPlayer {
                         checkVideoSize(Integer.parseInt(info.getItem(MediaInfoKey.VideoHeight)) + 16,
                                 Integer.parseInt(info.getItem(MediaInfoKey.VideoWidth)));
                     }
-                    logger.log(event.getMediaInfo().asHTMLString(), true);
+                    logger.log(info.asHTMLString(), true);
                 }
             });
         } else {
@@ -364,11 +364,17 @@ public final class QuickTimePlayer extends AbstractMediaPlayer {
     public void setTransformationMatrix(final TransformationMatrix matrix) {
         if (impl.isPlayerAvailable(playerId)) {
             impl.setMatrix(playerId, matrix.toQTMatrixString());
+            if (resizeToVideoSize) {
+                checkVideoSize(getVideoHeight() + 16, getVideoWidth());
+            }
         } else {
             addToPlayerReadyCommandQueue("matrix", new Command() {
 
                 public void execute() {
                     impl.setMatrix(playerId, matrix.toQTMatrixString());
+                    if (resizeToVideoSize) {
+                        checkVideoSize(getVideoHeight() + 16, getVideoWidth());
+                    }
                 }
             });
         }
@@ -533,7 +539,6 @@ public final class QuickTimePlayer extends AbstractMediaPlayer {
             this.ty = ty;
         }
 
-
         /**
          * Returns the matrix elements as a String
          *
@@ -660,6 +665,6 @@ public final class QuickTimePlayer extends AbstractMediaPlayer {
          */
         public void setTy(double ty) {
             this.ty = ty;
-        }       
+        }
     }
 }

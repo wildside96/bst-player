@@ -128,6 +128,11 @@ public class Showcase extends Composite implements EntryPoint, ValueChangeHandle
                 links = VLCShowcase.caseLinks;
                 header = "VLC Media Player";
                 break;
+            case _native:
+                names = NativeShowcase.caseNames;
+                links = NativeShowcase.caseLinks;
+                header = "HTML 5 Native Player";
+                break;
         }
 
         for (int i = 0; i < names.length; i++) {
@@ -183,6 +188,9 @@ public class Showcase extends Composite implements EntryPoint, ValueChangeHandle
             case list:
                 cazze = new PlaylistShowcase();
                 break;
+            case _native:
+                cazze = new NativeShowcase();
+                break;
 //            case link:
 //                cazze = new LinkShowcase();
 //                break;
@@ -195,7 +203,7 @@ public class Showcase extends Composite implements EntryPoint, ValueChangeHandle
 
     private enum Cases {
 
-        home, wmp, qt, swf, vlc,
+        home, wmp, qt, swf, vlc, _native,
         dyn, dynvd, list, 
 //        link,
         misc
