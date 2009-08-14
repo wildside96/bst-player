@@ -31,15 +31,14 @@
             <p>
                 The following sections describe the basic usage of the library.  Before getting started, 
                 add the library to your application classpath and ensure your application module
-                inherits the
-                <i>com.bramosystems.gwt.player.core.Core</i> module.
+                inherits the <i>com.bramosystems.oss.player.core.Core</i> module.
             </p>
 
             <subsection name="Embedding Windows Media Player">
                 <p>
                     The
                     <b>WinMediaPlayer</b> class in the
-                    <i>com.bramosystems.gwt.player.core.client.ui</i>
+                    <i>com.bramosystems.oss.player.core.client.ui</i>
                     package wraps the Windows Media Player plugin as a GWT widget.
                     The following code block describes an example:
                 </p>
@@ -94,7 +93,7 @@ player.setVolume(0.8); // sets the playback volume to 80% of maximum
                 <p>
                     Similar to the WinMediaPlayer class, the
                     <b>QuickTimePlayer</b> class in the
-                    <i>com.bramosystems.gwt.player.core.client.ui</i> package wraps the
+                    <i>com.bramosystems.oss.player.core.client.ui</i> package wraps the
                     QuickTime plugin.
                 </p>
                 <p>
@@ -135,7 +134,7 @@ try {
                 <p>
                     The
                     <b>FlashMediaPlayer</b> class in the
-                    <i>com.bramosystems.gwt.player.core.client.ui</i> package is designed
+                    <i>com.bramosystems.oss.player.core.client.ui</i> package is designed
                     to handle playback of MP3 media and all video formats
                     supported by the Flash plugin. However, only FLV video, MPEG 4 video and
                     sound as well as MOV media formats are fully tested.
@@ -177,7 +176,7 @@ try {
                 <p>
                     The 
                     <b>VLCPlayer</b> class in the
-                    <i>com.bramosystems.gwt.player.core.client.ui</i>
+                    <i>com.bramosystems.oss.player.core.client.ui</i>
                     package wraps the VLC Media Player plugin.  The plugin is awesome for its support
                     of numerous media formats.
                 </p>

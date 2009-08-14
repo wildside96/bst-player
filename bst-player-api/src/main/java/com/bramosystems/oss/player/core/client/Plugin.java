@@ -62,7 +62,16 @@ public enum Plugin {
      * Specifies the VLC Media Player plugin
      * @since 1.0
      */
-    VLCPlayer("http://www.videolan.org", 1, 0, 0);
+    VLCPlayer("http://www.videolan.org", 1, 0, 0),
+
+    /**
+     * Specifies the browsers' native media handler.  HTML 5 compliant browsers
+     * have support for media playback via the <code>audio</code> and <code>video</code>
+     * elements.
+     *
+     * @since 1.1
+     */
+    Native("", 0,0,0);
 
     private String downloadURL;
     private PluginVersion version;

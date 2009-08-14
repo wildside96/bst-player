@@ -24,6 +24,7 @@ import com.bramosystems.oss.player.core.client.Plugin;
 import com.bramosystems.oss.player.core.client.AbstractMediaPlayer;
 import com.bramosystems.oss.player.core.client.PlaylistSupport;
 import com.bramosystems.oss.player.core.client.ui.FlashMediaPlayer;
+import com.bramosystems.oss.player.core.client.ui.NativePlayer;
 import com.bramosystems.oss.player.core.client.ui.QuickTimePlayer;
 import com.bramosystems.oss.player.core.client.ui.VLCPlayer;
 import com.bramosystems.oss.player.core.client.ui.WinMediaPlayer;
@@ -99,6 +100,9 @@ public abstract class CustomVideoPlayer extends AbstractMediaPlayer implements P
                 break;
             case WinMediaPlayer:
                 engine = new WinMediaPlayer(mediaURL, autoplay, height, "100%");
+                break;
+            case Native:
+                engine = new NativePlayer(mediaURL, autoplay, height, "100%");
                 break;
             default:
                 engine = PlayerUtil.getPlayer(playerPlugin, mediaURL, autoplay, height, "100%");

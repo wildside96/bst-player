@@ -193,8 +193,7 @@ public class PlayerUtilImpl {
         MimeType mt = MimeType.getMimeType("application/x-ms-wmp");
         if (mt != null) {   // firefox plugin present...
             found = true;
-        } else {
-            // firefox plugin not found check for generic..
+        } else {   // firefox plugin not found check for generic..
             mt = MimeType.getMimeType("application/x-mplayer2");
             BrowserPlugin plug = mt.getEnabledPlugin(); // who's got the mime ? (WMP / VLC)
             if (plug.getName().contains("Windows Media Player")) {
@@ -230,5 +229,15 @@ public class PlayerUtilImpl {
     private native String executeRegex(String string, String regex, String flags) /*-{
     var _regex = new RegExp(regex, flags);
     return (_regex.exec(string))[0];
+    }-*/;
+
+    public native boolean isHTML5CompliantClient() /*-{
+    try {
+    var test = new Audio();
+    test = null;
+    return true;
+    } catch(e){
+    return false;
+    }
     }-*/;
 }

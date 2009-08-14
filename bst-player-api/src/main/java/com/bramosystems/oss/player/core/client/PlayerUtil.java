@@ -17,6 +17,7 @@ package com.bramosystems.oss.player.core.client;
 
 import com.bramosystems.oss.player.core.client.impl.PlayerUtilImpl;
 import com.bramosystems.oss.player.core.client.ui.FlashMediaPlayer;
+import com.bramosystems.oss.player.core.client.ui.NativePlayer;
 import com.bramosystems.oss.player.core.client.ui.QuickTimePlayer;
 import com.bramosystems.oss.player.core.client.ui.VLCPlayer;
 import com.bramosystems.oss.player.core.client.ui.WinMediaPlayer;
@@ -129,6 +130,9 @@ public class PlayerUtil {
             case WinMediaPlayer:
                 player = new WinMediaPlayer(mediaURL, autoplay, height, width);
                 break;
+            case Native:
+                player = new NativePlayer(mediaURL, autoplay, height, width);
+                break;
             default:
                 throw new PluginNotFoundException();
         }
@@ -206,6 +210,9 @@ public class PlayerUtil {
                 break;
             case WinMediaPlayer:
                 player = new WinMediaPlayer(mediaURL, autoplay, height, width);
+                break;
+            case Native:
+                player = new NativePlayer(mediaURL, autoplay, height, width);
                 break;
             default:
                 player = getPlayer(mediaURL, autoplay, height, width);
@@ -352,7 +359,7 @@ public class PlayerUtil {
     }
 
     /**
-     * Convinience method to get a widget that may be used to notify the user when
+     * Convenience method to get a widget that may be used to notify the user when
      * a required plugin is not available.
      *
      * <p>This is same as calling {@code getMissingPluginNotice(plugin, "Missing Plugin",
@@ -387,12 +394,16 @@ public class PlayerUtil {
                 message = "VLC Media Player " + version + " plugin or later is required to play " +
                         "this media. Click here to get VLC Media Player";
                 break;
+            case Native:
+                title = "Browser Not Compliant";
+                message = "An HTML 5 compliant browser is required";
+                break;
         }
         return getMissingPluginNotice(plugin, title, message, false);
     }
 
     /**
-     * Convinience method to get a widget that may be used to notify the user when
+     * Convenience method to get a widget that may be used to notify the user when
      * a required plugin is not available.
      *
      * <p>This is same as calling {@code getMissingPluginNotice(plugin, "Missing Plugin",
@@ -430,9 +441,23 @@ public class PlayerUtil {
                 message = "No player plugin with client-side playlist" +
                         " management can be found";
                 break;
+            case Native:
+                title = "Browser Not Compliant";
+                message = "An HTML 5 compliant browser is required";
+                break;
             default:
                 message = "A compatible plugin could not be found";
         }
         return getMissingPluginNotice(plugin, title, message, false);
+    }
+
+    /**
+     * Checks if the browser implements the HTML 5 specification.
+     *
+     * @return <code>true</code> if browser is HTML 5 compliant, <code>false</code>
+     * otherwise
+     */
+    public static boolean isHTML5CompliantClient() {
+        return impl.isHTML5CompliantClient();
     }
 }

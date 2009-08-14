@@ -133,6 +133,7 @@ pre code {
     font-weight: bold;
     cursor: pointer;
     line-height: 2;
+    font-size: 80%;
 }
 
 .gwt-StackPanel .gwt-StackPanelItem-selected {
@@ -144,5 +145,6 @@ pre code {
 
 .gwt-StackPanel .gwt-StackPanelContent a {
     text-decoration: none;
+    font-size: 80%;
 }
 

@@ -33,8 +33,10 @@ public class DynaVideoShowcase extends AbstractCase {
 
     public static String[] caseNames = {"Custom controls with WMP",
         "Custom controls with Flash", "Custom controls with QuickTime plugin",
-        "Custom controls with VLC Media Player", "Plugin determined at runtime"};
-    public static String[] caseLinks = {"dynvd/wmp", "dynvd/swf", "dynvd/qt", "dynvd/vlc", "dynvd/dyna"};
+        "Custom controls with VLC Media Player", "Custom controls with HTML 5 Media elements",
+        "Plugin determined at runtime"};
+    public static String[] caseLinks = {"dynvd/wmp", "dynvd/swf", "dynvd/qt", "dynvd/vlc", "dynvd/ntv",
+    "dynvd/dyna"};
 
     public DynaVideoShowcase() {
     }
@@ -104,7 +106,7 @@ public class DynaVideoShowcase extends AbstractCase {
             case 3:
                 try {
                     FlatVideoPlayer vp = new FlatVideoPlayer(Plugin.VLCPlayer,
-                            GWT.getHostPageBaseURL() + "media/traffic.mp4",
+                            "http://streams.videolan.org/streams-videolan/vob/Starship_Troopers.vob",
                             false, "350px", "100%");
                     vp.showLogger(true);
                     v = vp;
@@ -119,6 +121,24 @@ public class DynaVideoShowcase extends AbstractCase {
                         v, "sources/custom-video/vlc.html");
                 break;
             case 4:
+                try {
+                    FlatVideoPlayer vp = new FlatVideoPlayer(Plugin.Native,
+//                            "http://streams.videolan.org/streams-videolan/vob/Starship_Troopers.vob",
+                            GWT.getHostPageBaseURL() + "media/traffic.mp4",
+                            false, "350px", "100%");
+                    vp.showLogger(true);
+                    v = vp;
+                } catch (LoadException ex) {
+                    Window.alert("Load exp");
+                } catch (PluginVersionException ex) {
+                    v = PlayerUtil.getMissingPluginNotice(Plugin.VLCPlayer, ex.getRequiredVersion());
+                } catch (PluginNotFoundException ex) {
+                    v = PlayerUtil.getMissingPluginNotice(Plugin.VLCPlayer);
+                }
+                addCase("Custom video playback with VLC Media Player", null,
+                        v, "sources/custom-video/vlc.html");
+                break;
+            case 5:
                 try {
                     FlatVideoPlayer p = new FlatVideoPlayer(GWT.getHostPageBaseURL() +
                             "media/traffic.mp4", false, "350px", "100%");

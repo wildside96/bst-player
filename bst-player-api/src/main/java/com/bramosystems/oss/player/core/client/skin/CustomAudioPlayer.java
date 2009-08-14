@@ -90,6 +90,9 @@ public abstract class CustomAudioPlayer extends AbstractMediaPlayer implements P
             case WinMediaPlayer:
                 engine = new WinMediaPlayer(mediaURL, autoplay, null, null);
                 break;
+            case Native:
+                engine = new NativePlayer(mediaURL, autoplay, null, null);
+                break;
             default:
                 engine = PlayerUtil.getPlayer(playerPlugin, mediaURL, autoplay, null, null);
                 break;
@@ -124,54 +127,7 @@ public abstract class CustomAudioPlayer extends AbstractMediaPlayer implements P
                 fireEvent(event);
             }
         });
-/*
-        engine.addMediaStateListener(new MediaStateListener() {
 
-            public void onError(String description) {
-                fireError(description);
-            }
-
-            public void onLoadingComplete() {
-                fireLoadingComplete();
-            }
-
-            public void onPlayFinished() {
-                firePlayFinished();
-            }
-
-            public void onDebug(String report) {
-                fireDebug(report);
-            }
-
-            public void onLoadingProgress(double progress) {
-                fireLoadingProgress(progress);
-            }
-
-            public void onPlayStarted() {
-                firePlayStarted();
-            }
-
-            public void onPlayerReady() {
-                firePlayerReady();
-            }
-
-            public void onMediaInfoAvailable(MediaInfo info) {
-                fireMediaInfoAvailable(info);
-            }
-
-            public void onPlayStarted(int index) {
-                firePlayStarted(index);
-            }
-
-            public void onPlayFinished(int index) {
-                firePlayFinished(index);
-            }
-
-            public void onBuffering(boolean buffering) {
-                fireBuffering(buffering);
-            }
-        });
-*/
         container = new SimplePanel();
         container.setWidth("100%");
 
@@ -216,9 +172,6 @@ public abstract class CustomAudioPlayer extends AbstractMediaPlayer implements P
         engine.close();
     }
 
-//    public void ejectMedia() {
-//        engine.ejectMedia();
-//    }
     public long getMediaDuration() {
         return engine.getMediaDuration();
     }
