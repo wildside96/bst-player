@@ -30,6 +30,8 @@ import com.bramosystems.oss.player.core.event.client.MediaInfoEvent;
 import com.bramosystems.oss.player.core.event.client.MediaInfoHandler;
 import com.bramosystems.oss.player.core.event.client.PlayStateEvent;
 import com.bramosystems.oss.player.core.event.client.PlayerStateEvent;
+import com.google.gwt.i18n.client.NumberFormat;
+import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.ui.DockPanel;
@@ -43,11 +45,12 @@ import java.util.ArrayList;
  */
 public class NativePlayer extends AbstractMediaPlayer {
 
+    private NumberFormat volFmt = NumberFormat.getPercentFormat();
     private NativePlayerImpl impl;
     private String playerId,  mediaURL,  _height,  _width;
     private DockPanel panel;
     private SimplePanel playerPanel;
-    private boolean autoplay,  adjustToVideoSize;
+    private boolean autoplay,  adjustToVideoSize,  isEmbedded;
     private ArrayList<MediaItem> mediaItems;
     private Logger logger;
     private Timer initTimer;
@@ -64,37 +67,44 @@ public class NativePlayer extends AbstractMediaPlayer {
     }
 
     private void _init(String width, String height) {
-        _height = height;
-        _width = width;
-
         panel = new DockPanel();
         panel.setSize("100%", "100%");
         initWidget(panel);
-        setWidth(width);
 
-        logger = new Logger();
-        panel.add(logger, DockPanel.SOUTH);
-        panel.add(playerPanel, DockPanel.CENTER);
-        panel.setCellHeight(playerPanel, height);
+        if ((width == null) || (height == null)) {
+            _height = "0px";
+            _width = "0px";
+            isEmbedded = true;
+        } else {
+            _height = height;
+            _width = width;
 
-        addDebugHandler(new DebugHandler() {
+            logger = new Logger();
+            panel.add(logger, DockPanel.SOUTH);
 
-            public void onDebug(DebugEvent event) {
-                logger.log(event.getMessage(), false);
-            }
-        });
-        addMediaInfoHandler(new MediaInfoHandler() {
+            addDebugHandler(new DebugHandler() {
 
-            public void onMediaInfoAvailable(MediaInfoEvent event) {
-                MediaInfo info = event.getMediaInfo();
-                if (info.getAvailableItems().contains(MediaInfoKey.VideoHeight) ||
-                        info.getAvailableItems().contains(MediaInfoKey.VideoWidth)) {
-                    checkVideoSize(Integer.parseInt(info.getItem(MediaInfoKey.VideoHeight)),
-                            Integer.parseInt(info.getItem(MediaInfoKey.VideoWidth)));
+                public void onDebug(DebugEvent event) {
+                    logger.log(event.getMessage(), false);
                 }
-                logger.log(info.asHTMLString(), true);
-            }
-        });
+            });
+            addMediaInfoHandler(new MediaInfoHandler() {
+
+                public void onMediaInfoAvailable(MediaInfoEvent event) {
+                    MediaInfo info = event.getMediaInfo();
+                    if (info.getAvailableItems().contains(MediaInfoKey.VideoHeight) ||
+                            info.getAvailableItems().contains(MediaInfoKey.VideoWidth)) {
+                        checkVideoSize(Integer.parseInt(info.getItem(MediaInfoKey.VideoHeight)),
+                                Integer.parseInt(info.getItem(MediaInfoKey.VideoWidth)));
+                    }
+                    logger.log(info.asHTMLString(), true);
+                }
+            });
+        }
+
+        panel.add(playerPanel, DockPanel.CENTER);
+        panel.setCellHeight(playerPanel, _height);
+        setWidth(_width);
 
         initTimer = new Timer() {
 
@@ -181,7 +191,7 @@ public class NativePlayer extends AbstractMediaPlayer {
     @Override
     public long getMediaDuration() {
         checkAvailable();
-        return (long) impl.getDuration() * 1000;
+        return (long) impl.getDuration();
     }
 
     @Override
@@ -243,9 +253,23 @@ public class NativePlayer extends AbstractMediaPlayer {
         impl.setControlsVisible(show);
     }
 
+    /**
+     * Sets the number of times the current media file should repeat playback before stopping.
+     *
+     * <p>If this player is not available on the panel, this method call is added
+     * to the command-queue for later execution.
+     */
     @Override
-    public void setLoopCount(int loop) {
+    public void setLoopCount(final int loop) {
         if (isPlayerOnPage(playerId)) {
+            impl.setLooping(loop < 0);
+        } else {
+            addToPlayerReadyCommandQueue("loop", new Command() {
+
+                public void execute() {
+                    setLoopCount(loop);
+                }
+            });
         }
     }
 
@@ -282,7 +306,9 @@ public class NativePlayer extends AbstractMediaPlayer {
 
     @Override
     public void showLogger(boolean show) {
-        logger.setVisible(show);
+        if (!isEmbedded) {
+            logger.setVisible(show);
+        }
     }
 
     private void checkAvailable() {
@@ -293,13 +319,16 @@ public class NativePlayer extends AbstractMediaPlayer {
         }
     }
 
+    // TODO: check for progress probably using online content...
     @SuppressWarnings("unused")
     private void fireProgressChanged() {
-        fireLoadingProgress(0);
-        fireMediaInfoAvailable(null);
-        fireDebug(playerId);
-        fireError(playerId);
-//        firePlayerStateEvent(state);
+//        fireLoadingProgress(0);
+        NativePlayerImpl.TimeRange time = impl.getBuffered();
+        String range = "Range: <br/>";
+        for (int i = 0; i < time.getLength(); i++) {
+            range += "Range " + i + ": " + time.getStart(i) + " - " + time.getEnd(i) + "<br/>";
+        }
+        logger.log(range, true);
     }
 
     @SuppressWarnings("unused")
@@ -308,6 +337,7 @@ public class NativePlayer extends AbstractMediaPlayer {
             case 1: // play started
                 fireDebug("Play started");
                 firePlayStateEvent(PlayStateEvent.State.Started, 0);
+                fireDebug("Playing media at '" + impl.getMediaURL() + "'");
                 break;
             case 2: // pause
                 fireDebug("Play paused");
@@ -335,10 +365,18 @@ public class NativePlayer extends AbstractMediaPlayer {
                 if (impl.isMute()) {
                     fireDebug("Volume muted");
                 } else {
-                    fireDebug("Volume changed : " + (impl.getVolume() * 100));
+                    fireDebug("Volume changed : " + volFmt.format(impl.getVolume()));
                 }
                 break;
-            case 8: // error
+            case 10: // loading started
+                fireDebug("Loading started");
+                fireLoadingProgress(0);
+                break;
+            case 11: // loading finished
+                fireDebug("Loading completed");
+                fireLoadingProgress(1.0);
+                break;
+            case 12: // error
                 switch (MediaError.values()[impl.getErrorState()]) {
                     case Aborted:
                         fireDebug("Loading aborted!");
@@ -355,7 +393,7 @@ public class NativePlayer extends AbstractMediaPlayer {
                         break;
                 }
                 break;
-            case 9: // loading aborted
+            case 13: // loading aborted
                 fireDebug("Media loading aborted!");
                 break;
         }

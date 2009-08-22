@@ -234,7 +234,7 @@ public class PlayerUtil {
         PluginVersion v = new PluginVersion();
         impl.getFlashPluginVersion(v);
         if (v.equals(new PluginVersion())) {
-            throw new PluginNotFoundException();
+            throw new PluginNotFoundException(Plugin.FlashPlayer);
         }
 
         return v;
@@ -253,7 +253,7 @@ public class PlayerUtil {
         PluginVersion v = new PluginVersion();
         impl.getQuickTimePluginVersion(v);
         if (v.equals(new PluginVersion())) {
-            throw new PluginNotFoundException();
+            throw new PluginNotFoundException(Plugin.QuickTimePlayer);
         }
 
         return v;
@@ -272,7 +272,7 @@ public class PlayerUtil {
         PluginVersion v = new PluginVersion();
         impl.getWindowsMediaPlayerVersion(v);
         if (v.equals(new PluginVersion())) {
-            throw new PluginNotFoundException();
+            throw new PluginNotFoundException(Plugin.WinMediaPlayer);
         }
 
         return v;
@@ -293,7 +293,7 @@ public class PlayerUtil {
         PluginVersion v = new PluginVersion();
         impl.getVLCPluginVersion(v);
         if (v.equals(new PluginVersion())) {
-            throw new PluginNotFoundException();
+            throw new PluginNotFoundException(Plugin.VLCPlayer);
         }
 
         return v;

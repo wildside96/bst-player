@@ -17,7 +17,6 @@ package com.bramosystems.oss.player.core.client.impl;
 
 import com.bramosystems.oss.player.core.client.MediaInfo;
 import com.bramosystems.oss.player.core.client.ui.NativePlayer;
-import com.bramosystems.oss.player.core.client.ui.VLCPlayer;
 import com.google.gwt.core.client.JavaScriptObject;
 
 /**
@@ -25,7 +24,7 @@ import com.google.gwt.core.client.JavaScriptObject;
  * interact with this class directly.
  *
  * @author Sikirulai Braheem
- * @see VLCPlayer
+ * @see NativePlayer
  */
 public class NativePlayerImpl extends JavaScriptObject {
 
@@ -91,7 +90,7 @@ public class NativePlayerImpl extends JavaScriptObject {
 
     public final native double getTime() /*-{
     try {
-    return this.currentTime;
+    return this.currentTime * 1000;
     } catch(e) {
     return 0;
     }
@@ -99,7 +98,7 @@ public class NativePlayerImpl extends JavaScriptObject {
 
     public final native void setTime(double time) /*-{
     try {
-    this.currentTime = time;
+    this.currentTime = time / 1000;
     } catch(e) {
     return 0;
     }
@@ -107,10 +106,14 @@ public class NativePlayerImpl extends JavaScriptObject {
 
     public final native double getDuration() /*-{
     try {
-    return parseFloat(this.duration);
+    return parseFloat(this.duration * 1000);
     } catch(e) {
     return 0;
     }
+    }-*/;
+
+    public final native TimeRange getBuffered() /*-{
+    return this.buffered;
     }-*/;
 
     public final native double getVolume() /*-{
@@ -187,18 +190,17 @@ public class NativePlayerImpl extends JavaScriptObject {
     //    id3.@com.bramosystems.oss.player.core.client.MediaInfo::genre = ;
     //    id3.@com.bramosystems.oss.player.core.client.MediaInfo::internetStationOwner = '';
     //    id3.@com.bramosystems.oss.player.core.client.MediaInfo::internetStationName = '';
-    id3.@com.bramosystems.oss.player.core.client.MediaInfo::duration = this.duration;
+    id3.@com.bramosystems.oss.player.core.client.MediaInfo::duration = parseFloat(this.duration * 1000);
     id3.@com.bramosystems.oss.player.core.client.MediaInfo::videoWidth = String(this.videoWidth);
     id3.@com.bramosystems.oss.player.core.client.MediaInfo::videoHeight = String(this.videoHeight);
-    $wnd.alert('Duration : ' + this.duration);
-     } catch(e) {
+    } catch(e) {
     $wnd.alert(e);
     }
     }-*/;
 
     public final native void registerMediaStateHandlers(NativePlayer _player) /*-{
     this.addEventListener('progress', function(){  // plugin init complete
-    //    _player.@com.bramosystems.oss.player.core.client.ui.NativePlayer::fireProgressChanged()();
+    _player.@com.bramosystems.oss.player.core.client.ui.NativePlayer::fireProgressChanged()();
     }, false);
     this.addEventListener('play', function(){  // play started
     _player.@com.bramosystems.oss.player.core.client.ui.NativePlayer::fireStateChanged(I)(1);
@@ -221,11 +223,34 @@ public class NativePlayerImpl extends JavaScriptObject {
     this.addEventListener('volumechange', function(){  // volume changed
     _player.@com.bramosystems.oss.player.core.client.ui.NativePlayer::fireStateChanged(I)(7);
     }, false);
-    this.addEventListener('error', function(){  // error
-    _player.@com.bramosystems.oss.player.core.client.ui.NativePlayer::fireStateChanged(I)(8);
+    this.addEventListener('loadstart', function(){  // loading started
+    _player.@com.bramosystems.oss.player.core.client.ui.NativePlayer::fireStateChanged(I)(10);
+    }, false);
+    this.addEventListener('load', function(){  // loading completed
+    _player.@com.bramosystems.oss.player.core.client.ui.NativePlayer::fireStateChanged(I)(11);
+    }, false);
+    this.addEventListener('error', function(){  // loading error
+    _player.@com.bramosystems.oss.player.core.client.ui.NativePlayer::fireStateChanged(I)(12);
     }, false);
     this.addEventListener('abort', function(){  // loading aborted
-    _player.@com.bramosystems.oss.player.core.client.ui.NativePlayer::fireStateChanged(I)(9);
+    _player.@com.bramosystems.oss.player.core.client.ui.NativePlayer::fireStateChanged(I)(13);
     }, false);
     }-*/;
+
+    public static class TimeRange extends JavaScriptObject {
+
+        protected TimeRange() {
+        }
+
+        public final native double getLength() /*-{
+        return this.length;
+        }-*/;
+
+        public final native double getStart(double index) /*-{
+        return this.start(index);
+        }-*/;
+        public final native double getEnd(double index) /*-{
+        return this.end(index);
+        }-*/;
+    }
 }

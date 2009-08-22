@@ -221,7 +221,7 @@ public class MediaInfo {
             }
         } catch (Exception e) {
             // NumberFormatException or IndexOutOfBoundException
-            // return genere "AS IS"
+            // return genre "AS IS"
         }
         return genre;
     }

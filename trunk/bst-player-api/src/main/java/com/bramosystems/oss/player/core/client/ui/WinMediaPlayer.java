@@ -26,8 +26,12 @@ import com.bramosystems.oss.player.core.event.client.MediaInfoEvent;
 import com.bramosystems.oss.player.core.event.client.MediaInfoHandler;
 import com.bramosystems.oss.player.core.event.client.PlayerStateEvent.State;
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.event.dom.client.DomEvent.Type;
+import com.google.gwt.event.dom.client.MouseOverEvent;
+import com.google.gwt.event.dom.client.MouseOverHandler;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.DOM;
+import com.google.gwt.user.client.Event;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
@@ -563,5 +567,11 @@ public final class WinMediaPlayer extends AbstractMediaPlayer {
          * volume controls in addition to the video or visualization window.
          */
         FULL
+    }
+
+    public void doMouse(MouseOverHandler handler) {
+        Type<MouseOverHandler> type = MouseOverEvent.getType();
+        DOM.sinkEvents(DOM.getElementById(playerId), Event.getTypeInt(type.getName()));
+//        addDomHandler(handler, type);
     }
 }

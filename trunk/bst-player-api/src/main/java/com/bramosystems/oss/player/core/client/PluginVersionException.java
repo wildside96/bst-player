@@ -28,6 +28,7 @@ package com.bramosystems.oss.player.core.client;
  */
 public class PluginVersionException extends Exception {
     private String requiredVersion, versionFound;
+    private Plugin plugin;
 
     /**
      * Constructs a <code>PluginVersionException</code> specifing the required version
@@ -44,6 +45,27 @@ public class PluginVersionException extends Exception {
         super("Plugin version " + requiredVersion + " is required, " + versionFound + " found");
         this.requiredVersion = requiredVersion;
         this.versionFound = versionFound;
+        this.plugin = Plugin.Auto;
+    }
+
+    /**
+     * Constructs a <code>PluginVersionException</code> specifing the related plugin,
+     * the required version and the version found on the clients browser.
+     *
+     * <p>
+     * The <code>requiredVersion</code> and <code>versionFound</code> parameters are
+     * of the format <code>major.minor.revision</code>
+     *
+     * @param plugin the required plugin
+     * @param requiredVersion the required plugin version
+     * @param versionFound the plugin version found
+     * @since 1.1
+     */
+    public PluginVersionException(Plugin plugin, String requiredVersion, String versionFound) {
+        super("Plugin version " + requiredVersion + " is required, " + versionFound + " found");
+        this.requiredVersion = requiredVersion;
+        this.versionFound = versionFound;
+        this.plugin = plugin;
     }
 
     /**
@@ -60,5 +82,15 @@ public class PluginVersionException extends Exception {
      */
     public String getVersionFound() {
         return versionFound;
+    }
+
+    /**
+     * Returns the required plugin
+     *
+     * @return the required plugin
+     * @since 1.1
+     */
+    public Plugin getPlugin() {
+        return plugin;
     }
 }
