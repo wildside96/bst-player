@@ -81,27 +81,30 @@ public class SWFWidget extends Composite {
      *
      * @throws PluginVersionException if the required Flash plugin version is not installed on the client.
      * @throws PluginNotFoundException if the Flash plugin is not installed on the client.
-     * @throws NullPointerException if {@code height} or {@code width} is null.
+     * @throws NullPointerException if {@code sourceURL}, {@code height} or {@code width} is null.
      *
      * @see PluginVersion
      */
     public SWFWidget(String sourceURL, String width, String height, PluginVersion minFlashVersion)
             throws PluginNotFoundException, PluginVersionException {
 
-        PluginVersion v = PlayerUtil.getFlashPlayerVersion();
-        if (v.compareTo(minFlashVersion) < 0) {
-            throw new PluginVersionException(minFlashVersion.toString(), v.toString());
-        }
-
-        if (impl == null) {
-            impl = GWT.create(SWFWidgetImpl.class);
-        }
-
         if (height == null) {
             throw new NullPointerException("height cannot be null");
         }
         if (width == null) {
             throw new NullPointerException("width cannot be null");
+        }
+        if (sourceURL == null) {
+            throw new NullPointerException("sourceURL cannot be null");
+        }
+
+        PluginVersion v = PlayerUtil.getFlashPlayerVersion();
+        if (v.compareTo(minFlashVersion) < 0) {
+            throw new PluginVersionException(Plugin.FlashPlayer, minFlashVersion.toString(), v.toString());
+        }
+
+        if (impl == null) {
+            impl = GWT.create(SWFWidgetImpl.class);
         }
 
         this.swfURL = sourceURL;
@@ -159,6 +162,8 @@ public class SWFWidget extends Composite {
             @Override
             public void run() {
                 playerDiv.setHTML(impl.getScript(playerId, swfURL, width, height, params));
+//                playerDiv.setHTML(impl.getScript(playerId, swfURL, getOffsetWidth() + "px",
+//                        getOffsetHeight() + "px", params));
             }
         };
         t.schedule(500);   // IE & Opera workarround...

@@ -219,4 +219,4 @@ public class WinMediaPlayerImpl extends JavaScriptObject {
     public final native String getPlayerId() /*-{
     return this.id;
     }-*/;
-}
+    }

@@ -28,11 +28,34 @@ package com.bramosystems.oss.player.core.client;
  */
 public class PluginNotFoundException extends Exception {
 
+    private Plugin plugin;
+
     /**
      * Constructor method
      */
     public PluginNotFoundException() {
         super("Required Plugin is not available");
+        plugin = Plugin.Auto;
     }
 
+    /**
+     * Constructor method
+     * 
+     * @param plugin the required plugin
+     * @since 1.1
+     */
+    public PluginNotFoundException(Plugin plugin) {
+        super("Required Plugin is not available");
+        this.plugin = plugin;
+    }
+
+    /**
+     * Returns the required plugin
+     *
+     * @return the required plugin
+     * @since 1.1
+     */
+    public Plugin getPlugin() {
+        return plugin;
+    }
 }
