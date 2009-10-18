@@ -16,7 +16,10 @@
 
 package com.bramosystems.oss.player.external {
     import flash.external.*;
+    import flash.events.*;
+    import flash.geom.Rectangle;
     import flash.media.ID3Info;
+    import mx.core.Application;
 
     public class EventUtil {
         public static var playerId:String = "";
@@ -56,6 +59,50 @@ package com.bramosystems.oss.player.external {
             var id3:String = "0[$] [$] [$] [$] [$] [$] [$] [$]" + (duration * 1000) +
                              "[$]" + info + "[$] [$] [$] [$]" + width + "[$]" + height;
             ExternalInterface.call("bstSwfMdaMetadata", playerId, id3);
+        }
+
+        public static function fireMouseDownEvent(event:MouseEvent):void {
+            ExternalInterface.call("bstSwfMdaEvent", playerId, 1, event.buttonDown,
+                event.altKey, event.ctrlKey, event.shiftKey, false, //event.commandKey,
+                event.stageX, event.stageY);
+        }
+        public static function fireMouseUpEvent(event:MouseEvent):void {
+            ExternalInterface.call("bstSwfMdaEvent", playerId, 2, event.buttonDown,
+                event.altKey, event.ctrlKey, event.shiftKey, false, //event.commandKey,
+                event.stageX, event.stageY);
+        }
+        public static function fireMouseMoveEvent(event:MouseEvent):void {
+//            var rect:Rectangle = Application.application.systemManager.topLevelSystemManager.screen;
+            var rx:Number = Application.application.systemManager.topLevelSystemManager.stage.mouseX;
+            var ry:Number = Application.application.systemManager.topLevelSystemManager.stage.mouseY;
+            ExternalInterface.call("bstSwfMdaEvent2", playerId, 3, event.buttonDown,
+                event.altKey, event.ctrlKey, event.shiftKey, false, //event.commandKey,
+//                event.stageX, event.stageY, rect.x, rect.y);
+                event.stageX, event.stageY, rx, ry);
+        }
+        public static function fireClickEvent(event:MouseEvent):void {
+            ExternalInterface.call("bstSwfMdaEvent", playerId, 10, event.buttonDown,
+                event.altKey, event.ctrlKey, event.shiftKey, false, //event.commandKey,
+                event.stageX, event.stageY);
+        }
+        public static function fireDoubleClickEvent(event:MouseEvent):void {
+            ExternalInterface.call("bstSwfMdaEvent", playerId, 11, event.buttonDown,
+                event.altKey, event.ctrlKey, event.shiftKey, false, //event.commandKey,
+                event.stageX, event.stageY);
+        }
+        public static function fireKeyDownEvent(event:KeyboardEvent):void {
+            Log.info("Firing KeyDown Event : " + event.charCode);
+            ExternalInterface.call("bstSwfMdaEvent", playerId, 20, false, //event.buttonDown,
+                event.altKey, event.ctrlKey, event.shiftKey, false, //event.commandKey,
+                event.keyCode, event.charCode);
+            ExternalInterface.call("bstSwfMdaEvent", playerId, 21, false, //event.buttonDown,
+                event.altKey, event.ctrlKey, event.shiftKey, false, //event.commandKey,
+                event.keyCode, event.charCode);
+        }
+        public static function fireKeyUpEvent(event:KeyboardEvent):void {
+            ExternalInterface.call("bstSwfMdaEvent", playerId, 22, false, //event.buttonDown,
+                event.altKey, event.ctrlKey, event.shiftKey, false, //event.commandKey,
+                event.keyCode, event.charCode);
         }
     }
 }

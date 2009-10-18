@@ -30,7 +30,9 @@
             import com.bramosystems.oss.player.events.*;
 
             import flash.external.*;
+            import flash.events.*;
             import flash.display.*;
+            import flash.geom.*;
 
             private var debug:Boolean = true;
             private var player:Engine, mp3:MP3Engine, vdu:VideoEngine;
@@ -52,6 +54,15 @@
                         playlist = new Playlist();
                         listManager = new PlaylistManager(playlist, setting);
 
+                        addEventListener(MouseEvent.MOUSE_DOWN, EventUtil.fireMouseDownEvent);
+                        addEventListener(MouseEvent.MOUSE_UP, EventUtil.fireMouseUpEvent);
+                        addEventListener(MouseEvent.MOUSE_MOVE, EventUtil.fireMouseMoveEvent);
+                        addEventListener(MouseEvent.CLICK, EventUtil.fireClickEvent);
+                        addEventListener(MouseEvent.DOUBLE_CLICK, EventUtil.fireDoubleClickEvent);
+                        application.addEventListener(KeyboardEvent.KEY_UP, EventUtil.fireKeyUpEvent);
+                        application.addEventListener(KeyboardEvent.KEY_DOWN, EventUtil.fireKeyDownEvent);
+
+                        // init engines ...
                         mp3 = new MP3Engine();
                         mp3.addEventListener(PlayStateEvent.PLAY_STARTED, playStarted);
                         mp3.addEventListener(PlayStateEvent.PLAY_STOPPED, playStopped);
@@ -122,6 +133,11 @@
                 ExternalInterface.addCallback("getMdaDuration", getDuration);
                 ExternalInterface.addCallback("getMdaPlayPosition", getPlayPosition);
                 ExternalInterface.addCallback("setMdaPlayPosition", setPlayPosition);
+
+                // matrix stuffs ... [since 1.1]
+                ExternalInterface.addCallback("getMdaMatrix", getMatrix);
+                ExternalInterface.addCallback("setMdaMatrix", setMatrix);
+
             }
 
             public function setDebugEnabled(enabled:Boolean):void {
@@ -237,6 +253,18 @@
                     return vdu.metadata.width;
                 }
                 return 0;
+            }
+
+            /************************ MATRIX FUNCTIONS *******************************/
+            public function getMatrix():String {
+                var _matrix:Matrix = transform.matrix;
+                return _matrix.a + "," + _matrix.b + "," + _matrix.c + "," + _matrix.d +
+                        "," + _matrix.tx + "," + _matrix.ty;
+            }
+
+            public function setMatrix(a:Number, b:Number, c:Number, d:Number, tx:Number, ty:Number):void {
+                var _matrix:Matrix = new Matrix(a, b, c, d, tx, ty);
+                transform.matrix = _matrix;
             }
 
             /*************************** PLAY STATE HANDLERS *********************/
