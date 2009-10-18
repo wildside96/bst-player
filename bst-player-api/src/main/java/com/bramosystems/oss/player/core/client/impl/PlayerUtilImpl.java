@@ -38,11 +38,13 @@ public class PlayerUtilImpl {
         "sdv", "m1s", "m1a", "m1v", "mpm", "mpv", "mpa", "m2a", "m4a", "m4p", "m4b"};
     protected final static String[] wmpPool = {"asf", "asx", "wmv", "wvx", "wm",
         "wma", "wax", "wav", "mp3", "mid", "midi", "smf", "m3u"};
-    protected final static String[] flvPool = {"flv", "mp4", "f4v", "m4a", // "mov",
+    protected final static String[] flvPool = {"flv", //"mp4",
+    "f4v", "m4a", // "mov",
         "mp4v", "mp3", "m3u"}; // "3gp", "3g2"
     protected final static String[] vlcPool = {"3gp2", "mp2", "mp3", "mp4", "mov", "qt", "mpeg",
         "mpg", "mpga", "mpega", "mpe", "vob", "mpg4", "avi", "ogg", "vlc", "asf", "asx", "wmv",
         "wav", "3gp", "3gpp", "3g2", "3gpp2", "divx", "flv", "mkv", "mka", "xspf", "m4a", "m3u", "wma"};
+    protected final static String[] ntvPool = {"mp3", "mp4", "ogg"};
     protected final static String[] qtProt = {"rtsp", "rts"};
     protected final static String[] vlcProt = {"rtp", "rtsp", "mms", "udp"};
     protected final static String[] wmpProt = {"mms"};
@@ -54,16 +56,16 @@ public class PlayerUtilImpl {
         Arrays.sort(wmpPool);
         Arrays.sort(vlcPool);
         Arrays.sort(vlcProt);
+        Arrays.sort(ntvPool);
     }
 
     public boolean canHandleMedia(Plugin plugin, String protocol, String ext) {
-        PluginVersion pv = null;
+        PluginVersion pv = new PluginVersion();
         boolean canHandle = false;
 
         switch (plugin) {
             case FlashPlayer:
                 // check if plugin is available...
-                pv = new PluginVersion();
                 getFlashPluginVersion(pv);          // SWF plugin supported ext....
                 if (pv.compareTo(plugin.getVersion()) < 0) {   // req SWF plugin not found...
                     break;
@@ -72,7 +74,6 @@ public class PlayerUtilImpl {
                 break;
             case QuickTimePlayer:
                 // check if plugin is available...
-                pv = new PluginVersion();
                 getQuickTimePluginVersion(pv);
                 if (pv.compareTo(plugin.getVersion()) < 0) {   // req QT plugin not found...
                     break;
@@ -88,7 +89,6 @@ public class PlayerUtilImpl {
                 break;
             case WinMediaPlayer:
                 // check if plugin is available...
-                pv = new PluginVersion();
                 getWindowsMediaPlayerVersion(pv);
                 if (pv.compareTo(plugin.getVersion()) < 0) {   // req WMP plugin not found...
                     break;
@@ -103,7 +103,6 @@ public class PlayerUtilImpl {
                 break;
             case VLCPlayer:
                 // check if plugin is available...
-                pv = new PluginVersion();
                 getVLCPluginVersion(pv);
                 if (pv.compareTo(plugin.getVersion()) < 0) {   // req VLC plugin not found...
                     break;
@@ -116,6 +115,10 @@ public class PlayerUtilImpl {
                     canHandle = true;
                 }
                 break;
+            case Native:    // TODO: verify native support b4 release ...
+                if(isHTML5CompliantClient() && Arrays.binarySearch(ntvPool, ext.toLowerCase()) >= 0) {
+                    canHandle = true;
+                }
         }
         return canHandle;
     }

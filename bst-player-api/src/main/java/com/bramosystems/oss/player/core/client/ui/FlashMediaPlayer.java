@@ -15,15 +15,9 @@
  */
 package com.bramosystems.oss.player.core.client.ui;
 
-import com.bramosystems.oss.player.core.client.LoadException;
-import com.bramosystems.oss.player.core.client.PluginVersionException;
-import com.bramosystems.oss.player.core.client.PlayException;
-import com.bramosystems.oss.player.core.client.PluginNotFoundException;
-import com.bramosystems.oss.player.core.client.AbstractMediaPlayer;
-import com.bramosystems.oss.player.core.client.MediaInfo;
+import com.bramosystems.oss.player.core.client.*;
 import com.bramosystems.oss.player.core.client.MediaInfo.MediaInfoKey;
-import com.bramosystems.oss.player.core.client.PlaylistSupport;
-import com.bramosystems.oss.player.core.client.Plugin;
+import com.bramosystems.oss.player.core.client.impl.FMPStateManager;
 import com.bramosystems.oss.player.core.client.impl.FlashMediaPlayerImpl;
 import com.bramosystems.oss.player.core.client.skin.CustomPlayerControl;
 import com.bramosystems.oss.player.core.event.client.DebugEvent;
@@ -77,11 +71,12 @@ import java.util.ArrayList;
  * @author Sikirulai Braheem
  * @since 1.0
  */
-public class FlashMediaPlayer extends AbstractMediaPlayer implements PlaylistSupport {
+public class FlashMediaPlayer extends AbstractMediaPlayer implements PlaylistSupport, MatrixSupport {
 
-    private static FlashMediaPlayerImpl impl = new FlashMediaPlayerImpl();
+    private static FMPStateManager manager = new FMPStateManager();
+    private FlashMediaPlayerImpl impl;
     private String playerId;
-    private boolean isEmbedded, resizeToVideoSize;
+    private boolean isEmbedded,  resizeToVideoSize;
     private Logger logger;
     private CustomPlayerControl control;
     private ArrayList<String> _playlistCache;
@@ -110,7 +105,7 @@ public class FlashMediaPlayer extends AbstractMediaPlayer implements PlaylistSup
      * @throws PluginVersionException if the required Flash plugin version is not installed on the client.
      * @throws PluginNotFoundException if the Flash plugin is not installed on the client.
      */
-    public FlashMediaPlayer(String mediaURL, boolean autoplay, String height, String width)
+    public FlashMediaPlayer(final String mediaURL, final boolean autoplay, String height, String width)
             throws PluginNotFoundException, PluginVersionException, LoadException {
 
         _playlistCache = new ArrayList<String>();
@@ -133,8 +128,19 @@ public class FlashMediaPlayer extends AbstractMediaPlayer implements PlaylistSup
         swf.addProperty("allowScriptAccess", "sameDomain");
         swf.addProperty("bgcolor", "#000000");
 
-        impl.init(playerId, mediaURL, autoplay, this);
+        manager.init(playerId, this, new Command() {
 
+            public void execute() {
+                impl = FlashMediaPlayerImpl.getPlayer(playerId);
+                fireDebug("Flash Player plugin");
+                fireDebug("Version : " + impl.getPluginVersion());
+                impl.loadMedia(mediaURL);
+                firePlayerStateEvent(PlayerStateEvent.State.Ready);
+                if (autoplay) {
+                    impl.playMedia();
+                }
+            }
+        });
         panel = new DockPanel();
         panel.setStyleName("");
         panel.setWidth("100%");
@@ -213,7 +219,7 @@ public class FlashMediaPlayer extends AbstractMediaPlayer implements PlaylistSup
 
     private void checkVideoSize(int vidHeight, int vidWidth) {
         String _h = _height, _w = _width;
-        if(vidHeight == 0) {
+        if (vidHeight == 0) {
             _h = "0px"; // suppress SWF app height for audio files ...
         }
 
@@ -225,7 +231,7 @@ public class FlashMediaPlayer extends AbstractMediaPlayer implements PlaylistSup
                 _w = vidWidth + "px";
             }
         }
-        
+
         panel.setCellHeight(swf, _h);
         setWidth(_w);
 
@@ -235,7 +241,7 @@ public class FlashMediaPlayer extends AbstractMediaPlayer implements PlaylistSup
     }
 
     private void checkAvailable() {
-        if (!impl.isPlayerAvailable(playerId)) {
+        if (!isPlayerOnPage(playerId)) {
             String message = "Player closed already, create another instance";
             fireDebug(message);
             throw new IllegalStateException(message);
@@ -243,52 +249,53 @@ public class FlashMediaPlayer extends AbstractMediaPlayer implements PlaylistSup
     }
 
     public void close() {
-        impl.closeMedia(playerId);
+        impl.closeMedia();
+        manager.closeMedia(playerId);
     }
 
     public long getMediaDuration() {
         checkAvailable();
-        return (long) impl.getMediaDuration(playerId);
+        return (long) impl.getMediaDuration();
     }
 
     public double getPlayPosition() {
         checkAvailable();
-        return impl.getPlayPosition(playerId);
+        return impl.getPlayPosition();
     }
 
     public double getVolume() {
         checkAvailable();
-        return impl.getVolume(playerId);
+        return impl.getVolume();
     }
 
     public void loadMedia(String mediaURL) throws LoadException {
         checkAvailable();
-        impl.loadMedia(playerId, mediaURL);
+        impl.loadMedia(mediaURL);
     }
 
     public void pauseMedia() {
         checkAvailable();
-        impl.pauseMedia(playerId);
+        impl.pauseMedia();
     }
 
     public void playMedia() throws PlayException {
         checkAvailable();
-        impl.playMedia(playerId);
+        impl.playMedia();
     }
 
     public void setPlayPosition(double position) {
         checkAvailable();
-        impl.setPlayPosition(playerId, position);
+        impl.setPlayPosition(position);
     }
 
     public void setVolume(double volume) {
         checkAvailable();
-        impl.setVolume(playerId, volume);
+        impl.setVolume(volume);
     }
 
     public void stopMedia() {
         checkAvailable();
-        impl.stopMedia(playerId);
+        impl.stopMedia();
     }
 
     @Override
@@ -328,7 +335,7 @@ public class FlashMediaPlayer extends AbstractMediaPlayer implements PlaylistSup
     @Override
     public int getLoopCount() {
         checkAvailable();
-        return impl.getLoopCount(playerId);
+        return impl.getLoopCount();
     }
 
     /**
@@ -339,13 +346,13 @@ public class FlashMediaPlayer extends AbstractMediaPlayer implements PlaylistSup
      */
     @Override
     public void setLoopCount(final int loop) {
-        if (impl.isPlayerAvailable(playerId)) {
-            impl.setLoopCount(playerId, loop);
+        if (isPlayerOnPage(playerId)) {
+            impl.setLoopCount(loop);
         } else {
             addToPlayerReadyCommandQueue("loopcount", new Command() {
 
                 public void execute() {
-                    impl.setLoopCount(playerId, loop);
+                    impl.setLoopCount(loop);
                 }
             });
         }
@@ -353,8 +360,8 @@ public class FlashMediaPlayer extends AbstractMediaPlayer implements PlaylistSup
     private HandlerRegistration initListHandler;
 
     public void addToPlaylist(final String mediaURL) {
-        if (impl.isPlayerAvailable(playerId)) {
-            impl.addToPlaylist(playerId, mediaURL);
+        if (isPlayerOnPage(playerId)) {
+            impl.addToPlaylist(mediaURL);
         } else {
             if (initListHandler == null) {
                 initListHandler = addPlayerStateHandler(new PlayerStateHandler() {
@@ -363,7 +370,7 @@ public class FlashMediaPlayer extends AbstractMediaPlayer implements PlaylistSup
                         switch (event.getPlayerState()) {
                             case Ready:
                                 for (String url : _playlistCache) {
-                                    impl.addToPlaylist(playerId, url);
+                                    impl.addToPlaylist(url);
                                 }
                                 break;
                         }
@@ -377,12 +384,12 @@ public class FlashMediaPlayer extends AbstractMediaPlayer implements PlaylistSup
 
     public boolean isShuffleEnabled() {
         checkAvailable();
-        return impl.isShuffleEnabled(playerId);
+        return impl.isShuffleEnabled();
     }
 
     public void removeFromPlaylist(int index) {
         checkAvailable();
-        impl.removeFromPlaylist(playerId, index);
+        impl.removeFromPlaylist(index);
     }
 
     /**
@@ -392,13 +399,13 @@ public class FlashMediaPlayer extends AbstractMediaPlayer implements PlaylistSup
      * call is added to the command-queue for later execution.
      */
     public void setShuffleEnabled(final boolean enable) {
-        if (impl.isPlayerAvailable(playerId)) {
-            impl.setShuffleEnabled(playerId, enable);
+        if (isPlayerOnPage(playerId)) {
+            impl.setShuffleEnabled(enable);
         } else {
             addToPlayerReadyCommandQueue("shuffle", new Command() {
 
                 public void execute() {
-                    impl.setShuffleEnabled(playerId, enable);
+                    impl.setShuffleEnabled(enable);
                 }
             });
         }
@@ -406,31 +413,31 @@ public class FlashMediaPlayer extends AbstractMediaPlayer implements PlaylistSup
 
     public void clearPlaylist() {
         checkAvailable();
-        impl.clearPlaylist(playerId);
+        impl.clearPlaylist();
     }
 
     public int getPlaylistSize() {
         checkAvailable();
-        return impl.getPlaylistCount(playerId);
+        return impl.getPlaylistCount();
     }
 
     public void play(int index) throws IndexOutOfBoundsException {
         checkAvailable();
-        if (!impl.playMedia(playerId, index)) {
+        if (!impl.playMedia(index)) {
             throw new IndexOutOfBoundsException();
         }
     }
 
     public void playNext() throws PlayException {
         checkAvailable();
-        if (!impl.playNext(playerId)) {
+        if (!impl.playNext()) {
             throw new PlayException("No more entries in playlist");
         }
     }
 
     public void playPrevious() throws PlayException {
         checkAvailable();
-        if (!impl.playPrevious(playerId)) {
+        if (!impl.playPrevious()) {
             throw new PlayException("Beginning of playlist reached");
         }
     }
@@ -438,27 +445,64 @@ public class FlashMediaPlayer extends AbstractMediaPlayer implements PlaylistSup
     @Override
     public int getVideoHeight() {
         checkAvailable();
-        return impl.getVideoHeight(playerId);
+        return impl.getVideoHeight();
     }
 
     @Override
     public int getVideoWidth() {
         checkAvailable();
-        return impl.getVideoWidth(playerId);
+        return impl.getVideoWidth();
     }
 
     @Override
     public void setResizeToVideoSize(boolean resize) {
         resizeToVideoSize = resize;
-        if (impl.isPlayerAvailable(playerId)) {
+        if (isPlayerOnPage(playerId)) {
             // if player is on panel now update its size, otherwise
             // allow it to be handled by the MediaInfoHandler...
-            checkVideoSize(impl.getVideoHeight(playerId), impl.getVideoWidth(playerId));
+            checkVideoSize(impl.getVideoHeight(), impl.getVideoWidth());
         }
     }
 
     @Override
     public boolean isResizeToVideoSize() {
         return resizeToVideoSize;
+    }
+
+    /**
+     * Sets the transformation matrix of the underlying Flash player.
+     *
+     * <p>If this player is not attached to a panel, this method call is added to
+     * the command-queue for later execution.
+     */
+    public void setMatrix(final TransformationMatrix matrix) {
+        if (isPlayerOnPage(playerId)) {
+            impl.setMatrix(matrix.getA(), matrix.getB(), matrix.getC(), matrix.getD(),
+                    matrix.getTx(), matrix.getTy());
+            if (resizeToVideoSize) {
+                checkVideoSize(getVideoHeight() + 16, getVideoWidth());
+            }
+        } else {
+            addToPlayerReadyCommandQueue("matrix", new Command() {
+
+                public void execute() {
+                    setMatrix(matrix);
+                }
+            });
+        }
+    }
+
+    public TransformationMatrix getMatrix() {
+        checkAvailable();
+        String[] elements = impl.getMatrix().split(",");
+
+        TransformationMatrix matrix = new TransformationMatrix();
+        matrix.setA(Double.parseDouble(elements[0].trim()));
+        matrix.setB(Double.parseDouble(elements[1].trim()));
+        matrix.setC(Double.parseDouble(elements[2].trim()));
+        matrix.setD(Double.parseDouble(elements[3].trim()));
+        matrix.setTx(Double.parseDouble(elements[4].trim()));
+        matrix.setTy(Double.parseDouble(elements[5].trim()));
+        return matrix;
     }
 }

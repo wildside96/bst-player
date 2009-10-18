@@ -15,29 +15,11 @@
  */
 package com.bramosystems.oss.player.core.client.skin;
 
-import com.bramosystems.oss.player.core.client.LoadException;
-import com.bramosystems.oss.player.core.client.PlayerUtil;
-import com.bramosystems.oss.player.core.client.PluginVersionException;
-import com.bramosystems.oss.player.core.client.PlayException;
-import com.bramosystems.oss.player.core.client.PluginNotFoundException;
-import com.bramosystems.oss.player.core.client.Plugin;
-import com.bramosystems.oss.player.core.client.AbstractMediaPlayer;
-import com.bramosystems.oss.player.core.client.PlaylistSupport;
+import com.bramosystems.oss.player.core.client.*;
 import com.bramosystems.oss.player.core.client.ui.FlashMediaPlayer;
-import com.bramosystems.oss.player.core.client.ui.NativePlayer;
 import com.bramosystems.oss.player.core.client.ui.QuickTimePlayer;
-import com.bramosystems.oss.player.core.client.ui.VLCPlayer;
 import com.bramosystems.oss.player.core.client.ui.WinMediaPlayer;
-import com.bramosystems.oss.player.core.event.client.DebugEvent;
-import com.bramosystems.oss.player.core.event.client.DebugHandler;
-import com.bramosystems.oss.player.core.event.client.LoadingProgressEvent;
-import com.bramosystems.oss.player.core.event.client.LoadingProgressHandler;
-import com.bramosystems.oss.player.core.event.client.MediaInfoEvent;
-import com.bramosystems.oss.player.core.event.client.MediaInfoHandler;
-import com.bramosystems.oss.player.core.event.client.PlayStateEvent;
-import com.bramosystems.oss.player.core.event.client.PlayStateHandler;
-import com.bramosystems.oss.player.core.event.client.PlayerStateEvent;
-import com.bramosystems.oss.player.core.event.client.PlayerStateHandler;
+import com.bramosystems.oss.player.core.event.client.*;
 import com.google.gwt.user.client.ui.DockPanel;
 import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
@@ -52,7 +34,8 @@ import com.google.gwt.user.client.ui.Widget;
  *
  * @author Sikirulai Braheem
  */
-public abstract class CustomVideoPlayer extends AbstractMediaPlayer implements PlaylistSupport {
+public abstract class CustomVideoPlayer extends AbstractMediaPlayer implements PlaylistSupport,
+        MatrixSupport {
 
     private AbstractMediaPlayer engine;
     private SimplePanel container;
@@ -88,27 +71,7 @@ public abstract class CustomVideoPlayer extends AbstractMediaPlayer implements P
             throw new NullPointerException("width cannot be null");
         }
 
-        switch (playerPlugin) {
-            case VLCPlayer:
-                engine = new VLCPlayer(mediaURL, autoplay, height, "100%");
-                break;
-            case FlashPlayer:
-                engine = new FlashMediaPlayer(mediaURL, autoplay, height, "100%");
-                break;
-            case QuickTimePlayer:
-                engine = new QuickTimePlayer(mediaURL, autoplay, height, "100%");
-                break;
-            case WinMediaPlayer:
-                engine = new WinMediaPlayer(mediaURL, autoplay, height, "100%");
-                break;
-            case Native:
-                engine = new NativePlayer(mediaURL, autoplay, height, "100%");
-                break;
-            default:
-                engine = PlayerUtil.getPlayer(playerPlugin, mediaURL, autoplay, height, "100%");
-                break;
-        }
-
+        engine = PlayerUtil.getPlayer(playerPlugin, mediaURL, autoplay, height, "100%");
         engine.addDebugHandler(new DebugHandler() {
 
             public void onDebug(DebugEvent event) {
@@ -329,6 +292,19 @@ public abstract class CustomVideoPlayer extends AbstractMediaPlayer implements P
     @Override
     public void showLogger(boolean show) {
         engine.showLogger(show);
+    }
+
+    public TransformationMatrix getMatrix() {
+        if (engine instanceof MatrixSupport) {
+            return ((MatrixSupport) engine).getMatrix();
+        }
+        return null;
+    }
+
+    public void setMatrix(TransformationMatrix matrix) {
+        if (engine instanceof MatrixSupport) {
+            ((MatrixSupport) engine).setMatrix(matrix);
+        }
     }
 
     /**

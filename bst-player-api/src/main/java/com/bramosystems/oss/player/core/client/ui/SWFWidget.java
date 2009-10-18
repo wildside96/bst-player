@@ -20,10 +20,8 @@ import com.bramosystems.oss.player.core.client.PlayerUtil;
 import com.bramosystems.oss.player.core.client.PluginVersionException;
 import com.bramosystems.oss.player.core.client.PluginNotFoundException;
 import com.bramosystems.oss.player.core.client.Plugin;
-import com.bramosystems.oss.player.core.client.impl.SWFWidgetImpl;
-import com.google.gwt.core.client.GWT;
+import com.bramosystems.oss.player.core.client.impl.PlayerWidgetFactory;
 import com.google.gwt.user.client.DOM;
-import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.ui.*;
 import java.util.HashMap;
 
@@ -62,9 +60,8 @@ import java.util.HashMap;
  */
 public class SWFWidget extends Composite {
 
-    private static SWFWidgetImpl impl;
-    private String playerId,  swfURL, height, width;
-    private HTML playerDiv;
+    private String playerId,  swfURL,  height,  width;
+    private SimplePanel panel;
     private HashMap<String, String> params;
 
     /**
@@ -103,23 +100,15 @@ public class SWFWidget extends Composite {
             throw new PluginVersionException(Plugin.FlashPlayer, minFlashVersion.toString(), v.toString());
         }
 
-        if (impl == null) {
-            impl = GWT.create(SWFWidgetImpl.class);
-        }
-
         this.swfURL = sourceURL;
         this.width = width;
         this.height = height;
         playerId = DOM.createUniqueId().replace("-", "");
         params = new HashMap<String, String>();
 
-        playerDiv = new HTML();
-        playerDiv.setStyleName("");
-        playerDiv.setHorizontalAlignment(HTML.ALIGN_CENTER);
-
-        initWidget(playerDiv);
+        panel = new SimplePanel();
+        initWidget(panel);
         setSize(width, height);
-        setStyleName("");
     }
 
     /**
@@ -157,25 +146,7 @@ public class SWFWidget extends Composite {
 
     @Override
     protected void onLoad() {
-        Timer t = new Timer() {
-
-            @Override
-            public void run() {
-                playerDiv.setHTML(impl.getScript(playerId, swfURL, width, height, params));
-//                playerDiv.setHTML(impl.getScript(playerId, swfURL, getOffsetWidth() + "px",
-//                        getOffsetHeight() + "px", params));
-            }
-        };
-        t.schedule(500);   // IE & Opera workarround...
-    }
-
-    /**
-     * Subclasses that override this method should call <code>super.onUnload()</code>
-     * to ensure the SWF object is properly removed from the browser's DOM.
-     */
-    @Override
-    protected void onUnload() {
-        playerDiv.getElement().setInnerText("");
+        panel.setWidget(PlayerWidgetFactory.get().getSWFWidget(playerId, swfURL, params));
     }
 
     private boolean isEmpty(String value) {

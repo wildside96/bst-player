@@ -22,6 +22,9 @@ import com.bramosystems.oss.player.core.event.client.MediaInfoEvent;
 import com.bramosystems.oss.player.core.event.client.LoadingProgressEvent;
 import com.bramosystems.oss.player.core.event.client.DebugEvent;
 import com.bramosystems.oss.player.core.client.MediaInfo;
+import com.google.gwt.dom.client.Document;
+import com.google.gwt.dom.client.Element;
+import com.google.gwt.dom.client.NativeEvent;
 import com.google.gwt.user.client.Timer;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -87,6 +90,15 @@ public class WMPStateManager {
     }
 
     @SuppressWarnings("unused")
+    private void fireCMEvents(int type, int button, int shiftState, double fX, double fY) {
+        Iterator<String> keys = cache.keySet().iterator();
+        while (keys.hasNext()) {
+            String id = keys.next();
+            cache.get(id).doClickMouseEvents(type, button, shiftState, fX, fY);
+        }
+    }
+
+    @SuppressWarnings("unused")
     private void fireBuffering(boolean buffering) {
         Iterator<String> keys = cache.keySet().iterator();
         while (keys.hasNext()) {
@@ -104,11 +116,46 @@ public class WMPStateManager {
     $wnd.OnDSBufferingEvt = function(Start) {
     impl.@com.bramosystems.oss.player.core.client.impl.WMPStateManager::fireBuffering(Z)(Start);
     }
+    $wnd.OnDSMouseDownEvt = function(nButton,nShiftState,fX,fY) {
+    impl.@com.bramosystems.oss.player.core.client.impl.WMPStateManager::fireCMEvents(IIIDD)(1,nButton,nShiftState,fX,fY);
+    }
+    $wnd.OnDSMouseUpEvt = function(nButton,nShiftState,fX,fY) {
+    impl.@com.bramosystems.oss.player.core.client.impl.WMPStateManager::fireCMEvents(IIIDD)(2,nButton,nShiftState,fX,fY);
+    }
+//    $wnd.OnDSMouseMoveEvt = function(nButton,nShiftState,fX,fY) {
+//    impl.@com.bramosystems.oss.player.core.client.impl.WMPStateManager::fireCMEvents(IIIDD)(3,nButton,nShiftState,fX,fY);
+//    }
+    $wnd.OnDSClickEvt = function(nButton,nShiftState,fX,fY) {
+    impl.@com.bramosystems.oss.player.core.client.impl.WMPStateManager::fireCMEvents(IIIDD)(10,nButton,nShiftState,fX,fY);
+    }
+    $wnd.OnDSDoubleClickEvt = function(nButton,nShiftState,fX,fY) {
+    impl.@com.bramosystems.oss.player.core.client.impl.WMPStateManager::fireCMEvents(IIIDD)(11,nButton,nShiftState,fX,fY);
+    }
+    $wnd.OnDSDblClickEvt = function(nButton,nShiftState,fX,fY) {
+    impl.@com.bramosystems.oss.player.core.client.impl.WMPStateManager::fireCMEvents(IIIDD)(11,nButton,nShiftState,fX,fY);
+    }
+    $wnd.OnDSKeyDownEvt = function(nKeyCode,nShiftState) {
+    impl.@com.bramosystems.oss.player.core.client.impl.WMPStateManager::fireCMEvents(IIIDD)(20,nKeyCode,nShiftState,0,0);
+    }
+    $wnd.OnDSKeyUpEvt = function(nKeyCode,nShiftState) {
+    impl.@com.bramosystems.oss.player.core.client.impl.WMPStateManager::fireCMEvents(IIIDD)(21,nKeyCode,nShiftState,0,0);
+    }
+    $wnd.OnDSKeyPressEvt = function(nKeyCode,nShiftState) {
+    impl.@com.bramosystems.oss.player.core.client.impl.WMPStateManager::fireCMEvents(IIIDD)(22,nKeyCode,nShiftState,0,0);
+    }
     }-*/;
 
     public void registerMediaStateHandlers(WinMediaPlayerImpl player) {
         // do nothing, provided for DOM event registration in IE.
+        registerMediaStateHandlersImpl(this, player);
     }
+
+    public native void registerMediaStateHandlersImpl(WMPStateManager impl, WinMediaPlayerImpl player) /*-{
+        // do nothing, provided for DOM event registration in IE.
+    player.onmousemove = function(evt) {
+    impl.@com.bramosystems.oss.player.core.client.impl.WMPStateManager::fireCMEvents(IIIDD)(3,evt.button,evt.ctrlKey,evt.clientX,evt.clientY);
+    }
+    }-*/;
 
     protected class StateManager {
 
@@ -195,6 +242,8 @@ public class WMPStateManager {
                     }
                     break;
                 case 6:    // buffering ...
+                    debug("Buffering...");
+                    break;
                 case 11:    // reconnecting to stream  ...
                     break;
                 case 9:     // preparing new item ...
@@ -226,6 +275,59 @@ public class WMPStateManager {
             } else {
                 onError(err);
             }
+        }
+
+        public void doClickMouseEvents(int type, int button, int shiftState, double fX, double fY) {
+            boolean shift = (shiftState & 1) == 1;
+            boolean alt = (shiftState & 2) == 2;
+            boolean ctrl = (shiftState & 4) == 4;
+
+            Element e = Element.as(player); //.getParentElement();
+            int clientX = e.getAbsoluteLeft() + (int) fX - e.getOwnerDocument().getScrollLeft();
+            int clientY = e.getAbsoluteTop() + (int) fY - e.getOwnerDocument().getScrollTop();
+            int screenX = -1; //e.getAbsoluteLeft() + (int) fX; // - e.getScrollLeft();
+            int screenY = -1; //e.getAbsoluteTop() + (int) fY; // - e.getScrollTop();
+
+//            debug("[Click/Mouse Event] type : " + type + ", button : " + button + ", meta : " +  shiftState);
+//            debug("x:y = " + fX + ":" + fY + ", cx:cy = " + clientX + ":" + clientY +
+//                    ", al:at = " + e.getAbsoluteLeft() + ":" + e.getAbsoluteTop() +
+//                    ", bol:bot = " + e.getOwnerDocument().getBodyOffsetLeft() + ":" +
+//                    e.getOwnerDocument().getBodyOffsetTop());
+
+            Document _doc = Document.get();
+            NativeEvent event = null;
+            switch (type) {
+                case 1:    // mouse down ..
+                    event = _doc.createMouseDownEvent(button, screenX, screenY, clientX,
+                            clientY, ctrl, alt, shift, false, button);
+                    break;
+                case 2:    // mouse up ...
+                    event = _doc.createMouseUpEvent(button, screenX, screenY, clientX,
+                            clientY, ctrl, alt, shift, false, button);
+                    break;
+                case 3:    // mouse move ...
+                    event = _doc.createMouseMoveEvent(button, screenX, screenY, clientX,
+                            clientY, ctrl, alt, shift, false, button);
+                    break;
+                case 10:    // click ...
+                    event = _doc.createClickEvent(button, screenX, screenY, clientX,
+                            clientY, ctrl, alt, shift, false);
+                    break;
+                case 11:    // double click ...
+                    event = _doc.createDblClickEvent(button, screenX, screenY, clientX,
+                            clientY, ctrl, alt, shift, false);
+                    break;
+                case 20:    // key down ...
+                    event = _doc.createKeyDownEvent(ctrl, alt, shift, false, button, button);
+                    break;
+                case 21:    // key up ...
+                    event = _doc.createKeyUpEvent(ctrl, alt, shift, false, button, button);
+                    break;
+                case 22:    // key press ...
+                    event = _doc.createKeyPressEvent(ctrl, alt, shift, false, button, button);
+                    break;
+            }
+//            DomEvent.fireNativeEvent(event, handlers, e);
         }
     }
 }

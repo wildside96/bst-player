@@ -17,6 +17,7 @@
 package com.bramosystems.oss.player.core;
 
 import com.bramosystems.oss.player.core.client.TxtPlayerUtil;
+import com.bramosystems.oss.player.core.client.TxtTransformationMatrix;
 import com.bramosystems.oss.player.core.client.impl.TxtPlayerUtilImpl;
 import com.bramosystems.oss.player.core.client.video.TxtAspectRatio;
 import com.google.gwt.junit.tools.GWTTestSuite;
@@ -33,6 +34,7 @@ public class GwtCoreTestSuite extends GWTTestSuite {
         suite.addTestSuite(TxtPlayerUtil.class);
         suite.addTestSuite(TxtAspectRatio.class);
         suite.addTestSuite(TxtPlayerUtilImpl.class);
+        suite.addTestSuite(TxtTransformationMatrix.class);
         return suite;
     }
 }

@@ -71,7 +71,18 @@ public enum Plugin {
      *
      * @since 1.1
      */
-    Native("", 0,0,0);
+    Native("", 0,0,0),
+
+    /**
+     * Similar to {@linkplain #Auto}, specifies any media player plugin that supports
+     * graphics manipulation with transformation matrices as defined by the
+     * {@linkplain MatrixSupport} interface.
+     *
+     * @see PlayerUtil#getPlayer(Plugin, java.lang.String, boolean, java.lang.String, java.lang.String)
+     * @see MatrixSupport
+     * @since 1.1
+     */
+    MatrixSupport("", 0, 0, 0);
 
     private String downloadURL;
     private PluginVersion version;

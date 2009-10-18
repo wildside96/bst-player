@@ -114,11 +114,7 @@ public class WinMediaPlayerImpl extends JavaScriptObject {
     }-*/;
 
     public final native int getPlayState() /*-{
-    var state = this.playState;
-    if(state == undefined) {
-    return -10;
-    }
-    return state;
+    return this.playState || -10;
     }-*/;
 
     public final native void fillMetadata(MediaInfo info, String errorMsg) /*-{
@@ -219,4 +215,4 @@ public class WinMediaPlayerImpl extends JavaScriptObject {
     public final native String getPlayerId() /*-{
     return this.id;
     }-*/;
-    }
+}
