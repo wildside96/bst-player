@@ -98,8 +98,6 @@ public class PlayerUtil {
     public static AbstractMediaPlayer getPlayer(String mediaURL,
             boolean autoplay, String height, String width)
             throws LoadException, PluginNotFoundException, PluginVersionException {
-        AbstractMediaPlayer player = null;
-
         String protocol = null;
         if (mediaURL.contains("://")) {
             protocol = mediaURL.substring(0, mediaURL.indexOf("://"));
@@ -117,7 +115,14 @@ public class PlayerUtil {
             }
         }
 
-        switch (pg) {
+        return _getPlayer(pg, mediaURL, autoplay, height, width);
+    }
+
+    private static AbstractMediaPlayer _getPlayer(Plugin plugin, String mediaURL,
+            boolean autoplay, String height, String width) throws LoadException,
+            PluginVersionException, PluginNotFoundException {
+        AbstractMediaPlayer player;
+        switch (plugin) {
             case VLCPlayer:
                 player = new VLCPlayer(mediaURL, autoplay, height, width);
                 break;
@@ -152,6 +157,8 @@ public class PlayerUtil {
      * <li>{@linkplain Plugin#Auto} : Basic features i.e. ability to play, pause, stop e.t.c</li>
      * <li>{@linkplain Plugin#PlaylistSupport} : Playlist management features i.e.
      * ability to add and/or remove media items from playlists</li>
+     * <li>{@linkplain Plugin#MatrixSupport} : Matrix transformation features i.e.
+     * ability to perform such operations as rotation, traslation, skewing etc</li>
      * </ul>
      *
      * <p><b>NOTE:</b> If the media is served with a special streaming protocol such as
@@ -177,47 +184,39 @@ public class PlayerUtil {
     public static AbstractMediaPlayer getPlayer(Plugin plugin, String mediaURL,
             boolean autoplay, String height, String width)
             throws LoadException, PluginNotFoundException, PluginVersionException {
-        AbstractMediaPlayer player = null;
-
         String protocol = null;
         if (mediaURL.contains("://")) {
             protocol = mediaURL.substring(0, mediaURL.indexOf("://"));
         }
 
         String ext = mediaURL.substring(mediaURL.lastIndexOf(".") + 1);
-        Plugin pg = Plugin.Auto;
+        Plugin pg = Plugin.Auto, _plugins[] = null;
 
         switch (plugin) {
             case PlaylistSupport:
-                Plugin plugins[] = {Plugin.FlashPlayer, Plugin.VLCPlayer};
-                for (int i = 0; i < plugins.length; i++) {
-                    if (impl.canHandleMedia(plugins[i], protocol, ext)) {
-                        pg = plugins[i];
-                        break;
-                    }
-                }
+                _plugins = new Plugin[2];
+                _plugins[0] = Plugin.FlashPlayer;
+                _plugins[1] = Plugin.VLCPlayer;
+                break;
+            case MatrixSupport:
+                _plugins = new Plugin[2];
+                _plugins[0] = Plugin.QuickTimePlayer;
+ //               _plugins[1] = Plugin.FlashPlayer;
+                break;
         }
 
-        switch (pg) {
-            case VLCPlayer:
-                player = new VLCPlayer(mediaURL, autoplay, height, width);
-                break;
-            case FlashPlayer:
-                player = new FlashMediaPlayer(mediaURL, autoplay, height, width);
-                break;
-            case QuickTimePlayer:
-                player = new QuickTimePlayer(mediaURL, autoplay, height, width);
-                break;
-            case WinMediaPlayer:
-                player = new WinMediaPlayer(mediaURL, autoplay, height, width);
-                break;
-            case Native:
-                player = new NativePlayer(mediaURL, autoplay, height, width);
-                break;
-            default:
-                player = getPlayer(mediaURL, autoplay, height, width);
+        if (_plugins != null) {
+            for (int i = 0; i < _plugins.length; i++) {
+                if (impl.canHandleMedia(_plugins[i], protocol, ext)) {
+                    pg = _plugins[i];
+                    break;
+                }
+            }
+            return _getPlayer(pg, mediaURL, autoplay, height, width);
+        } else {
+            // test for other plugins ...
+            return getPlayer(mediaURL, autoplay, height, width);
         }
-        return player;
     }
 
     /**
@@ -379,26 +378,35 @@ public class PlayerUtil {
         String title = "Missing Plugin", message = "";
         switch (plugin) {
             case WinMediaPlayer:
-                message = "Windows Media Player " + version + " or later is required to play " +
+                message = "Windows Media Player " + version + "or later is required to play " +
                         "this media. Click here to get Windows Media Player.";
                 break;
             case FlashPlayer:
-                message = "Adobe Flash Player " + version + " or later is required to play" +
+                message = "Adobe Flash Player " + version + "or later is required to play " +
                         "this media. Click here to get Flash";
                 break;
             case QuickTimePlayer:
-                message = "QuickTime Player " + version + " plugin or later is required to play " +
-                        "this media. Click here to get QuickTime";
+                message = "QuickTime Player " + version + "plugin or later is required to " +
+                        "play this media. Click here to get QuickTime";
                 break;
             case VLCPlayer:
-                message = "VLC Media Player " + version + " plugin or later is required to play " +
-                        "this media. Click here to get VLC Media Player";
+                message = "VLC Media Player " + version + "plugin or later is required to " +
+                        "play this media. Click here to get VLC Media Player";
                 break;
             case Native:
                 title = "Browser Not Compliant";
                 message = "An HTML 5 compliant browser is required";
                 break;
+            case PlaylistSupport:
+                message = "No player plugin with client-side playlist " +
+                        "management can be found";
+                break;
+            case MatrixSupport:
+                message = "No player plugin with matrix transformation " +
+                        "capability can be found";
+                break;
         }
+
         return getMissingPluginNotice(plugin, title, message, false);
     }
 
@@ -423,10 +431,10 @@ public class PlayerUtil {
         switch (plugin) {
             case WinMediaPlayer:
                 message = "Windows Media Player is required to play " +
-                        "this media. Click here to get Windows Media Player.";
+                        "this media. Click here to get Windows Media Player";
                 break;
             case FlashPlayer:
-                message = "Adobe Flash Player is required to play" +
+                message = "Adobe Flash Player is required to play " +
                         "this media. Click here to get Flash";
                 break;
             case QuickTimePlayer:
@@ -438,8 +446,12 @@ public class PlayerUtil {
                         "this media. Click here to get VLC Media Player";
                 break;
             case PlaylistSupport:
-                message = "No player plugin with client-side playlist" +
-                        " management can be found";
+                message = "No player plugin with client-side playlist " +
+                        "management can be found";
+                break;
+            case MatrixSupport:
+                message = "No player plugin with matrix transformation " +
+                        "capability can be found";
                 break;
             case Native:
                 title = "Browser Not Compliant";

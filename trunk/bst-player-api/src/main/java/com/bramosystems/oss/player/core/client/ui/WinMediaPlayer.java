@@ -17,7 +17,7 @@ package com.bramosystems.oss.player.core.client.ui;
 
 import com.bramosystems.oss.player.core.client.*;
 import com.bramosystems.oss.player.core.client.MediaInfo.MediaInfoKey;
-import com.bramosystems.oss.player.core.client.impl.PlayerScriptUtil;
+import com.bramosystems.oss.player.core.client.impl.PlayerWidgetFactory;
 import com.bramosystems.oss.player.core.client.impl.WMPStateManager;
 import com.bramosystems.oss.player.core.client.impl.WinMediaPlayerImpl;
 import com.bramosystems.oss.player.core.event.client.DebugEvent;
@@ -26,13 +26,8 @@ import com.bramosystems.oss.player.core.event.client.MediaInfoEvent;
 import com.bramosystems.oss.player.core.event.client.MediaInfoHandler;
 import com.bramosystems.oss.player.core.event.client.PlayerStateEvent.State;
 import com.google.gwt.core.client.GWT;
-import com.google.gwt.event.dom.client.DomEvent.Type;
-import com.google.gwt.event.dom.client.MouseOverEvent;
-import com.google.gwt.event.dom.client.MouseOverHandler;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.DOM;
-import com.google.gwt.user.client.Event;
-import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
 
@@ -70,8 +65,8 @@ public final class WinMediaPlayer extends AbstractMediaPlayer {
 
     private static WMPStateManager stateManager;
     private WinMediaPlayerImpl impl;
+    private Widget playerWidget;
     private String playerId,  mediaURL,  _width,  _height;
-    private HTML playerDiv;
     private Logger logger;
     private boolean isEmbedded,  autoplay,  resizeToVideoSize;
     private DockPanel panel;
@@ -165,11 +160,10 @@ public final class WinMediaPlayer extends AbstractMediaPlayer {
             setUIMode(UIMode.INVISIBLE);
         }
 
-        playerDiv = new HTML();
-        playerDiv.setStyleName("");
-        playerDiv.setSize("100%", "100%");
-        panel.add(playerDiv, DockPanel.CENTER);
-        panel.setCellHeight(playerDiv, _height);
+        playerWidget = PlayerWidgetFactory.get().getPlayerWidget(Plugin.WinMediaPlayer,
+                playerId, mediaURL, autoplay);
+        panel.add(playerWidget, DockPanel.CENTER);
+        panel.setCellHeight(playerWidget, _height);
 
         setWidth(_width);
     }
@@ -215,14 +209,14 @@ public final class WinMediaPlayer extends AbstractMediaPlayer {
      */
     @Override
     protected final void onLoad() {
-        Timer t = new Timer() {
+//        Timer t = new Timer() {
 
-            @Override
-            public void run() {
-                setupPlayer(false);
-            }
-        };
-        t.schedule(200);            // IE workarround...
+//            @Override
+//            public void run() {
+        setupPlayer(false);
+//            }
+//        };
+//        t.schedule(200);            // IE workarround...
     }
 
     /**
@@ -234,27 +228,14 @@ public final class WinMediaPlayer extends AbstractMediaPlayer {
      * @param isResizing
      */
     private void setupPlayer(final boolean isResizing) {
-        playerDiv.setHTML(PlayerScriptUtil.getWMPlayerScript(mediaURL, playerId, autoplay,
-                playerDiv.getOffsetHeight(), playerDiv.getOffsetWidth()));
-        Timer tt = new Timer() {
+        impl = WinMediaPlayerImpl.getPlayer(playerId);
+        stateManager.init(impl, WinMediaPlayer.this, isResizing);
+        stateManager.registerMediaStateHandlers(impl);
+        setUIMode(uiMode);
 
-            @Override
-            public void run() {
-                if (isPlayerOnPage(playerId)) {
-                    impl = WinMediaPlayerImpl.getPlayer(playerId);
-                    stateManager.init(impl, WinMediaPlayer.this, isResizing);
-                    stateManager.registerMediaStateHandlers(impl);
-                    setUIMode(uiMode);
-
-                    if (isResizing) {
-                        impl.play();
-                    }
-                } else {
-                    schedule(100);
-                }
-            }
-        };
-        tt.schedule(100);
+        if (isResizing) {
+            impl.play();
+        }
     }
 
     /**
@@ -262,8 +243,7 @@ public final class WinMediaPlayer extends AbstractMediaPlayer {
      */
     @Override
     protected void onUnload() {
-        impl.close();
-        playerDiv.setText("");
+        close();
     }
 
     public void loadMedia(String mediaURL) throws LoadException {
@@ -291,7 +271,7 @@ public final class WinMediaPlayer extends AbstractMediaPlayer {
         checkAvailable();
         stateManager.close(playerId);
         impl.close();
-        playerDiv.setText("");
+        panel.remove(playerWidget);
     }
 
     public long getMediaDuration() {
@@ -431,9 +411,11 @@ public final class WinMediaPlayer extends AbstractMediaPlayer {
         }
 
         setWidth(_w);
-        panel.setCellHeight(playerDiv, _h);
-        DOM.getElementById(playerId).setAttribute("width", _w);
-        DOM.getElementById(playerId).setAttribute("height", _h);
+        panel.setCellHeight(playerWidget, _h);
+//        DOM.getElementById(playerId).setAttribute("width", _w);
+//        DOM.getElementById(playerId).setAttribute("height", _h);
+//        DOM.setStyleAttribute(playerWidget.getElement(), "height", _h);
+//        DOM.setStyleAttribute(playerWidget.getElement(), "width", "100%");
 
         if (!_height.equals(_h) && !_width.equals(_w)) {
             if (stateManager.shouldRunResizeQuickFix()) {
@@ -567,11 +549,5 @@ public final class WinMediaPlayer extends AbstractMediaPlayer {
          * volume controls in addition to the video or visualization window.
          */
         FULL
-    }
-
-    public void doMouse(MouseOverHandler handler) {
-        Type<MouseOverHandler> type = MouseOverEvent.getType();
-        DOM.sinkEvents(DOM.getElementById(playerId), Event.getTypeInt(type.getName()));
-//        addDomHandler(handler, type);
     }
 }

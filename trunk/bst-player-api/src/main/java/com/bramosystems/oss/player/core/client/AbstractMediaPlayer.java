@@ -16,17 +16,8 @@
 package com.bramosystems.oss.player.core.client;
 
 import com.bramosystems.oss.player.core.client.ui.Logger;
-import com.bramosystems.oss.player.core.event.client.PlayerStateEvent;
-import com.bramosystems.oss.player.core.event.client.HasMediaStateHandlers;
-import com.bramosystems.oss.player.core.event.client.PlayStateHandler;
-import com.bramosystems.oss.player.core.event.client.MediaInfoHandler;
-import com.bramosystems.oss.player.core.event.client.PlayStateEvent;
-import com.bramosystems.oss.player.core.event.client.MediaInfoEvent;
-import com.bramosystems.oss.player.core.event.client.PlayerStateHandler;
-import com.bramosystems.oss.player.core.event.client.LoadingProgressEvent;
-import com.bramosystems.oss.player.core.event.client.LoadingProgressHandler;
-import com.bramosystems.oss.player.core.event.client.DebugHandler;
-import com.bramosystems.oss.player.core.event.client.DebugEvent;
+import com.bramosystems.oss.player.core.event.client.*;
+import com.google.gwt.event.dom.client.*;
 import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.ui.Composite;
@@ -40,7 +31,9 @@ import java.util.Iterator;
  *
  * @author Sikiru Braheem
  */
-public abstract class AbstractMediaPlayer extends Composite implements HasMediaStateHandlers {
+public abstract class AbstractMediaPlayer extends Composite implements HasMediaStateHandlers,
+        HasMouseMoveHandlers, HasMouseDownHandlers, HasMouseUpHandlers, HasKeyDownHandlers,
+        HasKeyUpHandlers, HasKeyPressHandlers {
 
     private HashMap<String, Command> readyCmdQueue;
     private ArrayList<String> cmdKeys;
@@ -444,4 +437,28 @@ public abstract class AbstractMediaPlayer extends Composite implements HasMediaS
     protected static final native boolean isPlayerOnPage(String playerId) /*-{
     return ($doc.getElementById(playerId) != null);
     }-*/;
+
+    public HandlerRegistration addMouseMoveHandler(MouseMoveHandler handler) {
+        return addDomHandler(handler, MouseMoveEvent.getType());
+    }
+
+    public HandlerRegistration addMouseDownHandler(MouseDownHandler handler) {
+        return addDomHandler(handler, MouseDownEvent.getType());
+    }
+
+    public HandlerRegistration addMouseUpHandler(MouseUpHandler handler) {
+        return addDomHandler(handler, MouseUpEvent.getType());
+    }
+
+    public HandlerRegistration addKeyDownHandler(KeyDownHandler handler) {
+        return addDomHandler(handler, KeyDownEvent.getType());
+    }
+
+    public HandlerRegistration addKeyUpHandler(KeyUpHandler handler) {
+        return addDomHandler(handler, KeyUpEvent.getType());
+    }
+
+    public HandlerRegistration addKeyPressHandler(KeyPressHandler handler) {
+        return addDomHandler(handler, KeyPressEvent.getType());
+    }
 }

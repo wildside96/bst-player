@@ -16,8 +16,6 @@
 package com.bramosystems.oss.player.core.client.ui;
 
 import com.bramosystems.oss.player.core.event.client.PlayerStateHandler;
-import com.bramosystems.oss.player.core.event.client.PlayStateHandler;
-import com.bramosystems.oss.player.core.event.client.PlayStateEvent;
 import com.bramosystems.oss.player.core.event.client.PlayerStateEvent;
 import com.bramosystems.oss.player.core.event.client.MediaInfoEvent;
 import com.bramosystems.oss.player.core.event.client.DebugEvent;
@@ -25,19 +23,18 @@ import com.bramosystems.oss.player.core.event.client.MediaInfoHandler;
 import com.bramosystems.oss.player.core.event.client.DebugHandler;
 import com.bramosystems.oss.player.core.client.*;
 import com.bramosystems.oss.player.core.client.MediaInfo.MediaInfoKey;
-import com.bramosystems.oss.player.core.client.impl.PlayerScriptUtil;
+import com.bramosystems.oss.player.core.client.impl.PlayerWidgetFactory;
 import com.bramosystems.oss.player.core.client.impl.VLCPlayerImpl;
+import com.bramosystems.oss.player.core.client.impl.VLCStateManager;
 import com.bramosystems.oss.player.core.client.skin.CustomPlayerControl;
+import com.google.gwt.event.dom.client.MouseMoveEvent;
+import com.google.gwt.event.dom.client.MouseMoveHandler;
 import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.DOM;
-import com.google.gwt.user.client.Element;
-import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
 
 /**
  * Widget to embed VLC Player plugin.
@@ -72,15 +69,15 @@ import java.util.Comparator;
 public final class VLCPlayer extends AbstractMediaPlayer implements PlaylistSupport {
 
     private VLCPlayerImpl impl;
+    private Widget playerWidget;
+    private VLCStateManager stateHandler;
     private String playerId,  mediaUrl,  _width,  _height;
-    private HTML playerDiv;
     private Logger logger;
     private boolean isEmbedded,  autoplay,  resizeToVideoSize,  shuffleOn;
     private HandlerRegistration initListHandler;
     private ArrayList<MRL> _playlistCache;
     private CustomPlayerControl control;
     private DockPanel panel;
-    private StateHandler stateHandler;
 
     VLCPlayer() throws PluginNotFoundException, PluginVersionException {
         PluginVersion req = Plugin.VLCPlayer.getVersion();
@@ -91,7 +88,7 @@ public final class VLCPlayer extends AbstractMediaPlayer implements PlaylistSupp
 
         _playlistCache = new ArrayList<MRL>();
         playerId = DOM.createUniqueId().replace("-", "");
-        stateHandler = new StateHandler();
+        stateHandler = new VLCStateManager();
         shuffleOn = false;
     }
 
@@ -168,15 +165,13 @@ public final class VLCPlayer extends AbstractMediaPlayer implements PlaylistSupp
             _width = "0px";
         }
 
-        playerDiv = new HTML();
-        playerDiv.setStyleName("");
-        playerDiv.setSize("100%", "100%");
-        panel.add(playerDiv, DockPanel.CENTER);
-        panel.setCellHeight(playerDiv, _height);
-        panel.setCellWidth(playerDiv, _width);
+        playerWidget = PlayerWidgetFactory.get().getPlayerWidget(Plugin.VLCPlayer, playerId, 
+                null, false);
+        panel.add(playerWidget, DockPanel.CENTER);
+        panel.setCellHeight(playerWidget, _height);
+        panel.setCellWidth(playerWidget, _width);
         setWidth(_width);
-
-        DOM.setStyleAttribute(playerDiv.getElement(), "backgroundColor", "#000");   // IE workaround
+        DOM.setStyleAttribute(playerWidget.getElement(), "backgroundColor", "#000000");   // IE workaround
     }
 
     /**
@@ -213,50 +208,30 @@ public final class VLCPlayer extends AbstractMediaPlayer implements PlaylistSupp
     }
 
     /**
-     * Overridden to register player for plugin DOM events
+     * Overridden to register player for plugin events
      */
     @Override
     protected final void onLoad() {
-        Timer t = new Timer() {
+        fixIEStyle(_height);
+        impl = VLCPlayerImpl.getPlayer(playerId);
 
-            @Override
-            public void run() {
-                playerDiv.setHTML(PlayerScriptUtil.getVLCPlayerScript(playerId,
-                        playerDiv.getOffsetHeight(), playerDiv.getOffsetWidth()));
-                Timer tt = new Timer() {
+        fireDebug("VLC Media Player plugin");
+        fireDebug("Version : " + impl.getPluginVersion());
+        stateHandler.start(this, impl);   // start state pooling ...
 
-                    @Override
-                    public void run() {
-                        if (isPlayerOnPage(playerId)) {
-                            cancel();
-                            impl = VLCPlayerImpl.getPlayer(playerId);
+        // load player ...
+        stateHandler.addToPlaylist(mediaUrl, null);
 
-                            fireDebug("VLC Media Player plugin");
-                            fireDebug("Version : " + impl.getPluginVersion());
-                            stateHandler.start();   // start state pooling ...
+        // fire player ready ...
+        firePlayerStateEvent(PlayerStateEvent.State.Ready);
 
-                            // load player ...
-                            stateHandler.addToPlaylist(mediaUrl, null);
-
-                            // fire player ready ...
-                            firePlayerStateEvent(PlayerStateEvent.State.Ready);
-
-                            // and play if required ...
-                            if (autoplay) {
-                                try {
-                                    stateHandler.play();
-                                } catch (PlayException ex) {
-                                }
-                            }
-                        } else {
-                            schedule(200);
-                        }
-                    }
-                };
-                tt.schedule(100);
+        // and play if required ...
+        if (autoplay) {
+            try {
+                stateHandler.play();
+            } catch (PlayException ex) {
             }
-        };
-        t.schedule(500);            // IE workarround...
+        }
     }
 
     /**
@@ -308,7 +283,7 @@ public final class VLCPlayer extends AbstractMediaPlayer implements PlaylistSupp
 
     public void close() {
         stateHandler.close();
-        playerDiv.getElement().setInnerText("");
+        panel.remove(playerWidget);
     }
 
     public long getMediaDuration() {
@@ -530,17 +505,20 @@ public final class VLCPlayer extends AbstractMediaPlayer implements PlaylistSupp
                 _w = vidWidth + "px";
             }
         }
-        
-        setWidth(_w);
-        panel.setCellHeight(playerDiv, _h);
 
-        Element e = DOM.getElementById(playerId);
-        DOM.setStyleAttribute(e, "width", _w);
-        DOM.setStyleAttribute(e, "height", _h);
-        
+        setWidth(_w);
+        panel.setCellHeight(playerWidget, _h);
+        fixIEStyle(_h);
+
         if (!_height.equals(_h) && !_width.equals(_w)) {
             firePlayerStateEvent(PlayerStateEvent.State.DimensionChangedOnVideo);
         }
+    }
+
+    private void fixIEStyle(String _h) {
+        // IE workaround for style issues ...
+        DOM.setStyleAttribute(playerWidget.getElement(), "height", _h);
+//        DOM.setStyleAttribute(playerWidget.getElement(), "width", "100%");
     }
 
     private class MRL {
@@ -561,274 +539,6 @@ public final class VLCPlayer extends AbstractMediaPlayer implements PlaylistSupp
         }
     }
 
-    private class StateHandler {
-
-        private Timer statePooler;
-        private final int poolerPeriod = 200;
-        private int loopCount,  _loopCount,  previousState,  index,  metaDataWaitCount;
-        private boolean isBuffering,  stoppedByUser,  canDoMetadata;
-        private ArrayList<Integer> playlistIndexCache;
-        private ArrayList<Integer> shuffledIndexCache;
-        private PlayStateEvent.State currentState;
-
-        public StateHandler() {
-            loopCount = 1;
-            _loopCount = 1;
-            previousState = -10;
-            stoppedByUser = false;
-            canDoMetadata = true;
-            metaDataWaitCount = -1;
-
-            statePooler = new Timer() {
-
-                @Override
-                public void run() {
-                    checkPlayState();
-                }
-            };
-
-            index = -1;
-            playlistIndexCache = new ArrayList<Integer>();
-            currentState = PlayStateEvent.State.Finished;
-            addPlayStateHandler(new PlayStateHandler() {
-
-                public void onPlayStateChanged(PlayStateEvent event) {
-                    currentState = event.getPlayState();
-                }
-            });
-        }
-
-        public void start() {
-            statePooler.scheduleRepeating(poolerPeriod);
-        }
-
-        /**
-         * playback is finished, check if their is need to raise play-finished event
-         */
-        private void checkFinished() {
-            try {
-                next(false);    // move to next item in list
-            } catch (PlayException ex) {
-                try {
-                    int _list = getPlaylistSize();
-                    if (_loopCount > 1) {   // play over again ...
-                        _loopCount--;
-                        if (_list == 1) {
-                            canDoMetadata = false;
-                        }
-                        next(true);
-                    } else if (_loopCount < 0) {    // loop forever ...
-                        if (_list == 1) {
-                            canDoMetadata = false;
-                        }
-                        next(true);
-                    } else {
-                        firePlayStateEvent(PlayStateEvent.State.Finished, index);
-                        fireDebug("Media playback complete");
-                    }
-                } catch (PlayException ex1) {
-                    fireDebug(ex1.getMessage());
-                }
-            }
-        }
-
-        private void checkPlayState() {
-            int state = impl.getPlayerState();
-
-            if (state == previousState) {
-                if (metaDataWaitCount >= 0) {
-                    metaDataWaitCount--;
-                    if (metaDataWaitCount < 0) {
-                        MediaInfo info = new MediaInfo();
-                        impl.fillMediaInfo(info);
-                        fireMediaInfoAvailable(info);
-                    }
-                }
-                return;
-            }
-
-            switch (state) {
-                case -1:   // no input yet...
-                    break;
-                case 0:    // idle/close
-                    fireDebug("Idle ...");
-                    break;
-                case 6:    // finished
-                    if (stoppedByUser) {
-                        fireDebug("Media playback stopped");
-                        firePlayStateEvent(PlayStateEvent.State.Stopped, index);
-                    } else {
-                        fireDebug("Finished playlist item playback #" + index);
-                        checkFinished();
-                    }
-                    break;
-                case 1:    // opening media
-                    fireDebug("Opening playlist item #" + index);
-                    canDoMetadata = true;
-                //                    break;
-                case 2:    // buffering
-                    fireDebug("Buffering started");
-                    firePlayerStateEvent(PlayerStateEvent.State.BufferingStarted);
-                    isBuffering = true;
-                    break;
-                case 3:    // playing
-                    if (isBuffering) {
-                        fireDebug("Buffering stopped");
-                        firePlayerStateEvent(PlayerStateEvent.State.BufferingFinished);
-                        isBuffering = false;
-                    }
-
-                    if (canDoMetadata) {
-                        canDoMetadata = false;
-                        metaDataWaitCount = 4;  // implement some kind of delay, no extra timers...
-                    }
-
-//                    fireDebug("Current Track : " + getCurrentAudioTrack(id));
-                    fireDebug("Media playback started");
-                    stoppedByUser = false;
-                    firePlayStateEvent(PlayStateEvent.State.Started, index);
-                    //                    loadingComplete();
-                    break;
-                case 4:    // paused
-                    fireDebug("Media playback paused");
-                    firePlayStateEvent(PlayStateEvent.State.Paused, index);
-                    break;
-                case 5:    // stopping
-                    firePlayStateEvent(PlayStateEvent.State.Stopped, index);
-                    break;
-                case 7:    // error
-                    break;
-                case 8:    // playback complete
-                    break;
-            }
-            previousState = state;
-        }
-
-        private void loadingComplete() {
-            fireLoadingProgress(1.0);
-        }
-
-        public int getLoopCount() {
-            return loopCount;
-        }
-
-        public void setLoopCount(int loopCount) {
-            this.loopCount = loopCount;
-            _loopCount = loopCount;
-            fireDebug("Loop Count set : " + loopCount);
-        }
-
-        public void close() {
-            statePooler.cancel();
-        }
-
-        public void shuffle() {
-            Integer[] shuffled = playlistIndexCache.toArray(new Integer[0]);
-            Arrays.sort(shuffled, new Comparator<Integer>() {
-
-                public int compare(Integer o1, Integer o2) {
-                    int pos = 0;
-                    switch (Math.round((float) (Math.random() * 2.0))) {
-                        case 0:
-                            pos = -1;
-                            break;
-                        case 1:
-                            pos = 0;
-                            break;
-                        case 2:
-                            pos = 1;
-                    }
-                    return pos;
-                }
-            });
-            shuffledIndexCache = new ArrayList<Integer>();
-            for (Integer _index : shuffled) {
-                shuffledIndexCache.add(_index);
-            }
-        }
-
-        public void addToPlaylist(String mediaUrl, String options) {
-            int _index = options == null ? impl.addToPlaylist(mediaUrl) : impl.addToPlaylist(mediaUrl, options);
-            fireDebug("Added '" + mediaUrl + "' to playlist @ #" + _index +
-                    (options == null ? "" : " with options [" + options + "]"));
-            playlistIndexCache.add(_index);
-            if (shuffleOn) {
-                shuffle();
-            }
-        }
-
-        public void removeFromPlaylist(int index) {
-            impl.removeFromPlaylist(playlistIndexCache.get(index));
-            playlistIndexCache.remove(index);
-            if (shuffleOn) {
-                shuffle();
-            }
-        }
-
-        public void clearPlaylist() {
-            impl.clearPlaylist();
-            playlistIndexCache.clear();
-        }
-
-        private int getNextPlayIndex(boolean loop) throws PlayException {
-            if (index >= (playlistIndexCache.size() - 1)) {
-                index = -1;
-                if (!loop) {
-                    throw new PlayException("No more entries in playlist");
-                }
-            }
-            return shuffleOn ? shuffledIndexCache.get(++index) : playlistIndexCache.get(++index);
-        }
-
-        private int getPreviousPlayIndex(boolean loop) throws PlayException {
-            if (index < 0) {
-                index = playlistIndexCache.size();
-                if (!loop) {
-                    throw new PlayException("Beginning of playlist reached");
-                }
-            }
-            return shuffleOn ? shuffledIndexCache.get(--index) : playlistIndexCache.get(--index);
-        }
-
-        public void play() throws PlayException {
-            switch (currentState) {
-                case Paused:
-                    impl.togglePause();
-                    break;
-                case Finished:
-                    impl.playMediaAt(getNextPlayIndex(true));
-                    break;
-                case Stopped:
-                    impl.playMediaAt(
-                            shuffleOn ? shuffledIndexCache.get(index) : playlistIndexCache.get(index));
-            }
-        }
-
-        public void playItemAt(int _index) {
-            switch (currentState) {
-                case Started:
-                case Paused:
-                    stop();
-                case Finished:
-                case Stopped:
-                    impl.playMediaAt(playlistIndexCache.get(_index));
-            }
-        }
-
-        public void next(boolean canLoop) throws PlayException {
-            impl.playMediaAt(getNextPlayIndex(canLoop));
-        }
-
-        public void previous(boolean canLoop) throws PlayException {
-            impl.playMediaAt(getPreviousPlayIndex(canLoop));
-        }
-
-        public void stop() {
-            stoppedByUser = true;
-            impl.stop();
-        }
-    }
-
     /**
      * An enum of Audio Channel modes for VLC Media Player
      */
@@ -838,25 +548,25 @@ public final class VLCPlayer extends AbstractMediaPlayer implements PlaylistSupp
          * Stereo mode
          */
         Stereo,
-
         /**
          * Reverse Stereo mode
          */
         ReverseStereo,
-
         /**
          * Left only mode
          */
         Left,
-
         /**
          * Right only mode
          */
         Right,
-
         /**
          * Dolby mode
          */
         Dolby
+    }
+
+    public void doMouseEvents(MouseMoveHandler handler) {
+        addDomHandler(handler, MouseMoveEvent.getType());
     }
 }

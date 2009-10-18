@@ -17,6 +17,8 @@ package com.bramosystems.oss.player.core.client.ui;
 
 import com.bramosystems.oss.player.core.client.*;
 import com.bramosystems.oss.player.core.client.MediaInfo.MediaInfoKey;
+import com.bramosystems.oss.player.core.client.impl.PlayerWidgetFactory;
+import com.bramosystems.oss.player.core.client.impl.QTStateManager;
 import com.bramosystems.oss.player.core.client.impl.QuickTimePlayerImpl;
 import com.bramosystems.oss.player.core.event.client.DebugEvent;
 import com.bramosystems.oss.player.core.event.client.DebugHandler;
@@ -26,8 +28,7 @@ import com.bramosystems.oss.player.core.event.client.PlayerStateEvent;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.DOM;
-import com.google.gwt.user.client.Element;
-import com.google.gwt.user.client.Timer;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
 
 /**
@@ -61,11 +62,12 @@ import com.google.gwt.user.client.ui.*;
  * @author Sikirulai Braheem
  */
 //TODO: fix sturborn pixel for custom players
-public final class QuickTimePlayer extends AbstractMediaPlayer {
+public final class QuickTimePlayer extends AbstractMediaPlayer implements MatrixSupport {
 
-    private static QuickTimePlayerImpl impl;
+    private static QTStateManager manager = GWT.create(QTStateManager.class);
+    private QuickTimePlayerImpl impl;
+    private Widget playerWidget;
     private String playerId,  mediaUrl;
-    private HTML playerDiv;
     private Logger logger;
     private DockPanel panel;
     private boolean isEmbedded,  autoplay,  resizeToVideoSize;
@@ -76,10 +78,6 @@ public final class QuickTimePlayer extends AbstractMediaPlayer {
         PluginVersion v = PlayerUtil.getQuickTimePluginVersion();
         if (v.compareTo(req) < 0) {
             throw new PluginVersionException(req.toString(), v.toString());
-        }
-
-        if (impl == null) {
-            impl = GWT.create(QuickTimePlayerImpl.class);
         }
 
         playerId = DOM.createUniqueId().replace("-", "");
@@ -113,8 +111,7 @@ public final class QuickTimePlayer extends AbstractMediaPlayer {
 
         mediaUrl = mediaURL;
         this.autoplay = autoplay;
-
-        impl.init(playerId, this);
+        manager.init(playerId, this);
 
         panel = new DockPanel();
         panel.setWidth("100%");
@@ -154,12 +151,10 @@ public final class QuickTimePlayer extends AbstractMediaPlayer {
             _width = "0px";
         }
 
-        playerDiv = new HTML();
-        playerDiv.setStyleName("");
-        playerDiv.setSize("100%", "100%");
-        panel.add(playerDiv, DockPanel.CENTER);
-        panel.setCellHeight(playerDiv, _height);
-
+        playerWidget = PlayerWidgetFactory.get().getPlayerWidget(Plugin.QuickTimePlayer, playerId,
+                mediaURL, autoplay);
+        panel.add(playerWidget, DockPanel.CENTER);
+        panel.setCellHeight(playerWidget, _height);
         setWidth(_width);
     }
 
@@ -205,17 +200,8 @@ public final class QuickTimePlayer extends AbstractMediaPlayer {
      */
     @Override
     protected final void onLoad() {
-        Timer t = new Timer() {
-
-            @Override
-            public void run() {
-                playerDiv.setHTML(impl.getPlayerScript(playerId, mediaUrl,
-                        autoplay, playerDiv.getOffsetHeight() + "px",
-                        playerDiv.getOffsetWidth() + "px"));
-                impl.registerMediaStateListener(playerId, mediaUrl);
-            }
-        };
-        t.schedule(200);            // IE workarround...
+        impl = QuickTimePlayerImpl.getPlayer(playerId);
+        manager.registerMediaStateListener(impl, mediaUrl);
     }
 
     /**
@@ -226,63 +212,62 @@ public final class QuickTimePlayer extends AbstractMediaPlayer {
      */
     @Override
     protected void onUnload() {
-        impl.close(playerId);
-        playerDiv.getElement().setInnerText("");
+        manager.close(playerId);
+        panel.remove(playerWidget);
     }
 
     public void loadMedia(String mediaURL) throws LoadException {
         checkAvailable();
-        impl.load(playerId, mediaURL);
+        impl.load(mediaURL);
     }
 
     public void playMedia() throws PlayException {
         checkAvailable();
-        impl.play(playerId);
+        impl.play();
     }
 
     public void stopMedia() {
         checkAvailable();
-        impl.stop(playerId);
+        impl.stop();
     }
 
     public void pauseMedia() {
         checkAvailable();
-        impl.pause(playerId);
+        impl.pause();
     }
 
     public void close() {
         checkAvailable();
-        impl.close(playerId);
-        playerDiv.getElement().setInnerText("");
+        onUnload();
     }
 
     public long getMediaDuration() {
         checkAvailable();
-        return (long) impl.getDuration(playerId);
+        return (long) impl.getDuration();
     }
 
     public double getPlayPosition() {
         checkAvailable();
-        return impl.getTime(playerId);
+        return impl.getTime();
     }
 
     public void setPlayPosition(double position) {
         checkAvailable();
-        impl.setTime(playerId, position);
+        impl.setTime(position);
     }
 
     public double getVolume() {
         checkAvailable();
-        return impl.getVolume(playerId);
+        return impl.getVolume();
     }
 
     public void setVolume(double volume) {
         checkAvailable();
-        impl.setVolume(playerId, volume);
+        impl.setVolume(volume);
     }
 
     private void checkAvailable() {
-        if (!impl.isPlayerAvailable(playerId)) {
+        if (!isPlayerOnPage(playerId)) {
             String message = "Player closed already, create another instance";
             fireDebug(message);
             throw new IllegalStateException(message);
@@ -304,13 +289,13 @@ public final class QuickTimePlayer extends AbstractMediaPlayer {
      */
     @Override
     public void setControllerVisible(final boolean show) {
-        if (impl.isPlayerAvailable(playerId)) {
-            impl.setControllerVisible(playerId, show);
+        if (isPlayerOnPage(playerId)) {
+            impl.setControllerVisible(show);
         } else {
             addToPlayerReadyCommandQueue("controller", new Command() {
 
                 public void execute() {
-                    impl.setControllerVisible(playerId, show);
+                    impl.setControllerVisible(show);
                 }
             });
         }
@@ -322,13 +307,13 @@ public final class QuickTimePlayer extends AbstractMediaPlayer {
     @Override
     public boolean isControllerVisible() {
         checkAvailable();
-        return impl.isControllerVisible(playerId);
+        return impl.isControllerVisible();
     }
 
     @Override
     public int getLoopCount() {
         checkAvailable();
-        return impl.getLoopCount(playerId);
+        return manager.getLoopCount(playerId);//impl.getLoopCount();
     }
 
     /**
@@ -339,13 +324,13 @@ public final class QuickTimePlayer extends AbstractMediaPlayer {
      */
     @Override
     public void setLoopCount(final int loop) {
-        if (impl.isPlayerAvailable(playerId)) {
-            impl.setLoopCount(playerId, loop);
+        if (isPlayerOnPage(playerId)) {
+            manager.setLoopCount(playerId, loop); //impl.setLoopCount(loop);
         } else {
             addToPlayerReadyCommandQueue("loopcount", new Command() {
 
                 public void execute() {
-                    impl.setLoopCount(playerId, loop);
+                    setLoopCount(loop);
                 }
             });
         }
@@ -360,10 +345,12 @@ public final class QuickTimePlayer extends AbstractMediaPlayer {
      * @param matrix the matrix
      * @since 1.0
      * @see TransformationMatrix
+     * @deprecated Use {@link #setMatrix(com.bramosystems.oss.player.core.client.TransformationMatrix)}
+     * instead. Will be removed in a future version
      */
     public void setTransformationMatrix(final TransformationMatrix matrix) {
-        if (impl.isPlayerAvailable(playerId)) {
-            impl.setMatrix(playerId, matrix.toQTMatrixString());
+        if (isPlayerOnPage(playerId)) {
+            impl.setMatrix(matrix.toQTMatrixString());
             if (resizeToVideoSize) {
                 checkVideoSize(getVideoHeight() + 16, getVideoWidth());
             }
@@ -371,10 +358,7 @@ public final class QuickTimePlayer extends AbstractMediaPlayer {
             addToPlayerReadyCommandQueue("matrix", new Command() {
 
                 public void execute() {
-                    impl.setMatrix(playerId, matrix.toQTMatrixString());
-                    if (resizeToVideoSize) {
-                        checkVideoSize(getVideoHeight() + 16, getVideoWidth());
-                    }
+                    setTransformationMatrix(matrix);
                 }
             });
         }
@@ -386,10 +370,11 @@ public final class QuickTimePlayer extends AbstractMediaPlayer {
      * @return the current matrix transformation
      * @since 1.0
      * @see TransformationMatrix
+     * @deprecated Use {@link #getMatrix()} instead. Will be removed in a future version
      */
     public TransformationMatrix getTransformationMatrix() {
         checkAvailable();
-        String[] elements = impl.getMatrix(playerId).split(", ");
+        String[] elements = impl.getMatrix().split(", ");
 
         TransformationMatrix matrix = new TransformationMatrix();
         matrix.setA(Double.parseDouble(elements[0].trim()));
@@ -418,7 +403,7 @@ public final class QuickTimePlayer extends AbstractMediaPlayer {
      */
     public String getRectangleBounds() {
         checkAvailable();
-        return impl.getRectangle(playerId);
+        return impl.getRectangle();
     }
 
     /**
@@ -431,7 +416,7 @@ public final class QuickTimePlayer extends AbstractMediaPlayer {
      */
     public void setRectangleBounds(String bounds) {
         checkAvailable();
-        impl.setRectangle(playerId, bounds);
+        impl.setRectangle(bounds);
     }
 
     @Override
@@ -453,7 +438,7 @@ public final class QuickTimePlayer extends AbstractMediaPlayer {
     @Override
     public void setResizeToVideoSize(boolean resize) {
         resizeToVideoSize = resize;
-        if (impl.isPlayerAvailable(playerId)) {
+        if (isPlayerOnPage(playerId)) {
             // if player is on panel now update its size, otherwise
             // allow it to be handled by the MediaInfoHandler...
             checkVideoSize(getVideoHeight() + 16, getVideoWidth());
@@ -477,15 +462,59 @@ public final class QuickTimePlayer extends AbstractMediaPlayer {
         }
 
         setWidth(_w);
-        panel.setCellHeight(playerDiv, _h);
-        Element pe = DOM.getElementById(playerId);
-        DOM.setStyleAttribute(pe, "width", _w);
-        DOM.setStyleAttribute(pe, "height", _h);
+        panel.setCellHeight(playerWidget, _h);
 
         if (!_height.equals(_h) && !_width.equals(_w)) {
             firePlayerStateEvent(PlayerStateEvent.State.DimensionChangedOnVideo);
         }
     }
+
+    /**
+     * Sets the transformation matrix of the underlying QuickTime Player.
+     *
+     * <p>If this player is not attached to a panel, this method call is added to
+     * the command-queue for later execution.
+     */
+    public void setMatrix(final com.bramosystems.oss.player.core.client.TransformationMatrix matrix) {
+        if (isPlayerOnPage(playerId)) {
+            String mx = matrix.getA() + ", " + matrix.getB() + ", 0.0" + matrix.getC() + ", " +
+                    matrix.getD() + ", 0.0" + matrix.getTx() + ", " + matrix.getTy() + ", 1.0";
+            impl.setMatrix(mx);
+            if (resizeToVideoSize) {
+                checkVideoSize(getVideoHeight() + 16, getVideoWidth());
+            }
+        } else {
+            addToPlayerReadyCommandQueue("matrix", new Command() {
+
+                public void execute() {
+                    setMatrix(matrix);
+                }
+            });
+        }
+    }
+
+    public com.bramosystems.oss.player.core.client.TransformationMatrix getMatrix() {
+        checkAvailable();
+        String mx = impl.getMatrix().replaceAll("\\s*,\\s*", ",");
+        String[] elements = mx.split(",");
+        String e2 = elements[2].substring(3), e4 = elements[4].substring(3);
+
+        Window.alert("[QT] Matrix : " + mx + " [2] : " + e2 + ", " +
+                e2.length() + " [4] : " + e4 +  ", " + e4.length());
+        Window.alert("[QT] Matrix : " + mx + " [2] : " + Double.parseDouble(e2) +
+                " [4] : " + Double.parseDouble(e4));
+
+        com.bramosystems.oss.player.core.client.TransformationMatrix matrix =
+                new com.bramosystems.oss.player.core.client.TransformationMatrix();
+        matrix.setA(Double.parseDouble(elements[0].trim()));
+        matrix.setB(Double.parseDouble(elements[1].trim()));
+        matrix.setC(Double.parseDouble(e2));
+        matrix.setD(Double.parseDouble(elements[3].trim()));
+        matrix.setTx(Double.parseDouble(e4));
+        matrix.setTy(Double.parseDouble(elements[5].trim()));
+        return matrix;
+    }
+
 
     /**
      * Defines the transformation matrix of the QuickTime&trade; Player plugin.  The transformation
@@ -507,6 +536,7 @@ public final class QuickTimePlayer extends AbstractMediaPlayer {
      *
      * @since 1.0
      * @see <a href='http://developer.apple.com/documentation/QuickTime/RM/MovieBasics/MTEditing/A-Intro/1Introduction.htm1'>QuickTime Movie Basics</a>
+     * @deprecated Replaced with {@link com.bramosystems.oss.player.core.client.TransformationMatrix}
      */
     public static class TransformationMatrix {
 

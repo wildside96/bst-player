@@ -23,37 +23,37 @@ import com.bramosystems.oss.player.core.client.PlayException;
 import com.bramosystems.oss.player.core.client.PlayerUtil;
 import com.bramosystems.oss.player.core.client.PluginNotFoundException;
 import com.bramosystems.oss.player.core.client.impl.NativePlayerImpl;
-import com.bramosystems.oss.player.core.client.impl.PlayerScriptUtil;
 import com.bramosystems.oss.player.core.event.client.DebugEvent;
 import com.bramosystems.oss.player.core.event.client.DebugHandler;
 import com.bramosystems.oss.player.core.event.client.MediaInfoEvent;
 import com.bramosystems.oss.player.core.event.client.MediaInfoHandler;
 import com.bramosystems.oss.player.core.event.client.PlayStateEvent;
 import com.bramosystems.oss.player.core.event.client.PlayerStateEvent;
+import com.google.gwt.dom.client.Document;
+import com.google.gwt.dom.client.Element;
+import com.google.gwt.event.dom.client.*;
+import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.i18n.client.NumberFormat;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.DOM;
-import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.ui.DockPanel;
-import com.google.gwt.user.client.ui.HTML;
-import com.google.gwt.user.client.ui.SimplePanel;
+import com.google.gwt.user.client.ui.Widget;
 import java.util.ArrayList;
 
 /**
  *
  * @author Sikirulai Braheem <sbraheem at bramosystems dot com>
  */
-public class NativePlayer extends AbstractMediaPlayer {
+public class NativePlayer extends AbstractMediaPlayer implements HasMouseDownHandlers,
+        HasMouseMoveHandlers, HasMouseUpHandlers, HasKeyDownHandlers, HasKeyUpHandlers, HasKeyPressHandlers {
 
     private NumberFormat volFmt = NumberFormat.getPercentFormat();
     private NativePlayerImpl impl;
-    private String playerId,  mediaURL,  _height,  _width;
+    private String playerId,  _height,  _width;
     private DockPanel panel;
-    private SimplePanel playerPanel;
-    private boolean autoplay,  adjustToVideoSize,  isEmbedded;
-    private ArrayList<MediaItem> mediaItems;
+    private Widget playerWidget;
+    private boolean adjustToVideoSize,  isEmbedded;
     private Logger logger;
-    private Timer initTimer;
 
     private NativePlayer() throws PluginNotFoundException {
         if (!PlayerUtil.isHTML5CompliantClient()) {
@@ -61,8 +61,6 @@ public class NativePlayer extends AbstractMediaPlayer {
         }
 
         playerId = DOM.createUniqueId().replace("-", "");
-        playerPanel = new SimplePanel();
-        playerPanel.setSize("100%", "100%");
         adjustToVideoSize = false;
     }
 
@@ -102,24 +100,9 @@ public class NativePlayer extends AbstractMediaPlayer {
             });
         }
 
-        panel.add(playerPanel, DockPanel.CENTER);
-        panel.setCellHeight(playerPanel, _height);
+        panel.add(playerWidget, DockPanel.CENTER);
+        panel.setCellHeight(playerWidget, _height);
         setWidth(_width);
-
-        initTimer = new Timer() {
-
-            @Override
-            public void run() {
-                if (isPlayerOnPage(playerId)) {
-                    impl = NativePlayerImpl.getPlayer(playerId);
-                    impl.registerMediaStateHandlers(NativePlayer.this);
-                    fireDebug("Native Browser Player");
-                    firePlayerStateEvent(PlayerStateEvent.State.Ready);
-                } else {
-                    schedule(200);
-                }
-            }
-        };
     }
 
     public NativePlayer(String mediaURL) throws LoadException, PluginNotFoundException {
@@ -134,28 +117,23 @@ public class NativePlayer extends AbstractMediaPlayer {
     public NativePlayer(String mediaURL, boolean autoplay, String height, String width)
             throws LoadException, PluginNotFoundException {
         this();
-        this.mediaURL = mediaURL;
-        this.autoplay = autoplay;
+        playerWidget = new NativeWidget(playerId, mediaURL, autoplay);
         _init(width, height);
     }
 
     public NativePlayer(ArrayList<MediaItem> mediaSources, boolean autoplay, String height, String width)
             throws LoadException, PluginNotFoundException {
         this();
-        this.mediaItems = mediaSources;
-        this.autoplay = autoplay;
-
+        playerWidget = new NativeWidget(playerId, mediaSources, autoplay);
         _init(width, height);
     }
 
     @Override
     protected void onLoad() {
-        int h = playerPanel.getOffsetHeight();
-        int w = playerPanel.getOffsetWidth();
-        playerPanel.setWidget(new HTML(mediaItems == null ? PlayerScriptUtil.getNativePlayerScript(playerId,
-                mediaURL, autoplay, h, w) : PlayerScriptUtil.getNativePlayerScript(playerId, mediaItems, autoplay,
-                h, w)));
-        initTimer.run();
+        impl = NativePlayerImpl.getPlayer(playerId);
+        impl.registerMediaStateHandlers(this);
+        fireDebug("Native Browser Player");
+        firePlayerStateEvent(PlayerStateEvent.State.Ready);
     }
 
     @Override
@@ -295,9 +273,7 @@ public class NativePlayer extends AbstractMediaPlayer {
         }
 
         setWidth(_w);
-        panel.setCellHeight(playerPanel, _h);
-        DOM.getElementById(playerId).setAttribute("width", _w);
-        DOM.getElementById(playerId).setAttribute("height", _h);
+        panel.setCellHeight(playerWidget, _h);
 
         if (!_height.equals(_h) && !_width.equals(_w)) {
             firePlayerStateEvent(PlayerStateEvent.State.DimensionChangedOnVideo);
@@ -388,8 +364,9 @@ public class NativePlayer extends AbstractMediaPlayer {
                         fireError("ERROR: Network error");
                         break;
                     case UnsupportedMedia:
-                        String url = mediaURL != null ? mediaURL : mediaItems.get(0).getSource();
-                        fireError("ERROR: Media not supported - " + url);
+//                        String url = mediaURL != null ? mediaURL : mediaItems.get(0).getSource();
+//                        fireError("ERROR: Media not supported - " + url);
+                        fireError("ERROR: Media not supported!");
                         break;
                 }
                 break;
@@ -397,6 +374,30 @@ public class NativePlayer extends AbstractMediaPlayer {
                 fireDebug("Media loading aborted!");
                 break;
         }
+    }
+
+    public HandlerRegistration addMouseDownHandler(MouseDownHandler handler) {
+        return addDomHandler(handler, MouseDownEvent.getType());
+    }
+
+    public HandlerRegistration addMouseMoveHandler(MouseMoveHandler handler) {
+        return addDomHandler(handler, MouseMoveEvent.getType());
+    }
+
+    public HandlerRegistration addMouseUpHandler(MouseUpHandler handler) {
+        return addDomHandler(handler, MouseUpEvent.getType());
+    }
+
+    public HandlerRegistration addKeyDownHandler(KeyDownHandler handler) {
+        return addDomHandler(handler, KeyDownEvent.getType());
+    }
+
+    public HandlerRegistration addKeyUpHandler(KeyUpHandler handler) {
+        return addDomHandler(handler, KeyUpEvent.getType());
+    }
+
+    public HandlerRegistration addKeyPressHandler(KeyPressHandler handler) {
+        return addDomHandler(handler, KeyPressEvent.getType());
     }
 
     public static class MediaItem {
@@ -430,5 +431,37 @@ public class NativePlayer extends AbstractMediaPlayer {
     private enum ReadyState {
 
         HaveNothing, HaveMetadata, CurrentData, FutureData, EnoughData
+    }
+
+    private class NativeWidget extends Widget {
+
+        private Document _doc = Document.get();
+        private Element e = _doc.createElement("video");
+
+        public NativeWidget(String playerId, String mediaURL, boolean autoplay) {
+            e.setId(playerId);
+            e.setPropertyString("src", mediaURL);
+            e.setPropertyBoolean("autoplay", autoplay);
+            e.setPropertyBoolean("controls", true);
+            setElement(e);
+            setHeight("100%");
+            setWidth("100%");
+        }
+
+        public NativeWidget(String playerId, ArrayList<MediaItem> sources, boolean autoplay) {
+            e.setId(playerId);
+            e.setPropertyBoolean("autoplay", autoplay);
+            e.setPropertyBoolean("controls", true);
+
+            for (MediaItem item : sources) {
+                Element s = _doc.createElement("source");
+                s.setAttribute("src", item.getSource());
+                s.setAttribute("type", item.getType());
+                e.appendChild(s);
+            }
+            setElement(e);
+            setHeight("100%");
+            setWidth("100%");
+        }
     }
 }

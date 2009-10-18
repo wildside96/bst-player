@@ -21,7 +21,10 @@ import com.bramosystems.oss.player.core.client.PlayException;
 import com.bramosystems.oss.player.core.client.PluginNotFoundException;
 import com.bramosystems.oss.player.core.client.PluginVersion;
 import com.bramosystems.oss.player.core.client.PluginVersionException;
+import com.bramosystems.oss.player.core.client.ui.Logger;
 import com.bramosystems.oss.player.core.client.ui.SWFWidget;
+import com.bramosystems.oss.player.core.event.client.DebugEvent;
+import com.bramosystems.oss.player.core.event.client.DebugHandler;
 import com.bramosystems.oss.player.core.event.client.LoadingProgressEvent;
 import com.bramosystems.oss.player.core.event.client.PlayStateEvent;
 import com.bramosystems.oss.player.core.event.client.PlayerStateEvent;
@@ -67,6 +70,7 @@ public class YouTubePlayer extends AbstractMediaPlayer {
     protected YouTubePlayerImpl impl;
     protected String playerId,  apiId;
     private Timer bufferingTimer;
+    private Logger logger;
 
     /**
      * Constructs <code>YouTubePlayer</code> with the specified {@code height} and
@@ -147,13 +151,23 @@ public class YouTubePlayer extends AbstractMediaPlayer {
         }
         playerId = swf.getId();
 
+        logger = new Logger();
+        addDebugHandler(new DebugHandler() {
+
+            public void onDebug(DebugEvent event) {
+                logger.log(event.getMessage(), false);
+            }
+        });
+
         DockPanel panel = new DockPanel();
         panel.setStyleName("");
+        panel.add(logger, DockPanel.SOUTH);
         panel.add(swf, DockPanel.CENTER);
-        panel.setCellHeight(swf, height);
+//        panel.setCellHeight(swf, height);
         panel.setCellWidth(swf, width);
-//        initWidget(panel);
-        initWidget(swf);
+        initWidget(panel);
+        setWidth(width);
+//        initWidget(swf);
 
         // register for DOM events ...
         eventMgr.init(apiId, new Command() {
@@ -240,9 +254,9 @@ public class YouTubePlayer extends AbstractMediaPlayer {
                         case border:
                             playerParameters.showBorder(value[1].equals("1"));
                             break;
-                        case cc_load_policy:
-                            playerParameters.showClosedCaptions(value[1].equals("1"));
-                            break;
+//                        case cc_load_policy:
+//                            playerParameters.showClosedCaptions(value[1].equals("1"));
+//                            break;
                         case color1:
                             playerParameters.setPrimaryBorderColor(value[1]);
                             break;
@@ -309,9 +323,9 @@ public class YouTubePlayer extends AbstractMediaPlayer {
                 case border:
                     url += playerParameters.isShowBorder() ? "1" : "0";
                     break;
-                case cc_load_policy:
+//                case cc_load_policy:
 //                    url += playerParameters.() ? "1" : "0";
-                    break;
+//                    break;
                 case color1:
                     url += playerParameters.getPrimaryBorderColor();
                     break;
@@ -430,6 +444,7 @@ public class YouTubePlayer extends AbstractMediaPlayer {
 
     @Override
     public void showLogger(boolean show) {
+        logger.setVisible(show);
     }
 
     private void onYTStateChanged(int state) {
@@ -439,19 +454,24 @@ public class YouTubePlayer extends AbstractMediaPlayer {
                 break;
             case 0: // ended
                 firePlayStateEvent(PlayStateEvent.State.Finished, 0);
+                fireDebug("Playback finished");
                 break;
             case 1: // playing
                 firePlayerStateEvent(PlayerStateEvent.State.BufferingFinished);
                 firePlayStateEvent(PlayStateEvent.State.Started, 0);
+                fireDebug("Playback started");
                 break;
             case 2: // paused
                 firePlayStateEvent(PlayStateEvent.State.Paused, 0);
+                fireDebug("Playback paused");
                 break;
             case 3: // buffering
                 firePlayerStateEvent(PlayerStateEvent.State.BufferingStarted);
+                fireDebug("Buffering");
                 break;
             case 5: // video cued
                 firePlayerStateEvent(PlayerStateEvent.State.Ready);
+                fireDebug("Video ready for playback");
                 break;
         }
     }
@@ -471,7 +491,7 @@ public class YouTubePlayer extends AbstractMediaPlayer {
     private enum URLParameters {
 
         rel, autoplay, loop, enablejsapi, playerapiid, disablekb, egm, border,
-        color1, color2, start, fs, hd, showsearch, showinfo, iv_load_policy,
-        cc_load_policy
+        color1, color2, start, fs, hd, showsearch, showinfo, iv_load_policy
+        //cc_load_policy
     }
 }

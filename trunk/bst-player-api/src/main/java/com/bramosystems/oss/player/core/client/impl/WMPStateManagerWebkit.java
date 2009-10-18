@@ -31,7 +31,7 @@ public class WMPStateManagerWebkit extends WMPStateManager {
     WMPStateManagerWebkit() {
     }
 
-    @Override
+//    @Override
     public void init(WinMediaPlayerImpl player, HasMediaStateHandlers handler, boolean resizing) {
         cache.put(player.getPlayerId(), new PoolingStateManager(player, handler, resizing));
     }
