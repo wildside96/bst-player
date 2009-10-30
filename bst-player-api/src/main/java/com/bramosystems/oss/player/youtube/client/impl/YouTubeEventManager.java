@@ -23,11 +23,11 @@ import java.util.HashMap;
  *
  * @author Sikirulai Braheem
  */
-public class EventManager {
+public class YouTubeEventManager {
 
     private HashMap<String, Command> initCache;
 
-    public EventManager() {
+    public YouTubeEventManager() {
         initCache = new HashMap<String, Command>();
         initGlobalCallbacks(this);
     }
@@ -41,9 +41,9 @@ public class EventManager {
         initCache.remove(playerApiId);
     }
 
-    private native void initGlobalCallbacks(EventManager impl) /*-{
+    private native void initGlobalCallbacks(YouTubeEventManager impl) /*-{
     $wnd.onYouTubePlayerReady = function(playerApiId){
-    impl.@com.bramosystems.oss.player.youtube.client.impl.EventManager::onInit(Ljava/lang/String;)(playerApiId);
+    impl.@com.bramosystems.oss.player.youtube.client.impl.YouTubeEventManager::onInit(Ljava/lang/String;)(playerApiId);
     }
     }-*/;
 }

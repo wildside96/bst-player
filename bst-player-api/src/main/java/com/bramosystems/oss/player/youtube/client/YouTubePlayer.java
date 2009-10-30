@@ -29,12 +29,15 @@ import com.bramosystems.oss.player.core.event.client.LoadingProgressEvent;
 import com.bramosystems.oss.player.core.event.client.PlayStateEvent;
 import com.bramosystems.oss.player.core.event.client.PlayerStateEvent;
 import com.bramosystems.oss.player.core.event.client.PlayerStateHandler;
-import com.bramosystems.oss.player.youtube.client.impl.EventManager;
+import com.bramosystems.oss.player.youtube.client.impl.YouTubeEventManager;
 import com.bramosystems.oss.player.youtube.client.impl.YouTubePlayerImpl;
+import com.google.gwt.core.client.JsArrayString;
+import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Timer;
-import com.google.gwt.user.client.ui.DockPanel;
+import com.google.gwt.user.client.ui.FlowPanel;
+import java.util.ArrayList;
 
 /**
  * Widget to embed YouTube video
@@ -66,9 +69,9 @@ import com.google.gwt.user.client.ui.DockPanel;
  */
 public class YouTubePlayer extends AbstractMediaPlayer {
 
-    private static EventManager eventMgr = new EventManager();
+    private static YouTubeEventManager eventMgr = new YouTubeEventManager();
     protected YouTubePlayerImpl impl;
-    protected String playerId,  apiId;
+    protected String playerId, apiId;
     private Timer bufferingTimer;
     private Logger logger;
 
@@ -87,27 +90,6 @@ public class YouTubePlayer extends AbstractMediaPlayer {
      * @throws NullPointerException if either {@code videoURL}, {@code height} or {@code width} is null
      */
     public YouTubePlayer(String videoURL, String width, String height)
-            throws PluginNotFoundException, PluginVersionException {
-        this(videoURL, new PlayerParameters(), width, height);
-    }
-
-    /**
-     * Constructs <code>YouTubePlayer</code> with the specified {@code height} and
-     * {@code width} to playback video located at {@code videoURL}.  Playback starts
-     * automatically if {@code autoplay} is {@code true}
-     *
-     * <p> {@code height} and {@code width} are specified as CSS units.
-     *
-     * @param videoURL the URL of the video
-     * @param autoplay {@code true} to start playing automatically, {@code false} otherwise
-     * @param width the width of the player
-     * @param height the height of the player
-     *
-     * @throws PluginNotFoundException if the required Flash player plugin is not found
-     * @throws PluginVersionException if Flash player version 8 and above is not found
-     * @throws NullPointerException if either {@code videoURL}, {@code height} or {@code width} is null
-     */
-    public YouTubePlayer(String videoURL, boolean autoplay, String width, String height)
             throws PluginNotFoundException, PluginVersionException {
         this(videoURL, new PlayerParameters(), width, height);
     }
@@ -143,7 +125,6 @@ public class YouTubePlayer extends AbstractMediaPlayer {
 
         SWFWidget swf = new SWFWidget(getNormalizedVideoAppURL(videoURL, playerParameters),
                 width, height, PluginVersion.get(8, 0, 0));
-//                "100%", "100%", PluginVersion.get(8, 0, 0));
         swf.addProperty("allowScriptAccess", "always");
         swf.addProperty("bgcolor", "#000000");
         if (playerParameters.isFullScreenEnabled()) {
@@ -152,6 +133,7 @@ public class YouTubePlayer extends AbstractMediaPlayer {
         playerId = swf.getId();
 
         logger = new Logger();
+        logger.setVisible(false);
         addDebugHandler(new DebugHandler() {
 
             public void onDebug(DebugEvent event) {
@@ -159,22 +141,19 @@ public class YouTubePlayer extends AbstractMediaPlayer {
             }
         });
 
-        DockPanel panel = new DockPanel();
-        panel.setStyleName("");
-        panel.add(logger, DockPanel.SOUTH);
-        panel.add(swf, DockPanel.CENTER);
-//        panel.setCellHeight(swf, height);
-        panel.setCellWidth(swf, width);
+        FlowPanel panel = new FlowPanel();
+//        panel.setStyleName("");
+        panel.add(swf);
+        panel.add(logger);
         initWidget(panel);
         setWidth(width);
-//        initWidget(swf);
 
         // register for DOM events ...
         eventMgr.init(apiId, new Command() {
 
             public void execute() {
                 impl = YouTubePlayerImpl.getPlayerImpl(playerId);
-                impl.registerHandlers(YouTubePlayer.this);
+                impl.registerHandlers(YouTubePlayer.this, playerId);
                 fireDebug("YouTube Player");
                 playerInit();
             }
@@ -375,54 +354,77 @@ public class YouTubePlayer extends AbstractMediaPlayer {
 
     @Override
     public void loadMedia(String mediaURL) throws LoadException {
-        impl.loadVideoByUrl(mediaURL, 0);
+        if (impl != null) {
+            impl.loadVideoByUrl(mediaURL, 0);
+        }
     }
 
     @Override
     public void playMedia() throws PlayException {
-        impl.play();
+        if (impl != null) {
+            impl.play();
+        }
     }
 
     @Override
     public void stopMedia() {
-        impl.pause();
-        impl.seekTo(0, true);
+        if (impl != null) {
+            impl.pause();
+            impl.seekTo(0, true);
+        }
     }
 
     @Override
     public void pauseMedia() {
-        impl.pause();
+        if (impl != null) {
+            impl.pause();
+        }
     }
 
     @Override
     public void close() {
-        impl.stop();
-        impl.clear();
+        if (impl != null) {
+            impl.stop();
+            impl.clear();
+        }
     }
 
     @Override
     public long getMediaDuration() {
-        return (long) impl.getDuration();
+        if (impl != null) {
+            return (long) impl.getDuration();
+        }
+        return 0;
     }
 
     @Override
     public double getPlayPosition() {
-        return impl.getCurrentTime();
+        if (impl != null) {
+            return impl.getCurrentTime();
+        }
+        return 0;
     }
 
     @Override
     public void setPlayPosition(double position) {
-        impl.seekTo(position, true);
+        if (impl != null) {
+            impl.seekTo(position, true);
+        }
     }
 
     @Override
     public double getVolume() {
-        return impl.getVolume();
+        if (impl != null) {
+            return impl.getVolume();
+        }
+        return 0;
     }
 
     @Override
     public void setVolume(double volume) {
-        impl.setVolume(volume);
+        if (impl != null) {
+            impl.setVolume(volume);
+        }
     }
 
     @Override
@@ -447,10 +449,79 @@ public class YouTubePlayer extends AbstractMediaPlayer {
         logger.setVisible(show);
     }
 
+    /**
+     * Sets the suggested video quality for the current video. This method causes the video to reload
+     * at its current position in the new quality.
+     *
+     * <p>
+     * <b>Note:</b> Calling this method does not guarantee that the playback quality will actually
+     * change. If the playback quality does change, it will only change for the video being played and
+     * the {@linkplain PlaybackQualityChangeEvent} event will be fired.
+     *
+     * <p>
+     * If {@code suggestedQuality} is not available for the current video, then the quality will be
+     * set to the next lowest level that is available. That is, if {@code suggestedQuality} is
+     * {@linkplain PlaybackQuality#hd720} and that is unavailable, then the playback quality will be
+     * set to {@linkplain PlaybackQuality#large} if that quality level is available.
+     *
+     * @param suggestedQuality the suggested video quality for the current video
+     */
+    public void setPlaybackQuality(PlaybackQuality suggestedQuality) {
+        if(impl != null) {
+            impl.setPlaybackQuality(suggestedQuality.name().toLowerCase());
+        }
+    }
+
+    /**
+     * Retrieves the playback quality of the current video.
+     *
+     * @return the playback quality of the current video
+     *
+     * @throws IllegalStateException if no video is loaded in the player
+     */
+    public PlaybackQuality getPlaybackQuality() throws IllegalStateException {
+        if (impl != null) {
+            String qua = impl.getPlaybackQuality();
+            if(qua.equals("undefined")) {
+                throw new IllegalStateException("Player not loaded!");
+            }
+            return PlaybackQuality.valueOf(qua);
+        }
+        throw new IllegalStateException("Player not available");
+    }
+
+    /**
+     * Returns the list of quality formats in which the current video is available.
+     *
+     * <p>An empty list is returned if no video is loaded.
+     *
+     * @return a list of quality formats available for the current video
+     */
+    public ArrayList<PlaybackQuality> getAvailableQualityLevels() {
+        ArrayList<PlaybackQuality> pqs = new ArrayList<PlaybackQuality>();
+        if (impl != null) {
+            JsArrayString qua = impl.getAvailableQualityLevels();
+            for(int i = 0; i < qua.length(); i++) {
+                pqs.add(PlaybackQuality.valueOf(qua.get(i)));
+            }
+        }
+        return pqs;
+    }
+
+    /**
+     * Adds a {@link PlaybackQualityChangeHandler} handler to the player
+     *
+     * @param handler handler for the PlaybackQualityChangeEvent event
+     * @return {@link HandlerRegistration} used to remove the handler
+     */
+    public HandlerRegistration addPlaybackQualityChangeHandler(PlaybackQualityChangeHandler handler) {
+        return addHandler(handler, PlaybackQualityChangeEvent.TYPE);
+    }
+
     private void onYTStateChanged(int state) {
         switch (state) {
             case -1: // unstarted
-                fireDebug("YouTube application loaded!");
+                fireDebug("Waiting for video...");
                 break;
             case 0: // ended
                 firePlayStateEvent(PlayStateEvent.State.Finished, 0);
@@ -467,13 +538,24 @@ public class YouTubePlayer extends AbstractMediaPlayer {
                 break;
             case 3: // buffering
                 firePlayerStateEvent(PlayerStateEvent.State.BufferingStarted);
-                fireDebug("Buffering");
+                fireDebug("Buffering...");
                 break;
             case 5: // video cued
                 firePlayerStateEvent(PlayerStateEvent.State.Ready);
                 fireDebug("Video ready for playback");
                 break;
         }
+    }
+
+    private void onYTQualityChanged(String quality) {
+        PlaybackQuality pq = PlaybackQuality.Default;
+        for (PlaybackQuality _pq : PlaybackQuality.values()) {
+            if (_pq.name().toLowerCase().equals(quality)) {
+                pq = _pq;
+            }
+        }
+        PlaybackQualityChangeEvent.fire(this, pq);
+        fireDebug("Playback quality changed : " + quality);
     }
 
     private void onYTError(int errorCode) {
