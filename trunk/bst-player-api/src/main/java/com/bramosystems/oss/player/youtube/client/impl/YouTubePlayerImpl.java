@@ -17,6 +17,7 @@ package com.bramosystems.oss.player.youtube.client.impl;
 
 import com.bramosystems.oss.player.youtube.client.YouTubePlayer;
 import com.google.gwt.core.client.JavaScriptObject;
+import com.google.gwt.core.client.JsArrayString;
 
 /**
  * Native implementation of the YouTubePlayer class. It is not recommended to
@@ -118,12 +119,30 @@ public class YouTubePlayerImpl extends JavaScriptObject {
     this.setVolume(volume * 100);
     }-*/;
 
-    public final native void registerHandlers(YouTubePlayer player) /*-{
-    this.addEventListener("onStateChange", function(changeCode) {
+    public final native String getPlaybackQuality() /*-{
+    return this.getPlaybackQuality();
+    }-*/;
+
+    public final native JsArrayString getAvailableQualityLevels() /*-{
+    return this.getAvailableQualityLevels();
+    }-*/;
+
+    public final native void setPlaybackQuality(String quality) /*-{
+    this.setPlaybackQuality(quality);
+    }-*/;
+
+    public final native void registerHandlers(YouTubePlayer player, String playerId) /*-{
+    $wnd[playerId + "_bstytSTChanged"] = function(changeCode) {
     player.@com.bramosystems.oss.player.youtube.client.YouTubePlayer::onYTStateChanged(I)(changeCode);
-    });
-    this.addEventListener("onError", function(errorCode){
+    };
+    $wnd[playerId + "_bstytPQChanged"] = function(quality) {
+    player.@com.bramosystems.oss.player.youtube.client.YouTubePlayer::onYTQualityChanged(Ljava/lang/String;)(quality);
+    };
+    $wnd[playerId + "_bstytError"] = function(errorCode){
     player.@com.bramosystems.oss.player.youtube.client.YouTubePlayer::onYTError(I)(errorCode);
-    });
+    };
+    this.addEventListener("onStateChange", playerId + "_bstytSTChanged");
+    this.addEventListener("onPlaybackQualityChange", playerId + "_bstytPQChanged");
+    this.addEventListener("onError", playerId + "_bstytError");
     }-*/;
 }
