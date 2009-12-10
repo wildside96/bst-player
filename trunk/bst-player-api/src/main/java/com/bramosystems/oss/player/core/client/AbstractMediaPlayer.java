@@ -37,6 +37,9 @@ public abstract class AbstractMediaPlayer extends Composite implements HasMediaS
 
     private HashMap<String, Command> readyCmdQueue;
     private ArrayList<String> cmdKeys;
+    public static enum TransparencyMode {
+        Window, Opaque, Transparent;
+    }
 
     /**
      * Constructor method.
@@ -290,7 +293,7 @@ public abstract class AbstractMediaPlayer extends Composite implements HasMediaS
      * is a hash-map of commands that are schedule for execution as soon as the underlying
      * plugin is ready for javascript interaction.
      *
-     * <p>The execution of the commands is tied to the <code>Ready</code> state of the 
+     * <p>The execution of the commands is tied to the <code>Ready</code> state of the
      * <code>PlayerState</code> event of the underlying plugin.
      * All scheduled commands are executed exactly once.
      *
@@ -405,7 +408,7 @@ public abstract class AbstractMediaPlayer extends Composite implements HasMediaS
 
     /**
      * Returns the height of the current media
-     * 
+     *
      * @return the height in pixels
      * @since 1.0
      */
@@ -437,6 +440,20 @@ public abstract class AbstractMediaPlayer extends Composite implements HasMediaS
     protected static final native boolean isPlayerOnPage(String playerId) /*-{
     return ($doc.getElementById(playerId) != null);
     }-*/;
+
+	/**
+	 * Sets the transparency mode for a video file (if available). Used
+	 * to allow images, text, or popup windows to overlay on top of movie.
+	 *
+	 * To remove this property on the player after it has been set,
+	 * call setTransparencyMode(null)
+	 *
+	 * @param mode the AbstractMediaPlayer.TransparencyMode to use in playback.
+	 * @since 1.1
+	 *
+	 */
+    public void setTransparencyMode(TransparencyMode mode) {
+	}
 
     public HandlerRegistration addMouseMoveHandler(MouseMoveHandler handler) {
         return addDomHandler(handler, MouseMoveEvent.getType());
