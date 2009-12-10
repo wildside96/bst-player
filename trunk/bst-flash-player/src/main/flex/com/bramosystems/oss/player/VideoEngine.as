@@ -118,6 +118,7 @@ package com.bramosystems.oss.player {
                             visible = true;
                             break;
                         default:
+                            visible = true;
                             hdwr += "Unknown";
                     }
                     hdwr += ", Video data rate: " + meta.info.videodatarate;
