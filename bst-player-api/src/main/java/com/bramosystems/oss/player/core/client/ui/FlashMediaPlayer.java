@@ -469,6 +469,19 @@ public class FlashMediaPlayer extends AbstractMediaPlayer implements PlaylistSup
         return resizeToVideoSize;
     }
 
+    @Override
+    public void setTransparencyMode(TransparencyMode mode) {
+		if(mode == null) {
+			swf.addProperty("wmode", null);
+		} else {
+			switch(mode) {
+				case Window: swf.addProperty("wmode", "window"); break;
+				case Opaque: swf.addProperty("wmode", "opaque"); break;
+				case Transparent: swf.addProperty("wmode", "transparent"); break;
+			}
+		}
+    }
+
     /**
      * Sets the transformation matrix of the underlying Flash player.
      *
