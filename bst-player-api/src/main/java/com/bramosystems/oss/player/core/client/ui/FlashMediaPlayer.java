@@ -17,6 +17,8 @@ package com.bramosystems.oss.player.core.client.ui;
 
 import com.bramosystems.oss.player.core.client.*;
 import com.bramosystems.oss.player.core.client.MediaInfo.MediaInfoKey;
+import com.bramosystems.oss.player.core.client.geom.TransformationMatrix;
+import com.bramosystems.oss.player.core.client.geom.MatrixSupport;
 import com.bramosystems.oss.player.core.client.impl.FMPStateManager;
 import com.bramosystems.oss.player.core.client.impl.FlashMediaPlayerImpl;
 import com.bramosystems.oss.player.core.client.skin.CustomPlayerControl;
@@ -75,14 +77,15 @@ public class FlashMediaPlayer extends AbstractMediaPlayer implements PlaylistSup
 
     private static FMPStateManager manager = new FMPStateManager();
     private FlashMediaPlayerImpl impl;
+    private HandlerRegistration initListHandler;
     private String playerId;
-    private boolean isEmbedded,  resizeToVideoSize;
+    private boolean isEmbedded, resizeToVideoSize;
     private Logger logger;
     private CustomPlayerControl control;
     private ArrayList<String> _playlistCache;
     private DockPanel panel;
     private SWFWidget swf;
-    private String _height,  _width;
+    private String _height, _width;
 
     /**
      * Constructs <code>FlashMediaPlayer</code> with the specified {@code height} and
@@ -160,8 +163,8 @@ public class FlashMediaPlayer extends AbstractMediaPlayer implements PlaylistSup
 
                 public void onMediaInfoAvailable(MediaInfoEvent event) {
                     MediaInfo info = event.getMediaInfo();
-                    if (info.getAvailableItems().contains(MediaInfoKey.VideoHeight) ||
-                            info.getAvailableItems().contains(MediaInfoKey.VideoWidth)) {
+                    if (info.getAvailableItems().contains(MediaInfoKey.VideoHeight)
+                            || info.getAvailableItems().contains(MediaInfoKey.VideoWidth)) {
                         checkVideoSize(Integer.parseInt(info.getItem(MediaInfoKey.VideoHeight)),
                                 Integer.parseInt(info.getItem(MediaInfoKey.VideoWidth)));
                     }
@@ -196,6 +199,7 @@ public class FlashMediaPlayer extends AbstractMediaPlayer implements PlaylistSup
     public FlashMediaPlayer(String mediaURL) throws PluginNotFoundException,
             PluginVersionException, LoadException {
         this(mediaURL, true, "0px", "100%");
+        setResizeToVideoSize(true); // fix for Issue 12
     }
 
     /**
@@ -215,6 +219,7 @@ public class FlashMediaPlayer extends AbstractMediaPlayer implements PlaylistSup
     public FlashMediaPlayer(String mediaURL, boolean autoplay) throws PluginNotFoundException,
             PluginVersionException, LoadException {
         this(mediaURL, autoplay, "0px", "100%");
+        setResizeToVideoSize(true); // fix for Issue 12
     }
 
     private void checkVideoSize(int vidHeight, int vidWidth) {
@@ -225,7 +230,13 @@ public class FlashMediaPlayer extends AbstractMediaPlayer implements PlaylistSup
 
         if (resizeToVideoSize) {
             if ((vidHeight > 0) && (vidWidth > 0)) {
-                // adjust to video size ...
+                // adjust to video size, if video width < control bar width,
+                // use control bar width ...
+//                int cntWidth = control.getOffsetWidth();
+//                if (vidWidth <= cntWidth) {
+//                    vidWidth = cntWidth;
+//                }
+
                 fireDebug("Resizing Player : " + vidWidth + " x " + vidHeight);
                 _h = vidHeight + "px";
                 _w = vidWidth + "px";
@@ -357,7 +368,6 @@ public class FlashMediaPlayer extends AbstractMediaPlayer implements PlaylistSup
             });
         }
     }
-    private HandlerRegistration initListHandler;
 
     public void addToPlaylist(final String mediaURL) {
         if (isPlayerOnPage(playerId)) {
@@ -471,15 +481,21 @@ public class FlashMediaPlayer extends AbstractMediaPlayer implements PlaylistSup
 
     @Override
     public void setTransparencyMode(TransparencyMode mode) {
-		if(mode == null) {
-			swf.addProperty("wmode", null);
-		} else {
-			switch(mode) {
-				case Window: swf.addProperty("wmode", "window"); break;
-				case Opaque: swf.addProperty("wmode", "opaque"); break;
-				case Transparent: swf.addProperty("wmode", "transparent"); break;
-			}
-		}
+        if (mode == null) {
+            swf.addProperty("wmode", null);
+        } else {
+            switch (mode) {
+                case Window:
+                    swf.addProperty("wmode", "window");
+                    break;
+                case Opaque:
+                    swf.addProperty("wmode", "opaque");
+                    break;
+                case Transparent:
+                    swf.addProperty("wmode", "transparent");
+                    break;
+            }
+        }
     }
 
     /**
@@ -490,8 +506,11 @@ public class FlashMediaPlayer extends AbstractMediaPlayer implements PlaylistSup
      */
     public void setMatrix(final TransformationMatrix matrix) {
         if (isPlayerOnPage(playerId)) {
-            impl.setMatrix(matrix.getA(), matrix.getB(), matrix.getC(), matrix.getD(),
-                    matrix.getTx(), matrix.getTy());
+            impl.setMatrix(matrix.getMatrix().getVx().getX(),
+                    matrix.getMatrix().getVy().getX(), matrix.getMatrix().getVx().getY(),
+                    matrix.getMatrix().getVy().getY(), matrix.getMatrix().getVx().getZ(),
+                    matrix.getMatrix().getVy().getZ());
+
             if (resizeToVideoSize) {
                 checkVideoSize(getVideoHeight() + 16, getVideoWidth());
             }
@@ -510,12 +529,12 @@ public class FlashMediaPlayer extends AbstractMediaPlayer implements PlaylistSup
         String[] elements = impl.getMatrix().split(",");
 
         TransformationMatrix matrix = new TransformationMatrix();
-        matrix.setA(Double.parseDouble(elements[0].trim()));
-        matrix.setB(Double.parseDouble(elements[1].trim()));
-        matrix.setC(Double.parseDouble(elements[2].trim()));
-        matrix.setD(Double.parseDouble(elements[3].trim()));
-        matrix.setTx(Double.parseDouble(elements[4].trim()));
-        matrix.setTy(Double.parseDouble(elements[5].trim()));
+        matrix.getMatrix().getVx().setX(Double.parseDouble(elements[0]));
+        matrix.getMatrix().getVy().setX(Double.parseDouble(elements[1]));
+        matrix.getMatrix().getVx().setY(Double.parseDouble(elements[2]));
+        matrix.getMatrix().getVy().setY(Double.parseDouble(elements[3]));
+        matrix.getMatrix().getVx().setZ(Double.parseDouble(elements[4]));
+        matrix.getMatrix().getVy().setZ(Double.parseDouble(elements[5]));
         return matrix;
     }
 }

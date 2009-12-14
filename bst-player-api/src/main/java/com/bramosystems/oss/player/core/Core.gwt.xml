@@ -38,7 +38,7 @@
         </any>
     </replace-with>
 
-    <!-- QTStateManager mapping for IE6 & IE7 -->
+    <!-- QTStateManager mapping for IE6/7/8 -->
     <replace-with class="com.bramosystems.oss.player.core.client.impl.QTStateManagerIE">
         <when-type-is class="com.bramosystems.oss.player.core.client.impl.QTStateManager"/>
         <any>
@@ -47,7 +47,7 @@
         </any>
     </replace-with>
 
-    <!-- PluginUtilImpl mapping for IE6 & IE7 -->
+    <!-- PlayerUtilImpl mapping for IE6/7/8 -->
     <replace-with class="com.bramosystems.oss.player.core.client.impl.PlayerUtilImplIE">
         <when-type-is class="com.bramosystems.oss.player.core.client.impl.PlayerUtilImpl"/>
         <any>
@@ -56,7 +56,22 @@
         </any>
     </replace-with>
 
-    <!-- PlayerWidgetFactoryImpl mapping for IE6 & IE7 -->
+    <!-- MimePool mappings -->
+    <!--when-property-is name="user.agent" value="ie6,ie8,gecko,gecko1_8,safari,opera"/-->
+    <replace-with class="com.bramosystems.oss.player.core.client.impl.MimePool.MimePoolMozilla">
+        <when-type-is class="com.bramosystems.oss.player.core.client.impl.MimePool"/>
+        <any>
+            <when-property-is name="user.agent" value="gecko1_8"/>
+            <when-property-is name="user.agent" value="gecko"/>
+        </any>
+    </replace-with>
+
+    <replace-with class="com.bramosystems.oss.player.core.client.impl.MimePool.MimePoolSafari">
+        <when-type-is class="com.bramosystems.oss.player.core.client.impl.MimePool"/>
+        <when-property-is name="user.agent" value="safari"/>
+    </replace-with>
+
+    <!-- PlayerWidgetFactoryImpl mapping for IE6/7/8 -->
     <replace-with class="com.bramosystems.oss.player.core.client.impl.PlayerWidgetFactoryIE">
         <when-type-is class="com.bramosystems.oss.player.core.client.impl.PlayerWidgetFactory"/>
         <any>

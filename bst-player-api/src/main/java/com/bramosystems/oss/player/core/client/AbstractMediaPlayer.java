@@ -20,6 +20,7 @@ import com.bramosystems.oss.player.core.event.client.*;
 import com.google.gwt.event.dom.client.*;
 import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.user.client.Command;
+import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.ui.Composite;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -37,7 +38,9 @@ public abstract class AbstractMediaPlayer extends Composite implements HasMediaS
 
     private HashMap<String, Command> readyCmdQueue;
     private ArrayList<String> cmdKeys;
+
     public static enum TransparencyMode {
+
         Window, Opaque, Transparent;
     }
 
@@ -50,16 +53,23 @@ public abstract class AbstractMediaPlayer extends Composite implements HasMediaS
 
         addPlayerStateHandler(new PlayerStateHandler() {
 
-            public void onPlayerStateChanged(PlayerStateEvent event) {
-                if (event.getPlayerState().equals(PlayerStateEvent.State.Ready)) {
-                    // ensure commands are executed in the same sequence as added ...
-                    Iterator<String> keys = cmdKeys.iterator();
-                    while (keys.hasNext()) {
-                        readyCmdQueue.get(keys.next()).execute();
+            public void onPlayerStateChanged(final PlayerStateEvent event) {
+                Timer t = new Timer() {
+
+                    @Override
+                    public void run() {
+                        if (event.getPlayerState().equals(PlayerStateEvent.State.Ready)) {
+                            // ensure commands are executed in the same sequence as added ...
+                            Iterator<String> keys = cmdKeys.iterator();
+                            while (keys.hasNext()) {
+                                readyCmdQueue.get(keys.next()).execute();
+                            }
+                            cmdKeys.clear();
+                            readyCmdQueue.clear();
+                        }
                     }
-                    cmdKeys.clear();
-                    readyCmdQueue.clear();
-                }
+                };
+                t.schedule(500);
             }
         });
     }
@@ -114,6 +124,8 @@ public abstract class AbstractMediaPlayer extends Composite implements HasMediaS
      *
      * Note: The player will remain unavailable after this method returns.  A new
      * instance will have to created.
+     * 
+     * @deprecated As of version 1.1. Remove widget from panel instead. Will be removed from a future version.
      */
     public abstract void close();
 
@@ -441,19 +453,19 @@ public abstract class AbstractMediaPlayer extends Composite implements HasMediaS
     return ($doc.getElementById(playerId) != null);
     }-*/;
 
-	/**
-	 * Sets the transparency mode for a video file (if available). Used
-	 * to allow images, text, or popup windows to overlay on top of movie.
-	 *
-	 * To remove this property on the player after it has been set,
-	 * call setTransparencyMode(null)
-	 *
-	 * @param mode the AbstractMediaPlayer.TransparencyMode to use in playback.
-	 * @since 1.1
-	 *
-	 */
+    /**
+     * Sets the transparency mode for a video file (if available). Used
+     * to allow images, text, or popup windows to overlay on top of movie.
+     *
+     * To remove this property on the player after it has been set,
+     * call setTransparencyMode(null)
+     *
+     * @param mode the AbstractMediaPlayer.TransparencyMode to use in playback.
+     * @since 1.1
+     *
+     */
     public void setTransparencyMode(TransparencyMode mode) {
-	}
+    }
 
     public HandlerRegistration addMouseMoveHandler(MouseMoveHandler handler) {
         return addDomHandler(handler, MouseMoveEvent.getType());

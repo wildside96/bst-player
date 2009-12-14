@@ -28,14 +28,15 @@ import com.google.gwt.user.client.ui.*;
 public class Logger extends Composite {
 
     private ImgPack imgpack = GWT.create(ImgPack.class);
-    private VerticalPanel console;
+//    private VerticalPanel console;
+    private FlowPanel console;
     private ScrollPanel sp;
 
     /**
      * Constructs a Logger object
      */
     public Logger() {
-        console = new VerticalPanel();
+        console = new FlowPanel();
 
         sp = new ScrollPanel(console);
         DOM.setStyleAttribute(sp.getElement(), "background", "white");

@@ -32,11 +32,10 @@ import com.bramosystems.oss.player.core.event.client.PlayerStateEvent;
 import com.google.gwt.dom.client.Document;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.event.dom.client.*;
-import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.i18n.client.NumberFormat;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.DOM;
-import com.google.gwt.user.client.ui.DockPanel;
+import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.Widget;
 import java.util.ArrayList;
 
@@ -50,7 +49,7 @@ public class NativePlayer extends AbstractMediaPlayer implements HasMouseDownHan
     private NumberFormat volFmt = NumberFormat.getPercentFormat();
     private NativePlayerImpl impl;
     private String playerId,  _height,  _width;
-    private DockPanel panel;
+    private FlowPanel panel;
     private Widget playerWidget;
     private boolean adjustToVideoSize,  isEmbedded;
     private Logger logger;
@@ -65,8 +64,9 @@ public class NativePlayer extends AbstractMediaPlayer implements HasMouseDownHan
     }
 
     private void _init(String width, String height) {
-        panel = new DockPanel();
+        panel = new FlowPanel();
         panel.setSize("100%", "100%");
+        panel.add(playerWidget);
         initWidget(panel);
 
         if ((width == null) || (height == null)) {
@@ -78,7 +78,7 @@ public class NativePlayer extends AbstractMediaPlayer implements HasMouseDownHan
             _width = width;
 
             logger = new Logger();
-            panel.add(logger, DockPanel.SOUTH);
+            panel.add(logger);
 
             addDebugHandler(new DebugHandler() {
 
@@ -100,8 +100,7 @@ public class NativePlayer extends AbstractMediaPlayer implements HasMouseDownHan
             });
         }
 
-        panel.add(playerWidget, DockPanel.CENTER);
-        panel.setCellHeight(playerWidget, _height);
+        playerWidget.setHeight(_height);
         setWidth(_width);
     }
 
@@ -132,7 +131,7 @@ public class NativePlayer extends AbstractMediaPlayer implements HasMouseDownHan
     protected void onLoad() {
         impl = NativePlayerImpl.getPlayer(playerId);
         impl.registerMediaStateHandlers(this);
-        fireDebug("Native Browser Player");
+        fireDebug("Browsers' Native Player");
         firePlayerStateEvent(PlayerStateEvent.State.Ready);
     }
 
@@ -225,10 +224,24 @@ public class NativePlayer extends AbstractMediaPlayer implements HasMouseDownHan
         return adjustToVideoSize;
     }
 
+    /**
+     * Displays or hides the player controls.
+     *
+     * <p>If this player is not available on the panel, this method
+     * call is added to the command-queue for later execution.
+     */
     @Override
-    public void setControllerVisible(boolean show) {
-        checkAvailable();
-        impl.setControlsVisible(show);
+    public void setControllerVisible(final boolean show) {
+        if (isPlayerOnPage(playerId)) {
+            impl.setControlsVisible(show);
+        } else {
+            addToPlayerReadyCommandQueue("controller", new Command() {
+
+                public void execute() {
+                    impl.setControlsVisible(show);
+                }
+            });
+        }
     }
 
     /**
@@ -273,7 +286,7 @@ public class NativePlayer extends AbstractMediaPlayer implements HasMouseDownHan
         }
 
         setWidth(_w);
-        panel.setCellHeight(playerWidget, _h);
+        playerWidget.setHeight(_h);
 
         if (!_height.equals(_h) && !_width.equals(_w)) {
             firePlayerStateEvent(PlayerStateEvent.State.DimensionChangedOnVideo);
@@ -295,16 +308,11 @@ public class NativePlayer extends AbstractMediaPlayer implements HasMouseDownHan
         }
     }
 
-    // TODO: check for progress probably using online content...
     @SuppressWarnings("unused")
     private void fireProgressChanged() {
-//        fireLoadingProgress(0);
         NativePlayerImpl.TimeRange time = impl.getBuffered();
-        String range = "Range: <br/>";
-        for (int i = 0; i < time.getLength(); i++) {
-            range += "Range " + i + ": " + time.getStart(i) + " - " + time.getEnd(i) + "<br/>";
-        }
-        logger.log(range, true);
+        double i = time.getLength();
+        fireLoadingProgress((time.getEnd(i - 1) - time.getStart(0)) * 1000 / impl.getDuration());
     }
 
     @SuppressWarnings("unused")
@@ -376,45 +384,16 @@ public class NativePlayer extends AbstractMediaPlayer implements HasMouseDownHan
         }
     }
 
-    public HandlerRegistration addMouseDownHandler(MouseDownHandler handler) {
-        return addDomHandler(handler, MouseDownEvent.getType());
-    }
-
-    public HandlerRegistration addMouseMoveHandler(MouseMoveHandler handler) {
-        return addDomHandler(handler, MouseMoveEvent.getType());
-    }
-
-    public HandlerRegistration addMouseUpHandler(MouseUpHandler handler) {
-        return addDomHandler(handler, MouseUpEvent.getType());
-    }
-
-    public HandlerRegistration addKeyDownHandler(KeyDownHandler handler) {
-        return addDomHandler(handler, KeyDownEvent.getType());
-    }
-
-    public HandlerRegistration addKeyUpHandler(KeyUpHandler handler) {
-        return addDomHandler(handler, KeyUpEvent.getType());
-    }
-
-    public HandlerRegistration addKeyPressHandler(KeyPressHandler handler) {
-        return addDomHandler(handler, KeyPressEvent.getType());
-    }
-
     public static class MediaItem {
 
-        private String source,  type;
+        private String source;
 
-        public MediaItem(String source, String type) {
+        public MediaItem(String source) {
             this.source = source;
-            this.type = type;
         }
 
         public String getSource() {
             return source;
-        }
-
-        public String getType() {
-            return type;
         }
     }
 
@@ -456,7 +435,6 @@ public class NativePlayer extends AbstractMediaPlayer implements HasMouseDownHan
             for (MediaItem item : sources) {
                 Element s = _doc.createElement("source");
                 s.setAttribute("src", item.getSource());
-                s.setAttribute("type", item.getType());
                 e.appendChild(s);
             }
             setElement(e);

@@ -17,6 +17,7 @@
 
 package com.bramosystems.oss.player.core.client;
 
+import com.bramosystems.oss.player.core.client.geom.TransformationMatrix;
 import com.google.gwt.junit.client.GWTTestCase;
 import org.junit.Test;
 import static org.junit.Assert.*;
@@ -39,8 +40,8 @@ public class TxtTransformationMatrix extends GWTTestCase {
         instance.translate(x, y);
 
         TransformationMatrix instance2 = new TransformationMatrix();
-        instance2.setTx(x);
-        instance2.setTy(y);
+        instance2.getMatrix().getVx().setZ(x);
+        instance2.getMatrix().getVy().setZ(y);
 
         assertEquals(instance, instance2);
     }
@@ -54,8 +55,8 @@ public class TxtTransformationMatrix extends GWTTestCase {
         instance.scale(x, y);
 
         TransformationMatrix instance2 = new TransformationMatrix();
-        instance2.setA(x);
-        instance2.setD(y);
+        instance2.getMatrix().getVx().setX(x);
+        instance2.getMatrix().getVy().setY(y);
 
         assertEquals(instance, instance2);
     }
@@ -69,8 +70,11 @@ public class TxtTransformationMatrix extends GWTTestCase {
 
         double cos = Math.cos(angle);
         double sin = Math.sin(angle);
-        TransformationMatrix instance2 = new TransformationMatrix(cos, sin, -1 * sin, cos, 0, 0);
-
+        TransformationMatrix instance2 = new TransformationMatrix();
+        instance2.getMatrix().getVx().setX(cos);
+        instance2.getMatrix().getVy().setX(sin);
+        instance2.getMatrix().getVx().setY(-1 * sin);
+        instance2.getMatrix().getVy().setY(cos);
         assertEquals(instance, instance2);
     }
 
@@ -82,35 +86,48 @@ public class TxtTransformationMatrix extends GWTTestCase {
         TransformationMatrix instance = new TransformationMatrix();
         instance.skew(ax, ay);
 
-        TransformationMatrix instance2 = new TransformationMatrix(0, Math.tan(ay), Math.tan(ax), 0, 0, 0);
+        TransformationMatrix instance2 = new TransformationMatrix();
+        instance2.getMatrix().getVy().setX(Math.tan(ay));
+        instance2.getMatrix().getVx().setY(Math.tan(ax));
         assertEquals(instance, instance2);
+    }
+
+    @Test
+    public void testScaleAndTranslate() {
+        System.out.println("scaleAndTranslate");
+        double x = 2.0;
+        double y = 3.0;
+        TransformationMatrix instance = new TransformationMatrix();
+        instance.scale(x, y);
+        instance.translate(x, y);
+
+        TransformationMatrix instance2 = new TransformationMatrix();
+        instance2.getMatrix().getVx().setZ(x);
+        instance2.getMatrix().getVy().setZ(y);
+        instance2.getMatrix().getVx().setX(x);
+        instance2.getMatrix().getVy().setY(y);
+
+        assertEquals(instance2, instance);
     }
 
     @Test
     public void testTranslateAndScale() {
         System.out.println("translateAndScale");
         double x = 2.0;
-        double y = 2.0;
+        double y = 3.0;
         TransformationMatrix instance = new TransformationMatrix();
         instance.translate(x, y);
         instance.scale(x, y);
 
         TransformationMatrix instance2 = new TransformationMatrix();
-        instance2.setTx(x);
-        instance2.setTy(y);
-        instance2.setA(x);
-        instance2.setD(y);
+        instance2.getMatrix().getVx().setZ(x);
+        instance2.getMatrix().getVy().setZ(y);
+        instance2.getMatrix().getVx().setX(x);
+        instance2.getMatrix().getVy().setY(y);
 
-        assertEquals(instance, instance2);
+        assertEquals(instance2, instance);
     }
-/*    @Test
-    public void testInvert() {
-        System.out.println("invert");
-        TransformationMatrix instance = new TransformationMatrix();
-        instance.invert();
-        fail("The test case is a prototype.");
-    }
-*/
+
     @Override
     public String getModuleName() {
         return "com.bramosystems.oss.player.core.Core";

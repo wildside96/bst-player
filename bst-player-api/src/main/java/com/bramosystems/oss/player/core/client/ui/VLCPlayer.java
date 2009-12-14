@@ -166,7 +166,7 @@ public final class VLCPlayer extends AbstractMediaPlayer implements PlaylistSupp
         }
 
         playerWidget = PlayerWidgetFactory.get().getPlayerWidget(Plugin.VLCPlayer, playerId, 
-                null, false);
+                null, false, null);
         panel.add(playerWidget, DockPanel.CENTER);
         panel.setCellHeight(playerWidget, _height);
         panel.setCellWidth(playerWidget, _width);

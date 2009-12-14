@@ -15,14 +15,15 @@
  */
 package com.bramosystems.oss.player.core.client.skin;
 
+import com.bramosystems.oss.player.core.client.geom.MatrixSupport;
+import com.bramosystems.oss.player.core.client.geom.TransformationMatrix;
 import com.bramosystems.oss.player.core.client.*;
 import com.bramosystems.oss.player.core.client.ui.FlashMediaPlayer;
 import com.bramosystems.oss.player.core.client.ui.QuickTimePlayer;
 import com.bramosystems.oss.player.core.client.ui.WinMediaPlayer;
 import com.bramosystems.oss.player.core.event.client.*;
-import com.google.gwt.user.client.ui.DockPanel;
+import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.SimplePanel;
-import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 
 /**
@@ -71,7 +72,7 @@ public abstract class CustomVideoPlayer extends AbstractMediaPlayer implements P
             throw new NullPointerException("width cannot be null");
         }
 
-        engine = PlayerUtil.getPlayer(playerPlugin, mediaURL, autoplay, height, "100%");
+        engine = PlayerUtil.getPlayer(playerPlugin, mediaURL, autoplay, height, "100%", new CVParams());
         engine.addDebugHandler(new DebugHandler() {
 
             public void onDebug(DebugEvent event) {
@@ -116,11 +117,9 @@ public abstract class CustomVideoPlayer extends AbstractMediaPlayer implements P
         container = new SimplePanel();
         container.setWidth("100%");
 
-        DockPanel hp = new DockPanel();
-        hp.setSpacing(0);
-        hp.setVerticalAlignment(VerticalPanel.ALIGN_MIDDLE);
-        hp.add(container, DockPanel.SOUTH);
-        hp.add(engine, DockPanel.CENTER);
+        FlowPanel hp = new FlowPanel();
+        hp.add(engine);
+        hp.add(container);
 
         super.initWidget(hp);
         setSize(width, height);
@@ -318,4 +317,12 @@ public abstract class CustomVideoPlayer extends AbstractMediaPlayer implements P
      * @param height the height of the media (in pixels)
      */
     protected abstract void onVideoDimensionChanged(int width, int height);
+
+    private class CVParams extends ConfigParameter {
+
+        public CVParams() {
+            // workaround for WMP in Google Chrome
+            setParameter("uimode", WinMediaPlayer.UIMode.NONE.name().toLowerCase());
+        }        
+    }
 }

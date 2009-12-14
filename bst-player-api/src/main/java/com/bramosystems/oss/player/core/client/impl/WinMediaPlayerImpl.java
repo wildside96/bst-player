@@ -84,11 +84,11 @@ public class WinMediaPlayerImpl extends JavaScriptObject {
     }-*/;
 
     public final native void setUIMode(String mode) /*-{
-    this.uiMode = mode;
+     this.uiMode = mode;
     }-*/;
 
     public final native String getUIMode() /*-{
-    return this.uiMode;
+    return this.uiMode || '';
     }-*/;
 
     public final native void setLoopCount(int count) /*-{
@@ -189,7 +189,7 @@ public class WinMediaPlayerImpl extends JavaScriptObject {
     }-*/;
 
     public final native void setWindowlessVideo(boolean windowless) /*-{
-    this.windowlessVideo = windowless;
+     this.windowlessVideo = windowless;
     }-*/;
 
     public final native boolean isWindowlessVideo() /*-{

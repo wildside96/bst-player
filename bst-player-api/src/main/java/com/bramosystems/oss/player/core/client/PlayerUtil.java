@@ -68,8 +68,8 @@ public class PlayerUtil {
             // catch exceptions like division by zero...
         }
 
-        String time = (hrs > 0 ? hourFormat.format(hrs) + ":" : "") +
-                timeFormat.format(min) + ":" + timeFormat.format(secs);
+        String time = (hrs > 0 ? hourFormat.format(hrs) + ":" : "")
+                + timeFormat.format(min) + ":" + timeFormat.format(secs);
         return time;
     }
 
@@ -115,11 +115,11 @@ public class PlayerUtil {
             }
         }
 
-        return _getPlayer(pg, mediaURL, autoplay, height, width);
+        return _getPlayer(pg, mediaURL, autoplay, height, width, null);
     }
 
     private static AbstractMediaPlayer _getPlayer(Plugin plugin, String mediaURL,
-            boolean autoplay, String height, String width) throws LoadException,
+            boolean autoplay, String height, String width, ConfigParameter params) throws LoadException,
             PluginVersionException, PluginNotFoundException {
         AbstractMediaPlayer player;
         switch (plugin) {
@@ -133,7 +133,7 @@ public class PlayerUtil {
                 player = new QuickTimePlayer(mediaURL, autoplay, height, width);
                 break;
             case WinMediaPlayer:
-                player = new WinMediaPlayer(mediaURL, autoplay, height, width);
+                player = new WinMediaPlayer(mediaURL, autoplay, height, width, params);
                 break;
             case Native:
                 player = new NativePlayer(mediaURL, autoplay, height, width);
@@ -184,6 +184,12 @@ public class PlayerUtil {
     public static AbstractMediaPlayer getPlayer(Plugin plugin, String mediaURL,
             boolean autoplay, String height, String width)
             throws LoadException, PluginNotFoundException, PluginVersionException {
+        return getPlayer(plugin, mediaURL, autoplay, height, width, null);
+    }
+
+    public static AbstractMediaPlayer getPlayer(Plugin plugin, String mediaURL,
+            boolean autoplay, String height, String width, ConfigParameter params)
+            throws LoadException, PluginNotFoundException, PluginVersionException {
         String protocol = null;
         if (mediaURL.contains("://")) {
             protocol = mediaURL.substring(0, mediaURL.indexOf("://"));
@@ -201,7 +207,10 @@ public class PlayerUtil {
             case MatrixSupport:
                 _plugins = new Plugin[2];
                 _plugins[0] = Plugin.QuickTimePlayer;
- //               _plugins[1] = Plugin.FlashPlayer;
+                _plugins[1] = Plugin.FlashPlayer;
+                break;
+            case Auto:
+                _plugins = Plugin.values();
                 break;
         }
 
@@ -212,10 +221,9 @@ public class PlayerUtil {
                     break;
                 }
             }
-            return _getPlayer(pg, mediaURL, autoplay, height, width);
+            return _getPlayer(pg, mediaURL, autoplay, height, width, params);
         } else {
-            // test for other plugins ...
-            return getPlayer(mediaURL, autoplay, height, width);
+            return _getPlayer(plugin, mediaURL, autoplay, height, width, params);
         }
     }
 
@@ -378,32 +386,32 @@ public class PlayerUtil {
         String title = "Missing Plugin", message = "";
         switch (plugin) {
             case WinMediaPlayer:
-                message = "Windows Media Player " + version + "or later is required to play " +
-                        "this media. Click here to get Windows Media Player.";
+                message = "Windows Media Player " + version + " or later is required to play "
+                        + "this media. Click here to get Windows Media Player.";
                 break;
             case FlashPlayer:
-                message = "Adobe Flash Player " + version + "or later is required to play " +
-                        "this media. Click here to get Flash";
+                message = "Adobe Flash Player " + version + " or later is required to play "
+                        + "this media. Click here to get Flash";
                 break;
             case QuickTimePlayer:
-                message = "QuickTime Player " + version + "plugin or later is required to " +
-                        "play this media. Click here to get QuickTime";
+                message = "QuickTime Player " + version + " plugin or later is required to "
+                        + "play this media. Click here to get QuickTime";
                 break;
             case VLCPlayer:
-                message = "VLC Media Player " + version + "plugin or later is required to " +
-                        "play this media. Click here to get VLC Media Player";
+                message = "VLC Media Player " + version + " plugin or later is required to "
+                        + "play this media. Click here to get VLC Media Player";
                 break;
             case Native:
                 title = "Browser Not Compliant";
                 message = "An HTML 5 compliant browser is required";
                 break;
             case PlaylistSupport:
-                message = "No player plugin with client-side playlist " +
-                        "management can be found";
+                message = "No player plugin with client-side playlist "
+                        + "management can be found";
                 break;
             case MatrixSupport:
-                message = "No player plugin with matrix transformation " +
-                        "capability can be found";
+                message = "No player plugin with matrix transformation "
+                        + "capability can be found";
                 break;
         }
 
@@ -430,28 +438,28 @@ public class PlayerUtil {
         String title = "Missing Plugin", message = "";
         switch (plugin) {
             case WinMediaPlayer:
-                message = "Windows Media Player is required to play " +
-                        "this media. Click here to get Windows Media Player";
+                message = "Windows Media Player is required to play "
+                        + "this media. Click here to get Windows Media Player";
                 break;
             case FlashPlayer:
-                message = "Adobe Flash Player is required to play " +
-                        "this media. Click here to get Flash";
+                message = "Adobe Flash Player is required to play "
+                        + "this media. Click here to get Flash";
                 break;
             case QuickTimePlayer:
-                message = "QuickTime Player is required to play " +
-                        "this media. Click here to get QuickTime";
+                message = "QuickTime Player is required to play "
+                        + "this media. Click here to get QuickTime";
                 break;
             case VLCPlayer:
-                message = "VLC Media Player is required to play " +
-                        "this media. Click here to get VLC Media Player";
+                message = "VLC Media Player is required to play "
+                        + "this media. Click here to get VLC Media Player";
                 break;
             case PlaylistSupport:
-                message = "No player plugin with client-side playlist " +
-                        "management can be found";
+                message = "No player plugin with client-side playlist "
+                        + "management can be found";
                 break;
             case MatrixSupport:
-                message = "No player plugin with matrix transformation " +
-                        "capability can be found";
+                message = "No player plugin with matrix transformation "
+                        + "capability can be found";
                 break;
             case Native:
                 title = "Browser Not Compliant";
@@ -468,6 +476,7 @@ public class PlayerUtil {
      *
      * @return <code>true</code> if browser is HTML 5 compliant, <code>false</code>
      * otherwise
+     * @since 1.1
      */
     public static boolean isHTML5CompliantClient() {
         return impl.isHTML5CompliantClient();
