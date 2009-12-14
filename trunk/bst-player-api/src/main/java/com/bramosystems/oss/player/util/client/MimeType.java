@@ -15,6 +15,7 @@
  */
 package com.bramosystems.oss.player.util.client;
 
+import com.bramosystems.oss.player.core.client.PluginNotFoundException;
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.core.client.JsArray;
 
@@ -54,8 +55,18 @@ public class MimeType extends JavaScriptObject {
      * Returns the plug-in configured for the MIME type
      *
      * @return {@link BrowserPlugin} configured for the MIME type
+     * @throws PluginNotFoundException if no plugin is found e.g. when plugin is disabled.
      */
-    public final native BrowserPlugin getEnabledPlugin() /*-{
+    public final BrowserPlugin getEnabledPlugin() throws PluginNotFoundException {
+        BrowserPlugin plug = _getEnabledPlugin();
+        if (plug != null) {
+            return plug;
+        } else {
+            throw new PluginNotFoundException("No Plugin found!");
+        }
+    }
+
+    private final native BrowserPlugin _getEnabledPlugin() /*-{
     return this.enabledPlugin;
     }-*/;
 

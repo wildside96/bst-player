@@ -1,5 +1,5 @@
 /*
- *  Copyright 2009 Sikirulai Braheem <sbraheem at bramosystems dot com>.
+ *  Copyright 2009 Sikiru Braheem <sbraheem at bramosystems . com>.
  * 
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,15 +15,5 @@
  *  under the License.
  */
 
-/**
- * Provides general utility classes
- *
- * <h3>Required Module</h3>
- * Modules that use the classes and interfaces in this package should inherit
- * the <code>com.bramosystems.oss.player.util.Util</code> module.
- *
- * <p>This module is inherited by the <code>com.bramosystems.oss.player.core.Core</code>
- * module by default
- */
-package com.bramosystems.oss.player.util.client;
+package com.bramosystems.oss.player.script.client;
 

@@ -142,7 +142,6 @@ public class YouTubePlayer extends AbstractMediaPlayer {
         });
 
         FlowPanel panel = new FlowPanel();
-//        panel.setStyleName("");
         panel.add(swf);
         panel.add(logger);
         initWidget(panel);

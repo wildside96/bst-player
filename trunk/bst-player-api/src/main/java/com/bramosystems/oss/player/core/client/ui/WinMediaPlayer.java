@@ -66,11 +66,12 @@ public final class WinMediaPlayer extends AbstractMediaPlayer {
     private static WMPStateManager stateManager;
     private WinMediaPlayerImpl impl;
     private Widget playerWidget;
-    private String playerId,  mediaURL,  _width,  _height;
+    private String playerId, mediaURL, _width, _height;
     private Logger logger;
-    private boolean isEmbedded,  autoplay,  resizeToVideoSize;
-    private DockPanel panel;
+    private boolean isEmbedded, autoplay, resizeToVideoSize;
+    private FlowPanel panel;
     private UIMode uiMode;
+    private WMPConfigParameter configParams;
 
     private WinMediaPlayer() throws PluginNotFoundException, PluginVersionException {
         PluginVersion req = Plugin.WinMediaPlayer.getVersion();
@@ -108,27 +109,37 @@ public final class WinMediaPlayer extends AbstractMediaPlayer {
      * @throws PluginVersionException if the required Windows Media Player plugin version is not installed on the client.
      * @throws PluginNotFoundException if the Windows Media Player plugin is not installed on the client.
      */
-    public WinMediaPlayer(String mediaURL, boolean autoplay, String height, String width)
-            throws LoadException, PluginNotFoundException, PluginVersionException {
+    public WinMediaPlayer(String mediaURL, boolean autoplay, String height, String width,
+            ConfigParameter params) throws LoadException, PluginNotFoundException, PluginVersionException {
         this();
 
         this.autoplay = autoplay;
         this.mediaURL = mediaURL;
+        isEmbedded = (height == null) || (width == null);
+
+        configParams = new WMPConfigParameter();
+        if (params != null) {
+            configParams.getParameterMap().putAll(params.getParameterMap());
+        }
+
+        if (isEmbedded) {
+            configParams.setUIMode(UIMode.INVISIBLE);
+        }
+
         _height = height;
         _width = width;
 
-        panel = new DockPanel();
-        panel.setStyleName("");
+        panel = new FlowPanel();
         panel.setWidth("100%");
-        panel.setHorizontalAlignment(DockPanel.ALIGN_CENTER);
+        playerWidget = PlayerWidgetFactory.get().getPlayerWidget(Plugin.WinMediaPlayer,
+                playerId, mediaURL, autoplay, configParams.getParameterMap());
+        panel.add(playerWidget);
         initWidget(panel);
 
-        isEmbedded = (height == null) || (width == null);
         if (!isEmbedded) {
             logger = new Logger();
             logger.setVisible(false);
-            panel.add(logger, DockPanel.SOUTH);
-            panel.setCellWidth(logger, "100%");
+            panel.add(logger);
 
             addDebugHandler(new DebugHandler() {
 
@@ -146,26 +157,46 @@ public final class WinMediaPlayer extends AbstractMediaPlayer {
                 public void onMediaInfoAvailable(MediaInfoEvent event) {
                     logger.log(event.getMediaInfo().asHTMLString(), true);
                     MediaInfo info = event.getMediaInfo();
-                    if (info.getAvailableItems().contains(MediaInfoKey.VideoHeight) ||
-                            info.getAvailableItems().contains(MediaInfoKey.VideoWidth)) {
+                    if (info.getAvailableItems().contains(MediaInfoKey.VideoHeight)
+                            || info.getAvailableItems().contains(MediaInfoKey.VideoWidth)) {
                         checkVideoSize(Integer.parseInt(info.getItem(MediaInfoKey.VideoHeight)) + 16,
                                 Integer.parseInt(info.getItem(MediaInfoKey.VideoWidth)));
                     }
                 }
             });
-            setUIMode(UIMode.FULL);
         } else {
             _width = "0px";
             _height = "0px";
-            setUIMode(UIMode.INVISIBLE);
         }
 
-        playerWidget = PlayerWidgetFactory.get().getPlayerWidget(Plugin.WinMediaPlayer,
-                playerId, mediaURL, autoplay);
-        panel.add(playerWidget, DockPanel.CENTER);
-        panel.setCellHeight(playerWidget, _height);
-
+        playerWidget.setHeight(_height);
         setWidth(_width);
+    }
+
+    /**
+     * Constructs <code>WinMediaPlayer</code> with the specified {@code height} and
+     * {@code width} to playback media located at {@code mediaURL}. Media playback
+     * begins automatically if {@code autoplay} is {@code true}.
+     *
+     * <p> {@code height} and {@code width} are specified as CSS units. A value of {@code null}
+     * for {@code height} or {@code width} puts the player in embedded mode.  When in embedded mode,
+     * the player is made invisible on the page and media state events are propagated to registered
+     * listeners only.  This is desired especially when used with custom sound controls.  For custom
+     * video control, specify valid CSS values for {@code height} and {@code width} but hide the
+     * player controls with {@code setControllerVisible(false)}.
+     *
+     * @param mediaURL the URL of the media to playback
+     * @param autoplay {@code true} to start playing automatically, {@code false} otherwise
+     * @param height the height of the player
+     * @param width the width of the player.
+     *
+     * @throws LoadException if an error occurs while loading the media.
+     * @throws PluginVersionException if the required Windows Media Player plugin version is not installed on the client.
+     * @throws PluginNotFoundException if the Windows Media Player plugin is not installed on the client.
+     */
+    public WinMediaPlayer(String mediaURL, boolean autoplay, String height, String width)
+            throws LoadException, PluginNotFoundException, PluginVersionException {
+        this(mediaURL, autoplay, height, width, null);
     }
 
     /**
@@ -182,7 +213,7 @@ public final class WinMediaPlayer extends AbstractMediaPlayer {
      */
     public WinMediaPlayer(String mediaURL) throws LoadException,
             PluginNotFoundException, PluginVersionException {
-        this(mediaURL, true, "50px", "100%");
+        this(mediaURL, true, "50px", "100%", null);
     }
 
     /**
@@ -201,22 +232,7 @@ public final class WinMediaPlayer extends AbstractMediaPlayer {
      */
     public WinMediaPlayer(String mediaURL, boolean autoplay) throws LoadException,
             PluginNotFoundException, PluginVersionException {
-        this(mediaURL, autoplay, "50px", "100%");
-    }
-
-    /**
-     * Overridden to register player for plugin DOM events
-     */
-    @Override
-    protected final void onLoad() {
-//        Timer t = new Timer() {
-
-//            @Override
-//            public void run() {
-        setupPlayer(false);
-//            }
-//        };
-//        t.schedule(200);            // IE workarround...
+        this(mediaURL, autoplay, "50px", "100%", null);
     }
 
     /**
@@ -231,11 +247,19 @@ public final class WinMediaPlayer extends AbstractMediaPlayer {
         impl = WinMediaPlayerImpl.getPlayer(playerId);
         stateManager.init(impl, WinMediaPlayer.this, isResizing);
         stateManager.registerMediaStateHandlers(impl);
-        setUIMode(uiMode);
+//        setUIMode(uiMode);
 
         if (isResizing) {
             impl.play();
         }
+    }
+
+    /**
+     * Overridden to register player for plugin DOM events
+     */
+    @Override
+    protected final void onLoad() {
+        setupPlayer(false);
     }
 
     /**
@@ -411,11 +435,7 @@ public final class WinMediaPlayer extends AbstractMediaPlayer {
         }
 
         setWidth(_w);
-        panel.setCellHeight(playerWidget, _h);
-//        DOM.getElementById(playerId).setAttribute("width", _w);
-//        DOM.getElementById(playerId).setAttribute("height", _h);
-//        DOM.setStyleAttribute(playerWidget.getElement(), "height", _h);
-//        DOM.setStyleAttribute(playerWidget.getElement(), "width", "100%");
+        playerWidget.setHeight(_h);
 
         if (!_height.equals(_h) && !_width.equals(_w)) {
             if (stateManager.shouldRunResizeQuickFix()) {
@@ -468,6 +488,9 @@ public final class WinMediaPlayer extends AbstractMediaPlayer {
      * <p>If the player is not attached to a player, this call is scheduled for execution
      * when the underlying plugin is initialized.
      *
+     * <p><b>Google Chrome Note:</b> This method fails! As of version 1.1 use {@link WMPConfigParameter}
+     * with the {@link #WinMediaPlayer(String, boolean, String, String, ConfigParameter)} instead.</p>
+     *
      * @since 1.0
      * @param uiMode the UI mode to set
      */
@@ -493,7 +516,12 @@ public final class WinMediaPlayer extends AbstractMediaPlayer {
      */
     public UIMode getUIMode() {
         checkAvailable();
-        return UIMode.valueOf(impl.getUIMode().toUpperCase());
+        try {
+            return UIMode.valueOf(impl.getUIMode().toUpperCase());
+        } catch (Exception e) {
+            // Chrome UIMode workaround ...
+            return configParams.getUIMode();
+        }
     }
 
     /**
@@ -521,7 +549,7 @@ public final class WinMediaPlayer extends AbstractMediaPlayer {
     /**
      * An enum of user interface modes of the Windows Media Player&trade; plugin.
      *
-     * <p>The mode indicates which controls are shown in the user interface.
+     * <p>The mode indicates which controls are shown on the user interface.
      *
      * @since 1.0
      * @author Sikirulai Braheem
@@ -549,5 +577,24 @@ public final class WinMediaPlayer extends AbstractMediaPlayer {
          * volume controls in addition to the video or visualization window.
          */
         FULL
+    }
+
+    /**
+     *
+     * @author Sikiru Braheem <sbraheem at bramosystems . com>
+     */
+    public static class WMPConfigParameter extends ConfigParameter {
+
+        public WMPConfigParameter() {
+            super();
+        }
+
+        public void setUIMode(UIMode mode) {
+            setParameter("uimode", mode.name().toLowerCase());
+        }
+
+        public UIMode getUIMode() {
+            return UIMode.valueOf(getParameter("uimode").toUpperCase());
+        }
     }
 }

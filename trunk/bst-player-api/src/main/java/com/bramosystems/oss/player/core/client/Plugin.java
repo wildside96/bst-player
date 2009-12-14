@@ -33,15 +33,13 @@ public enum Plugin {
     Auto("", 0,0,0),
 
     /**
-     * Similar to {@linkplain #Auto}, specifies any media player plugin that supports
-     * client-side playlist management as defined by the {@linkplain PlaylistSupport}
-     * interface.
+     * Specifies the browsers' native media handler.  HTML 5 compliant browsers
+     * have support for media playback via the <code>audio</code> and <code>video</code>
+     * elements.
      *
-     * @see PlayerUtil#getPlayer(Plugin, java.lang.String, boolean, java.lang.String, java.lang.String)
-     * @see PlaylistSupport
-     * @since 1.0
+     * @since 1.1
      */
-    PlaylistSupport("", 0, 0, 0),
+    Native("", 0,0,0),
 
     /**
      * Specifies the Window Media Player&trade; plugin
@@ -65,13 +63,15 @@ public enum Plugin {
     VLCPlayer("http://www.videolan.org", 1, 0, 0),
 
     /**
-     * Specifies the browsers' native media handler.  HTML 5 compliant browsers
-     * have support for media playback via the <code>audio</code> and <code>video</code>
-     * elements.
+     * Similar to {@linkplain #Auto}, specifies any media player plugin that supports
+     * client-side playlist management as defined by the {@linkplain PlaylistSupport}
+     * interface.
      *
-     * @since 1.1
+     * @see PlayerUtil#getPlayer(Plugin, java.lang.String, boolean, java.lang.String, java.lang.String)
+     * @see PlaylistSupport
+     * @since 1.0
      */
-    Native("", 0,0,0),
+    PlaylistSupport("", 0, 0, 0),
 
     /**
      * Similar to {@linkplain #Auto}, specifies any media player plugin that supports

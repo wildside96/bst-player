@@ -90,7 +90,7 @@ public class PlayerWidgetFactory {
     }
 
     public Widget getPlayerWidget(Plugin plugin, String playerId, String mediaURL,
-            boolean autoplay) {
+            boolean autoplay, HashMap<String, String> params) {
         Element e = null;
         switch (plugin) {
             case FlashPlayer:
@@ -104,7 +104,7 @@ public class PlayerWidgetFactory {
                 e = getVLCElement(playerId, "", false);
                 break;
             case WinMediaPlayer:
-                e = getWMPElement(playerId, mediaURL, autoplay);
+                e = getWMPElement(playerId, mediaURL, autoplay, params);
                 break;
         }
         PlayerWidget pw = new PlayerWidget(e);
@@ -121,11 +121,18 @@ public class PlayerWidgetFactory {
         return e.getElement();
     }
 
-    protected Element getWMPElement(String playerId, String mediaURL, boolean autoplay) {
+    protected Element getWMPElement(String playerId, String mediaURL, boolean autoplay,
+            HashMap<String, String> params) {
         XObject xo = new XObject(playerId);
         xo.getElement().setType(getWMPPluginType());
         xo.addParam("autostart", Boolean.toString(autoplay));
         xo.addParam("URL", mediaURL);
+
+        Iterator<String> keys = params.keySet().iterator();
+        while (keys.hasNext()) {
+            String name = keys.next();
+            xo.addParam(name, params.get(name));
+        }
         return xo.getElement();
     }
 

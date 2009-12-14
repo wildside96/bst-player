@@ -31,7 +31,7 @@ public class PluginNotFoundException extends Exception {
     private Plugin plugin;
 
     /**
-     * Constructor method
+     * Constructs a new PluginNotFoundException
      */
     public PluginNotFoundException() {
         super("Required Plugin is not available");
@@ -39,7 +39,7 @@ public class PluginNotFoundException extends Exception {
     }
 
     /**
-     * Constructor method
+     * Constructs a new PluginNotFoundException for the specified plugin
      * 
      * @param plugin the required plugin
      * @since 1.1
@@ -47,6 +47,17 @@ public class PluginNotFoundException extends Exception {
     public PluginNotFoundException(Plugin plugin) {
         super("Required Plugin is not available");
         this.plugin = plugin;
+    }
+
+    /**
+     * Constructs a new PluginNotFoundException with the specified message
+     *
+     * @param message describes the exception
+     * @since 1.1
+     */
+    public PluginNotFoundException(String message) {
+        super(message);
+        this.plugin = Plugin.Auto;
     }
 
     /**

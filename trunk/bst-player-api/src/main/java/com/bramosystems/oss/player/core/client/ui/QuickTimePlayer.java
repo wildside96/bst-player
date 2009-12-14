@@ -15,6 +15,7 @@
  */
 package com.bramosystems.oss.player.core.client.ui;
 
+import com.bramosystems.oss.player.core.client.geom.MatrixSupport;
 import com.bramosystems.oss.player.core.client.*;
 import com.bramosystems.oss.player.core.client.MediaInfo.MediaInfoKey;
 import com.bramosystems.oss.player.core.client.impl.PlayerWidgetFactory;
@@ -26,9 +27,9 @@ import com.bramosystems.oss.player.core.event.client.MediaInfoEvent;
 import com.bramosystems.oss.player.core.event.client.MediaInfoHandler;
 import com.bramosystems.oss.player.core.event.client.PlayerStateEvent;
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.i18n.client.NumberFormat;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.DOM;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
 
 /**
@@ -65,13 +66,14 @@ import com.google.gwt.user.client.ui.*;
 public final class QuickTimePlayer extends AbstractMediaPlayer implements MatrixSupport {
 
     private static QTStateManager manager = GWT.create(QTStateManager.class);
+    private static NumberFormat mxNf = NumberFormat.getFormat("#0.0###"); // fix QT Matrix precision issues
     private QuickTimePlayerImpl impl;
     private Widget playerWidget;
-    private String playerId,  mediaUrl;
+    private String playerId, mediaUrl;
     private Logger logger;
-    private DockPanel panel;
-    private boolean isEmbedded,  autoplay,  resizeToVideoSize;
-    private String _height,  _width;
+    private FlowPanel panel;
+    private boolean isEmbedded, resizeToVideoSize;
+    private String _height, _width;
 
     private QuickTimePlayer() throws PluginNotFoundException, PluginVersionException {
         PluginVersion req = Plugin.QuickTimePlayer.getVersion();
@@ -110,13 +112,15 @@ public final class QuickTimePlayer extends AbstractMediaPlayer implements Matrix
         this();
 
         mediaUrl = mediaURL;
-        this.autoplay = autoplay;
         manager.init(playerId, this);
 
-        panel = new DockPanel();
+        panel = new FlowPanel();
         panel.setWidth("100%");
         panel.setStyleName("");
-        panel.setHorizontalAlignment(DockPanel.ALIGN_CENTER);
+
+        playerWidget = PlayerWidgetFactory.get().getPlayerWidget(Plugin.QuickTimePlayer, playerId,
+                mediaURL, autoplay, null);
+        panel.add(playerWidget);
 
         initWidget(panel);
 
@@ -126,7 +130,7 @@ public final class QuickTimePlayer extends AbstractMediaPlayer implements Matrix
         if (!isEmbedded) {
             logger = new Logger();
             logger.setVisible(false);
-            panel.add(logger, DockPanel.SOUTH);
+            panel.add(logger);
 
             addDebugHandler(new DebugHandler() {
 
@@ -138,8 +142,8 @@ public final class QuickTimePlayer extends AbstractMediaPlayer implements Matrix
 
                 public void onMediaInfoAvailable(MediaInfoEvent event) {
                     MediaInfo info = event.getMediaInfo();
-                    if (info.getAvailableItems().contains(MediaInfoKey.VideoHeight) ||
-                            info.getAvailableItems().contains(MediaInfoKey.VideoWidth)) {
+                    if (info.getAvailableItems().contains(MediaInfoKey.VideoHeight)
+                            || info.getAvailableItems().contains(MediaInfoKey.VideoWidth)) {
                         checkVideoSize(Integer.parseInt(info.getItem(MediaInfoKey.VideoHeight)) + 16,
                                 Integer.parseInt(info.getItem(MediaInfoKey.VideoWidth)));
                     }
@@ -150,11 +154,7 @@ public final class QuickTimePlayer extends AbstractMediaPlayer implements Matrix
             _height = "0px";
             _width = "0px";
         }
-
-        playerWidget = PlayerWidgetFactory.get().getPlayerWidget(Plugin.QuickTimePlayer, playerId,
-                mediaURL, autoplay);
-        panel.add(playerWidget, DockPanel.CENTER);
-        panel.setCellHeight(playerWidget, _height);
+        playerWidget.setHeight(_height);
         setWidth(_width);
     }
 
@@ -345,7 +345,7 @@ public final class QuickTimePlayer extends AbstractMediaPlayer implements Matrix
      * @param matrix the matrix
      * @since 1.0
      * @see TransformationMatrix
-     * @deprecated Use {@link #setMatrix(com.bramosystems.oss.player.core.client.TransformationMatrix)}
+     * @deprecated As of version 1.1. Use {@link #setMatrix(com.bramosystems.oss.player.core.client.geom.TransformationMatrix)}
      * instead. Will be removed in a future version
      */
     public void setTransformationMatrix(final TransformationMatrix matrix) {
@@ -370,7 +370,7 @@ public final class QuickTimePlayer extends AbstractMediaPlayer implements Matrix
      * @return the current matrix transformation
      * @since 1.0
      * @see TransformationMatrix
-     * @deprecated Use {@link #getMatrix()} instead. Will be removed in a future version
+     * @deprecated As of version 1.1. Use {@link #getMatrix()} instead. Will be removed in a future version
      */
     public TransformationMatrix getTransformationMatrix() {
         checkAvailable();
@@ -462,7 +462,7 @@ public final class QuickTimePlayer extends AbstractMediaPlayer implements Matrix
         }
 
         setWidth(_w);
-        panel.setCellHeight(playerWidget, _h);
+        playerWidget.setHeight(_h);
 
         if (!_height.equals(_h) && !_width.equals(_w)) {
             firePlayerStateEvent(PlayerStateEvent.State.DimensionChangedOnVideo);
@@ -475,10 +475,17 @@ public final class QuickTimePlayer extends AbstractMediaPlayer implements Matrix
      * <p>If this player is not attached to a panel, this method call is added to
      * the command-queue for later execution.
      */
-    public void setMatrix(final com.bramosystems.oss.player.core.client.TransformationMatrix matrix) {
+    public void setMatrix(final com.bramosystems.oss.player.core.client.geom.TransformationMatrix matrix) {
         if (isPlayerOnPage(playerId)) {
-            String mx = matrix.getA() + ", " + matrix.getB() + ", 0.0" + matrix.getC() + ", " +
-                    matrix.getD() + ", 0.0" + matrix.getTx() + ", " + matrix.getTy() + ", 1.0";
+            String mx = mxNf.format(matrix.getMatrix().getVx().getX()) + ", "
+                    + mxNf.format(matrix.getMatrix().getVy().getX()) + ", "
+                    + mxNf.format(matrix.getMatrix().getVz().getX()) + " "
+                    + mxNf.format(matrix.getMatrix().getVx().getY()) + ", "
+                    + mxNf.format(matrix.getMatrix().getVy().getY()) + ", "
+                    + mxNf.format(matrix.getMatrix().getVz().getY()) + " "
+                    + mxNf.format(matrix.getMatrix().getVx().getZ()) + ", "
+                    + mxNf.format(matrix.getMatrix().getVy().getZ()) + ", "
+                    + mxNf.format(matrix.getMatrix().getVz().getZ());
             impl.setMatrix(mx);
             if (resizeToVideoSize) {
                 checkVideoSize(getVideoHeight() + 16, getVideoWidth());
@@ -493,28 +500,44 @@ public final class QuickTimePlayer extends AbstractMediaPlayer implements Matrix
         }
     }
 
-    public com.bramosystems.oss.player.core.client.TransformationMatrix getMatrix() {
+    public com.bramosystems.oss.player.core.client.geom.TransformationMatrix getMatrix() {
         checkAvailable();
-        String mx = impl.getMatrix().replaceAll("\\s*,\\s*", ",");
-        String[] elements = mx.split(",");
-        String e2 = elements[2].substring(3), e4 = elements[4].substring(3);
+        String[] elements = impl.getMatrix().split("\\s*,\\s*");
+        elements[2] = elements[2].substring(3);
+        elements[4] = elements[4].substring(3);
+        for (int i = 0; i < elements.length; i++) {
+            elements[i] = _removeSpaces(elements[i]);
+        }
 
-        Window.alert("[QT] Matrix : " + mx + " [2] : " + e2 + ", " +
-                e2.length() + " [4] : " + e4 +  ", " + e4.length());
-        Window.alert("[QT] Matrix : " + mx + " [2] : " + Double.parseDouble(e2) +
-                " [4] : " + Double.parseDouble(e4));
-
-        com.bramosystems.oss.player.core.client.TransformationMatrix matrix =
-                new com.bramosystems.oss.player.core.client.TransformationMatrix();
-        matrix.setA(Double.parseDouble(elements[0].trim()));
-        matrix.setB(Double.parseDouble(elements[1].trim()));
-        matrix.setC(Double.parseDouble(e2));
-        matrix.setD(Double.parseDouble(elements[3].trim()));
-        matrix.setTx(Double.parseDouble(e4));
-        matrix.setTy(Double.parseDouble(elements[5].trim()));
+        com.bramosystems.oss.player.core.client.geom.TransformationMatrix matrix =
+                new com.bramosystems.oss.player.core.client.geom.TransformationMatrix();
+        matrix.getMatrix().getVx().setX(Double.parseDouble(elements[0]));
+        matrix.getMatrix().getVy().setX(Double.parseDouble(elements[1]));
+        matrix.getMatrix().getVx().setY(Double.parseDouble(elements[2]));
+        matrix.getMatrix().getVy().setY(Double.parseDouble(elements[3]));
+        matrix.getMatrix().getVx().setZ(Double.parseDouble(elements[4]));
+        matrix.getMatrix().getVy().setZ(Double.parseDouble(elements[5]));
         return matrix;
     }
 
+    /**
+     * Matrix elements returned from the QT plugin appears to have format inconsistencies
+     * and breaks the Double.parseDouble function. This is a rather quark means of removing
+     * empty spaces from the specified matrixElement.
+     *
+     * @param matrixElement the element
+     */
+    private String _removeSpaces(String matrixElement) {
+        char[] es = matrixElement.toCharArray();
+        char[] _temp = new char[es.length];
+        int count = 0;
+        for (int i = 0; i < es.length; i++) {
+            if (Character.isDigit(es[i]) || es[i] == '.' || es[i] == '-') {
+                _temp[count++] = es[i];
+            }
+        }
+        return new String(_temp, 0, count);
+    }
 
     /**
      * Defines the transformation matrix of the QuickTime&trade; Player plugin.  The transformation
@@ -536,11 +559,11 @@ public final class QuickTimePlayer extends AbstractMediaPlayer implements Matrix
      *
      * @since 1.0
      * @see <a href='http://developer.apple.com/documentation/QuickTime/RM/MovieBasics/MTEditing/A-Intro/1Introduction.htm1'>QuickTime Movie Basics</a>
-     * @deprecated Replaced with {@link com.bramosystems.oss.player.core.client.TransformationMatrix}
+     * @deprecated As of version 1.1, Replaced with {@link com.bramosystems.oss.player.core.client.TransformationMatrix}
      */
     public static class TransformationMatrix {
 
-        private double a,  b,  c,  d,  tx,  ty;
+        private double a, b, c, d, tx, ty;
 
         /**
          * Constructs a new identity TransformationMatrix object. 

@@ -36,8 +36,9 @@ public class PlayerWidgetFactoryIE extends PlayerWidgetFactory {
     }
 
     @Override
-    public Widget getPlayerWidget(Plugin plugin, String playerId, String mediaURL, boolean autoplay) {
-        Widget w = super.getPlayerWidget(plugin, playerId, mediaURL, autoplay);
+    public Widget getPlayerWidget(Plugin plugin, String playerId, String mediaURL, boolean autoplay,
+            HashMap<String, String> params) {
+        Widget w = super.getPlayerWidget(plugin, playerId, mediaURL, autoplay, params);
         switch (plugin) {
             case QuickTimePlayer:
                 DOM.setStyleAttribute(w.getElement(), "behavior",
@@ -58,10 +59,17 @@ public class PlayerWidgetFactoryIE extends PlayerWidgetFactory {
     }
 
     @Override
-    protected Element getWMPElement(String playerId, String mediaURL, boolean autoplay) {
+    protected Element getWMPElement(String playerId, String mediaURL, boolean autoplay,
+            HashMap<String,String> params) {
         XObjectIE xo = new XObjectIE(playerId, "clsid:6BF52A52-394A-11d3-B153-00C04F79FAA6");
         xo.addParam("autostart", Boolean.toString(autoplay));
         xo.addParam("URL", mediaURL);
+        
+        Iterator<String> keys = params.keySet().iterator();
+        while (keys.hasNext()) {
+            String name = keys.next();
+            xo.addParam(name, params.get(name));
+        }
         return xo.getElement();
     }
 
@@ -69,7 +77,6 @@ public class PlayerWidgetFactoryIE extends PlayerWidgetFactory {
     protected Element getQTElement(String playerId, String mediaURL, boolean autoplay) {
         XObjectIE xo = new XObjectIE(playerId, "clsid:02BF25D5-8C17-4B23-BC80-D3488ABDDC6B");
         xo.addParam("AutoPlay", Boolean.toString(autoplay));
-//        xo.addParam("src", "");
         xo.addParam("Src", mediaURL);
         xo.addParam("BGCOLOR", "#000000");
         xo.addParam("SHOWLOGO", Boolean.toString(false));

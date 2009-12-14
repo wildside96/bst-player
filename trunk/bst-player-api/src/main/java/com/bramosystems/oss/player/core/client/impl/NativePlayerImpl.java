@@ -242,13 +242,39 @@ public class NativePlayerImpl extends JavaScriptObject {
         protected TimeRange() {
         }
 
+        /**
+         * Return the number of ranges represented by the object.
+         *
+         * @return number of ranges
+         */
         public final native double getLength() /*-{
         return this.length;
         }-*/;
 
+        /**
+         * Returns the position of the start of the indexth range represented by the object
+         *
+         * <p>
+         * Throws an exception if called with an index argument greater than or equal to the
+         * number of ranges represented by the object.
+         *
+         * @param index the index
+         * @return range in seconds measured from the start of the timeline that the object covers.
+         */
         public final native double getStart(double index) /*-{
         return this.start(index);
         }-*/;
+
+        /**
+         * Returns the position of the end of the range at index
+         *
+         * <p>
+         * Throws an exception if called with an index argument greater than or equal to the
+         * number of ranges represented by the object.
+         *
+         * @param index the index
+         * @return range in seconds measured from the start of the timeline that the object covers.
+         */
         public final native double getEnd(double index) /*-{
         return this.end(index);
         }-*/;
