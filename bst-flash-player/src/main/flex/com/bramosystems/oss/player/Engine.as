@@ -16,8 +16,6 @@
 
 package com.bramosystems.oss.player {
 
-    import flash.media.SoundTransform;
-
     public interface Engine {
 
         function _load(url:String):void;

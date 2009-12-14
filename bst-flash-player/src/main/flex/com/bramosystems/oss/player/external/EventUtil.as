@@ -57,7 +57,8 @@ package com.bramosystems.oss.player.external {
             // publisher[$]internetStationOwner[$]internetStationName[$]videoWidth[$]videoHeight
 
             var id3:String = "0[$] [$] [$] [$] [$] [$] [$] [$]" + (duration * 1000) +
-                             "[$]" + info + "[$] [$] [$] [$]" + width + "[$]" + height;
+                             "[$]" + info + "[$] [$] [$] [$]" + (isNaN(width) ? 0 : width) + "[$]" +
+                            (isNaN(height) ? 0 : height);
             ExternalInterface.call("bstSwfMdaMetadata", playerId, id3);
         }
 

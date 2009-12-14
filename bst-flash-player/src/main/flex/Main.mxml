@@ -76,6 +76,8 @@
                         vdu.addEventListener(PlayStateEvent.PLAY_PAUSED, playPaused);
                         vdu.addEventListener(PlayStateEvent.PLAY_FINISHED, playFinished);
                         vdu.setVolume(setting.getVolume());
+                        vdu.percentHeight = 100;
+                        vdu.percentWidth = 100;
 
     //                    stage.scaleMode = StageScaleMode.NO_BORDER;
                         setupCallbacks();
@@ -137,7 +139,6 @@
                 // matrix stuffs ... [since 1.1]
                 ExternalInterface.addCallback("getMdaMatrix", getMatrix);
                 ExternalInterface.addCallback("setMdaMatrix", setMatrix);
-
             }
 
             public function setDebugEnabled(enabled:Boolean):void {
