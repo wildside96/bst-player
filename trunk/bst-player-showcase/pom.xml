@@ -13,6 +13,10 @@
         Showcases the features of the BST Player API
     </description>
 
+    <properties>
+        <gwt.out>${project.build.directory}/${project.build.finalName}</gwt.out>
+    </properties>
+
     <build>
         <finalName>showcase</finalName>
         <plugins>
@@ -25,11 +29,27 @@
                         <goals>
                             <goal>compile</goal>
                         </goals>
+                        <configuration>
+                            <module>com.bramosystems.oss.player.showcase.Showcase</module>
+                            <style>DETAILED</style>
+                            <disableCastChecking>true</disableCastChecking>
+                            <disableClassMetadata>true</disableClassMetadata>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>js-case</id>
+                        <goals>
+                            <goal>compile</goal>
+                        </goals>
+                        <configuration>
+                            <module>com.bramosystems.oss.player.jshowcase.JSShowcase</module>
+                            <style>DETAILED</style>
+                            <webappDirectory>${gwt.out}/jscript</webappDirectory>
+                            <disableCastChecking>true</disableCastChecking>
+                            <disableClassMetadata>true</disableClassMetadata>
+                        </configuration>
                     </execution>
                 </executions>
-                <configuration>
-                    <module>com.bramosystems.oss.player.showcase.Showcase</module>
-                </configuration>
             </plugin>
         </plugins>
     </build>
@@ -38,7 +58,6 @@
         <dependency>
             <groupId>com.google.gwt</groupId>
             <artifactId>gwt-user</artifactId>
-            <version>1.7.0</version>
             <scope>provided</scope>
         </dependency>
         <dependency>

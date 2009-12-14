@@ -15,6 +15,7 @@
  */
 package com.bramosystems.oss.player.showcase.client;
 
+import com.bramosystems.oss.player.showcase.client.matrix.MatrixShowcase;
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
@@ -37,13 +38,16 @@ public class Showcase extends Composite implements EntryPoint, ValueChangeHandle
         Label banner = new Label("BST Player Showcase");
         banner.setStyleName("showcase-Banner");
 
+        Label version = new Label("Version 1.1-SNAPSHOT");
+        version.setStyleName("showcase-Version");
+
         HTML footer = new HTML("Copyright &copy; 2009 Braheem Sikiru<br/>" +
                 "All other product, service names, brands, or trademarks, are " +
                 "the property of their respective owners.");
         footer.setStyleName("showcase-Footer");
 
         menu = new StackPanel();
-        menu.setWidth("100%");
+        menu.setWidth("200px");
         Cases cases[] = Cases.values();
         for (Cases caze : cases) {
             addCaseItems(caze);
@@ -54,10 +58,12 @@ public class Showcase extends Composite implements EntryPoint, ValueChangeHandle
         dp.setHeight("100%");
         dp.setSpacing(5);
         dp.add(banner, DockPanel.NORTH);
+        dp.add(version, DockPanel.NORTH);
         dp.add(footer, DockPanel.SOUTH);
         dp.add(menu, DockPanel.WEST);
-        dp.setCellWidth(menu, "200px");
+//        dp.setCellWidth(menu, "200px");
         dp.add(panel, DockPanel.CENTER);
+        dp.setCellWidth(panel, "100%");
         initWidget(dp);
 
         History.addValueChangeHandler(this);
@@ -66,7 +72,7 @@ public class Showcase extends Composite implements EntryPoint, ValueChangeHandle
     public void onModuleLoad() {
         RootPanel.get("loading").setVisible(false);
         RootPanel.get().add(this);
-        
+
         History.fireCurrentHistoryState();
     }
 
@@ -75,28 +81,23 @@ public class Showcase extends Composite implements EntryPoint, ValueChangeHandle
         vp.setSpacing(10);
         String[] names = null;
         String[] links = null;
-        String header = null;
 
         switch (caze) {
             case wmp:
                 names = WMPShowcase.caseNames;
                 links = WMPShowcase.caseLinks;
-                header = "Windows Media Player";
                 break;
             case dyn:
                 names = DynaShowcase.caseNames;
                 links = DynaShowcase.caseLinks;
-                header = "Custom Audio Player";
                 break;
             case dynvd:
                 names = DynaVideoShowcase.caseNames;
                 links = DynaVideoShowcase.caseLinks;
-                header = "Custom Video Player";
                 break;
             case home:
                 names = SumShowcase.caseNames;
                 links = SumShowcase.caseLinks;
-                header = "Home";
                 break;
 //            case link:
 //                names = LinkShowcase.caseNames;
@@ -106,32 +107,30 @@ public class Showcase extends Composite implements EntryPoint, ValueChangeHandle
             case list:
                 names = PlaylistShowcase.caseNames;
                 links = PlaylistShowcase.caseLinks;
-                header = "Playlists";
                 break;
             case misc:
                 names = MiscShowcase.caseNames;
                 links = MiscShowcase.caseLinks;
-                header = "Miscellaneous Examples";
                 break;
             case qt:
                 names = QTShowcase.caseNames;
                 links = QTShowcase.caseLinks;
-                header = "QuickTime Plugin";
                 break;
             case swf:
                 names = SWFShowcase.caseNames;
                 links = SWFShowcase.caseLinks;
-                header = "Flash Plugin";
                 break;
             case vlc:
                 names = VLCShowcase.caseNames;
                 links = VLCShowcase.caseLinks;
-                header = "VLC Media Player";
                 break;
             case _native:
                 names = NativeShowcase.caseNames;
                 links = NativeShowcase.caseLinks;
-                header = "HTML 5 Native Player";
+                break;
+            case matrix:
+                names = MatrixShowcase.caseNames;
+                links = MatrixShowcase.caseLinks;
                 break;
         }
 
@@ -139,7 +138,7 @@ public class Showcase extends Composite implements EntryPoint, ValueChangeHandle
             vp.add(new Hyperlink(names[i], links[i]));
         }
 
-        menu.add(vp, header);
+        menu.add(vp, caze.getHeader());
     }
 
     public void onValueChange(ValueChangeEvent<String> event) {
@@ -197,15 +196,35 @@ public class Showcase extends Composite implements EntryPoint, ValueChangeHandle
             case misc:
                 cazze = new MiscShowcase();
                 break;
+            case matrix:
+                cazze = new MatrixShowcase();
+                break;
         }
         return cazze;
     }
 
     private enum Cases {
 
-        home, wmp, qt, swf, vlc, _native,
-        dyn, dynvd, list, 
-//        link,
-        misc
+        home("Home"),
+        wmp("Windows Media Player"),
+        qt("QuickTime Plugin"),
+        swf("Flash Plugin"),
+        vlc("VLC Media Player"),
+        _native("HTML 5 Native Player"),
+        dyn("Custom Audio Player"),
+        dynvd("Custom Video Player"),
+        list("Playlists"),
+        //        link,
+        matrix("Matrix Transformation"),
+        misc("Miscellaneous Examples");
+        String header;
+
+        private Cases(String header) {
+            this.header = header;
+        }
+
+        public String getHeader() {
+            return header;
+        }
     }
 }

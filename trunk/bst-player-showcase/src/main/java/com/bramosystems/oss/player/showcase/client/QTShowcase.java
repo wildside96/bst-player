@@ -22,6 +22,8 @@ import com.bramosystems.oss.player.core.client.PluginNotFoundException;
 import com.bramosystems.oss.player.core.client.PluginVersionException;
 import com.bramosystems.oss.player.core.client.ui.QuickTimePlayer;
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.event.dom.client.MouseMoveEvent;
+import com.google.gwt.event.dom.client.MouseMoveHandler;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
 
@@ -91,10 +93,23 @@ public class QTShowcase extends AbstractCase {
                 break;
             case 2:
                 try {
-                    QuickTimePlayer p = new QuickTimePlayer(GWT.getHostPageBaseURL() + "media/traffic.mp4",
+                    final Label lbl = new Label();
+                    final QuickTimePlayer p = new QuickTimePlayer(GWT.getHostPageBaseURL() + "media/traffic.mp4",
                             false, "300px", "100%");
                     p.showLogger(true);
-                    qt = p;
+                    p.addMouseMoveHandler(new MouseMoveHandler() {
+
+                        public void onMouseMove(MouseMoveEvent event) {
+                            lbl.setText("X:Y = " + event.getX() + ":" + event.getY());
+                        }
+                    });
+
+
+                    VerticalPanel vp = new VerticalPanel();
+                    vp.setWidth("100%");
+                    vp.add(p);
+                    vp.add(lbl);
+                    qt = vp;
                 } catch (LoadException ex) {
                     Window.alert("Load exp");
                 } catch (PluginVersionException ex) {

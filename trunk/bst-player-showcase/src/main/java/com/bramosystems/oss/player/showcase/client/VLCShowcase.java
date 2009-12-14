@@ -22,6 +22,8 @@ import com.bramosystems.oss.player.core.client.PluginNotFoundException;
 import com.bramosystems.oss.player.core.client.PluginVersionException;
 import com.bramosystems.oss.player.core.client.ui.VLCPlayer;
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.event.dom.client.MouseMoveEvent;
+import com.google.gwt.event.dom.client.MouseMoveHandler;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
 
@@ -90,10 +92,23 @@ public class VLCShowcase extends AbstractCase {
                 break;
             case 2:
                 try {
+                    final Label lbl = new Label();
+
                     VLCPlayer v1 = new VLCPlayer(GWT.getHostPageBaseURL() +
                             "media/traffic.flv", false, "350px", "100%");
                     v1.showLogger(true);
-                    v = v1;
+                    v1.doMouseEvents(new MouseMoveHandler() {
+
+                        public void onMouseMove(MouseMoveEvent event) {
+                            lbl.setText("X:Y = " + event.getX() + ":" + event.getY());
+                        }
+                    });
+                    VerticalPanel vp = new VerticalPanel();
+                    vp.setWidth("100%");
+                    vp.add(v1);
+                    vp.add(lbl);
+                    v = vp;
+//                    v = v1;
                 } catch (LoadException ex) {
                     Window.alert("Load exp");
                 } catch (PluginVersionException ex) {
@@ -104,10 +119,11 @@ public class VLCShowcase extends AbstractCase {
                 addCase("Embedding Video", null, v, "sources/vlc/video.html");
 
                 try {
-                    VLCPlayer v1 = new VLCPlayer(GWT.getHostPageBaseURL() +
+                    VLCPlayer v1V = new VLCPlayer(GWT.getHostPageBaseURL() +
                             "media/traffic.flv", false, "350px", "100%");
-                    v1.setResizeToVideoSize(true);
-                    v2 = v1;
+                    v1V.setResizeToVideoSize(true);
+                    v1V.showLogger(true);
+                    v2 = v1V;
                 } catch (LoadException ex) {
                     Window.alert("Load exp");
                 } catch (PluginVersionException ex) {

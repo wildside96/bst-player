@@ -123,17 +123,16 @@ public class DynaVideoShowcase extends AbstractCase {
             case 4:
                 try {
                     FlatVideoPlayer vp = new FlatVideoPlayer(Plugin.Native,
-//                            "http://streams.videolan.org/streams-videolan/vob/Starship_Troopers.vob",
-                            GWT.getHostPageBaseURL() + "media/traffic.mp4",
+                            GWT.getHostPageBaseURL() + "media/big-buck-bunny.mp4",
                             false, "350px", "100%");
                     vp.showLogger(true);
                     v = vp;
                 } catch (LoadException ex) {
                     Window.alert("Load exp");
                 } catch (PluginVersionException ex) {
-                    v = PlayerUtil.getMissingPluginNotice(Plugin.VLCPlayer, ex.getRequiredVersion());
+                    v = PlayerUtil.getMissingPluginNotice(Plugin.Native, ex.getRequiredVersion());
                 } catch (PluginNotFoundException ex) {
-                    v = PlayerUtil.getMissingPluginNotice(Plugin.VLCPlayer);
+                    v = PlayerUtil.getMissingPluginNotice(Plugin.Native);
                 }
                 addCase("Custom video playback with VLC Media Player", null,
                         v, "sources/custom-video/vlc.html");
@@ -141,7 +140,7 @@ public class DynaVideoShowcase extends AbstractCase {
             case 5:
                 try {
                     FlatVideoPlayer p = new FlatVideoPlayer(GWT.getHostPageBaseURL() +
-                            "media/traffic.mp4", false, "350px", "100%");
+                            "media/big-buck-bunny.mp4", false, "350px", "100%");
                     p.showLogger(true);
                     v = p;
                 } catch (LoadException ex) {

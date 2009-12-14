@@ -1,0 +1,21 @@
+<html>
+    <body>
+        <div class="media-desc">Raw Video: Restored Video of Apollo 11 Moonwalk
+            &copy; AssociatedPress Channel</div>
+        <pre><code>Widget w = null;
+PluginVersion plugVer = PluginVersion.get(9, 0, 0);
+try {
+    SWFWidget v = new SWFWidget(
+        "http://www.youtube.com/v/QbwZL-EK6CY&hl=en&fs=1&",
+        "100%", "350px", plugVer);
+    v.addProperty("bgcolor", "#000000");
+    w = v;
+} catch (PluginVersionException ex) {
+    w = SWFWidget.getMissingPluginNotice(plugVer);
+} catch (PluginNotFoundException ex) {
+    w = SWFWidget.getMissingPluginNotice(plugVer);
+}
+panel.add(w);
+        </code></pre>
+    </body>
+</html>
