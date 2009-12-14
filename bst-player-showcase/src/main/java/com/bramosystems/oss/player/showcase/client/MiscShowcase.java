@@ -22,7 +22,11 @@ import com.bramosystems.oss.player.core.client.Plugin;
 import com.bramosystems.oss.player.core.client.PluginNotFoundException;
 import com.bramosystems.oss.player.core.client.PluginVersion;
 import com.bramosystems.oss.player.core.client.PluginVersionException;
+import com.bramosystems.oss.player.core.client.skin.CustomPlayerControl;
 import com.bramosystems.oss.player.core.client.ui.SWFWidget;
+import com.bramosystems.oss.player.youtube.client.ChromelessPlayer;
+import com.bramosystems.oss.player.youtube.client.PlayerParameters;
+import com.bramosystems.oss.player.youtube.client.YouTubePlayer;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
@@ -47,7 +51,7 @@ public class MiscShowcase extends AbstractCase {
     @Override
     public void init(String token) {
         clearCases();
-        Widget w = null;
+        Widget w = null, w1 = null, w2 = null;
         int index = getTokenLinkIndex(caseLinks, token);
         switch (index) {
             case 0:
@@ -94,8 +98,46 @@ public class MiscShowcase extends AbstractCase {
                 } catch (PluginNotFoundException ex) {
                     w = SWFWidget.getMissingPluginNotice(plugVer);
                 }
-                addCase("Embedding YouTube video", "Raw Video: Restored Video " +
-                        "of Apollo 11 Moonwalk", w, "sources/misc/youtube.html");
+                addCase("Embedding YouTube video with SWFWidget", 
+                        "Useful if embedding video just for playback",
+                        w, "sources/misc/youtube-swfwidget.html");
+
+                try {
+                    PlayerParameters p = new PlayerParameters();
+                    p.setLoadRelatedVideos(false);
+                    p.setFullScreenEnabled(false);
+
+                    YouTubePlayer u = new YouTubePlayer("http://www.youtube.com/v/QbwZL-EK6CY",
+                            p, "100%", "350px");
+                    u.showLogger(true);
+                    w1 = u;
+                } catch (PluginVersionException ex) {
+                    w1 = PlayerUtil.getMissingPluginNotice(
+                            ex.getPlugin(),ex.getRequiredVersion());
+                } catch (PluginNotFoundException ex) {
+                    w1 = PlayerUtil.getMissingPluginNotice(ex.getPlugin());
+                }
+                addCase("Embedding YouTube video with YouTubePlayer widget", 
+                        "Widget exposes player controls and events",
+                        w1, "sources/misc/youtube-widget.html");
+
+                try {
+                    ChromelessPlayer cp = new ChromelessPlayer("http://www.youtube.com/v/QbwZL-EK6CY&hl=en&fs=1&",
+                            "100%", "350px");
+                    CustomPlayerControl cpc = new CustomPlayerControl(cp);
+
+                    FlowPanel fp = new FlowPanel();
+                    fp.add(cp);
+                    fp.add(cpc);
+                    w2 = fp;
+                } catch (PluginVersionException ex) {
+                    w2 = PlayerUtil.getMissingPluginNotice(
+                            ex.getPlugin(),ex.getRequiredVersion());
+                } catch (PluginNotFoundException ex) {
+                    w2 = PlayerUtil.getMissingPluginNotice(ex.getPlugin());
+                }
+                addCase("Custom YouTube video player with ChromelessPlayer widget",
+                        null, w2, "sources/misc/youtube-chrome.html");
                 break;
         }
     }

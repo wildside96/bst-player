@@ -22,6 +22,14 @@ import com.bramosystems.oss.player.core.client.PluginNotFoundException;
 import com.bramosystems.oss.player.core.client.PluginVersionException;
 import com.bramosystems.oss.player.core.client.ui.FlashMediaPlayer;
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.event.dom.client.KeyDownEvent;
+import com.google.gwt.event.dom.client.KeyDownHandler;
+import com.google.gwt.event.dom.client.KeyPressEvent;
+import com.google.gwt.event.dom.client.KeyPressHandler;
+import com.google.gwt.event.dom.client.KeyUpEvent;
+import com.google.gwt.event.dom.client.KeyUpHandler;
+import com.google.gwt.event.dom.client.MouseMoveEvent;
+import com.google.gwt.event.dom.client.MouseMoveHandler;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
 
@@ -61,7 +69,7 @@ public class SWFShowcase extends AbstractCase {
                 addCase("Playing MP3 media automatically", null, mp, "sources/swf/auto.html");
 
                 try {
-                    mp2 = new FlashMediaPlayer(GWT.getHostPageBaseURL() + "media/thunder.mp3", false);
+                    mp2 = new FlashMediaPlayer(GWT.getHostPageBaseURL() + "media/thunder.mp3", false, "50px", "100%");
                 } catch (LoadException ex) {
                     Window.alert("Load exp");
                 } catch (PluginVersionException ex) {
@@ -103,10 +111,44 @@ public class SWFShowcase extends AbstractCase {
                 addCase("Embedding video", null, mp, "sources/swf/video.html");
 
                 try {
+                    final Label lbl = new Label();
                     FlashMediaPlayer mmp = new FlashMediaPlayer(GWT.getHostPageBaseURL() + "media/traffic.flv",
                             false, "350px", "100%");
                     mmp.setResizeToVideoSize(true);
-                    mp2 = mmp;
+                    mmp.showLogger(true);
+                    mmp.addMouseMoveHandler(new MouseMoveHandler() {
+
+                        public void onMouseMove(MouseMoveEvent event) {
+                            lbl.setText("x:y = " + event.getX() + ":" + event.getY() +
+                                    ", cx:cy = " + event.getClientX() + ":" + event.getClientY() +
+                                    ", sx:xy = " + event.getScreenX() + ":" + event.getScreenY());
+                        }
+                    });
+                    mmp.addKeyDownHandler(new KeyDownHandler() {
+
+                        public void onKeyDown(KeyDownEvent event) {
+                            lbl.setText("KeyDown = " + event.getNativeKeyCode());
+                        }
+                    });
+                    mmp.addKeyUpHandler(new KeyUpHandler() {
+
+                        public void onKeyUp(KeyUpEvent event) {
+                            lbl.setText("KeyDown = " + event.getNativeKeyCode());
+                        }
+                    });
+                    mmp.addKeyPressHandler(new KeyPressHandler() {
+
+                        public void onKeyPress(KeyPressEvent event) {
+                            lbl.setText("KeyPress = " + event.getCharCode());
+                        }
+                    });
+
+                    VerticalPanel vp = new VerticalPanel();
+                    vp.setWidth("100%");
+                    vp.add(mmp);
+                    vp.add(lbl);
+
+                    mp2 = vp;// mmp;
                 } catch (LoadException ex) {
                     Window.alert("Load exp");
                 } catch (PluginVersionException ex) {

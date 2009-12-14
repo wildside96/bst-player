@@ -21,6 +21,8 @@ import com.bramosystems.oss.player.core.client.Plugin;
 import com.bramosystems.oss.player.core.client.PluginNotFoundException;
 import com.bramosystems.oss.player.core.client.ui.NativePlayer;
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.event.dom.client.MouseMoveEvent;
+import com.google.gwt.event.dom.client.MouseMoveHandler;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
 import java.util.ArrayList;
@@ -80,32 +82,32 @@ public class NativeShowcase extends AbstractCase {
                 }
                 addCase("Playing sound with logger widget visible", null,
                         mp, "sources/swf/show-logger.html");
-
-                Widget w = null;
-                try {
-                    ArrayList<NativePlayer.MediaItem> items = new ArrayList<NativePlayer.MediaItem>();
-                    items.add(new NativePlayer.MediaItem(GWT.getHostPageBaseURL() +
-                            "media/traffic.mp4", "video/mp4"));
-
-//                    w = new NativePlayer(items, false, "250px", "100%");
-//                    w = new NativePlayer(GWT.getHostPageBaseURL() + "media/o-na-som.mp4", false, "250px", "100%");
-                    w = new NativePlayer("http://localhost/downloads3/MEDIAs/AUDIOs/Brandy/" +
-                            "Full%20Moon/02%20Full%20Moon.mp3", false, "250px", "100%");
-                } catch (LoadException ex) {
-                    Window.alert("Load exception");
-                } catch (PluginNotFoundException ex) {
-                    w = PlayerUtil.getMissingPluginNotice(Plugin.Native);
-                }
-                addCase("HTML 5 Native Player", null, w, null);
                 break;
             case 2:
                 try {
-                    NativePlayer mmp = new NativePlayer(GWT.getHostPageBaseURL() + "media/traffic.mp4",
-                            false, "350px", "100%");
+                    final Label lbl = new Label();
+
+                    ArrayList<NativePlayer.MediaItem> items = new ArrayList<NativePlayer.MediaItem>();
+                    items.add(new NativePlayer.MediaItem(GWT.getHostPageBaseURL() + "media/big-buck-bunny.mp4"));
+                    items.add(new NativePlayer.MediaItem(GWT.getHostPageBaseURL() + "media/big-buck-bunny.ogv"));
+
+                    NativePlayer mmp = new NativePlayer(items, false, "350px", "100%");
+                    mmp.setResizeToVideoSize(true);
                     mmp.showLogger(true);
-                    mp = mmp;
+
+                    mmp.addMouseMoveHandler(new MouseMoveHandler() {
+
+                        public void onMouseMove(MouseMoveEvent event) {
+                            lbl.setText("X:Y = " + event.getX() + ":" + event.getY());
+                        }
+                    });
+                    VerticalPanel vp = new VerticalPanel();
+                    vp.setWidth("100%");
+                    vp.add(mmp);
+                    vp.add(lbl);
+                    mp = vp; //mmp;
                 } catch (LoadException ex) {
-                    Window.alert("Load exp");
+                    Window.alert("Load exception");
                 } catch (PluginNotFoundException ex) {
                     mp = PlayerUtil.getMissingPluginNotice(Plugin.Native);
                 }
