@@ -39,11 +39,6 @@ public abstract class AbstractMediaPlayer extends Composite implements HasMediaS
     private HashMap<String, Command> readyCmdQueue;
     private ArrayList<String> cmdKeys;
 
-    public static enum TransparencyMode {
-
-        Window, Opaque, Transparent;
-    }
-
     /**
      * Constructor method.
      */
@@ -454,17 +449,30 @@ public abstract class AbstractMediaPlayer extends Composite implements HasMediaS
     }-*/;
 
     /**
-     * Sets the transparency mode for a video file (if available). Used
-     * to allow images, text, or popup windows to overlay on top of movie.
+     * Sets the specified player parameter to the specified value IF AND ONLY IF the
+     * parameter is applicable on the player
      *
-     * To remove this property on the player after it has been set,
-     * call setTransparencyMode(null)
+     * <p><b>Note:</b> The parameter-value pairs are applied as HTML param tags
+     * on the underlying player plugin, therefore this method should be called
+     * before adding this player to a panel otherwise the method call will have
+     * no effect.</p>
      *
-     * @param mode the AbstractMediaPlayer.TransparencyMode to use in playback.
+     * <p><h4>Overriding in a subclass</h4>
+     * This method should be called first by any subclass that overrides it. This
+     * implementation checks if the specified value is a valid type for the specified
+     * parameter.</p>
+     *
+     * @param param the configuration parameter
+     * @param value the parameter value
+     * @param <T> the paramter value type
+     * @throws IllegalArgumentException if value is not of the required type
      * @since 1.1
-     *
      */
-    public void setTransparencyMode(TransparencyMode mode) {
+    public <T extends ConfigValue> void setConfigParameter(ConfigParameter param, T value) {
+        if((value != null) && (value.getClass() != param.getValueType())) {
+            throw new IllegalArgumentException("Found ConfigParameter type " +
+                    value.getClass() + ", Requires " + param.getValueType() + " for value!");
+        }
     }
 
     public HandlerRegistration addMouseMoveHandler(MouseMoveHandler handler) {

@@ -161,6 +161,9 @@ public class NativePlayer extends AbstractMediaPlayer implements HasMouseDownHan
         impl.pause();
     }
 
+    /**
+     * @deprecated As of version 1.1. Remove widget from panel instead.
+     */
     @Override
     public void close() {
     }
