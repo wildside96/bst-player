@@ -9,7 +9,6 @@
     <head>
         <meta name="description" content="Get started adding sound and video to GWT
         applications using with your favourite plugins." />
-        <meta name="robots" content="index,follow" />
     </head>
     <body>
         <section name="Getting Started">
@@ -77,7 +76,7 @@ player.setVolume(0.8); // sets the playback volume to 80% of maximum
                 </source>
 
                 <p>
-                    Refer to the API documentation for details.
+                    Refer to the <a href="bst-player-api/apidocs/index.html">API documentation</a> for details.
                 </p>
                 <p>
                     <b>
@@ -128,7 +127,6 @@ try {
                     <a href="#">Top</a>
                 </div>
             </subsection>
-
 
             <subsection name="Playing Flash supported media">
                 <p>
@@ -181,7 +179,7 @@ try {
                     of numerous media formats.
                 </p>
                 <p>
-                    The following example gives shows a basic usage:
+                    The following example shows a basic usage:
                 </p>
                 <source>
 SimplePanel panel = new SimplePanel();   // create panel to hold the player
@@ -206,6 +204,112 @@ try {
                 <p>
                     <b>
                         <i>NOTE:- VLC Player plugin 1.0.0 or later is required</i>
+                    </b>
+                </p>
+                <div class="top">
+                    <a href="#">Top</a>
+                </div>
+            </subsection>
+
+            <subsection name="Embedding HTML 5 media handlers">
+                <p>
+                    As of version 1.1, the <b>NativePlayer</b> class in the
+                    <i>com.bramosystems.oss.player.core.client.ui</i> package wraps the
+                    HTML 5 video element for use in HTML 5 supported browsers.
+                </p>
+                <p>
+                    The following example shows a basic usage:
+                </p>
+                <source>
+SimplePanel panel = new SimplePanel();   // create panel to hold the player
+AbstractMediaPlayer player = null;
+try {
+     // create the player, specifing URL of media
+     player = new NativePlayer("www.example.com/mediafile.ogv");
+     panel.setWidget(player); // add player to panel.
+} catch(LoadException e) {
+     // catch loading exception and alert user
+     Window.alert("An error occured while loading");
+} catch(PluginNotFoundException e) {
+     // catch PluginNotFoundException, thrown if client
+     // browser is not HTML 5 compliant
+     panel.setWidget(PlayerUtil.getMissingPluginNotice(e.getPlugin()));
+}
+                </source>
+                <p>
+                    <b>
+                        <i>NOTE:- Works only on HTML 5 supported browsers</i>
+                    </b>
+                </p>
+                <div class="top">
+                    <a href="#">Top</a>
+                </div>
+            </subsection>
+
+            <subsection name="Embedding YouTube video">
+                <p>
+                    As of version 1.1, the YouTube module exposes the YouTube Player API
+                    inline with the interface/event handler definitions of the BST Player.
+                </p>
+                <p>
+                    The <b>YouTubePlayer</b> class in the
+                    <i>com.bramosystems.oss.player.youtube.client</i> package wraps the
+                    YouTube video player
+                </p>
+                <p>
+                    Following is an example:
+                </p>
+                <source>
+SimplePanel panel = new SimplePanel();   // create panel to hold the player
+AbstractMediaPlayer player = null;
+try {
+     // create the player, specifing URL of media
+     player = new YouTubePlayer("http://www.youtube.com/v/video-id");
+     panel.setWidget(player); // add player to panel.
+} catch(PluginVersionException e) {
+     // required Flash plugin version is not available,
+     // alert user possibly providing a link to the plugin download page.
+     panel.setWidget(new HTML(".. some nice message telling the " +
+           "user to download plugin first .."));
+} catch(PluginNotFoundException e) {
+     // required Flash plugin not found, display a friendly notice.
+     panel.setWidget(PlayerUtil.getMissingPluginNotice(e.getPlugin()));
+}
+                </source>
+                <p>
+                    The <b>ChromelessPlayer</b> class is also available to enable custom controls
+                    with the YouTube player.
+                </p>
+                <p>
+                    The following is an example:
+                </p>
+                <source>
+SimplePanel panel = new SimplePanel();   // create panel to hold the player
+AbstractMediaPlayer player = null;
+try {
+     // create the player, specifing URL of media
+    player = new ChromelessPlayer("http://www.youtube.com/v/video-id",
+        "100%", "350px");
+    CustomPlayerControl cpc = new CustomPlayerControl(cp);
+
+    FlowPanel fp = new FlowPanel();
+    fp.add(player);
+    fp.add(cpc);
+    panel.setWidget(fp); // add player and custom control to panel.
+} catch(PluginVersionException e) {
+     // required Flash plugin version is not available,
+     // alert user possibly providing a link to the plugin download page.
+     panel.setWidget(new HTML(".. some nice message telling the " +
+           "user to download plugin first .."));
+} catch(PluginNotFoundException e) {
+     // required Flash plugin not found, display a friendly notice.
+     panel.setWidget(PlayerUtil.getMissingPluginNotice(e.getPlugin()));
+}
+                </source>
+                <p>
+                    <b>
+                        <i>NOTE:- Modules that use the YouTubePlayer widget should inherit
+                        the <code>com.bramosystems.oss.player.youtube.YouTube</code> module.</i>
                     </b>
                 </p>
             </subsection>

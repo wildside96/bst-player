@@ -8,8 +8,7 @@
     </properties>
     
     <head>
-        <meta name="description" content="Moving from previous releases in simple steps" />
-        <meta name="robots" content="index,follow" />
+        <meta name="description" content="Migrate from previous BST Player releases in simple steps" />
     </head>
     <body>
         <section name="Migrating from version 0.6">
