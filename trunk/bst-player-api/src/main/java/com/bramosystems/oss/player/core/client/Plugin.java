@@ -15,6 +15,8 @@
  */
 package com.bramosystems.oss.player.core.client;
 
+import com.bramosystems.oss.player.core.client.geom.MatrixSupport;
+
 /**
  * An enum of supported media player plugins
  *

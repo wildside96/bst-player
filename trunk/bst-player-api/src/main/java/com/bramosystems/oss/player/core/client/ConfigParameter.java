@@ -16,34 +16,45 @@
  */
 package com.bramosystems.oss.player.core.client;
 
-import java.util.HashMap;
+import com.bramosystems.oss.player.core.client.ui.WinMediaPlayer.UIMode;
 
 /**
+ * An enum of player configuration parameters.
+ *
+ * <p>The parameters are applied as HTML param tags on the underlying player
+ * plugin.</p>
  *
  * @author Sikiru Braheem <sbraheem at bramosystems . com>
+ * @since 1.1
  */
-public class ConfigParameter {
+public enum ConfigParameter {
 
-    private HashMap<String, String> params;
+    /**
+     * Parameter for the transparency mode for a player (if available).
+     *
+     * <p>This parameter requires a {@linkplain TransparencyMode} value type
+     */
+    TransparencyMode(TransparencyMode.class),
 
-    public ConfigParameter() {
-        params = new HashMap<String, String>();
+    /**
+     * Parameter for WinMediaPlayers' UI Mode property.
+     *
+     * <p>The mode indicates which controls are shown on the user interface.</p>
+     * <p>This parameter requires a {@linkplain UIMode} value type
+     */
+    WMPUIMode(UIMode.class);
+    private Class valueType;
+
+    private ConfigParameter(Class valueType) {
+        this.valueType = valueType;
     }
 
-    protected void setParameter(String name, String value) {
-        params.put(name, value);
-    }
-
-    protected String getParameter(String name) {
-        return params.get(name);
-    }
-
-    public HashMap<String, String> getParameterMap() {
-        return params;
-    }
-
-    public static enum TransparencyMode {
-
-        Transparent, Window, Opaque
+    /**
+     * Returns the required value type for this parameter.
+     *
+     * @return the required type of value
+     */
+    public Class getValueType() {
+        return valueType;
     }
 }

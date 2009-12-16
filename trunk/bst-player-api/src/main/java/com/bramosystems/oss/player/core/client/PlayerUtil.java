@@ -115,11 +115,11 @@ public class PlayerUtil {
             }
         }
 
-        return _getPlayer(pg, mediaURL, autoplay, height, width, null);
+        return _getPlayer(pg, mediaURL, autoplay, height, width);
     }
 
     private static AbstractMediaPlayer _getPlayer(Plugin plugin, String mediaURL,
-            boolean autoplay, String height, String width, ConfigParameter params) throws LoadException,
+            boolean autoplay, String height, String width) throws LoadException,
             PluginVersionException, PluginNotFoundException {
         AbstractMediaPlayer player;
         switch (plugin) {
@@ -133,7 +133,7 @@ public class PlayerUtil {
                 player = new QuickTimePlayer(mediaURL, autoplay, height, width);
                 break;
             case WinMediaPlayer:
-                player = new WinMediaPlayer(mediaURL, autoplay, height, width, params);
+                player = new WinMediaPlayer(mediaURL, autoplay, height, width);
                 break;
             case Native:
                 player = new NativePlayer(mediaURL, autoplay, height, width);
@@ -184,12 +184,6 @@ public class PlayerUtil {
     public static AbstractMediaPlayer getPlayer(Plugin plugin, String mediaURL,
             boolean autoplay, String height, String width)
             throws LoadException, PluginNotFoundException, PluginVersionException {
-        return getPlayer(plugin, mediaURL, autoplay, height, width, null);
-    }
-
-    public static AbstractMediaPlayer getPlayer(Plugin plugin, String mediaURL,
-            boolean autoplay, String height, String width, ConfigParameter params)
-            throws LoadException, PluginNotFoundException, PluginVersionException {
         String protocol = null;
         if (mediaURL.contains("://")) {
             protocol = mediaURL.substring(0, mediaURL.indexOf("://"));
@@ -221,9 +215,9 @@ public class PlayerUtil {
                     break;
                 }
             }
-            return _getPlayer(pg, mediaURL, autoplay, height, width, params);
+            return _getPlayer(pg, mediaURL, autoplay, height, width);
         } else {
-            return _getPlayer(plugin, mediaURL, autoplay, height, width, params);
+            return _getPlayer(plugin, mediaURL, autoplay, height, width);
         }
     }
 

@@ -72,7 +72,8 @@ public abstract class CustomVideoPlayer extends AbstractMediaPlayer implements P
             throw new NullPointerException("width cannot be null");
         }
 
-        engine = PlayerUtil.getPlayer(playerPlugin, mediaURL, autoplay, height, "100%", new CVParams());
+        engine = PlayerUtil.getPlayer(playerPlugin, mediaURL, autoplay, height, "100%");
+        engine.setConfigParameter(ConfigParameter.WMPUIMode, WinMediaPlayer.UIMode.INVISIBLE);
         engine.addDebugHandler(new DebugHandler() {
 
             public void onDebug(DebugEvent event) {
@@ -317,12 +318,4 @@ public abstract class CustomVideoPlayer extends AbstractMediaPlayer implements P
      * @param height the height of the media (in pixels)
      */
     protected abstract void onVideoDimensionChanged(int width, int height);
-
-    private class CVParams extends ConfigParameter {
-
-        public CVParams() {
-            // workaround for WMP in Google Chrome
-            setParameter("uimode", WinMediaPlayer.UIMode.NONE.name().toLowerCase());
-        }        
-    }
 }

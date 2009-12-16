@@ -559,7 +559,7 @@ public final class QuickTimePlayer extends AbstractMediaPlayer implements Matrix
      *
      * @since 1.0
      * @see <a href='http://developer.apple.com/documentation/QuickTime/RM/MovieBasics/MTEditing/A-Intro/1Introduction.htm1'>QuickTime Movie Basics</a>
-     * @deprecated As of version 1.1, Replaced with {@link com.bramosystems.oss.player.core.client.TransformationMatrix}
+     * @deprecated As of version 1.1, Replaced with {@link com.bramosystems.oss.player.core.client.geom.TransformationMatrix}
      */
     public static class TransformationMatrix {
 

@@ -259,6 +259,18 @@ public class FlashMediaPlayer extends AbstractMediaPlayer implements PlaylistSup
         }
     }
 
+    /**
+     * Overriden to release associated resources
+     */
+    @Override
+    protected void onUnload() {
+        impl.closeMedia();
+        manager.closeMedia(playerId);
+    }
+
+    /**
+     * @deprecated As of version 1.1, remove player from panel instead
+     */
     public void close() {
         impl.closeMedia();
         manager.closeMedia(playerId);
@@ -479,25 +491,6 @@ public class FlashMediaPlayer extends AbstractMediaPlayer implements PlaylistSup
         return resizeToVideoSize;
     }
 
-    @Override
-    public void setTransparencyMode(TransparencyMode mode) {
-        if (mode == null) {
-            swf.addProperty("wmode", null);
-        } else {
-            switch (mode) {
-                case Window:
-                    swf.addProperty("wmode", "window");
-                    break;
-                case Opaque:
-                    swf.addProperty("wmode", "opaque");
-                    break;
-                case Transparent:
-                    swf.addProperty("wmode", "transparent");
-                    break;
-            }
-        }
-    }
-
     /**
      * Sets the transformation matrix of the underlying Flash player.
      *
@@ -537,4 +530,18 @@ public class FlashMediaPlayer extends AbstractMediaPlayer implements PlaylistSup
         matrix.getMatrix().getVy().setZ(Double.parseDouble(elements[5]));
         return matrix;
     }
+
+    @Override
+    public <T extends ConfigValue> void setConfigParameter(ConfigParameter param, T value) {
+        super.setConfigParameter(param, value);
+        switch (param) {
+            case TransparencyMode:
+                if (value != null) {
+                    swf.addProperty("wmode", ((TransparencyMode) value).name().toLowerCase());
+                } else {
+                    swf.addProperty("wmode", null);
+                }
+        }
+    }
 }
+
