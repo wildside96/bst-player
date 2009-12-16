@@ -4,7 +4,6 @@
   xsi:schemaLocation="http://maven.apache.org/XDOC/2.0 http://maven.apache.org/xsd/xdoc-2.0.xsd">
     <head>
         <meta name="description" content="Information about released packages" />
-        <meta name="robots" content="index,follow" />
     </head>
 
     <properties>
@@ -17,12 +16,33 @@
                 This page contains information on the various released packages of the project.
             </p>
 
+            <subsection name="-- ---- 2009 - Version 1.1">
+                <p>
+                    <b>New Features</b>
+                </p>
+
+                <ul>
+                    <li>Adds NativePlayer widget to embed media using HTML 5 video elements.</li>
+                    <li>Introduces YouTube module to wrap YouTube player as GWT widget</li>
+                    <li>Adds matrix transformation feature support</li>
+                </ul>
+
+                <p>
+                    <b>Improvements</b>
+                </p>
+
+                <ul>
+                    <li>Adds support for Mouse and Keyboard event handlers</li>
+                </ul>
+            </subsection>
+
             <subsection name="26 July 2009 - Version 1.0">
                 <p>
                     <b>New Features</b>
                 </p>
 
                 <ul>
+                    <li>Supports GWT 1.7</li>
                     <li>Introduces VLCPlayer widget to embed VLC Media Player plugin.</li>
                     <li>Players can auto-adjust size to match the dimension of videos</li>
                     <li>Client-side playlists support added</li>
@@ -51,7 +71,7 @@
                     <b>Bug Fixes</b>
                 </p>
                 <ul>
-                    <li>Method calls on QuickTimePlayer object now work in Internet Explorer</li>
+                    <li>Method calls on QuickTimePlayer object works in Internet Explorer</li>
                 </ul>
             </subsection>
 
@@ -83,7 +103,7 @@
                 <ul >
                     <li>
                         All WinMediaPlayer constructors work as expected -
-                        (<a href="http://code.google.com/p/bst-player/issues/detail?id=2">Issue 2</a>)
+                        (<a href="http://code.google.com/p/bst-player/issues/detail?id=2">Issue #2</a>)
                     </li>
                 </ul>
 

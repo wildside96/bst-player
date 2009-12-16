@@ -8,7 +8,10 @@
     <name>BST Player</name>
     <url>http://oss.bramosystems.com/bst-player</url>
     <inceptionYear>2009</inceptionYear>
-    <description>Parent POM for the BST Player API Modules</description>
+    <description>
+        Provides a consistent API to embed popular web media player plugins (such as Windows Media Player,
+        QuickTime player, Flash player, VLC Media Player etc) in GWT applications
+    </description>
 
     <licenses>
         <license>
@@ -22,6 +25,10 @@
             <id>sbraheem</id>
             <name>Sikiru Braheem</name>
             <email>sbraheem@bramosystems.com</email>
+        </developer>
+        <developer>
+            <id>sselikoff</id>
+            <name>Scott Selikoff</name>
         </developer>
     </developers>
     <contributors>
@@ -67,7 +74,7 @@
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>gwt-maven-plugin</artifactId>
-                    <version>1.1</version>
+                    <version>${gwtMojoPluginVersion}</version>
                 </plugin>
             </plugins>
         </pluginManagement>
@@ -82,8 +89,19 @@
     </build>
 
     <properties>
-        <gwtVersion>1.6.4</gwtVersion>
+        <gwtVersion>1.7.1</gwtVersion>
+        <gwtMojoPluginVersion>1.1</gwtMojoPluginVersion>
+
+        <!--gwtMojoPluginVersion>1.2</gwtMojoPluginVersion>
+        <gwtVersion>2.0.0</gwtVersion-->
     </properties>
+
+<!--pluginRepositories>
+    <pluginRepository>
+      <id>staged-releases</id>
+      <url>http://people.apache.org/~nicolas/staging</url>
+    </pluginRepository>
+  </pluginRepositories-->
 
     <dependencyManagement>
         <dependencies>

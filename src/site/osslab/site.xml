@@ -11,11 +11,13 @@
             <item name="Migration Guide" href="migration.html" />
             <item name="Download" href="http://code.google.com/p/bst-player/downloads/list" />
             <item name="Forum" href="http://groups.google.com/group/bst-player" />
+            <item name="Issues" href="http://code.google.com/p/bst-player/issues/" />
         </menu>
         <menu name="Demo Application">
             <item name="BST Player Showcase" href="demo/showcase/index.html" />
         </menu>
         <menu ref="modules" />
+        <menu ref="reports" />
     </body>
     <poweredBy>
         <logo name="Maven" href="http://maven.apache.org/"

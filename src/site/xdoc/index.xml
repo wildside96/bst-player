@@ -4,12 +4,14 @@
   xsi:schemaLocation="http://maven.apache.org/XDOC/2.0 http://maven.apache.org/xsd/xdoc-2.0.xsd">
 
     <properties>
-        <title>Search</title>
+        <title>Overview</title>
     </properties>
     
     <head>
-        <meta name="description" content="search results" />
-        <meta name="robots" content="nofollow" />
+        <meta name="description" content="BST Player provides a consistent API to add
+        Windows Media Player, QuickTime, VLC Media Player and Flash plugins to GWT applications.
+        It also feature a module to embed YouTube videos and classes to facilitate custom player
+        controls" />
     </head>
     <body>
         <section name="Overview">
@@ -39,6 +41,10 @@
                 controls (skins).  The custom players can be used like a cross-browser media
                 player in GWT applications. Exceptions are thrown in the absence of a required plugin,
                 hence allowing you to display an alternative message (or widget).
+            </p>
+            <p>
+                Read the <a href="getting-started.html">Getting Started</a> guide for the general
+                usage of the API.
             </p>
 
             <subsection name="Demo">
