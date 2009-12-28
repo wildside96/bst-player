@@ -94,7 +94,7 @@ public abstract class MediaSeekBar extends Composite implements MouseUpHandler, 
     }
 
     /**
-     * Set the progress of the media loading operation.
+     * Set the progress of the media playback operation.
      *
      * @param playingProgress progress should be between {@code 0} (the minimum)
      * and {@code 1} (the maximum). Any value outside the range will be ignored.

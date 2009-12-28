@@ -98,50 +98,7 @@ public class PlayerUtil {
     public static AbstractMediaPlayer getPlayer(String mediaURL,
             boolean autoplay, String height, String width)
             throws LoadException, PluginNotFoundException, PluginVersionException {
-        String protocol = null;
-        if (mediaURL.contains("://")) {
-            protocol = mediaURL.substring(0, mediaURL.indexOf("://"));
-        }
-
-        String ext = mediaURL.substring(mediaURL.lastIndexOf(".") + 1);
-
-        Plugin pg = Plugin.Auto;
-        Plugin plugins[] = Plugin.values();
-
-        for (int i = 0; i < plugins.length; i++) {
-            if (impl.canHandleMedia(plugins[i], protocol, ext)) {
-                pg = plugins[i];
-                break;
-            }
-        }
-
-        return _getPlayer(pg, mediaURL, autoplay, height, width);
-    }
-
-    private static AbstractMediaPlayer _getPlayer(Plugin plugin, String mediaURL,
-            boolean autoplay, String height, String width) throws LoadException,
-            PluginVersionException, PluginNotFoundException {
-        AbstractMediaPlayer player;
-        switch (plugin) {
-            case VLCPlayer:
-                player = new VLCPlayer(mediaURL, autoplay, height, width);
-                break;
-            case FlashPlayer:
-                player = new FlashMediaPlayer(mediaURL, autoplay, height, width);
-                break;
-            case QuickTimePlayer:
-                player = new QuickTimePlayer(mediaURL, autoplay, height, width);
-                break;
-            case WinMediaPlayer:
-                player = new WinMediaPlayer(mediaURL, autoplay, height, width);
-                break;
-            case Native:
-                player = new NativePlayer(mediaURL, autoplay, height, width);
-                break;
-            default:
-                throw new PluginNotFoundException();
-        }
-        return player;
+        return getPlayer(Plugin.Auto, mediaURL, autoplay, height, width);
     }
 
     /**
@@ -179,7 +136,7 @@ public class PlayerUtil {
      * @throws PluginNotFoundException if the required plugin is not installed on the client.
      *
      * @since 1.0
-     * @see #getPlayer(java.lang.String, boolean, java.lang.String, java.lang.String)
+     * @see #getPlayer(String, boolean, String, String)
      */
     public static AbstractMediaPlayer getPlayer(Plugin plugin, String mediaURL,
             boolean autoplay, String height, String width)
@@ -219,6 +176,32 @@ public class PlayerUtil {
         } else {
             return _getPlayer(plugin, mediaURL, autoplay, height, width);
         }
+    }
+
+    private static AbstractMediaPlayer _getPlayer(Plugin plugin, String mediaURL,
+            boolean autoplay, String height, String width) throws LoadException,
+            PluginVersionException, PluginNotFoundException {
+        AbstractMediaPlayer player;
+        switch (plugin) {
+            case VLCPlayer:
+                player = new VLCPlayer(mediaURL, autoplay, height, width);
+                break;
+            case FlashPlayer:
+                player = new FlashMediaPlayer(mediaURL, autoplay, height, width);
+                break;
+            case QuickTimePlayer:
+                player = new QuickTimePlayer(mediaURL, autoplay, height, width);
+                break;
+            case WinMediaPlayer:
+                player = new WinMediaPlayer(mediaURL, autoplay, height, width);
+                break;
+            case Native:
+                player = new NativePlayer(mediaURL, autoplay, height, width);
+                break;
+            default:
+                throw new PluginNotFoundException();
+        }
+        return player;
     }
 
     /**

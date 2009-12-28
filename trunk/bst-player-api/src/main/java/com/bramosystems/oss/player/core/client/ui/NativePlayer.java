@@ -40,6 +40,27 @@ import com.google.gwt.user.client.ui.Widget;
 import java.util.ArrayList;
 
 /**
+ * Widget to embed media files with HTML 5 video elements in compliant browsers.
+ *
+ * <h3>Usage Example</h3>
+ *
+ * <p>
+ * <code><pre>
+ * SimplePanel panel = new SimplePanel();   // create panel to hold the player
+ * Widget player = null;
+ * try {
+ *      // create the player
+ *      player = new NativePlayer("www.example.com/mediafile.ogg");
+ * } catch(LoadException e) {
+ *      // catch loading exception and alert user
+ *      Window.alert("An error occured while loading");
+ * } catch(PluginNotFoundException e) {
+ *      // PluginNotFoundException thrown if browser does not support HTML 5 specs.
+ *      player = PlayerUtil.getMissingPluginNotice(e.getPlugin());
+ * }
+ *
+ * panel.setWidget(player); // add player to panel.
+ * </pre></code>
  *
  * @author Sikirulai Braheem <sbraheem at bramosystems dot com>
  */
@@ -48,10 +69,9 @@ public class NativePlayer extends AbstractMediaPlayer implements HasMouseDownHan
 
     private NumberFormat volFmt = NumberFormat.getPercentFormat();
     private NativePlayerImpl impl;
-    private String playerId,  _height,  _width;
-    private FlowPanel panel;
+    private String playerId, _height, _width;
     private Widget playerWidget;
-    private boolean adjustToVideoSize,  isEmbedded;
+    private boolean adjustToVideoSize, isEmbedded;
     private Logger logger;
 
     private NativePlayer() throws PluginNotFoundException {
@@ -64,7 +84,7 @@ public class NativePlayer extends AbstractMediaPlayer implements HasMouseDownHan
     }
 
     private void _init(String width, String height) {
-        panel = new FlowPanel();
+        FlowPanel panel = new FlowPanel();
         panel.setSize("100%", "100%");
         panel.add(playerWidget);
         initWidget(panel);
@@ -78,6 +98,7 @@ public class NativePlayer extends AbstractMediaPlayer implements HasMouseDownHan
             _width = width;
 
             logger = new Logger();
+            logger.setVisible(false);
             panel.add(logger);
 
             addDebugHandler(new DebugHandler() {
@@ -90,8 +111,8 @@ public class NativePlayer extends AbstractMediaPlayer implements HasMouseDownHan
 
                 public void onMediaInfoAvailable(MediaInfoEvent event) {
                     MediaInfo info = event.getMediaInfo();
-                    if (info.getAvailableItems().contains(MediaInfoKey.VideoHeight) ||
-                            info.getAvailableItems().contains(MediaInfoKey.VideoWidth)) {
+                    if (info.getAvailableItems().contains(MediaInfoKey.VideoHeight)
+                            || info.getAvailableItems().contains(MediaInfoKey.VideoWidth)) {
                         checkVideoSize(Integer.parseInt(info.getItem(MediaInfoKey.VideoHeight)),
                                 Integer.parseInt(info.getItem(MediaInfoKey.VideoWidth)));
                     }
@@ -104,15 +125,53 @@ public class NativePlayer extends AbstractMediaPlayer implements HasMouseDownHan
         setWidth(_width);
     }
 
+    /**
+     * Constructs <code>NativePlayer</code> to playback media located at {@code mediaURL}.
+     * Media playback begins automatically.
+     *
+     * <p>This is the same as calling {@code NativePlayer(mediaURL, true, "20px", "100%")}</p>
+     *
+     * @param mediaURL the URL of the media to playback
+     *
+     * @throws LoadException if an error occurs while loading the media.
+     * @throws PluginNotFoundException if browser does not support the HTML 5 specification.
+     */
     public NativePlayer(String mediaURL) throws LoadException, PluginNotFoundException {
         this(mediaURL, true, "20px", "100%");
     }
 
+    /**
+     * Constructs <code>NativePlayer</code> to playback media located at {@code mediaURL}.
+     * Media playback begins automatically if {@code autoplay} is {@code true}.
+     *
+     * <p>This is the same as calling {@code NativePlayer(mediaURL, autoplay, "20px", "100%")}</p>
+     *
+     * @param mediaURL the URL of the media to playback
+     * @param autoplay {@code true} to start playing automatically, {@code false} otherwise
+     *
+     * @throws LoadException if an error occurs while loading the media.
+     * @throws PluginNotFoundException if browser does not support the HTML 5 specification.
+     */
     public NativePlayer(String mediaURL, boolean autoplay)
             throws LoadException, PluginNotFoundException {
         this(mediaURL, autoplay, "20px", "100%");
     }
 
+    /**
+     * Constructs <code>NativePlayer</code> with the specified {@code height} and
+     * {@code width} to playback media located at {@code mediaURL}. Media playback
+     * begins automatically if {@code autoplay} is {@code true}.
+     *
+     * <p> {@code height} and {@code width} are specified as CSS units.</p>
+     *
+     * @param mediaURL the URL of the media to playback
+     * @param autoplay {@code true} to start playing automatically, {@code false} otherwise
+     * @param height the height of the player
+     * @param width the width of the player.
+     *
+     * @throws LoadException if an error occurs while loading the media.
+     * @throws PluginNotFoundException if browser does not support the HTML 5 specification.
+     */
     public NativePlayer(String mediaURL, boolean autoplay, String height, String width)
             throws LoadException, PluginNotFoundException {
         this();
@@ -120,13 +179,34 @@ public class NativePlayer extends AbstractMediaPlayer implements HasMouseDownHan
         _init(width, height);
     }
 
-    public NativePlayer(ArrayList<MediaItem> mediaSources, boolean autoplay, String height, String width)
+    /**
+     * Constructs <code>NativePlayer</code> with the specified {@code height} and
+     * {@code width} to playback media located at any of the {@code mediaSources}.
+     * Playback begins automatically if {@code autoplay} is {@code true}.
+     *
+     * <p>As per the HTML 5 specification, the browser chooses any of the {@code mediaSources}
+     * it supports</p>
+     *
+     * <p> {@code height} and {@code width} are specified as CSS units.</p>
+     *
+     * @param mediaSources a list of media URLs
+     * @param autoplay {@code true} to start playing automatically, {@code false} otherwise
+     * @param height the height of the player
+     * @param width the width of the player.
+     *
+     * @throws LoadException if an error occurs while loading the media.
+     * @throws PluginNotFoundException if browser does not support the HTML 5 specification.
+     */
+    public NativePlayer(ArrayList<String> mediaSources, boolean autoplay, String height, String width)
             throws LoadException, PluginNotFoundException {
         this();
         playerWidget = new NativeWidget(playerId, mediaSources, autoplay);
         _init(width, height);
     }
 
+    /**
+     * Overriden to register player for DOM events.
+     */
     @Override
     protected void onLoad() {
         impl = NativePlayerImpl.getPlayer(playerId);
@@ -387,19 +467,6 @@ public class NativePlayer extends AbstractMediaPlayer implements HasMouseDownHan
         }
     }
 
-    public static class MediaItem {
-
-        private String source;
-
-        public MediaItem(String source) {
-            this.source = source;
-        }
-
-        public String getSource() {
-            return source;
-        }
-    }
-
     private enum NetworkState {
 
         Empty, Idle, Loading, Loaded, NoSource
@@ -430,14 +497,14 @@ public class NativePlayer extends AbstractMediaPlayer implements HasMouseDownHan
             setWidth("100%");
         }
 
-        public NativeWidget(String playerId, ArrayList<MediaItem> sources, boolean autoplay) {
+        public NativeWidget(String playerId, ArrayList<String> sources, boolean autoplay) {
             e.setId(playerId);
             e.setPropertyBoolean("autoplay", autoplay);
             e.setPropertyBoolean("controls", true);
 
-            for (MediaItem item : sources) {
+            for (String item : sources) {
                 Element s = _doc.createElement("source");
-                s.setAttribute("src", item.getSource());
+                s.setAttribute("src", item);
                 e.appendChild(s);
             }
             setElement(e);

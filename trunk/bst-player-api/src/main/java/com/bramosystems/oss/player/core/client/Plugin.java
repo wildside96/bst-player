@@ -57,7 +57,7 @@ public enum Plugin {
      * Specifies the Flash Player plugin
      */
     FlashPlayer("http://www.adobe.com/go/getflash", 9, 0, 0),
-    
+
     /**
      * Specifies the VLC Media Player plugin
      * @since 1.0
@@ -113,4 +113,4 @@ public enum Plugin {
     public PluginVersion getVersion() {
         return version;
     }
-}
+    }

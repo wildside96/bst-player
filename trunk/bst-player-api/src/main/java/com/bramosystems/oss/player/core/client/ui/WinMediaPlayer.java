@@ -33,7 +33,7 @@ import com.google.gwt.user.client.ui.*;
 import java.util.HashMap;
 
 /**
- * Widget to embed Windows Media Player.
+ * Widget to embed Windows Media Player&trade; plugin.
  *
  * <h3>Usage Example</h3>
  *
@@ -62,7 +62,7 @@ import java.util.HashMap;
  *
  * @author Sikirulai Braheem
  */
-public final class WinMediaPlayer extends AbstractMediaPlayer {
+public class WinMediaPlayer extends AbstractMediaPlayer {
 
     private static WMPStateManager stateManager;
     private WinMediaPlayerImpl impl;
@@ -170,7 +170,7 @@ public final class WinMediaPlayer extends AbstractMediaPlayer {
      * Constructs <code>WinMediaPlayer</code> to automatically playback media located at
      * {@code mediaURL} using the default height of 50px and width of 100%.
      *
-     * <p> This is the same as calling {@code WinMediaPlayer(mediaURL, true, "50px", "100%")}
+     * <p>This is the same as calling {@code WinMediaPlayer(mediaURL, true, "50px", "100%")}</p>
      *
      * @param mediaURL the URL of the media to playback
      *
@@ -213,6 +213,7 @@ public final class WinMediaPlayer extends AbstractMediaPlayer {
     private void setupPlayer(final boolean isResizing) {
         playerWidget = PlayerWidgetFactory.get().getPlayerWidget(Plugin.WinMediaPlayer,
                 playerId, mediaURL, isResizing ? true : autoplay, params);
+        playerWidget.setSize(_width, _height);
         playerPanel.setWidget(playerWidget);
         impl = WinMediaPlayerImpl.getPlayer(playerId);
         stateManager.init(impl, WinMediaPlayer.this, isResizing);
@@ -262,6 +263,7 @@ public final class WinMediaPlayer extends AbstractMediaPlayer {
     /**
      * @deprecated As of version 1.1, remove player from panel instead
      */
+    @Override
     public void close() {
         checkAvailable();
         stateManager.close(playerId);

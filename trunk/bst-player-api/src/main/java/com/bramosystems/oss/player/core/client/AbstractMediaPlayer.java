@@ -122,7 +122,8 @@ public abstract class AbstractMediaPlayer extends Composite implements HasMediaS
      * 
      * @deprecated As of version 1.1. Remove widget from panel instead. Will be removed from a future version.
      */
-    public abstract void close();
+    public void close() {
+    }
 
     /**
      * Returns the duration of the loaded media in milliseconds. An IllegalStateException is
@@ -227,7 +228,7 @@ public abstract class AbstractMediaPlayer extends Composite implements HasMediaS
      * @param progress the progress of the loading operation
      * @see LoadingProgressEvent
      */
-    public final void fireLoadingProgress(double progress) {
+    protected final void fireLoadingProgress(double progress) {
         LoadingProgressEvent.fire(this, progress);
     }
 
@@ -237,7 +238,7 @@ public abstract class AbstractMediaPlayer extends Composite implements HasMediaS
      * @param info the metadata of the loaded media
      * @see MediaInfoEvent
      */
-    public final void fireMediaInfoAvailable(MediaInfo info) {
+    protected final void fireMediaInfoAvailable(MediaInfo info) {
         MediaInfoEvent.fire(this, info);
     }
 

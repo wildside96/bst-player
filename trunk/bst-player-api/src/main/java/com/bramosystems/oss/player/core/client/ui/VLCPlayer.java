@@ -37,7 +37,7 @@ import com.google.gwt.user.client.ui.*;
 import java.util.ArrayList;
 
 /**
- * Widget to embed VLC Player plugin.
+ * Widget to embed VLC Media Player&trade; plugin.
  *
  * <h3>Usage Example</h3>
  *
@@ -66,7 +66,7 @@ import java.util.ArrayList;
  *
  * @author Sikirulai Braheem
  */
-public final class VLCPlayer extends AbstractMediaPlayer implements PlaylistSupport {
+public class VLCPlayer extends AbstractMediaPlayer implements PlaylistSupport {
 
     private VLCPlayerImpl impl;
     private Widget playerWidget;
@@ -284,6 +284,7 @@ public final class VLCPlayer extends AbstractMediaPlayer implements PlaylistSupp
     /**
      * @deprecated As of version 1.1. Remove widget from panel instead.
      */
+    @Override
     public void close() {
         stateHandler.close();
         panel.remove(playerWidget);
@@ -543,7 +544,7 @@ public final class VLCPlayer extends AbstractMediaPlayer implements PlaylistSupp
     }
 
     /**
-     * An enum of Audio Channel modes for VLC Media Player
+     * An enum of Audio Channel modes for VLC Media Player&trade;
      */
     public static enum AudioChannelMode {
 
