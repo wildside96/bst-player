@@ -11,26 +11,90 @@
         applications using with your favourite plugins." />
     </head>
     <body>
-        <section name="Getting Started">
+        <div style="background-color:#ffffcc;border:1px solid red;padding:5px;margin:5px">
             <p>
                 The information in this document applies to version 1.0 and later. Check
                 <a href="http://code.google.com/p/bst-player/wiki/GettingStarted">here</a> for
                 previous versions.
             </p>
-            
+        </div>
+        <p>
+            <macro name="toc">
+                <param name="section" value="0"/>
+            </macro>
+        </p>
+        <section name="Getting Started">
             <p>
-                <macro name="toc">
-                    <param name="section" value="0"/>
-                </macro>
+                Before getting started, download the library and add it to your application classpath.
+                You can download the library on the projects download page on
+                <a href="http://code.google.com/p/bst-player/downloads/list">Google Code</a>.
             </p>
+            <p>
+                If you are developing with Maven, you can add the library to your projects'
+                dependencies like so:
+            </p>
+            <source>
+&lt;dependency&gt;
+    &lt;groupId&gt;com.bramosystems.oss.player&lt;/groupId&gt;
+    &lt;artifactId&gt;bst-player-api&lt;/artifactId&gt;
+    &lt;version&gt;${appropriate-version}&lt;/version&gt;
+    &lt;scope&gt;provided&lt;/scope&gt;
+&lt;/dependency&gt;
+            </source>
+            <p>
+                However, you will need to add the
+                <a href="http://downloads.bramosystems.com/maven2">
+                Bramosystems Maven Repository
+                </a> definition to your POM as shown below:
+            </p>
+            <source>
+&lt;repositories&gt;
+    . . .
+    &lt;repository&gt;
+        &lt;id&gt;bramosystems-releases&lt;/id&gt;
+        &lt;name&gt;Bramosystems Release Repository&lt;/name&gt;
+        &lt;url&gt;http://downloads.bramosystems.com/maven2/releases&lt;/url&gt;
+        &lt;releases&gt;
+            &lt;enabled&gt;true&lt;/enabled&gt;
+        &lt;/releases&gt;
+        &lt;snapshots&gt;
+            &lt;enabled&gt;false&lt;/enabled&gt;
+        &lt;/snapshots&gt;
+    &lt;/repository&gt;
+    . . .
+&lt;/repositories&gt;
+            </source>
+            <p>
+                If you will also like to use the snapshots;
+            </p>
+            <source>
+&lt;repositories&gt;
+    . . .
+    &lt;repository&gt;
+        &lt;id&gt;bramosystems-snapshot&lt;/id&gt;
+        &lt;name&gt;Bramosystems Snapshots Repository&lt;/name&gt;
+        &lt;url&gt;http://downloads.bramosystems.com/maven2/snapshots&lt;/url&gt;
+        &lt;releases&gt;
+            &lt;enabled&gt;false&lt;/enabled&gt;
+        &lt;/releases&gt;
+        &lt;snapshots&gt;
+            &lt;enabled&gt;true&lt;/enabled&gt;
+        &lt;/snapshots&gt;
+    &lt;/repository&gt;
+    . . .
+&lt;/repositories&gt;
+            </source>
+            <div class="top">
+                <a href="#">Top</a>
+            </div>
         </section>
 
         <section name="Developing with BST Player">
 
             <p>
-                The following sections describe the basic usage of the library.  Before getting started, 
-                add the library to your application classpath and ensure your application module
-                inherits the <i>com.bramosystems.oss.player.core.Core</i> module.
+                The following sections describe the basic usage of the library.  Ensure your
+                application module inherits the
+                <i>com.bramosystems.oss.player.core.Core</i> module.
             </p>
 
             <subsection name="Embedding Windows Media Player">
@@ -76,7 +140,8 @@ player.setVolume(0.8); // sets the playback volume to 80% of maximum
                 </source>
 
                 <p>
-                    Refer to the <a href="bst-player-api/apidocs/index.html">API documentation</a> for details.
+                    Refer to the
+                    <a href="bst-player-api/apidocs/index.html">API documentation</a> for details.
                 </p>
                 <p>
                     <b>
@@ -159,7 +224,8 @@ try {
 } catch(PluginNotFoundException e) {
      // catch PluginNotFoundException and display a friendly notice.
      panel.setWidget(PlayerUtil.getMissingPluginNotice(Plugin.FlashPlayer));
-} </source>
+}
+                </source>
                 <p>
                     <b>
                         <i>NOTE:- Adobe Flash 9.0 or later is required</i>
@@ -213,7 +279,8 @@ try {
 
             <subsection name="Embedding HTML 5 media handlers">
                 <p>
-                    As of version 1.1, the <b>NativePlayer</b> class in the
+                    As of version 1.1, the
+                    <b>NativePlayer</b> class in the
                     <i>com.bramosystems.oss.player.core.client.ui</i> package wraps the
                     HTML 5 video element for use in HTML 5 supported browsers.
                 </p>
@@ -249,10 +316,11 @@ try {
             <subsection name="Embedding YouTube video">
                 <p>
                     As of version 1.1, the YouTube module exposes the YouTube Player API
-                    inline with the interface/event handler definitions of the BST Player.
+                    inline with the interface/event handler definitions of the BST Player API.
                 </p>
                 <p>
-                    The <b>YouTubePlayer</b> class in the
+                    The
+                    <b>YouTubePlayer</b> class in the
                     <i>com.bramosystems.oss.player.youtube.client</i> package wraps the
                     YouTube video player
                 </p>
@@ -277,7 +345,8 @@ try {
 }
                 </source>
                 <p>
-                    The <b>ChromelessPlayer</b> class is also available to enable custom controls
+                    The
+                    <b>ChromelessPlayer</b> class is also available to enable custom controls
                     with the YouTube player.
                 </p>
                 <p>
@@ -309,7 +378,9 @@ try {
                 <p>
                     <b>
                         <i>NOTE:- Modules that use the YouTubePlayer widget should inherit
-                        the <code>com.bramosystems.oss.player.youtube.YouTube</code> module.</i>
+                        the 
+                            <code>com.bramosystems.oss.player.youtube.YouTube</code> module.
+                        </i>
                     </b>
                 </p>
             </subsection>

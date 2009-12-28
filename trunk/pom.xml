@@ -89,19 +89,12 @@
     </build>
 
     <properties>
-        <gwtVersion>1.7.1</gwtVersion>
-        <gwtMojoPluginVersion>1.1</gwtMojoPluginVersion>
+        <!--gwtVersion>1.7.1</gwtVersion>
+        <gwtMojoPluginVersion>1.1</gwtMojoPluginVersion-->
 
-        <!--gwtMojoPluginVersion>1.2</gwtMojoPluginVersion>
-        <gwtVersion>2.0.0</gwtVersion-->
+        <gwtMojoPluginVersion>1.2</gwtMojoPluginVersion>
+        <gwtVersion>2.0.0</gwtVersion>
     </properties>
-
-<!--pluginRepositories>
-    <pluginRepository>
-      <id>staged-releases</id>
-      <url>http://people.apache.org/~nicolas/staging</url>
-    </pluginRepository>
-  </pluginRepositories-->
 
     <dependencyManagement>
         <dependencies>
