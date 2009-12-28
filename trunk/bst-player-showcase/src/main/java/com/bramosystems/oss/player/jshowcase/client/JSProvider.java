@@ -32,7 +32,7 @@ import java.util.HashMap;
  *
  * @author Sikirulai Braheem <sbraheem at bramosystems dot com>
  */
-public class JSProvider extends ExportProvider {
+public class JSProvider implements ExportProvider {
     private Plugin plugin;
 
     @Override

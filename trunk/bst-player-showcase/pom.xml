@@ -13,10 +13,6 @@
         Showcases the features of the BST Player API
     </description>
 
-    <properties>
-        <gwt.out>${project.build.directory}/${project.build.finalName}</gwt.out>
-    </properties>
-
     <build>
         <finalName>showcase</finalName>
         <plugins>
@@ -30,23 +26,14 @@
                             <goal>compile</goal>
                         </goals>
                         <configuration>
-                            <module>com.bramosystems.oss.player.showcase.Showcase</module>
+                            <modules>
+                                <module>com.bramosystems.oss.player.binder.Showcase</module>
+                                <!--module>com.bramosystems.oss.player.showcase.Showcase</module>
+                                <module>com.bramosystems.oss.player.jshowcase.JSShowcase</module-->
+                            </modules>
                             <style>DETAILED</style>
-                            <disableCastChecking>true</disableCastChecking>
-                            <disableClassMetadata>true</disableClassMetadata>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>js-case</id>
-                        <goals>
-                            <goal>compile</goal>
-                        </goals>
-                        <configuration>
-                            <module>com.bramosystems.oss.player.jshowcase.JSShowcase</module>
-                            <style>DETAILED</style>
-                            <webappDirectory>${gwt.out}/jscript</webappDirectory>
-                            <disableCastChecking>true</disableCastChecking>
-                            <disableClassMetadata>true</disableClassMetadata>
+                            <!--disableCastChecking>true</disableCastChecking>
+                            <disableClassMetadata>true</disableClassMetadata-->
                         </configuration>
                     </execution>
                 </executions>

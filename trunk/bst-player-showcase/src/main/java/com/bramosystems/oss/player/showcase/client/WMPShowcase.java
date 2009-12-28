@@ -15,6 +15,7 @@
  */
 package com.bramosystems.oss.player.showcase.client;
 
+import com.bramosystems.oss.player.core.client.ConfigParameter;
 import com.bramosystems.oss.player.core.client.LoadException;
 import com.bramosystems.oss.player.core.client.PlayerUtil;
 import com.bramosystems.oss.player.core.client.Plugin;
@@ -180,7 +181,6 @@ public class WMPShowcase extends AbstractCase {
                 break;
             case 4:
                 String wmv = "http://localhost/xplorer/g:/Islamics%20VIDEOS/Qadian2008-Arrival-in-India.wmv";
-                WinMediaPlayer.WMPConfigParameter cp = new WinMediaPlayer.WMPConfigParameter();
 
                 try {
                     final PopupPanel pp = new DialogBox(false, false);
@@ -188,9 +188,9 @@ public class WMPShowcase extends AbstractCase {
                     pp.setHeight("400px");
                     pp.setWidget(new Image(GWT.getHostPageBaseURL() + "images/loading.gif"));
                     DOM.setStyleAttribute(pp.getElement(), "backgroundColor", "blue");
-//                    DOM.setStyleAttribute(pp.getElement(), "zIndex", "100000");
 
                     final WinMediaPlayer p = new WinMediaPlayer(wmv, false, "350px", "100%");
+                    p.setConfigParameter(ConfigParameter.WMPUIMode, WinMediaPlayer.UIMode.MINI);
                     p.showLogger(true);
                     p.addPlayStateHandler(new PlayStateHandler() {
 
@@ -210,8 +210,8 @@ public class WMPShowcase extends AbstractCase {
                         wmp, "sources/wmp/video.html");
 
                 try {
-                    cp.setUIMode(WinMediaPlayer.UIMode.NONE);
-                    final WinMediaPlayer p = new WinMediaPlayer(wmv, false, "350px", "100%", cp);
+                    final WinMediaPlayer p = new WinMediaPlayer(wmv, false, "350px", "100%");
+                    p.setUIMode(WinMediaPlayer.UIMode.NONE);
                     p.showLogger(true);
                     wmp1 = p;
                 } catch (LoadException ex) {

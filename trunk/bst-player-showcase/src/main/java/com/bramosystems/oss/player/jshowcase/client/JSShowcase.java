@@ -15,7 +15,7 @@
  */
 package com.bramosystems.oss.player.jshowcase.client;
 
-import com.bramosystems.oss.player.script.client.ScriptUtil;
+import com.bramosystems.oss.player.script.client.ExportUtil;
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.user.client.ui.Composite;
 
@@ -26,12 +26,11 @@ import com.google.gwt.user.client.ui.Composite;
 public class JSShowcase extends Composite implements EntryPoint {
 
     public JSShowcase() {
-        ScriptUtil.exportPlayer();
-        ScriptUtil.exportSeekBar();
+        ExportUtil.exportPlayer();
+        ExportUtil.exportSeekBar();
     }
 
     public void onModuleLoad() {
-        ScriptUtil.signalAPIReady();
+        ExportUtil.signalAPIReady();
     }
-
 }
