@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="windows-1252"?>
+
+<!--
+    Document   : Binder.ui.xml
+    Created on : December 17, 2009, 11:37 PM
+    Author     : Sikiru
+    Description: Purpose of the document follows.
+-->
+
+<ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder' xmlns:g='urn:import:com.google.gwt.user.client.ui'>
+    <ui:style type='com.bramosystems.oss.player.binder.client.Menu.MenuStyle'>
+.link {
+padding: 5px;
+}
+.menuPanel {
+    border: 1px solid silver;
+    border-top: none;
+    text-indent: 5px;
+    font-size: 85%;
+}
+
+.menuPanel .header {
+    background-image: url(images/showcase-bg.png);
+    background-repeat: repeat-x;
+    border-top: 1px solid silver;
+    font-weight: bold;
+    cursor: pointer;
+    line-height: 2;
+}
+
+.menuPanel .content {
+}
+
+.menuPanel .content a {
+    text-decoration: none;
+}
+    </ui:style>
+    <g:StackLayoutPanel styleName='{style.menuPanel}' unit='EM' />
+</ui:UiBinder>

@@ -21,9 +21,12 @@ import com.bramosystems.oss.player.core.client.Plugin;
 import com.bramosystems.oss.player.core.client.PluginNotFoundException;
 import com.bramosystems.oss.player.core.client.PluginVersionException;
 import com.bramosystems.oss.player.core.client.ui.VLCPlayer;
+import com.bramosystems.oss.player.core.event.client.PlayStateEvent;
+import com.bramosystems.oss.player.core.event.client.PlayStateHandler;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.MouseMoveEvent;
 import com.google.gwt.event.dom.client.MouseMoveHandler;
+import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
 
@@ -93,6 +96,11 @@ public class VLCShowcase extends AbstractCase {
             case 2:
                 try {
                     final Label lbl = new Label();
+                    final PopupPanel pp = new DialogBox(false, false);
+                    pp.setWidth("300px");
+                    pp.setHeight("400px");
+                    pp.setWidget(new Image(GWT.getHostPageBaseURL() + "images/loading.gif"));
+                    DOM.setStyleAttribute(pp.getElement(), "backgroundColor", "blue");
 
                     VLCPlayer v1 = new VLCPlayer(GWT.getHostPageBaseURL() +
                             "media/traffic.flv", false, "350px", "100%");
@@ -101,6 +109,13 @@ public class VLCShowcase extends AbstractCase {
 
                         public void onMouseMove(MouseMoveEvent event) {
                             lbl.setText("X:Y = " + event.getX() + ":" + event.getY());
+                        }
+                    });
+//                    mmp.setConfigParameter(ConfigParameter.WMPUIMode, WinMediaPlayer.UIMode.MINI);
+                    v1.addPlayStateHandler(new PlayStateHandler() {
+
+                        public void onPlayStateChanged(PlayStateEvent event) {
+                            pp.center();
                         }
                     });
                     VerticalPanel vp = new VerticalPanel();

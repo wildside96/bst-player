@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="windows-1252"?>
+
+<!--
+    Document   : Binder.ui.xml
+    Created on : December 17, 2009, 11:37 PM
+    Author     : Sikiru
+    Description: Purpose of the document follows.
+-->
+
+<ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder' xmlns:g='urn:import:com.google.gwt.user.client.ui'
+  xmlns:showcase='urn:import:com.bramosystems.oss.player.binder.client'>
+    <ui:style>
+  .app-wrapper {
+  margin: 5px;
+  }
+  .app-footer {
+    font-size: 80%;
+    text-align:center;
+    margin-top: 5px;
+    padding-top: 5px;
+}
+.app-banner {
+    margin-bottom: 0px;
+    font-size: 180%;
+    color: #4b4b93;
+    font-weight: bold;
+}
+.app-version {
+    margin-bottom: 10px;
+    color: #4b4b93;
+    font-weight: bold;
+    font-style:italic;
+}
+    </ui:style>
+    <g:DockLayoutPanel unit='PX' styleName='{style.app-wrapper}'>
+        <g:north size='50'>
+            <g:HTML>
+                <div class='{style.app-banner}'>BST Player Showcase</div>
+                <div class='{style.app-version}'>version 1.1-SNAPSHOT</div>
+            </g:HTML>
+        </g:north>
+        <g:south size='40'>
+            <g:HTML>
+                <div class='{style.app-footer}'>Copyright &#169; 2009 Braheem Sikiru
+                    <br/>
+                All other product, service names, brands, or trademarks, are the property
+                of their respective owners.
+                </div>
+            </g:HTML>
+        </g:south>
+        <g:west size='200'>
+            <showcase:Menu />
+        </g:west>
+        <g:center>
+            <showcase:Case />
+        </g:center>
+    </g:DockLayoutPanel>
+</ui:UiBinder>

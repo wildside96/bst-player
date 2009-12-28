@@ -87,9 +87,9 @@ public class NativeShowcase extends AbstractCase {
                 try {
                     final Label lbl = new Label();
 
-                    ArrayList<NativePlayer.MediaItem> items = new ArrayList<NativePlayer.MediaItem>();
-                    items.add(new NativePlayer.MediaItem(GWT.getHostPageBaseURL() + "media/big-buck-bunny.mp4"));
-                    items.add(new NativePlayer.MediaItem(GWT.getHostPageBaseURL() + "media/big-buck-bunny.ogv"));
+                    ArrayList<String> items = new ArrayList<String>();
+                    items.add(new String(GWT.getHostPageBaseURL() + "media/big-buck-bunny.mp4"));
+                    items.add(new String(GWT.getHostPageBaseURL() + "media/big-buck-bunny.ogv"));
 
                     NativePlayer mmp = new NativePlayer(items, false, "350px", "100%");
                     mmp.setResizeToVideoSize(true);
