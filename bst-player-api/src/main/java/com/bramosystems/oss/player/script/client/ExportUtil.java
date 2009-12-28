@@ -16,12 +16,15 @@
 package com.bramosystems.oss.player.script.client;
 
 import com.bramosystems.oss.player.core.client.AbstractMediaPlayer;
+import com.bramosystems.oss.player.core.client.ConfigParameter;
 import com.bramosystems.oss.player.core.client.LoadException;
 import com.bramosystems.oss.player.core.client.PlayException;
 import com.bramosystems.oss.player.core.client.Plugin;
 import com.bramosystems.oss.player.core.client.PluginNotFoundException;
 import com.bramosystems.oss.player.core.client.PluginVersionException;
+import com.bramosystems.oss.player.core.client.TransparencyMode;
 import com.bramosystems.oss.player.core.client.skin.MediaSeekBar;
+import com.bramosystems.oss.player.core.client.ui.WinMediaPlayer;
 import com.bramosystems.oss.player.core.event.client.DebugEvent;
 import com.bramosystems.oss.player.core.event.client.DebugHandler;
 import com.bramosystems.oss.player.core.event.client.LoadingProgressEvent;
@@ -41,15 +44,43 @@ import com.google.gwt.user.client.ui.Widget;
 import java.util.HashMap;
 
 /**
+ * Utility class to export the player and seek bar widgets as Javascript objects
+ * that can be used in non-GWT applications.
+ *
+ * <p>
+ * The objects are bound to the <code>bstplayer</code> namespace.
+ * </p>
  *
  * @author Sikirulai Braheem <sbraheem at bramosystems dot com>
+ * @see <a href="package-summary.html#export">Exporting the player widgets</a>
  */
-public class ScriptUtil {
+public class ExportUtil {
 
+    /**
+     * Calls the <code>onBSTPlayerReady()</code> javascript function on the
+     * host page.
+     *
+     * <p>This method should be called after all widgets have been exported</p>
+     */
     public static native final void signalAPIReady() /*-{
     $wnd.onBSTPlayerReady();
     }-*/;
 
+    /**
+     * Exports the {@linkplain AbstractMediaPlayer} implementation as Javascript object.
+     *
+     * <p>
+     * The player is made available as a <code>bstplayer.Player</code> Javascript
+     * object. The object supports all the public methods defined in the
+     * {@linkplain AbstractMediaPlayer} class.
+     * </p>
+     *
+     * <p>
+     * <b>Note:</b> The {@code bstplayer.Player} object defines an
+     * {@code addEventListener(eventName, function)} method, instead of the {@code addXXXHandler()}
+     * methods.
+     * </p>
+     */
     public static native final void exportPlayer() /*-{
     if($wnd.bstplayer == null){
     $wnd.bstplayer = new Object();
@@ -57,74 +88,92 @@ public class ScriptUtil {
 
     $wnd.bstplayer.Player = function(plugin, mediaURL, autoplay, width, height, options){
     // init the player ...
-    var _player = @com.bramosystems.oss.player.script.client.ScriptUtil::getPlayer(Ljava/lang/String;Ljava/lang/String;ZLjava/lang/String;Ljava/lang/String;Lcom/google/gwt/core/client/JavaScriptObject;)(plugin,mediaURL,autoplay,width,height,options);
+    var _player = @com.bramosystems.oss.player.script.client.ExportUtil::getPlayer(Ljava/lang/String;Ljava/lang/String;ZLjava/lang/String;Ljava/lang/String;Lcom/google/gwt/core/client/JavaScriptObject;)(plugin,mediaURL,autoplay,width,height,options);
     
     this.inject = function(containerId) {
-    @com.bramosystems.oss.player.script.client.ScriptUtil::inject(Lcom/google/gwt/user/client/ui/Widget;Ljava/lang/String;)(_player, containerId);
+    @com.bramosystems.oss.player.script.client.ExportUtil::inject(Lcom/google/gwt/user/client/ui/Widget;Ljava/lang/String;)(_player, containerId);
     }
     this.setResizeToVideoSize = function(resize) {
-    _player.@com.bramosystems.oss.player.script.client.ScriptUtil.ScriptPlayer::setResizeToVideoSize(Z)(resize);
+    _player.@com.bramosystems.oss.player.script.client.ExportUtil.ScriptPlayer::setResizeToVideoSize(Z)(resize);
     }
     this.isResizeToVideoSize = function() {
-    return _player.@com.bramosystems.oss.player.script.client.ScriptUtil.ScriptPlayer::isResizeToVideoSize()();
+    return _player.@com.bramosystems.oss.player.script.client.ExportUtil.ScriptPlayer::isResizeToVideoSize()();
     }
     this.getVideoHeight = function() {
-    return _player.@com.bramosystems.oss.player.script.client.ScriptUtil.ScriptPlayer::getVideoHeight()();
+    return _player.@com.bramosystems.oss.player.script.client.ExportUtil.ScriptPlayer::getVideoHeight()();
     }
     this.getVideoWidth = function() {
-    return _player.@com.bramosystems.oss.player.script.client.ScriptUtil.ScriptPlayer::getVideoWidth()();
+    return _player.@com.bramosystems.oss.player.script.client.ExportUtil.ScriptPlayer::getVideoWidth()();
     }
     this.loadMedia = function(mediaURL) {
-    _player.@com.bramosystems.oss.player.script.client.ScriptUtil.ScriptPlayer::loadMedia(Ljava/lang/String;)(mediaURL);
+    _player.@com.bramosystems.oss.player.script.client.ExportUtil.ScriptPlayer::loadMedia(Ljava/lang/String;)(mediaURL);
     }
     this.playMedia = function() {
-    _player.@com.bramosystems.oss.player.script.client.ScriptUtil.ScriptPlayer::playMedia()();
+    _player.@com.bramosystems.oss.player.script.client.ExportUtil.ScriptPlayer::playMedia()();
     }
     this.stopMedia = function() {
-    _player.@com.bramosystems.oss.player.script.client.ScriptUtil.ScriptPlayer::stopMedia()();
+    _player.@com.bramosystems.oss.player.script.client.ExportUtil.ScriptPlayer::stopMedia()();
     }
     this.pauseMedia = function() {
-    _player.@com.bramosystems.oss.player.script.client.ScriptUtil.ScriptPlayer::pauseMedia()();
+    _player.@com.bramosystems.oss.player.script.client.ExportUtil.ScriptPlayer::pauseMedia()();
     }
     this.close = function() {
-    _player.@com.bramosystems.oss.player.script.client.ScriptUtil.ScriptPlayer::close()();
+    _player.@com.bramosystems.oss.player.script.client.ExportUtil.ScriptPlayer::close()();
     }
     this.getMediaDuration = function() {
-    return _player.@com.bramosystems.oss.player.script.client.ScriptUtil.ScriptPlayer::getMediaDurationImpl()();
+    return _player.@com.bramosystems.oss.player.script.client.ExportUtil.ScriptPlayer::getMediaDurationImpl()();
     }
     this.getPlayPosition = function() {
-    return _player.@com.bramosystems.oss.player.script.client.ScriptUtil.ScriptPlayer::getPlayPosition()();
+    return _player.@com.bramosystems.oss.player.script.client.ExportUtil.ScriptPlayer::getPlayPosition()();
     }
     this.setPlayPosition = function(position) {
-    _player.@com.bramosystems.oss.player.script.client.ScriptUtil.ScriptPlayer::setPlayPosition(D)(position);
+    _player.@com.bramosystems.oss.player.script.client.ExportUtil.ScriptPlayer::setPlayPosition(D)(position);
     }
     this.getVolume = function() {
-    return _player.@com.bramosystems.oss.player.script.client.ScriptUtil.ScriptPlayer::getVolume()();
+    return _player.@com.bramosystems.oss.player.script.client.ExportUtil.ScriptPlayer::getVolume()();
     }
     this.setVolume = function(volume) {
-    _player.@com.bramosystems.oss.player.script.client.ScriptUtil.ScriptPlayer::setVolume(D)(volume);
+    _player.@com.bramosystems.oss.player.script.client.ExportUtil.ScriptPlayer::setVolume(D)(volume);
     }
     this.showLogger = function(show) {
-    _player.@com.bramosystems.oss.player.script.client.ScriptUtil.ScriptPlayer::showLogger(Z)(show);
+    _player.@com.bramosystems.oss.player.script.client.ExportUtil.ScriptPlayer::showLogger(Z)(show);
     }
     this.setControllerVisible = function(show) {
-    _player.@com.bramosystems.oss.player.script.client.ScriptUtil.ScriptPlayer::setControllerVisible(Z)(show);
+    _player.@com.bramosystems.oss.player.script.client.ExportUtil.ScriptPlayer::setControllerVisible(Z)(show);
     }
     this.isControllerVisible = function() {
-    return _player.@com.bramosystems.oss.player.script.client.ScriptUtil.ScriptPlayer::isControllerVisible()();
+    return _player.@com.bramosystems.oss.player.script.client.ExportUtil.ScriptPlayer::isControllerVisible()();
     }
     this.setLoopCount = function(loop) {
-    _player.@com.bramosystems.oss.player.script.client.ScriptUtil.ScriptPlayer::setLoopCount(I)(loop);
+    _player.@com.bramosystems.oss.player.script.client.ExportUtil.ScriptPlayer::setLoopCount(I)(loop);
     }
     this.getLoopCount = function() {
-    return _player.@com.bramosystems.oss.player.script.client.ScriptUtil.ScriptPlayer::getLoopCount()();
+    return _player.@com.bramosystems.oss.player.script.client.ExportUtil.ScriptPlayer::getLoopCount()();
     }
     this.addEventListener = function(name, _function) {
-    _player.@com.bramosystems.oss.player.script.client.ScriptUtil.ScriptPlayer::addEventListener(Ljava/lang/String;Lcom/google/gwt/core/client/JavaScriptObject;)(name,_function);
+    _player.@com.bramosystems.oss.player.script.client.ExportUtil.ScriptPlayer::addEventListener(Ljava/lang/String;Lcom/google/gwt/core/client/JavaScriptObject;)(name,_function);
+    }
+    this.setConfigParameter = function(param, value) {
+    _player.@com.bramosystems.oss.player.script.client.ExportUtil.ScriptPlayer::setConfigParameter(Ljava/lang/String;Ljava/lang/String;)(param,value);
     }
     }
     }-*/;
 
+    /**
+     * Exports a {@linkplain MediaSeekBar} implementation as Javascript object.
+     *
+     * <p>
+     * The seekbar is made available as a <code>bstplayer.SeekBar</code> Javascript
+     * object. The object supports all the public methods defined in the
+     * {@linkplain MediaSeekBar} class.
+     * </p>
+     *
+     * <p>
+     * <b>Note:</b> The {@code bstplayer.SeekBar} object defines an
+     * {@code addEventListener(eventName, function)} method, instead of the {@code addXXXHandler()}
+     * methods.
+     * </p>
+     */
     public static native final void exportSeekBar() /*-{
     if($wnd.bstplayer == null){
     $wnd.bstplayer = new Object();
@@ -132,16 +181,16 @@ public class ScriptUtil {
 
     $wnd.bstplayer.SeekBar = function(height, containerId, options){
     // init the seekbar ...
-    var _seek = @com.bramosystems.oss.player.script.client.ScriptUtil::getSeekBar(ILjava/lang/String;Lcom/google/gwt/core/client/JavaScriptObject;)(height,containerId,options);
+    var _seek = @com.bramosystems.oss.player.script.client.ExportUtil::getSeekBar(ILjava/lang/String;Lcom/google/gwt/core/client/JavaScriptObject;)(height,containerId,options);
 
     this.setLoadingProgress = function(progress) {
-    _seek.@com.bramosystems.oss.player.script.client.ScriptUtil.ScriptSeekBar::setLoadingProgress(D)(progress);
+    _seek.@com.bramosystems.oss.player.script.client.ExportUtil.ScriptSeekBar::setLoadingProgress(D)(progress);
     }
     this.setPlayingProgress = function(progress) {
-    _seek.@com.bramosystems.oss.player.script.client.ScriptUtil.ScriptSeekBar::setPlayingProgress(D)(progress);
+    _seek.@com.bramosystems.oss.player.script.client.ExportUtil.ScriptSeekBar::setPlayingProgress(D)(progress);
     }
     this.addEventListener = function(name, _function) {
-    _seek.@com.bramosystems.oss.player.script.client.ScriptUtil.ScriptSeekBar::addEventListener(Ljava/lang/String;Lcom/google/gwt/core/client/JavaScriptObject;)(name,_function);
+    _seek.@com.bramosystems.oss.player.script.client.ExportUtil.ScriptSeekBar::addEventListener(Ljava/lang/String;Lcom/google/gwt/core/client/JavaScriptObject;)(name,_function);
     }
     }
     }-*/;
@@ -177,12 +226,15 @@ public class ScriptUtil {
     _event[param] = value;
     }-*/;
 
+    private static final ExportProvider provider = GWT.create(ExportProvider.class);
+
     private static class ScriptPlayer extends AbstractMediaPlayer {
 
         private enum EventName {
 
             onPlayerState, onPlayState, onLoadingProgress, onMediaInfo, onError, onDebug
         }
+
         private AbstractMediaPlayer player;
         private HashMap<EventName, JavaScriptObject> eventHandlers;
 
@@ -196,7 +248,6 @@ public class ScriptUtil {
                 throw new IllegalArgumentException(e);
             }
 
-            ExportProvider provider = GWT.create(ExportProvider.class);
             try {
                 HashMap<String, String> map = new HashMap<String, String>();
                 if (options != null) {
@@ -260,7 +311,6 @@ public class ScriptUtil {
                         runCallback(eventHandlers.get(EventName.onMediaInfo), evt);
                     }
                 });
-
             } catch (LoadException ex) {
             } catch (PluginNotFoundException ex) {
                 initWidget(provider.getMissingPluginWidget());
@@ -438,6 +488,24 @@ public class ScriptUtil {
             } catch (Exception e) {
             }
         }
+
+        public void setConfigParameter(String param, String value) {
+            if (player == null) {
+                return;
+            }
+
+            try {
+                ConfigParameter cfg = ConfigParameter.valueOf(param);
+                switch (cfg) {
+                    case TransparencyMode:
+                        player.setConfigParameter(cfg, TransparencyMode.valueOf(value));
+                        break;
+                    case WMPUIMode:
+                        player.setConfigParameter(cfg, WinMediaPlayer.UIMode.valueOf(value));
+                }
+            } catch (Exception e) {
+            }
+        }
     }
 
     private static class ScriptSeekBar {
@@ -446,8 +514,6 @@ public class ScriptUtil {
         private MediaSeekBar seek;
 
         public ScriptSeekBar(int height, String eId, JavaScriptObject options) {
-
-            ExportProvider provider = GWT.create(ExportProvider.class);
             HashMap<String, String> _options = new HashMap<String, String>();
             parseOptionsToMap(options, _options);
 

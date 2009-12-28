@@ -25,18 +25,55 @@ import com.google.gwt.user.client.ui.Widget;
 import java.util.HashMap;
 
 /**
+ * Interface for providers of the player and seekbar widgets exported as Javascript
+ * objects.
  *
  * @author Sikirulai Braheem <sbraheem at bramosystems dot com>
  */
-public abstract class ExportProvider {
+public interface ExportProvider {
 
-    public abstract AbstractMediaPlayer getPlayer(Plugin plugin, String mediaURL,
+    /**
+     * Called to retrieve the player implementation that is exported as Javascript object.
+     *
+     * @param plugin the required plugin
+     * @param mediaURL the URL of the media file
+     * @param autoplay <code>true</code> to start playback automatically, <code>false</code> otherwise
+     * @param width the width of the player (in CSS units)
+     * @param height the height of the player (in CSS units)
+     * @param options user-defined options supplied during Javascript-object creation
+     *
+     * @return a suitable player implementation
+     *
+     * @throws LoadException if an error occurs while loading the media.
+     * @throws PluginNotFoundException if the required plugin is not found
+     * @throws PluginVersionException if the required plugin version is missing
+     */
+    public AbstractMediaPlayer getPlayer(Plugin plugin, String mediaURL,
             boolean autoplay, String width, String height, HashMap<String, String> options)
             throws LoadException, PluginNotFoundException, PluginVersionException;
 
-    public abstract Widget getMissingPluginWidget();
+    /**
+     * Called to retrieve the seek bar implementation that is exported as Javascript object.
+     *
+     * @param height the height of the seek bar (in pixels)
+     * @param options user-defined options supplied during Javascript-object creation.
+     * @return seek bar implementation to be exported as Javascript object
+     */
+    public MediaSeekBar getSeekBar(int height, HashMap<String, String> options);
 
-    public abstract Widget getMissingPluginVersionWidget();
+    /**
+     * Called to retrieve the widget that may be used when the required plugin is not
+     * found.
+     *
+     * @return the widget used when required plugin is missing
+     */
+    public Widget getMissingPluginWidget();
 
-    public abstract MediaSeekBar getSeekBar(int height, HashMap<String, String> options);
+    /**
+     * Called to retrieve the widget that may be used when the required version of a
+     * plugin is not found.
+     *
+     * @return the widget used when required plugin version is missing
+     */
+    public Widget getMissingPluginVersionWidget();
 }

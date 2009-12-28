@@ -380,10 +380,10 @@ public class YouTubePlayer extends AbstractMediaPlayer {
         }
     }
 
-    @Override
-    protected void onUnload() {
-        close();
-    }
+//    @Override
+//    protected void onUnload() {
+//        close();
+//    }
 
     /**
      * @deprecated As of version 1.1. Remove widget from panel instead.

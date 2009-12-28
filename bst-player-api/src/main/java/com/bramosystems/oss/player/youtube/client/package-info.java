@@ -16,7 +16,7 @@
  */
 
 /**
- * Provides user interface widgets to embed YouTube&trade; videos in GWT applications.
+ * Provides widgets and classes to embed YouTube&trade; videos in GWT applications.
  *
  * <h3>Required Module</h3>
  * Modules that use the classes and interfaces in this package and its sub-packages

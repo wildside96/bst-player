@@ -33,7 +33,7 @@ import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.ui.*;
 
 /**
- * Widget to embed QuickTime plugin.
+ * Widget to embed QuickTime&trade; plugin.
  *
  * <h3>Usage Example</h3>
  *
@@ -63,7 +63,7 @@ import com.google.gwt.user.client.ui.*;
  * @author Sikirulai Braheem
  */
 //TODO: fix sturborn pixel for custom players
-public final class QuickTimePlayer extends AbstractMediaPlayer implements MatrixSupport {
+public class QuickTimePlayer extends AbstractMediaPlayer implements MatrixSupport {
 
     private static QTStateManager manager = GWT.create(QTStateManager.class);
     private static NumberFormat mxNf = NumberFormat.getFormat("#0.0###"); // fix QT Matrix precision issues
@@ -236,8 +236,8 @@ public final class QuickTimePlayer extends AbstractMediaPlayer implements Matrix
         impl.pause();
     }
 
+    @Override
     public void close() {
-        checkAvailable();
         onUnload();
     }
 
