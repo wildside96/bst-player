@@ -461,9 +461,20 @@ public class VLCPlayer extends AbstractMediaPlayer implements PlaylistSupport {
     }
 
     public void toggleFullScreen() {
+        checkAvailable();
         impl.toggleFullScreen();
     }
 
+    public void setRate(double rate) {
+        checkAvailable();
+        impl.setRate(rate);
+    }
+
+    public double getRate() {
+        checkAvailable();
+        return impl.getRate();
+    }
+    
     /*
      * TODO:// check up aspect ration later...
     public AspectRatio getAspectRatio() {
