@@ -3,17 +3,43 @@ package com.bramosystems.oss.player.uibinder.client;
 import com.bramosystems.oss.player.core.client.*;
 import com.bramosystems.oss.player.core.client.geom.MatrixSupport;
 import com.bramosystems.oss.player.core.client.geom.TransformationMatrix;
+import com.bramosystems.oss.player.core.client.ui.NativePlayer;
 import com.bramosystems.oss.player.core.event.client.*;
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.ui.Widget;
+import java.util.ArrayList;
 
 public abstract class BinderPlayer<T extends AbstractMediaPlayer> extends AbstractMediaPlayer implements MatrixSupport, com.bramosystems.oss.player.core.client.PlaylistSupport {
 
     private T _engine;
+    private final String GWT_HOST_URL_ID = "GWT-HOST::", GWT_MODULE_URL_ID = "GWT-MODULE::";
 
     protected BinderPlayer(String mediaURL, boolean autoplay, String height, String width) {
         Widget player = null;
         try {
-            _engine = (T) PlayerUtil.getPlayer(getPlugin(), mediaURL, autoplay, height, width);
+            if (mediaURL.contains(GWT_HOST_URL_ID)) {
+                mediaURL = mediaURL.replaceAll(GWT_HOST_URL_ID, GWT.getHostPageBaseURL());
+            }
+            if (mediaURL.contains(GWT_MODULE_URL_ID)) {
+                mediaURL = mediaURL.replaceAll(GWT_MODULE_URL_ID, GWT.getModuleBaseURL());
+            }
+            Plugin plug = getPlugin();
+            switch (plug) {
+                case Native:
+                    if (mediaURL.contains(",")) {
+                        String[] murls = mediaURL.split(",");
+                        ArrayList<String> _urls = new ArrayList<String>();
+                        for(String url : murls) {
+                            _urls.add(url);
+                        }
+                        _engine = (T) new NativePlayer(_urls, autoplay, height, width);
+                    } else {
+                        _engine = (T) new NativePlayer(mediaURL, autoplay, height, width);
+                    }
+                    break;
+                default:
+                    _engine = (T) PlayerUtil.getPlayer(plug, mediaURL, autoplay, height, width);
+            }
             _engine.addDebugHandler(new DebugHandler() {
 
                 public void onDebug(DebugEvent event) {
