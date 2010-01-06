@@ -1,0 +1,25 @@
+<html>
+    <div class='case-code'>
+        <pre>
+Widget c = null;
+try {
+    Capsule cap = new Capsule(Plugin.Native,
+        GWT.getHostPageBaseURL() + "media/thunder.mp3", false);
+    cap.showLogger(true);
+    c = cap;
+} catch (LoadException ex) {
+    Window.alert("Load exp");
+} catch (PluginVersionException ex) {
+    c = PlayerUtil.getMissingPluginNotice(ex.getPlugin());
+} catch (PluginNotFoundException ex) {
+    c = PlayerUtil.getMissingPluginNotice(ex.getPlugin());
+}
+panel.add(c);
+        </pre>
+    </div>
+    <div class='ui-case-code'>
+        <pre>
+The <b>Capsule</b> player does not have UiBinder support yet!
+        </pre>
+    </div>
+</html>

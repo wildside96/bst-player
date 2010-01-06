@@ -1,0 +1,36 @@
+<html>
+    <div class='media-desc'>
+        You can also call other methods on the player (such as playback count e.t.c.)
+    </div>
+    <div class='case-code'>
+        <pre>
+Widget w = null;
+try {
+    <b>AbstractMediaPlayer mp = PlayerUtil.getPlayer(GWT.getHostPageBaseURL() +  "media/o-na-som.mp3",
+            false, "50px", "100%");
+    mp.setLoopCount(2)</b>;
+    mp.showLogger(true);
+    w = mp;
+} catch (LoadException ex) {
+    Window.alert("Load Exp");
+} catch (PluginVersionException ex) {
+    w = PlayerUtil.getMissingPluginNotice(Plugin.Auto);
+} catch (PluginNotFoundException ex) {
+    w = PlayerUtil.getMissingPluginNotice(Plugin.Auto);
+}
+panel.add(w);
+        </pre>
+    </div>
+    <div class='ui-case-code'>
+        <pre>
+&lt;ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
+    xmlns:g='urn:import:com.google.gwt.user.client.ui'
+    xmlns:player='urn:import:com.bramosystems.oss.player.uibinder.client'&gt;
+        ...
+        &lt;<b>player:Auto</b> autoplay='false' height='50px' width='100%'
+            <b>showLogger='true' loopCount='2'</b> mediaURL='GWT-HOST::media/o-na-som.mp3' /&gt;
+        ...
+&lt;/ui:UiBinder&gt;
+        </pre>
+    </div>
+</html>

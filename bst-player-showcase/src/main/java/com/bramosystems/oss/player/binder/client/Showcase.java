@@ -16,6 +16,7 @@
  */
 package com.bramosystems.oss.player.binder.client;
 
+import com.bramosystems.oss.player.resources.sources.ResourceBundle;
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.uibinder.client.UiBinder;
@@ -35,6 +36,8 @@ public class Showcase extends Widget implements EntryPoint {
     private static final _Binder binder = GWT.create(_Binder.class);
 
     public void onModuleLoad() {
+        ResourceBundle.bundle.styles().ensureInjected();
+        
         // Add the outer panel to the RootLayoutPanel, so that it will be displayed.
         RootLayoutPanel root = RootLayoutPanel.get();
         root.add(binder.createAndBindUi(this));

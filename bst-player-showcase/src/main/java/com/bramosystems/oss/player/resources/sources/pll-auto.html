@@ -1,0 +1,40 @@
+<html>
+    <div class='case-code'>
+        <pre>
+Widget w = null;
+try {
+    AbstractMediaPlayer mp = PlayerUtil.getPlayer(Plugin.PlaylistSupport,
+            GWT.getHostPageBaseURL() +  "media/o-na-som.mp3",  false, "50px", "100%");
+    <b>mp.addToPlaylist(GWT.getHostPageBaseURL() + "media/thunder.mp3");
+    mp.addToPlaylist(GWT.getHostPageBaseURL() + "media/applause.mp3");
+    mp.setShuffleEnabled(true);</b>;
+    mp.showLogger(true);
+    w = mp;
+} catch (LoadException ex) {
+    Window.alert("Load Exp");
+} catch (PluginVersionException ex) {
+    w = PlayerUtil.getMissingPluginNotice(ex.getPlugin());
+} catch (PluginNotFoundException ex) {
+    w = PlayerUtil.getMissingPluginNotice(ex.getPlugin());
+}
+panel.add(w);
+        </pre>
+    </div>
+    <div class='ui-case-code'>
+        <pre>
+&lt;ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
+    xmlns:g='urn:import:com.google.gwt.user.client.ui'
+    xmlns:player='urn:import:com.bramosystems.oss.player.uibinder.client'&gt;
+        ...
+        &lt;<b>player:PlaylistSupport</b> autoplay='false' height='50px' width='100%'
+            showLogger='true' <b>shuffleEnabled='true'
+            mediaURL='GWT-HOST::media/o-na-som.mp3,GWT-HOST::media/thunder.mp3,
+                GWT-HOST::media/applause.mp3'</b> /&gt;
+        ...
+        &lt;!--
+            Note: Add multiple files with a comma-separated list of URLs.
+        --&gt;
+&lt;/ui:UiBinder&gt;
+        </pre>
+    </div>
+</html>

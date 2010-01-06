@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="windows-1252"?>
+
+<ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder' xmlns:g='urn:import:com.google.gwt.user.client.ui'
+  xmlns:showcase='urn:import:com.bramosystems.oss.player.binder.client'
+  xmlns:player='urn:import:com.bramosystems.oss.player.uibinder.client'>
+
+    <g:VerticalPanel spacing='10' width='80%'>
+        <g:Label styleName='section-desc'>
+            Playback with HTML 5 media elements
+        </g:Label>
+        <showcase:CustomPlayer name='dynNtv' autoplay='false' height='50px' width='100%'
+            mediaURL='GWT-HOST::media/thunder.mp3' />
+        <showcase:Sources name='dynNtv' />
+    </g:VerticalPanel>
+</ui:UiBinder>

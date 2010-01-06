@@ -18,13 +18,12 @@ package com.bramosystems.oss.player.showcase.client;
 import com.bramosystems.oss.player.core.client.Plugin;
 import com.bramosystems.oss.player.core.client.PluginNotFoundException;
 import com.bramosystems.oss.player.core.client.impl.MimePool;
+import com.bramosystems.oss.player.resources.sources.Links;
+import com.bramosystems.oss.player.resources.sources.ResourceBundle;
 import com.bramosystems.oss.player.util.client.BrowserPlugin;
 import com.bramosystems.oss.player.util.client.MimeType;
 import com.google.gwt.core.client.JsArray;
-import com.google.gwt.user.client.Timer;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.FlexTable;
-import com.google.gwt.user.client.ui.HTML;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -35,36 +34,20 @@ import java.util.Iterator;
  * @author Sikirulai Braheem <sbraheem at gmail.com>
  */
 public class SumShowcase extends AbstractCase {
+    public static AbstractCase instance = new SumShowcase();
 
-    public static String[] caseNames = {"Introduction", "Documentation", "Available Plugins", "Registered Mime Types"};
-    public static String[] caseLinks = {"home/intro", "home/docs", "home/plugins", "home/mimetypes"};
-
-    public SumShowcase() {
+    private SumShowcase() {
     }
 
     @Override
-    public String getSummary() {
-        return "Introduction";
-    }
-
-    @Override
-    public void init(String token) {
+    public void initCase(Links link) {
+        super.initCase(link);
         clearCases();
-        int index = getTokenLinkIndex(caseLinks, token);
-        switch (index) {
-            case 1:
-                HTML wait = new HTML("Please wait while you are being redirected ...");
-                addCase(null, null, wait, null);
-                Timer t = new Timer() {
-
-                    @Override
-                    public void run() {
-                        Window.Location.replace("http://oss.bramosystems.com/bst-player");
-                    }
-                };
-                t.schedule(3000);
+        switch (link) {
+            case homeDocs:
+                addCase(null, null, null, ResourceBundle.bundle.homeDocs());
                 break;
-            case 2:
+            case homePlugins:
                 FlexTable table = new FlexTable();
                 table.setWidth("90%");
                 table.setCellSpacing(5);
@@ -83,7 +66,7 @@ public class SumShowcase extends AbstractCase {
                 }
                 addCase("Browser Plugins", null, table, null);
                 break;
-            case 3:
+            case homeMimetypes:
                 FlexTable tbl = new FlexTable();
                 tbl.setWidth("90%");
                 tbl.setCellSpacing(5);
@@ -96,7 +79,6 @@ public class SumShowcase extends AbstractCase {
                 int row = 0;
                 for (Plugin plug : Plugin.values()) {
                     HashSet<String> suf = pool.getRegisteredExtensions(plug);
-
                     tbl.setHTML(row, 0, plug.name());
                     tbl.setHTML(row++, 1, suf != null ? suf.toString() : "-");
                 }
@@ -146,7 +128,7 @@ public class SumShowcase extends AbstractCase {
                 addCase("Registered Mime Types", null, tble, null);
                 break;
             default:
-                addCase(null, null, null, "sources/index.html");
+                addCase(null, null, null, ResourceBundle.bundle.home());
         }
     }
 

@@ -21,6 +21,8 @@ import com.bramosystems.oss.player.core.client.PlayerUtil;
 import com.bramosystems.oss.player.core.client.Plugin;
 import com.bramosystems.oss.player.core.client.PluginNotFoundException;
 import com.bramosystems.oss.player.core.client.PluginVersionException;
+import com.bramosystems.oss.player.resources.sources.Links;
+import com.bramosystems.oss.player.resources.sources.ResourceBundle;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
@@ -30,29 +32,17 @@ import com.google.gwt.user.client.ui.*;
  * @author Sikirulai Braheem <sbraheem at gmail.com>
  */
 public class DynaShowcase extends AbstractCase {
+    public static AbstractCase instance = new DynaShowcase();
 
-    public static String[] caseNames = {"Custom controls with Windows " +
-            "Media Player plugin", "Custom controls with Flash plugin",
-            "Custom controls with QuickTime plugin",
-            "Custom controls with VLC Player Plugin",
-            "Custom controls with HTML 5 Native player",
-            "Plugin determined at runtime"};
-    public static String[] caseLinks = {"dyn/wmp", "dyn/swf", "dyn/qt", "dyn/vlc", "dyn/native", "dyn/dyna"};
-
-    public DynaShowcase() {
-    }
-
-    public String getSummary() {
-        return "Using custom sound player controls.";
+    private DynaShowcase() {
     }
 
     @Override
-    public void init(String token) {
-        clearCases();
+    public void initCase(Links link) {
+        super.initCase(link);
         Widget v = null;
-        int index = getTokenLinkIndex(caseLinks, token);
-        switch (index) {
-            case 0:
+        switch (link) {
+            case dynWmp:
                 try {
                     Capsule c = new Capsule(Plugin.WinMediaPlayer, GWT.getHostPageBaseURL() + "media/o-na-som.mp3", false);
                     c.showLogger(true);
@@ -65,9 +55,9 @@ public class DynaShowcase extends AbstractCase {
                     v = PlayerUtil.getMissingPluginNotice(Plugin.WinMediaPlayer);
                 }
                 addCase("Playing sound with Windows Media Player plugin", null,
-                        v, "sources/custom-audio/wmp.html");
+                        v, ResourceBundle.bundle.audWmp());
                 break;
-            case 1:
+            case dynSwf:
                 try {
                     Capsule c = new Capsule(Plugin.FlashPlayer, GWT.getHostPageBaseURL() + "media/applause.mp3", false);
                     c.showLogger(true);
@@ -80,9 +70,9 @@ public class DynaShowcase extends AbstractCase {
                     v = PlayerUtil.getMissingPluginNotice(Plugin.FlashPlayer);
                 }
                 addCase("Playing with Flash Player plugin", null,
-                        v, "sources/custom-audio/swf.html");
+                        v, ResourceBundle.bundle.audSwf());
                 break;
-            case 2:
+            case dynQt:
                 try {
                     Capsule cv = new Capsule(Plugin.QuickTimePlayer, GWT.getHostPageBaseURL() + "media/thunder.mp3", false);
                     cv.showLogger(true);
@@ -95,9 +85,9 @@ public class DynaShowcase extends AbstractCase {
                     v = PlayerUtil.getMissingPluginNotice(Plugin.QuickTimePlayer);
                 }
                 addCase("Playback with QuickTime Player plugin", null,
-                        v, "sources/custom-audio/qt.html");
+                        v, ResourceBundle.bundle.audQt());
                 break;
-            case 3:
+            case dynVlc:
                 try {
                     Capsule cv = new Capsule(Plugin.VLCPlayer, GWT.getHostPageBaseURL() + "media/thunder.mp3", false);
                     cv.showLogger(true);
@@ -110,9 +100,9 @@ public class DynaShowcase extends AbstractCase {
                     v = PlayerUtil.getMissingPluginNotice(Plugin.VLCPlayer);
                 }
                 addCase("Playback with VLC Media Player plugin", null,
-                        v, "sources/custom-audio/vlc.html");
+                        v, ResourceBundle.bundle.audVlc());
                 break;
-            case 4:
+            case dynNtv:
                 try {
                     Capsule cv = new Capsule(Plugin.Native, GWT.getHostPageBaseURL() + "media/thunder.mp3", false);
                     cv.showLogger(true);
@@ -125,9 +115,9 @@ public class DynaShowcase extends AbstractCase {
                     v = PlayerUtil.getMissingPluginNotice(Plugin.Native);
                 }
                 addCase("Playback with HTML 5 Native Player plugin", null,
-                        v, "sources/custom-audio/vlc.html");
+                        v, ResourceBundle.bundle.audNtv());
                 break;
-            case 5:
+            case dynAuto:
                 try {
                     Capsule cap = new Capsule(GWT.getHostPageBaseURL() + "media/o-na-som.mp3", false);
                     cap.showLogger(true);
@@ -143,7 +133,7 @@ public class DynaShowcase extends AbstractCase {
                 }
                 addCase("Using a dynamically determined media plugin",
                         "Use the logger to check which plugin is in use",
-                        v, "sources/custom-audio/dyn.html");
+                        v, ResourceBundle.bundle.audAuto());
                 break;
         }
     }

@@ -144,3 +144,32 @@ code pre {
 
 }
 
+
+
+
+
+
+
+
+
+.app-wrapper {
+    margin: 5px;
+}
+.app-footer {
+    font-size: 80%;
+    text-align:center;
+    margin-top: 5px;
+    padding-top: 5px;
+}
+.app-banner {
+    margin-bottom: 0px;
+    font-size: 180%;
+    color: #4b4b93;
+    font-weight: bold;
+}
+.app-version {
+    margin-bottom: 10px;
+    color: #4b4b93;
+    font-weight: bold;
+    font-style:italic;
+}

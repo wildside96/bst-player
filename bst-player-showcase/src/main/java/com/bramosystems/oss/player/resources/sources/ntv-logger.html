@@ -1,0 +1,29 @@
+<html>
+    <div class='case-code'>
+        <pre>
+Widget mp = null;
+try {
+    NativePlayer p = new NativePlayer(GWT.getHostPageBaseURL() + "media/o-na-som.mp3");
+    <b>p.showLogger(true);</b>
+    wmp = p;
+} catch (LoadException ex) {
+    Window.alert("Load exp");
+} catch (PluginNotFoundException ex) {
+    mp = PlayerUtil.getMissingPluginNotice(Plugin.Native);
+}
+panel.add(mp);
+        </pre>
+    </div>
+    <div class='ui-case-code'>
+        <pre>
+&lt;ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
+    xmlns:g='urn:import:com.google.gwt.user.client.ui'
+    xmlns:player='urn:import:com.bramosystems.oss.player.uibinder.client'&gt;
+        ...
+        &lt;player:Native autoplay='true' height='20px' width='100%'
+            <b>showLogger='true'</b> mediaURL='GWT-HOST::media/o-na-som.mp3' /&gt;
+        ...
+&lt;/ui:UiBinder&gt;
+        </pre>
+    </div>
+</html>

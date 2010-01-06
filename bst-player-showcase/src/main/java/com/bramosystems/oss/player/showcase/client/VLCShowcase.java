@@ -23,6 +23,8 @@ import com.bramosystems.oss.player.core.client.PluginVersionException;
 import com.bramosystems.oss.player.core.client.ui.VLCPlayer;
 import com.bramosystems.oss.player.core.event.client.PlayStateEvent;
 import com.bramosystems.oss.player.core.event.client.PlayStateHandler;
+import com.bramosystems.oss.player.resources.sources.Links;
+import com.bramosystems.oss.player.resources.sources.ResourceBundle;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.MouseMoveEvent;
 import com.google.gwt.event.dom.client.MouseMoveHandler;
@@ -36,9 +38,7 @@ import com.google.gwt.user.client.ui.*;
  */
 public class VLCShowcase extends AbstractCase {
 
-    public static String[] caseNames = {"Embedding VLC Player",
-        "Embedding with Logger widget visible", "Embedding Video"};
-    public static String[] caseLinks = {"vlc/basic", "vlc/logger", "vlc/video"};
+    public static AbstractCase instance = new VLCShowcase();
 
     public VLCShowcase() {
     }
@@ -48,12 +48,11 @@ public class VLCShowcase extends AbstractCase {
     }
 
     @Override
-    public void init(String token) {
-        clearCases();
+    public void initCase(Links link) {
+        super.initCase(link);
         Widget v = null, v2 = null;
-        int index = getTokenLinkIndex(caseLinks, token);
-        switch (index) {
-            case 0:
+        switch (link) {
+            case vlcBasic:
                 try {
                     v = new VLCPlayer(GWT.getHostPageBaseURL() + "media/thunder.mp3");
                 } catch (LoadException ex) {
@@ -63,23 +62,10 @@ public class VLCShowcase extends AbstractCase {
                 } catch (PluginNotFoundException ex) {
                     v = PlayerUtil.getMissingPluginNotice(Plugin.VLCPlayer);
                 }
-                addCase("Playing sound automatically", null, v, "sources/vlc/auto.html");
-
-                try {
-                    VLCPlayer vv2 = new VLCPlayer(GWT.getHostPageBaseURL() + "media/applause.mp3", false);
-                    vv2.showLogger(true);
-                    v2 = vv2;
-                } catch (LoadException ex) {
-                    Window.alert("Load exp");
-                } catch (PluginVersionException ex) {
-                    v2 = PlayerUtil.getMissingPluginNotice(Plugin.VLCPlayer, ex.getRequiredVersion());
-                } catch (PluginNotFoundException ex) {
-                    v2 = PlayerUtil.getMissingPluginNotice(Plugin.VLCPlayer);
-                }
-                addCase("Playing sound with autoplay set to false", null,
-                        v2, "sources/vlc/no-auto.html");
-                break;
-            case 1:
+                addCase("Playing sound automatically", null, v,
+                        ResourceBundle.bundle.vlcBasic());
+              break;
+            case vlcLogger:
                 try {
                     VLCPlayer vlc = new VLCPlayer(GWT.getHostPageBaseURL() + "media/o-na-som.mp3", false);
                     vlc.showLogger(true);
@@ -91,9 +77,10 @@ public class VLCShowcase extends AbstractCase {
                 } catch (PluginNotFoundException ex) {
                     v = PlayerUtil.getMissingPluginNotice(Plugin.VLCPlayer);
                 }
-                addCase("Debugging with the Logger widget", null, v, "sources/vlc/show-logger.html");
+                addCase("Debugging with the Logger widget", null, v,
+                        ResourceBundle.bundle.vlcLogger());
                 break;
-            case 2:
+            case vlcVideo:
                 try {
                     final Label lbl = new Label();
                     final PopupPanel pp = new DialogBox(false, false);
@@ -105,7 +92,7 @@ public class VLCShowcase extends AbstractCase {
                     VLCPlayer v1 = new VLCPlayer(GWT.getHostPageBaseURL() +
                             "media/traffic.flv", false, "350px", "100%");
                     v1.showLogger(true);
-                    v1.doMouseEvents(new MouseMoveHandler() {
+                    v1.addMouseMoveHandler(new MouseMoveHandler() {
 
                         public void onMouseMove(MouseMoveEvent event) {
                             lbl.setText("X:Y = " + event.getX() + ":" + event.getY());
@@ -131,7 +118,7 @@ public class VLCShowcase extends AbstractCase {
                 } catch (PluginNotFoundException ex) {
                     v = PlayerUtil.getMissingPluginNotice(Plugin.VLCPlayer);
                 }
-                addCase("Embedding Video", null, v, "sources/vlc/video.html");
+                addCase("Embedding Video", null, v, ResourceBundle.bundle.vlcVideo());
 
                 try {
                     VLCPlayer v1V = new VLCPlayer(GWT.getHostPageBaseURL() +
@@ -146,7 +133,7 @@ public class VLCShowcase extends AbstractCase {
                 } catch (PluginNotFoundException ex) {
                     v2 = PlayerUtil.getMissingPluginNotice(Plugin.VLCPlayer);
                 }
-                addCase("Auto-resize embedded video", null, v2, "sources/vlc/video-auto.html");
+                addCase("Auto-resize embedded video", null, v2, ResourceBundle.bundle.vlcVideoAuto());
                 break;
         }
     }

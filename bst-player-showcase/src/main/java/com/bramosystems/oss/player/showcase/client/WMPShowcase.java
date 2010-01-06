@@ -15,21 +15,19 @@
  */
 package com.bramosystems.oss.player.showcase.client;
 
-import com.bramosystems.oss.player.core.client.ConfigParameter;
 import com.bramosystems.oss.player.core.client.LoadException;
 import com.bramosystems.oss.player.core.client.PlayerUtil;
 import com.bramosystems.oss.player.core.client.Plugin;
 import com.bramosystems.oss.player.core.client.PluginNotFoundException;
 import com.bramosystems.oss.player.core.client.PluginVersionException;
 import com.bramosystems.oss.player.core.client.ui.WinMediaPlayer;
-import com.bramosystems.oss.player.core.event.client.PlayStateEvent;
-import com.bramosystems.oss.player.core.event.client.PlayStateHandler;
+import com.bramosystems.oss.player.resources.sources.Links;
+import com.bramosystems.oss.player.resources.sources.ResourceBundle;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.KeyPressEvent;
 import com.google.gwt.event.dom.client.KeyPressHandler;
 import com.google.gwt.event.dom.client.MouseMoveEvent;
 import com.google.gwt.event.dom.client.MouseMoveHandler;
-import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
 
@@ -39,9 +37,7 @@ import com.google.gwt.user.client.ui.*;
  */
 public class WMPShowcase extends AbstractCase {
 
-    public static String[] caseNames = {"Embed Windows Media Player", "With Logger widget visible",
-        "Embedding Video", "Windows Media Playlist", "WMP UI Mode"};
-    public static String[] caseLinks = {"wmp/basic", "wmp/logger", "wmp/video", "wmp/playlist", "wmp/uimode"};
+    public static AbstractCase instance = new WMPShowcase();
 
     public WMPShowcase() {
     }
@@ -51,12 +47,11 @@ public class WMPShowcase extends AbstractCase {
     }
 
     @Override
-    public void init(String token) {
-        clearCases();
+    public void initCase(Links link) {
+        super.initCase(link);
         Widget wmp = null, wmp1 = null;
-        int index = getTokenLinkIndex(caseLinks, token);
-        switch (index) {
-            case 0:
+        switch (link) {
+            case wmpBasic:
                 try {
                     wmp = new WinMediaPlayer(GWT.getHostPageBaseURL() + "media/applause.mp3");
                 } catch (LoadException ex) {
@@ -66,21 +61,10 @@ public class WMPShowcase extends AbstractCase {
                 } catch (PluginNotFoundException ex) {
                     wmp = PlayerUtil.getMissingPluginNotice(Plugin.WinMediaPlayer);
                 }
-                addCase("Playing sound automatically", null, wmp, "sources/wmp/auto.html");
-
-                try {
-                    wmp1 = new WinMediaPlayer(GWT.getHostPageBaseURL() + "media/applause.mp3", false);
-                } catch (LoadException ex) {
-                    Window.alert("Load exp");
-                } catch (PluginVersionException ex) {
-                    wmp1 = PlayerUtil.getMissingPluginNotice(Plugin.WinMediaPlayer, ex.getRequiredVersion());
-                } catch (PluginNotFoundException ex) {
-                    wmp1 = PlayerUtil.getMissingPluginNotice(Plugin.WinMediaPlayer);
-                }
-                addCase("Playing sound with autoplay set to false", null,
-                        wmp1, "sources/wmp/no-auto.html");
+                addCase("Playing sound automatically", null, wmp,
+                        ResourceBundle.bundle.wmpBasic());
                 break;
-            case 1:
+            case wmpLogger:
                 try {
                     final WinMediaPlayer p = new WinMediaPlayer(GWT.getHostPageBaseURL()
                             + "media/o-na-som.mp3", false);
@@ -94,7 +78,7 @@ public class WMPShowcase extends AbstractCase {
                     wmp = PlayerUtil.getMissingPluginNotice(Plugin.WinMediaPlayer);
                 }
                 addCase("Playing sound with logger widget visible", null,
-                        wmp, "sources/wmp/show-logger.html");
+                        wmp, ResourceBundle.bundle.wmpLogger());
 
                 try {
                     final Label lbl = new Label();
@@ -128,9 +112,9 @@ public class WMPShowcase extends AbstractCase {
                     wmp1 = PlayerUtil.getMissingPluginNotice(Plugin.WinMediaPlayer);
                 }
                 addCase("Playing sound with logger widget visible", null,
-                        wmp1, "sources/wmp/show-logger.html");
+                        wmp1, ResourceBundle.bundle.wmpLogger());
                 break;
-            case 2:
+            case wmpVideo:
                 try {
                     WinMediaPlayer p = new WinMediaPlayer("http://bst-player.googlecode.com/svn/"
                             + "tags/showcase/media/islamic-jihad.wmv",
@@ -145,7 +129,7 @@ public class WMPShowcase extends AbstractCase {
                     wmp = PlayerUtil.getMissingPluginNotice(Plugin.WinMediaPlayer);
                 }
                 addCase("Embedding video", "Islamic Jihad",
-                        wmp, "sources/wmp/video.html");
+                        wmp, ResourceBundle.bundle.wmpVideo());
 
                 try {
                     WinMediaPlayer p = new WinMediaPlayer("http://bst-player.googlecode.com/svn/"
@@ -161,9 +145,9 @@ public class WMPShowcase extends AbstractCase {
                     wmp1 = PlayerUtil.getMissingPluginNotice(Plugin.WinMediaPlayer);
                 }
                 addCase("Auto-adjust to video size", "Islamic Jihad",
-                        wmp1, "sources/wmp/video.html");
+                        wmp1, ResourceBundle.bundle.wmpVideoAuto());
                 break;
-            case 3:
+            case wmpPlaylist:
                 try {
                     WinMediaPlayer p = new WinMediaPlayer(GWT.getHostPageBaseURL()
                             + "media/playlist.wpl", false);
@@ -177,52 +161,7 @@ public class WMPShowcase extends AbstractCase {
                     wmp = PlayerUtil.getMissingPluginNotice(Plugin.WinMediaPlayer);
                 }
                 addCase("Using playlists", "(Windows Media playlist)",
-                        wmp, "sources/wmp/playlist.html");
-                break;
-            case 4:
-                String wmv = "http://localhost/xplorer/g:/Islamics%20VIDEOS/Qadian2008-Arrival-in-India.wmv";
-
-                try {
-                    final PopupPanel pp = new DialogBox(false, false);
-                    pp.setWidth("300px");
-                    pp.setHeight("400px");
-                    pp.setWidget(new Image(GWT.getHostPageBaseURL() + "images/loading.gif"));
-                    DOM.setStyleAttribute(pp.getElement(), "backgroundColor", "blue");
-
-                    final WinMediaPlayer p = new WinMediaPlayer(wmv, false, "350px", "100%");
-                    p.setConfigParameter(ConfigParameter.WMPUIMode, WinMediaPlayer.UIMode.MINI);
-                    p.showLogger(true);
-                    p.addPlayStateHandler(new PlayStateHandler() {
-
-                        public void onPlayStateChanged(PlayStateEvent event) {
-                            pp.center();
-                        }
-                    });
-                    wmp = p;
-                } catch (LoadException ex) {
-                    Window.alert("Load exp");
-                } catch (PluginVersionException ex) {
-                    wmp = PlayerUtil.getMissingPluginNotice(Plugin.WinMediaPlayer, ex.getRequiredVersion());
-                } catch (PluginNotFoundException ex) {
-                    wmp = PlayerUtil.getMissingPluginNotice(Plugin.WinMediaPlayer);
-                }
-                addCase("Embedding video", "UI MODE FULL",
-                        wmp, "sources/wmp/video.html");
-
-                try {
-                    final WinMediaPlayer p = new WinMediaPlayer(wmv, false, "350px", "100%");
-                    p.setUIMode(WinMediaPlayer.UIMode.NONE);
-                    p.showLogger(true);
-                    wmp1 = p;
-                } catch (LoadException ex) {
-                    Window.alert("Load exp");
-                } catch (PluginVersionException ex) {
-                    wmp1 = PlayerUtil.getMissingPluginNotice(Plugin.WinMediaPlayer, ex.getRequiredVersion());
-                } catch (PluginNotFoundException ex) {
-                    wmp1 = PlayerUtil.getMissingPluginNotice(Plugin.WinMediaPlayer);
-                }
-                addCase("Auto-adjust to video size", "NONE",
-                        wmp1, "sources/wmp/video.html");
+                        wmp, ResourceBundle.bundle.wmpPlaylist());
                 break;
         }
     }

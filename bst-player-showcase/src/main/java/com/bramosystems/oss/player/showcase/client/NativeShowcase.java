@@ -20,6 +20,8 @@ import com.bramosystems.oss.player.core.client.PlayerUtil;
 import com.bramosystems.oss.player.core.client.Plugin;
 import com.bramosystems.oss.player.core.client.PluginNotFoundException;
 import com.bramosystems.oss.player.core.client.ui.NativePlayer;
+import com.bramosystems.oss.player.resources.sources.Links;
+import com.bramosystems.oss.player.resources.sources.ResourceBundle;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.MouseMoveEvent;
 import com.google.gwt.event.dom.client.MouseMoveHandler;
@@ -32,12 +34,9 @@ import java.util.ArrayList;
  * @author Sikirulai Braheem <sbraheem at gmail.com>
  */
 public class NativeShowcase extends AbstractCase {
+    public static AbstractCase instance = new NativeShowcase();
 
-    public static String[] caseNames = {"Embed Native player",
-        "With Logger widget visible", "Embedding Video"};
-    public static String[] caseLinks = {"_native/basic", "_native/logger", "_native/video"};
-
-    public NativeShowcase() {
+    private NativeShowcase() {
     }
 
     public String getSummary() {
@@ -45,12 +44,11 @@ public class NativeShowcase extends AbstractCase {
     }
 
     @Override
-    public void init(String token) {
-        clearCases();
+    public void initCase(Links link) {
+        super.initCase(link);
         Widget mp = null, mp2 = null;
-        int index = getTokenLinkIndex(caseLinks, token);
-        switch (index) {
-            case 0:
+        switch (link) {
+            case ntiveBasic:
                 try {
                     mp = new NativePlayer(GWT.getHostPageBaseURL() + "media/applause.mp3");
                 } catch (LoadException ex) {
@@ -58,19 +56,9 @@ public class NativeShowcase extends AbstractCase {
                 } catch (PluginNotFoundException ex) {
                     mp = PlayerUtil.getMissingPluginNotice(Plugin.Native);
                 }
-                addCase("Playing MP3 media automatically", null, mp, "sources/swf/auto.html");
-
-                try {
-                    mp2 = new NativePlayer(GWT.getHostPageBaseURL() + "media/thunder.mp3", false);
-                } catch (LoadException ex) {
-                    Window.alert("Load exp");
-                } catch (PluginNotFoundException ex) {
-                    mp2 = PlayerUtil.getMissingPluginNotice(Plugin.Native);
-                }
-                addCase("Playing media with autoplay set to false", null,
-                        mp2, "sources/swf/no-auto.html");
-                break;
-            case 1:
+                addCase("Playing MP3 media automatically", null, mp,
+                        ResourceBundle.bundle.nativeBasic());
+            case ntiveLogger:
                 try {
                     NativePlayer p3 = new NativePlayer(GWT.getHostPageBaseURL() + "media/o-na-som.mp3", false);
                     p3.showLogger(true);
@@ -81,9 +69,9 @@ public class NativeShowcase extends AbstractCase {
                     mp = PlayerUtil.getMissingPluginNotice(Plugin.Native);
                 }
                 addCase("Playing sound with logger widget visible", null,
-                        mp, "sources/swf/show-logger.html");
+                        mp, ResourceBundle.bundle.nativeLogger());
                 break;
-            case 2:
+            case ntiveVideo:
                 try {
                     final Label lbl = new Label();
 
@@ -111,7 +99,7 @@ public class NativeShowcase extends AbstractCase {
                 } catch (PluginNotFoundException ex) {
                     mp = PlayerUtil.getMissingPluginNotice(Plugin.Native);
                 }
-                addCase("Embedding video", null, mp, "sources/swf/video.html");
+                addCase("Embedding video", null, mp, ResourceBundle.bundle.nativeVideo());
 
                 try {
                     NativePlayer mmp = new NativePlayer(GWT.getHostPageBaseURL() + "media/traffic.mp4",
@@ -123,7 +111,7 @@ public class NativeShowcase extends AbstractCase {
                 } catch (PluginNotFoundException ex) {
                     mp2 = PlayerUtil.getMissingPluginNotice(Plugin.Native);
                 }
-                addCase("Player adjusted to video size", null, mp2, "sources/swf/video-auto.html");
+                addCase("Player adjusted to video size", null, mp2, ResourceBundle.bundle.nativeVideoAuto());
                 break;
         }
     }

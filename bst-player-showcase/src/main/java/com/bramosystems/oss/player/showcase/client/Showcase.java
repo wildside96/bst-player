@@ -15,10 +15,10 @@
  */
 package com.bramosystems.oss.player.showcase.client;
 
-import com.bramosystems.oss.player.showcase.client.matrix.MatrixShowcase;
+import com.bramosystems.oss.player.resources.sources.Menu;
+import com.bramosystems.oss.player.resources.sources.ResourceBundle;
 import com.google.gwt.core.client.EntryPoint;
-import com.google.gwt.event.logical.shared.ValueChangeEvent;
-import com.google.gwt.event.logical.shared.ValueChangeHandler;
+import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.user.client.History;
 import com.google.gwt.user.client.ui.*;
 
@@ -26,205 +26,32 @@ import com.google.gwt.user.client.ui.*;
  *
  * @author Sikirulai Braheem <sbraheem at gmail.com>
  */
-public class Showcase extends Composite implements EntryPoint, ValueChangeHandler<String> {
-
-    private AbstractCase home = getCase(Cases.home);
-    private SimplePanel panel;
-    private StackPanel menu;
+public class Showcase extends Composite implements EntryPoint {
 
     public Showcase() {
-        panel = new SimplePanel();
-
-        Label banner = new Label("BST Player Showcase");
-        banner.setStyleName("showcase-Banner");
-
-        Label version = new Label("Version 1.1-SNAPSHOT");
-        version.setStyleName("showcase-Version");
-
+        HTML banner = new HTML("<div class='app-banner'>BST Player Showcase</div>" +
+                "<div class='app-version'>Version 1.1-SNAPSHOT</div>");
+ 
         HTML footer = new HTML("Copyright &copy; 2009 Braheem Sikiru<br/>" +
                 "All other product, service names, brands, or trademarks, are " +
                 "the property of their respective owners.");
-        footer.setStyleName("showcase-Footer");
+        footer.setStyleName("app-footer");
 
-        menu = new StackPanel();
-        menu.setWidth("200px");
-        Cases cases[] = Cases.values();
-        for (Cases caze : cases) {
-            addCaseItems(caze);
-        }
-
-        DockPanel dp = new DockPanel();
-        dp.setWidth("100%");
-        dp.setHeight("100%");
-        dp.setSpacing(5);
-        dp.add(banner, DockPanel.NORTH);
-        dp.add(version, DockPanel.NORTH);
-        dp.add(footer, DockPanel.SOUTH);
-        dp.add(menu, DockPanel.WEST);
-//        dp.setCellWidth(menu, "200px");
-        dp.add(panel, DockPanel.CENTER);
-        dp.setCellWidth(panel, "100%");
+        DockLayoutPanel dp = new DockLayoutPanel(Unit.PX);
+        dp.setStyleName("app-wrapper");
+        dp.addNorth(banner, 50);
+        dp.addSouth(footer, 40);
+        dp.addWest(new Menu(), 200);
+        dp.add(new CaseHandler());
         initWidget(dp);
-
-        History.addValueChangeHandler(this);
     }
 
     public void onModuleLoad() {
+        ResourceBundle.bundle.styles().ensureInjected();
+
         RootPanel.get("loading").setVisible(false);
-        RootPanel.get().add(this);
+        RootLayoutPanel.get().add(this);
 
         History.fireCurrentHistoryState();
-    }
-
-    private void addCaseItems(Cases caze) {
-        VerticalPanel vp = new VerticalPanel();
-        vp.setSpacing(10);
-        String[] names = null;
-        String[] links = null;
-
-        switch (caze) {
-            case wmp:
-                names = WMPShowcase.caseNames;
-                links = WMPShowcase.caseLinks;
-                break;
-            case dyn:
-                names = DynaShowcase.caseNames;
-                links = DynaShowcase.caseLinks;
-                break;
-            case dynvd:
-                names = DynaVideoShowcase.caseNames;
-                links = DynaVideoShowcase.caseLinks;
-                break;
-            case home:
-                names = SumShowcase.caseNames;
-                links = SumShowcase.caseLinks;
-                break;
-//            case link:
-//                names = LinkShowcase.caseNames;
-//                links = LinkShowcase.caseLinks;
-//                header = "Playable Links";
-//                break;
-            case list:
-                names = PlaylistShowcase.caseNames;
-                links = PlaylistShowcase.caseLinks;
-                break;
-            case misc:
-                names = MiscShowcase.caseNames;
-                links = MiscShowcase.caseLinks;
-                break;
-            case qt:
-                names = QTShowcase.caseNames;
-                links = QTShowcase.caseLinks;
-                break;
-            case swf:
-                names = SWFShowcase.caseNames;
-                links = SWFShowcase.caseLinks;
-                break;
-            case vlc:
-                names = VLCShowcase.caseNames;
-                links = VLCShowcase.caseLinks;
-                break;
-            case _native:
-                names = NativeShowcase.caseNames;
-                links = NativeShowcase.caseLinks;
-                break;
-            case matrix:
-                names = MatrixShowcase.caseNames;
-                links = MatrixShowcase.caseLinks;
-                break;
-        }
-
-        for (int i = 0; i < names.length; i++) {
-            vp.add(new Hyperlink(names[i], links[i]));
-        }
-
-        menu.add(vp, caze.getHeader());
-    }
-
-    public void onValueChange(ValueChangeEvent<String> event) {
-        String cazeId = event.getValue();
-        if (cazeId.contains("/")) {
-            cazeId = cazeId.substring(0, cazeId.indexOf("/"));
-        }
-
-        AbstractCase caze = null;
-        try {
-            caze = getCase(Cases.valueOf(cazeId));
-            menu.showStack(Cases.valueOf(cazeId).ordinal());
-        } catch (Exception e) {
-            menu.showStack(0);
-            caze = home;
-        }
-
-        panel.setWidget(caze);
-        caze.init(event.getValue());
-    }
-
-    private AbstractCase getCase(Cases caze) {
-        AbstractCase cazze = null;
-        switch (caze) {
-            case home:
-                cazze = new SumShowcase();
-                break;
-            case wmp:
-                cazze = new WMPShowcase();
-                break;
-            case qt:
-                cazze = new QTShowcase();
-                break;
-            case swf:
-                cazze = new SWFShowcase();
-                break;
-            case vlc:
-                cazze = new VLCShowcase();
-                break;
-            case dyn:
-                cazze = new DynaShowcase();
-                break;
-            case dynvd:
-                cazze = new DynaVideoShowcase();
-                break;
-            case list:
-                cazze = new PlaylistShowcase();
-                break;
-            case _native:
-                cazze = new NativeShowcase();
-                break;
-//            case link:
-//                cazze = new LinkShowcase();
-//                break;
-            case misc:
-                cazze = new MiscShowcase();
-                break;
-            case matrix:
-                cazze = new MatrixShowcase();
-                break;
-        }
-        return cazze;
-    }
-
-    private enum Cases {
-
-        home("Home"),
-        wmp("Windows Media Player"),
-        qt("QuickTime Plugin"),
-        swf("Flash Plugin"),
-        vlc("VLC Media Player"),
-        _native("HTML 5 Native Player"),
-        dyn("Custom Audio Player"),
-        dynvd("Custom Video Player"),
-        list("Playlists"),
-        //        link,
-        matrix("Matrix Transformation"),
-        misc("Miscellaneous Examples");
-        String header;
-
-        private Cases(String header) {
-            this.header = header;
-        }
-
-        public String getHeader() {
-            return header;
-        }
     }
 }
