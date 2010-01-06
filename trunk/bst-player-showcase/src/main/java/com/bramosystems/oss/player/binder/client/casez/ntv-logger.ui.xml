@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="windows-1252"?>
+
+<!--
+    Document   : Binder.ui.xml
+    Created on : December 17, 2009, 11:37 PM
+    Author     : Sikiru
+    Description: Purpose of the document follows.
+-->
+
+<ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder' xmlns:g='urn:import:com.google.gwt.user.client.ui'
+  xmlns:showcase='urn:import:com.bramosystems.oss.player.binder.client'
+  xmlns:player='urn:import:com.bramosystems.oss.player.uibinder.client'>
+
+    <g:VerticalPanel spacing='10' width='80%'>
+        <g:Label styleName='section-desc'>Using the Logger widget</g:Label>
+        <g:HTML styleName='media-desc'>
+            The Logger widget displays useful information that shows that state
+            of the player
+        </g:HTML>
+        <player:Native autoplay='true' height='25px' width='100%'
+                showLogger='true' mediaURL='GWT-HOST::media/o-na-som.mp3' />
+        <showcase:Sources name='ntiveLogger' />
+    </g:VerticalPanel>
+</ui:UiBinder>

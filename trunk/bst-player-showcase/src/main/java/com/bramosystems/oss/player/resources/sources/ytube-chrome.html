@@ -1,0 +1,52 @@
+<html>
+    <div class="media-desc">Raw Video: Restored Video of Apollo 11 Moonwalk
+        &copy; AssociatedPress Channel</div>
+    <div class='case-code'>
+        <pre>
+Widget w = null;
+try {
+    ChromelessPlayer cp = new ChromelessPlayer("http://www.youtube.com/v/QbwZL-EK6CY&hl=en&fs=1&",
+        "100%", "350px");
+
+    <em>// The custom widget is required to control the player.  The
+    // CustomPlayerControl class provides a quick widget.</em>
+    CustomPlayerControl cpc = new CustomPlayerControl(cp);
+    FlowPanel fp = new FlowPanel();
+    fp.add(cp);
+    fp.add(cpc);
+    w = fp;
+} catch (PluginVersionException ex) {
+    w = PlayerUtil.getMissingPluginNotice(
+        ex.getPlugin(),ex.getRequiredVersion());
+} catch (PluginNotFoundException ex) {
+    w = PlayerUtil.getMissingPluginNotice(ex.getPlugin());
+}
+panel.add(w);
+        </pre>
+    </div>
+    <div class='ui-case-code'>
+        <pre>
+&lt;ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
+    xmlns:g='urn:import:com.google.gwt.user.client.ui'
+    <b>xmlns:player='urn:import:com.bramosystems.oss.player.uibinder.client.youtube'</b>&gt;
+    &lt;!--
+        Note: For UiBinder support, the player uses a different namespace as indicated above.
+    --&gt;
+        ...
+        &lt;player:Chromeless height='350px' width='100%' showLogger='true'
+                    <b>videoURL='http://www.youtube.com/v/QbwZL-EK6CY'</b> /&gt;
+        ...
+    &lt;!--
+        Note: The player uses <em>videoURL</em> instead of <em>mediaURL</em>.
+        Note: Other <em>AbstractMediaPlayer</em> methods can also be used.
+        Note: The Chromeless player requires a custom control widget. This can be
+              provided with regular GWT code, the player can be accessed using
+              the <b>ui:field</b> tag, like below:
+
+        &lt;player:Chromeless height='350px' width='100%' <b>ui:field='fieldID'</b>
+                    videoURL='http://www.youtube.com/v/QbwZL-EK6CY' /&gt;
+    --&gt;
+&lt;/ui:UiBinder&gt;
+        </pre>
+    </div>
+</html>

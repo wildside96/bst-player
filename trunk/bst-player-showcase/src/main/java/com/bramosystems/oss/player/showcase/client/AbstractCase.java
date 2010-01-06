@@ -15,7 +15,12 @@
  */
 package com.bramosystems.oss.player.showcase.client;
 
-import com.google.gwt.core.client.GWT;
+import com.bramosystems.oss.player.resources.sources.Links;
+import com.google.gwt.dom.client.Style.Unit;
+import com.google.gwt.resources.client.ExternalTextResource;
+import com.google.gwt.resources.client.ResourceCallback;
+import com.google.gwt.resources.client.ResourceException;
+import com.google.gwt.resources.client.TextResource;
 import com.google.gwt.user.client.ui.*;
 
 /**
@@ -24,70 +29,69 @@ import com.google.gwt.user.client.ui.*;
  */
 public abstract class AbstractCase extends Composite {
 
-    private VerticalPanel main;
+    private VerticalPanel casePanel;
+    private Label caseHeader;
 
     public AbstractCase() {
-        DockPanel dc = new DockPanel();
-        dc.setSpacing(0);
-        dc.setWidth("100%");
+        DockLayoutPanel dc = new DockLayoutPanel(Unit.PX);
         initWidget(dc);
 
-        Label sum = new Label(getSummary());
-        sum.setStyleName("showcase-Summary");
-        dc.add(sum, DockPanel.NORTH);
+        caseHeader = new Label();
+        caseHeader.setStyleName("case-header");
+        dc.addNorth(caseHeader, 40);
 
-        main = new VerticalPanel();
-        main.setStyleName("showcase-Case");
-        main.setWidth("100%");
-        main.setVerticalAlignment(VerticalPanel.ALIGN_TOP);
-        dc.add(main, DockPanel.CENTER);
+        ScrollPanel sp = new ScrollPanel();
+        sp.setStyleName("case-content");
+        dc.add(sp);
+
+        casePanel = new VerticalPanel();
+        casePanel.setWidth("80%");
+        casePanel.setSpacing(10);
     }
 
-    public abstract String getSummary();
-
-    public abstract void init(String token);
-
-    protected void addCase(String title, String description, Widget player, String codeSrc) {
-        VerticalPanel hp = new VerticalPanel();
-        hp.setWidth("80%");
-        hp.setVerticalAlignment(HorizontalPanel.ALIGN_TOP);
-        hp.setSpacing(10);
-
+    protected final void addCase(String title, String description, Widget player,
+            ExternalTextResource codeSrc) {
         if (title != null) {
             Label tlbl = new Label(title);
             tlbl.setStyleName("section-desc");
-            hp.add(tlbl);
+            casePanel.add(tlbl);
         }
 
         if (description != null) {
             Label dlbl = new Label(description);
             dlbl.setStyleName("media-desc");
-            hp.add(dlbl);
+            casePanel.add(dlbl);
         }
 
         if (player != null) {
-            hp.add(player);
-            hp.setCellWidth(player, "50%");
+            casePanel.add(player);
         }
 
-        if (codeSrc != null && codeSrc.length() > 0) {
-            hp.add(new IPage(GWT.getHostPageBaseURL() + codeSrc));
-        }
-        main.add(hp);
-    }
+        if (codeSrc != null) {
+            final HTML src = new HTML();
+            try {
+                codeSrc.getText(new ResourceCallback<TextResource>() {
 
-    protected void clearCases() {
-        main.clear();
-    }
+                    public void onError(ResourceException e) {
+                        src.setHTML("<div>Failed to load code sample!</div>");
+                    }
 
-    protected int getTokenLinkIndex(String[] caseLinks, String token) {
-        int index = 0;
-        for (int i = 0; i < caseLinks.length; i++) {
-            if (caseLinks[i].equals(token)) {
-                index = i;
-                break;
+                    public void onSuccess(TextResource resource) {
+                        src.setHTML(resource.getText());
+                    }
+                });
+            } catch (ResourceException ex) {
+                src.setHTML("<div>Failed to load code sample!</div>");
             }
+            casePanel.add(src);
         }
-        return index;
+    }
+
+    public final void clearCases() {
+        casePanel.clear();
+    }
+
+    public void initCase(Links link) {
+        caseHeader.setText(link.getTitle());
     }
 }

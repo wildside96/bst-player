@@ -10,27 +10,13 @@
 <ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder' xmlns:g='urn:import:com.google.gwt.user.client.ui'
   xmlns:player='urn:import:com.bramosystems.oss.player.uibinder.client'
   xmlns:showcase='urn:import:com.bramosystems.oss.player.binder.client'>
-    <ui:style>
-.content-wrapper {
-  margin-left: 5px;
-  border: 1px solid silver;
-}
-.case-header {
-    background-image: url(images/showcase-bg.png);
-    background-repeat: repeat-x;
-    border-bottom: outset 1px silver;
-    font-size: 150%;
-    padding: 7px;
-}
-.case-content {
-}
-    </ui:style>
-    <g:DockLayoutPanel unit='PX' styleName='{style.content-wrapper}'>
+
+    <g:DockLayoutPanel unit='PX' styleName='content-wrapper'>
         <g:north size='40'>
-            <g:Label styleName='{style.case-header}' ui:field='caseHeader' />
+            <g:Label styleName='case-header' ui:field='caseHeader' />
         </g:north>
         <g:center>
-            <g:ScrollPanel styleName='{style.case-content}' ui:field='casePanel' />
+            <g:ScrollPanel styleName='case-content' ui:field='casePanel' />
         </g:center>
     </g:DockLayoutPanel>
 </ui:UiBinder>

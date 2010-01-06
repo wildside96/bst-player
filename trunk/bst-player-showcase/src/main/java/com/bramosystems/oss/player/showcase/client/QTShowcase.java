@@ -21,6 +21,8 @@ import com.bramosystems.oss.player.core.client.Plugin;
 import com.bramosystems.oss.player.core.client.PluginNotFoundException;
 import com.bramosystems.oss.player.core.client.PluginVersionException;
 import com.bramosystems.oss.player.core.client.ui.QuickTimePlayer;
+import com.bramosystems.oss.player.resources.sources.Links;
+import com.bramosystems.oss.player.resources.sources.ResourceBundle;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.MouseMoveEvent;
 import com.google.gwt.event.dom.client.MouseMoveHandler;
@@ -33,11 +35,9 @@ import com.google.gwt.user.client.ui.*;
  */
 public class QTShowcase extends AbstractCase {
 
-    public static String[] caseNames = {"Embed QuickTime Plugin",
-        "With Logger widget visible", "Embedding QuickTime Video"};
-    public static String[] caseLinks = {"qt/basic", "qt/logger", "qt/video"};
+    public static AbstractCase instance = new QTShowcase();
 
-    public QTShowcase() {
+    private QTShowcase() {
     }
 
     public String getSummary() {
@@ -45,13 +45,12 @@ public class QTShowcase extends AbstractCase {
     }
 
     @Override
-    public void init(String token) {
-        clearCases();
+    public void initCase(Links link) {
+        super.initCase(link);
         Widget qt = null, qt2 = null;
 
-        int index = getTokenLinkIndex(caseLinks, token);
-        switch (index) {
-            case 0:
+        switch (link) {
+            case qtBasic:
                 try {
                     qt = new QuickTimePlayer(GWT.getHostPageBaseURL() + "media/thunder.mp3");
                 } catch (LoadException ex) {
@@ -61,21 +60,10 @@ public class QTShowcase extends AbstractCase {
                 } catch (PluginNotFoundException ex) {
                     qt = PlayerUtil.getMissingPluginNotice(Plugin.QuickTimePlayer);
                 }
-                addCase("Playing sound automatically", null, qt, "sources/qt/auto.html");
-
-                try {
-                    qt2 = new QuickTimePlayer(GWT.getHostPageBaseURL() + "media/thunder.mp3", false);
-                } catch (LoadException ex) {
-                    Window.alert("Load exp");
-                } catch (PluginVersionException ex) {
-                    qt2 = PlayerUtil.getMissingPluginNotice(Plugin.QuickTimePlayer, ex.getRequiredVersion());
-                } catch (PluginNotFoundException ex) {
-                    qt2 = PlayerUtil.getMissingPluginNotice(Plugin.QuickTimePlayer);
-                }
-                addCase("Playing sound with autoplay set to false", null,
-                        qt2, "sources/qt/no-auto.html");
+                addCase("Playing sound automatically", null, qt,
+                        ResourceBundle.bundle.qtBasic());
                 break;
-            case 1:
+            case qtLogger:
                 try {
                     QuickTimePlayer p = new QuickTimePlayer(GWT.getHostPageBaseURL() + "media/o-na-som.mp3",
                             false);
@@ -89,9 +77,9 @@ public class QTShowcase extends AbstractCase {
                     qt = PlayerUtil.getMissingPluginNotice(Plugin.QuickTimePlayer);
                 }
                 addCase("Playing sound with logger widget visible", null,
-                        qt, "sources/qt/show-logger.html");
+                        qt, ResourceBundle.bundle.qtLogger());
                 break;
-            case 2:
+            case qtVideo:
                 try {
                     final Label lbl = new Label();
                     final QuickTimePlayer p = new QuickTimePlayer(GWT.getHostPageBaseURL() + "media/traffic.mp4",
@@ -117,7 +105,7 @@ public class QTShowcase extends AbstractCase {
                 } catch (PluginNotFoundException ex) {
                     qt = PlayerUtil.getMissingPluginNotice(Plugin.QuickTimePlayer);
                 }
-                addCase("Embedding video", null, qt, "sources/qt/video.html");
+                addCase("Embedding video", null, qt, ResourceBundle.bundle.qtVideo());
 
                 try {
                     QuickTimePlayer p = new QuickTimePlayer(GWT.getHostPageBaseURL() + "media/traffic.mp4",
@@ -131,7 +119,8 @@ public class QTShowcase extends AbstractCase {
                 } catch (PluginNotFoundException ex) {
                     qt2 = PlayerUtil.getMissingPluginNotice(Plugin.QuickTimePlayer);
                 }
-                addCase("Auto-resize player to video dimensions", null, qt2, "sources/qt/video-auto.html");
+                addCase("Auto-resize player to video dimensions", null, qt2,
+                        ResourceBundle.bundle.qtVideoAuto());
                 break;
         }
 

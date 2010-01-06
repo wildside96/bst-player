@@ -21,6 +21,8 @@ import com.bramosystems.oss.player.core.client.Plugin;
 import com.bramosystems.oss.player.core.client.PluginNotFoundException;
 import com.bramosystems.oss.player.core.client.PluginVersionException;
 import com.bramosystems.oss.player.flat.client.FlatVideoPlayer;
+import com.bramosystems.oss.player.resources.sources.Links;
+import com.bramosystems.oss.player.resources.sources.ResourceBundle;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
@@ -30,28 +32,17 @@ import com.google.gwt.user.client.ui.*;
  * @author Sikirulai Braheem <sbraheem at gmail.com>
  */
 public class DynaVideoShowcase extends AbstractCase {
+    public static AbstractCase instance = new DynaVideoShowcase();
 
-    public static String[] caseNames = {"Custom controls with WMP",
-        "Custom controls with Flash", "Custom controls with QuickTime plugin",
-        "Custom controls with VLC Media Player", "Custom controls with HTML 5 Media elements",
-        "Plugin determined at runtime"};
-    public static String[] caseLinks = {"dynvd/wmp", "dynvd/swf", "dynvd/qt", "dynvd/vlc", "dynvd/ntv",
-    "dynvd/dyna"};
-
-    public DynaVideoShowcase() {
-    }
-
-    public String getSummary() {
-        return "Working with custom video player controls.";
+    private DynaVideoShowcase() {
     }
 
     @Override
-    public void init(String token) {
-        clearCases();
+    public void initCase(Links link) {
+        super.initCase(link);
         Widget v = null;
-        int index = getTokenLinkIndex(caseLinks, token);
-        switch (index) {
-            case 0:
+        switch (link) {
+            case dynvdWmp:
                 try {
                     FlatVideoPlayer fv = new FlatVideoPlayer(Plugin.WinMediaPlayer,
                             "http://bst-player.googlecode.com/svn/tags/showcase/media/teaching-of-islam.wmv",
@@ -66,9 +57,9 @@ public class DynaVideoShowcase extends AbstractCase {
                     v = PlayerUtil.getMissingPluginNotice(Plugin.WinMediaPlayer);
                 }
                 addCase("Custom video player with Windows Media Player plugin", 
-                        "Teaching of Islam", v, "sources/custom-video/wmp.html");
+                        "Teaching of Islam", v, ResourceBundle.bundle.vidWmp());
                 break;
-            case 1:
+            case dynvdSwf:
                 try {
                     FlatVideoPlayer vp = new FlatVideoPlayer(Plugin.FlashPlayer,
                             GWT.getHostPageBaseURL() + "media/traffic.flv",
@@ -84,9 +75,9 @@ public class DynaVideoShowcase extends AbstractCase {
                     v = PlayerUtil.getMissingPluginNotice(Plugin.FlashPlayer);
                 }
                 addCase("Custom video player with Flash plugin", null,
-                        v, "sources/custom-video/swf.html");
+                        v, ResourceBundle.bundle.vidSwf());
                 break;
-            case 2:
+            case dynvdQt:
                 try {
                     FlatVideoPlayer vp = new FlatVideoPlayer(Plugin.QuickTimePlayer,
                             GWT.getHostPageBaseURL() + "media/traffic.mp4",
@@ -101,9 +92,9 @@ public class DynaVideoShowcase extends AbstractCase {
                     v = PlayerUtil.getMissingPluginNotice(Plugin.QuickTimePlayer);
                 }
                 addCase("Custom video player with QuickTime Player plugin", null,
-                        v, "sources/custom-video/qt.html");
+                        v, ResourceBundle.bundle.vidQt());
                 break;
-            case 3:
+            case dynvdVlc:
                 try {
                     FlatVideoPlayer vp = new FlatVideoPlayer(Plugin.VLCPlayer,
                             "http://streams.videolan.org/streams-videolan/vob/Starship_Troopers.vob",
@@ -118,9 +109,9 @@ public class DynaVideoShowcase extends AbstractCase {
                     v = PlayerUtil.getMissingPluginNotice(Plugin.VLCPlayer);
                 }
                 addCase("Custom video playback with VLC Media Player", null,
-                        v, "sources/custom-video/vlc.html");
+                        v, ResourceBundle.bundle.vidVlc());
                 break;
-            case 4:
+            case dynvdNtv:
                 try {
                     FlatVideoPlayer vp = new FlatVideoPlayer(Plugin.Native,
                             GWT.getHostPageBaseURL() + "media/big-buck-bunny.mp4",
@@ -135,9 +126,9 @@ public class DynaVideoShowcase extends AbstractCase {
                     v = PlayerUtil.getMissingPluginNotice(Plugin.Native);
                 }
                 addCase("Custom video playback with VLC Media Player", null,
-                        v, "sources/custom-video/vlc.html");
+                        v, ResourceBundle.bundle.vidNtv());
                 break;
-            case 5:
+            case dynvdAuto:
                 try {
                     FlatVideoPlayer p = new FlatVideoPlayer(GWT.getHostPageBaseURL() +
                             "media/big-buck-bunny.mp4", false, "350px", "100%");
@@ -152,7 +143,8 @@ public class DynaVideoShowcase extends AbstractCase {
                     v = PlayerUtil.getMissingPluginNotice(Plugin.Auto, "Missing Plugin",
                             "No compatible video player plugin could be found", false);
                 }
-                addCase("Embedding video with any suitable plugin", null, v, "sources/custom-video/dyn.html");
+                addCase("Embedding video with any suitable plugin", null, v,
+                        ResourceBundle.bundle.vidAuto());
                 break;
         }
     }

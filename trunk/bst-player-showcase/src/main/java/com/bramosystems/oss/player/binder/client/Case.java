@@ -14,10 +14,9 @@
  *  limitations under the License.
  *  under the License.
  */
-
 package com.bramosystems.oss.player.binder.client;
 
-import com.bramosystems.oss.player.binder.client.cases.CaseFactory;
+import com.bramosystems.oss.player.resources.sources.Links;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
@@ -32,13 +31,13 @@ import com.google.gwt.user.client.ui.*;
  */
 public class Case extends Composite implements ValueChangeHandler<String> {
 
-    interface CaseBinder extends UiBinder<Widget, Case> {}
-    
+    interface CaseBinder extends UiBinder<Widget, Case> {
+    }
     private static final CaseBinder binder = GWT.create(CaseBinder.class);
-    private static CaseFactory factory = new CaseFactory();
-
-    @UiField Label caseHeader;
-    @UiField ScrollPanel casePanel;
+    @UiField
+    Label caseHeader;
+    @UiField
+    ScrollPanel casePanel;
 
     public Case() {
         Widget fl = binder.createAndBindUi(this);
@@ -48,17 +47,12 @@ public class Case extends Composite implements ValueChangeHandler<String> {
     }
 
     public void onValueChange(ValueChangeEvent<String> event) {
-        String link = event.getValue();
-        if(link.contains("/")) {
-            MenuEntry entry = MenuEntry.valueOf(link.substring(0, link.indexOf("/")));
-            showCase(entry, link);
-        } else {
-            showCase(MenuEntry.home, link);
+        Links link = Links.homeIntro;
+        try {
+            link = Links.valueOf(event.getValue());
+        } catch (Exception e) {
         }
-    }
-
-    private void showCase(MenuEntry entry, String history) {
-        caseHeader.setText(entry.toString());
-        casePanel.setWidget(factory.getCase(entry, history));
+        caseHeader.setText(link.getTitle());
+        casePanel.setWidget(link.getView().createAndBindUi(null));
     }
 }

@@ -21,6 +21,8 @@ import com.bramosystems.oss.player.core.client.Plugin;
 import com.bramosystems.oss.player.core.client.PluginNotFoundException;
 import com.bramosystems.oss.player.core.client.PluginVersionException;
 import com.bramosystems.oss.player.core.client.ui.FlashMediaPlayer;
+import com.bramosystems.oss.player.resources.sources.Links;
+import com.bramosystems.oss.player.resources.sources.ResourceBundle;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.KeyDownEvent;
 import com.google.gwt.event.dom.client.KeyDownHandler;
@@ -39,11 +41,9 @@ import com.google.gwt.user.client.ui.*;
  */
 public class SWFShowcase extends AbstractCase {
 
-    public static String[] caseNames = {"Embed Flash plugin",
-        "With Logger widget visible", "Embedding Video", "Using M3U playlists"};
-    public static String[] caseLinks = {"swf/basic", "swf/logger", "swf/video", "swf/playlists"};
+    public static AbstractCase instance = new SWFShowcase();
 
-    public SWFShowcase() {
+    private SWFShowcase() {
     }
 
     public String getSummary() {
@@ -51,12 +51,11 @@ public class SWFShowcase extends AbstractCase {
     }
 
     @Override
-    public void init(String token) {
-        clearCases();
+    public void initCase(Links link) {
+        super.initCase(link);
         Widget mp = null, mp2 = null;
-        int index = getTokenLinkIndex(caseLinks, token);
-        switch (index) {
-            case 0:
+        switch (link) {
+            case swfBasic:
                 try {
                     mp = new FlashMediaPlayer(GWT.getHostPageBaseURL() + "media/applause.mp3");
                 } catch (LoadException ex) {
@@ -66,21 +65,10 @@ public class SWFShowcase extends AbstractCase {
                 } catch (PluginNotFoundException ex) {
                     mp = PlayerUtil.getMissingPluginNotice(Plugin.FlashPlayer);
                 }
-                addCase("Playing MP3 media automatically", null, mp, "sources/swf/auto.html");
-
-                try {
-                    mp2 = new FlashMediaPlayer(GWT.getHostPageBaseURL() + "media/thunder.mp3", false, "50px", "100%");
-                } catch (LoadException ex) {
-                    Window.alert("Load exp");
-                } catch (PluginVersionException ex) {
-                    mp2 = PlayerUtil.getMissingPluginNotice(Plugin.FlashPlayer, ex.getRequiredVersion());
-                } catch (PluginNotFoundException ex) {
-                    mp2 = PlayerUtil.getMissingPluginNotice(Plugin.FlashPlayer);
-                }
-                addCase("Playing media with autoplay set to false", null,
-                        mp2, "sources/swf/no-auto.html");
+                addCase("Playing MP3 media automatically", null, mp,
+                        ResourceBundle.bundle.swfBasic());
                 break;
-            case 1:
+            case swfLogger:
                 try {
                     FlashMediaPlayer p3 = new FlashMediaPlayer(GWT.getHostPageBaseURL() + "media/o-na-som.mp3", false);
                     p3.showLogger(true);
@@ -93,9 +81,9 @@ public class SWFShowcase extends AbstractCase {
                     mp = PlayerUtil.getMissingPluginNotice(Plugin.FlashPlayer);
                 }
                 addCase("Playing sound with logger widget visible", null,
-                        mp, "sources/swf/show-logger.html");
+                        mp, ResourceBundle.bundle.swfLogger());
                 break;
-            case 2:
+            case swfVideo:
                 try {
                     FlashMediaPlayer mmp = new FlashMediaPlayer(GWT.getHostPageBaseURL() + "media/traffic.flv",
                             false, "350px", "100%");
@@ -108,7 +96,7 @@ public class SWFShowcase extends AbstractCase {
                 } catch (PluginNotFoundException ex) {
                     mp = PlayerUtil.getMissingPluginNotice(Plugin.FlashPlayer);
                 }
-                addCase("Embedding video", null, mp, "sources/swf/video.html");
+                addCase("Embedding video", null, mp, ResourceBundle.bundle.swfVideo());
 
                 try {
                     final Label lbl = new Label();
@@ -156,9 +144,9 @@ public class SWFShowcase extends AbstractCase {
                 } catch (PluginNotFoundException ex) {
                     mp2 = PlayerUtil.getMissingPluginNotice(Plugin.FlashPlayer);
                 }
-                addCase("Player adjusted to video size", null, mp2, "sources/swf/video-auto.html");
+                addCase("Player adjusted to video size", null, mp2, ResourceBundle.bundle.swfVideoAuto());
                 break;
-            case 3:
+            case swfPlaylist:
                 try {
                     FlashMediaPlayer fp = new FlashMediaPlayer(GWT.getHostPageBaseURL() + "media/playlist.m3u", false);
                     fp.showLogger(true);
@@ -170,7 +158,8 @@ public class SWFShowcase extends AbstractCase {
                 } catch (PluginNotFoundException ex) {
                     mp = PlayerUtil.getMissingPluginNotice(Plugin.FlashPlayer);
                 }
-                addCase("Working with M3U playlists", null, mp, "sources/swf/playlists.html");
+                addCase("Working with M3U playlists", null, mp,
+                        ResourceBundle.bundle.swfPlaylist());
                 break;
         }
     }

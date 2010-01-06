@@ -24,6 +24,8 @@ import com.bramosystems.oss.player.core.client.PluginNotFoundException;
 import com.bramosystems.oss.player.core.client.PluginVersionException;
 import com.bramosystems.oss.player.core.client.ui.FlashMediaPlayer;
 import com.bramosystems.oss.player.core.client.ui.VLCPlayer;
+import com.bramosystems.oss.player.resources.sources.Links;
+import com.bramosystems.oss.player.resources.sources.ResourceBundle;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
@@ -33,12 +35,10 @@ import com.google.gwt.user.client.ui.*;
  * @author Sikirulai Braheem <sbraheem at gmail.com>
  */
 public class PlaylistShowcase extends AbstractCase {
-    public static String[] caseNames = {"Playlists with Flash Player",
-        "Playlists with VLC Media Player", "Custom player with playlist support"};
-    public static String[] caseLinks = {"list/swf", "list/vlc", "list/auto"};
+    public static AbstractCase instance = new PlaylistShowcase();
 
 
-    public PlaylistShowcase() {
+    private PlaylistShowcase() {
     }
 
     public String getSummary() {
@@ -46,12 +46,11 @@ public class PlaylistShowcase extends AbstractCase {
     }
 
     @Override
-    public void init(String token) {
-        clearCases();
+    public void initCase(Links link) {
+        super.initCase(link);
         Widget v = null;
-        int index = getTokenLinkIndex(caseLinks, token);
-        switch (index) {
-            case 0:
+        switch (link) {
+            case listSwf:
                 try {
                     FlashMediaPlayer mp = new FlashMediaPlayer(GWT.getHostPageBaseURL() + "media/o-na-som.mp3", false);
                     mp.addToPlaylist(GWT.getHostPageBaseURL() + "media/thunder.mp3");
@@ -64,9 +63,10 @@ public class PlaylistShowcase extends AbstractCase {
                 } catch (PluginNotFoundException ex) {
                     v = PlayerUtil.getMissingPluginNotice(Plugin.FlashPlayer);
                 }
-                addCase("Using playlist with Adobe Flash", null, v, "sources/list/swf.html");
+                addCase("Using playlist with Adobe Flash", null, v,
+                        ResourceBundle.bundle.pllSwf());
                 break;
-            case 1:
+            case listVlc:
                 try {
                     VLCPlayer mp = new VLCPlayer(GWT.getHostPageBaseURL() + "media/thunder.mp3", false);
                     mp.setShuffleEnabled(true);
@@ -82,9 +82,9 @@ public class PlaylistShowcase extends AbstractCase {
                     v = PlayerUtil.getMissingPluginNotice(Plugin.FlashPlayer);
                 }
                 addCase("Using playlist with VLC Media Player", null,
-                        v, "sources/list/vlc.html");
+                        v, ResourceBundle.bundle.pllVlc());
                 break;
-            case 2:
+            case listAuto:
                 try {
                     Capsule cc = new Capsule(Plugin.PlaylistSupport, GWT.getHostPageBaseURL() + "media/applause.mp3", false);
                     cc.addToPlaylist(GWT.getHostPageBaseURL() + "media/o-na-som.mp3");
@@ -99,7 +99,7 @@ public class PlaylistShowcase extends AbstractCase {
                     v = PlayerUtil.getMissingPluginNotice(Plugin.PlaylistSupport);
                 }
                 addCase("Playlist handling using any suitable player plugin with shuffling enabled", null,
-                        v, "sources/list/auto.html");
+                        v, ResourceBundle.bundle.pllAuto());
                 break;
         }
     }
