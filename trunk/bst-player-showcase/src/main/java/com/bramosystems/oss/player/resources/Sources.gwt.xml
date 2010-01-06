@@ -19,5 +19,4 @@
 
 <module>
     <source path="sources" />
-    <source path="binder" />
 </module>

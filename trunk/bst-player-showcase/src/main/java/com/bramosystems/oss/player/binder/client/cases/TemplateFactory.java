@@ -14,7 +14,7 @@
  *  limitations under the License.
  *  under the License.
  */
-package com.bramosystems.oss.player.binder.client.casez;
+package com.bramosystems.oss.player.binder.client.cases;
 
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiTemplate;

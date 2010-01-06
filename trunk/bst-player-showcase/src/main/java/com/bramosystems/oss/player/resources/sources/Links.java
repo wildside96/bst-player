@@ -16,8 +16,8 @@
  */
 package com.bramosystems.oss.player.resources.sources;
 
-import com.bramosystems.oss.player.binder.client.casez.TemplateFactory;
-import com.bramosystems.oss.player.binder.client.casez.TemplateFactory.*;
+import com.bramosystems.oss.player.binder.client.cases.TemplateFactory;
+import com.bramosystems.oss.player.binder.client.cases.TemplateFactory.*;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.resources.client.ExternalTextResource;
 import com.google.gwt.uibinder.client.UiBinder;
