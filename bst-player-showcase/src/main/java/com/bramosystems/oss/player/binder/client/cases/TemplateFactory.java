@@ -32,6 +32,12 @@ public class TemplateFactory {
     @UiTemplate("index-docs.ui.xml")
     public static interface HomeDocs extends UiBinder<Widget, TemplateFactory> {
     }
+    @UiTemplate("index-mimeTypes.ui.xml")
+    public static interface HomeMimeTypes extends UiBinder<Widget, TemplateFactory> {
+    }
+    @UiTemplate("index-plugin.ui.xml")
+    public static interface HomePlugin extends UiBinder<Widget, TemplateFactory> {
+    }
 
     @UiTemplate("wmp-basic.ui.xml")
     public static interface WMPBasic extends UiBinder<Widget, TemplateFactory> {

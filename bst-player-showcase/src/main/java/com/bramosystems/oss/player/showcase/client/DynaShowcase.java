@@ -21,7 +21,7 @@ import com.bramosystems.oss.player.core.client.PlayerUtil;
 import com.bramosystems.oss.player.core.client.Plugin;
 import com.bramosystems.oss.player.core.client.PluginNotFoundException;
 import com.bramosystems.oss.player.core.client.PluginVersionException;
-import com.bramosystems.oss.player.resources.sources.Links;
+import com.bramosystems.oss.player.common.client.Links;
 import com.bramosystems.oss.player.resources.sources.ResourceBundle;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.Window;
@@ -39,7 +39,6 @@ public class DynaShowcase extends AbstractCase {
 
     @Override
     public void initCase(Links link) {
-        super.initCase(link);
         Widget v = null;
         switch (link) {
             case dynWmp:

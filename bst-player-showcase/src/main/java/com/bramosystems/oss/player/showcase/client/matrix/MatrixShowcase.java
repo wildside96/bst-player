@@ -19,6 +19,7 @@ import com.bramosystems.oss.player.core.client.LoadException;
 import com.bramosystems.oss.player.core.client.PlayerUtil;
 import com.bramosystems.oss.player.core.client.PluginNotFoundException;
 import com.bramosystems.oss.player.core.client.PluginVersionException;
+import com.bramosystems.oss.player.common.client.Links;
 import com.bramosystems.oss.player.showcase.client.AbstractCase;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.Window;
@@ -30,40 +31,44 @@ import com.google.gwt.user.client.ui.*;
  */
 public class MatrixShowcase extends AbstractCase {
 
-    public static String[] caseNames = {"Matrix Support"};
-    public static String[] caseLinks = {"matrix/basic"};
+    public static AbstractCase instance = new MatrixShowcase();
 
-    public MatrixShowcase() {
+    private MatrixShowcase() {
     }
 
     public String getSummary() {
         return "Matrix Support";
     }
 
-    public void init(String token) {
-        Widget mp = null, mp1 = null;
-        try {
-            mp = new XMatrixStage(GWT.getHostPageBaseURL() + "media/traffic.mp4", "100%", "400px");
-        } catch (LoadException ex) {
-            Window.alert("Load exp");
-        } catch (PluginVersionException ex) {
-            mp = PlayerUtil.getMissingPluginNotice(ex.getPlugin(), ex.getRequiredVersion());
-        } catch (PluginNotFoundException ex) {
-            mp = PlayerUtil.getMissingPluginNotice(ex.getPlugin());
-        }
-        addCase("Transformation Matrices", "Using matrix transformation for graphics manipulation",
-                mp, null);
+    @Override
+    public void initCase(Links link) {
+        switch (link) {
+            case matrixBasic:
+                Widget mp = null,
+                 mp1 = null;
+                try {
+                    mp = new XMatrixStage(GWT.getHostPageBaseURL() + "media/traffic.mp4", "100%", "400px");
+                } catch (LoadException ex) {
+                    Window.alert("Load exp");
+                } catch (PluginVersionException ex) {
+                    mp = PlayerUtil.getMissingPluginNotice(ex.getPlugin(), ex.getRequiredVersion());
+                } catch (PluginNotFoundException ex) {
+                    mp = PlayerUtil.getMissingPluginNotice(ex.getPlugin());
+                }
+                addCase("Transformation Matrices", "Using matrix transformation for graphics manipulation",
+                        mp, null);
 
-        try {
-            mp1 = new XMatrixStage(GWT.getHostPageBaseURL() + "media/traffic.flv", "100%", "400px");
-        } catch (LoadException ex) {
-            Window.alert("Load exp");
-        } catch (PluginVersionException ex) {
-            mp1 = PlayerUtil.getMissingPluginNotice(ex.getPlugin(), ex.getRequiredVersion());
-        } catch (PluginNotFoundException ex) {
-            mp1 = PlayerUtil.getMissingPluginNotice(ex.getPlugin());
+                try {
+                    mp1 = new XMatrixStage(GWT.getHostPageBaseURL() + "media/traffic.flv", "100%", "400px");
+                } catch (LoadException ex) {
+                    Window.alert("Load exp");
+                } catch (PluginVersionException ex) {
+                    mp1 = PlayerUtil.getMissingPluginNotice(ex.getPlugin(), ex.getRequiredVersion());
+                } catch (PluginNotFoundException ex) {
+                    mp1 = PlayerUtil.getMissingPluginNotice(ex.getPlugin());
+                }
+                addCase("Transformation Matrices", "Using matrix transformation for graphics manipulation",
+                        mp1, null);
         }
-        addCase("Transformation Matrices", "Using matrix transformation for graphics manipulation",
-                mp1, null);
     }
 }

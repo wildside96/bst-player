@@ -13,10 +13,8 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-
 package com.bramosystems.oss.player.showcase.client;
 
-import com.bramosystems.oss.player.capsule.client.Capsule;
 import com.bramosystems.oss.player.core.client.LoadException;
 import com.bramosystems.oss.player.core.client.PlayerUtil;
 import com.bramosystems.oss.player.core.client.Plugin;
@@ -24,7 +22,9 @@ import com.bramosystems.oss.player.core.client.PluginNotFoundException;
 import com.bramosystems.oss.player.core.client.PluginVersionException;
 import com.bramosystems.oss.player.core.client.ui.FlashMediaPlayer;
 import com.bramosystems.oss.player.core.client.ui.VLCPlayer;
-import com.bramosystems.oss.player.resources.sources.Links;
+import com.bramosystems.oss.player.common.client.Links;
+import com.bramosystems.oss.player.core.client.AbstractMediaPlayer;
+import com.bramosystems.oss.player.core.client.PlaylistSupport;
 import com.bramosystems.oss.player.resources.sources.ResourceBundle;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.Window;
@@ -35,8 +35,8 @@ import com.google.gwt.user.client.ui.*;
  * @author Sikirulai Braheem <sbraheem at gmail.com>
  */
 public class PlaylistShowcase extends AbstractCase {
-    public static AbstractCase instance = new PlaylistShowcase();
 
+    public static AbstractCase instance = new PlaylistShowcase();
 
     private PlaylistShowcase() {
     }
@@ -47,7 +47,6 @@ public class PlaylistShowcase extends AbstractCase {
 
     @Override
     public void initCase(Links link) {
-        super.initCase(link);
         Widget v = null;
         switch (link) {
             case listSwf:
@@ -86,11 +85,12 @@ public class PlaylistShowcase extends AbstractCase {
                 break;
             case listAuto:
                 try {
-                    Capsule cc = new Capsule(Plugin.PlaylistSupport, GWT.getHostPageBaseURL() + "media/applause.mp3", false);
-                    cc.addToPlaylist(GWT.getHostPageBaseURL() + "media/o-na-som.mp3");
-                    cc.addToPlaylist(GWT.getHostPageBaseURL() + "media/thunder.mp3");
-                    cc.setShuffleEnabled(true);
-                    v = cc;
+                    AbstractMediaPlayer mp = PlayerUtil.getPlayer(Plugin.PlaylistSupport,
+                            GWT.getHostPageBaseURL() + "media/o-na-som.mp3", false);
+                    ((PlaylistSupport) mp).addToPlaylist(GWT.getHostPageBaseURL() + "media/thunder.mp3");
+                    ((PlaylistSupport) mp).addToPlaylist(GWT.getHostPageBaseURL() + "media/applause.mp3");
+                    ((PlaylistSupport) mp).setShuffleEnabled(true);
+                    v = mp;
                 } catch (LoadException ex) {
                     Window.alert("Load exp");
                 } catch (PluginVersionException ex) {

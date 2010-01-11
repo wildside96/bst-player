@@ -4,15 +4,16 @@ body {
     padding: 5px;
 }
 
-#loading {
+.loading {
     border: 1px solid #cccccc;
-    margin-top: 200px; 
     font-weight: bold;
     color: #4b4b93;
     background-color: #f5f5f5;
-    background-image: url(images/loading.gif);
+    background-image: url(common-loading.gif);
     background-repeat: no-repeat;
     background-position: 9px 9px;
-    height: 50px;
-    padding: 0px 10px 0px 45px;
+    height: 38px;
+    width: 200px;
+    padding-top: 12px;
+    padding-left: 32px;
 }

@@ -16,7 +16,7 @@
  */
 package com.bramosystems.oss.player.binder.client;
 
-import com.bramosystems.oss.player.resources.sources.Links;
+import com.bramosystems.oss.player.common.client.Links;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
@@ -53,6 +53,6 @@ public class Case extends Composite implements ValueChangeHandler<String> {
         } catch (Exception e) {
         }
         caseHeader.setText(link.getTitle());
-        casePanel.setWidget(link.getView().createAndBindUi(null));
+        casePanel.setWidget(ViewFactory.instance.getView(link));
     }
 }

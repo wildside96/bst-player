@@ -4,10 +4,10 @@
 Widget w = null;
 try {
     AbstractMediaPlayer mp = PlayerUtil.getPlayer(Plugin.PlaylistSupport,
-            GWT.getHostPageBaseURL() +  "media/o-na-som.mp3",  false, "50px", "100%");
-    <b>mp.addToPlaylist(GWT.getHostPageBaseURL() + "media/thunder.mp3");
-    mp.addToPlaylist(GWT.getHostPageBaseURL() + "media/applause.mp3");
-    mp.setShuffleEnabled(true);</b>;
+        GWT.getHostPageBaseURL() + "media/o-na-som.mp3", false);
+    <b>((PlaylistSupport)mp).addToPlaylist(GWT.getHostPageBaseURL() + "media/thunder.mp3");
+    ((PlaylistSupport)mp).addToPlaylist(GWT.getHostPageBaseURL() + "media/applause.mp3");
+    ((PlaylistSupport)mp).setShuffleEnabled(true);</b>
     mp.showLogger(true);
     w = mp;
 } catch (LoadException ex) {

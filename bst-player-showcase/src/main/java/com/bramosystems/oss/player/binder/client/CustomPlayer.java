@@ -23,15 +23,15 @@ import com.bramosystems.oss.player.core.client.Plugin;
 import com.bramosystems.oss.player.core.client.PluginNotFoundException;
 import com.bramosystems.oss.player.core.client.PluginVersionException;
 import com.bramosystems.oss.player.flat.client.FlatVideoPlayer;
-import com.bramosystems.oss.player.resources.sources.Links;
-import com.bramosystems.oss.player.uibinder.client.BinderPlayer;
+import com.bramosystems.oss.player.common.client.Links;
+import com.bramosystems.oss.player.uibinder.client.PlayerWrapper;
 import com.google.gwt.uibinder.client.UiConstructor;
 
 /**
  *
  * @author Sikiru Braheem <sbraheem at bramosystems . com>
  */
-public class CustomPlayer extends BinderPlayer {
+public class CustomPlayer extends PlayerWrapper {
 
     @UiConstructor
     public CustomPlayer(String name, String mediaURL, boolean autoplay, String height, String width) {

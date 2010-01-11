@@ -23,13 +23,13 @@ import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.user.client.History;
 import com.google.gwt.user.client.ui.DockLayoutPanel;
 import com.google.gwt.user.client.ui.RootLayoutPanel;
-import com.google.gwt.user.client.ui.Widget;
+import com.google.gwt.user.client.ui.RootPanel;
 
 /**
  *
  * @author Sikiru Braheem <sbraheem at bramosystems . com>
  */
-public class Showcase extends Widget implements EntryPoint {
+public class Showcase implements EntryPoint {
 
     interface _Binder extends UiBinder<DockLayoutPanel, Showcase> {
     }
@@ -37,8 +37,9 @@ public class Showcase extends Widget implements EntryPoint {
 
     public void onModuleLoad() {
         ResourceBundle.bundle.styles().ensureInjected();
-        
+
         // Add the outer panel to the RootLayoutPanel, so that it will be displayed.
+        RootPanel.get("loading").setVisible(false);
         RootLayoutPanel root = RootLayoutPanel.get();
         root.add(binder.createAndBindUi(this));
 

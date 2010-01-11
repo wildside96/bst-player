@@ -21,7 +21,7 @@ import com.bramosystems.oss.player.core.client.Plugin;
 import com.bramosystems.oss.player.core.client.PluginNotFoundException;
 import com.bramosystems.oss.player.core.client.PluginVersionException;
 import com.bramosystems.oss.player.core.client.ui.FlashMediaPlayer;
-import com.bramosystems.oss.player.resources.sources.Links;
+import com.bramosystems.oss.player.common.client.Links;
 import com.bramosystems.oss.player.resources.sources.ResourceBundle;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.KeyDownEvent;
@@ -52,7 +52,6 @@ public class SWFShowcase extends AbstractCase {
 
     @Override
     public void initCase(Links link) {
-        super.initCase(link);
         Widget mp = null, mp2 = null;
         switch (link) {
             case swfBasic:

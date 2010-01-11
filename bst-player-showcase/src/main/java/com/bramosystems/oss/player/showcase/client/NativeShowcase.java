@@ -20,7 +20,7 @@ import com.bramosystems.oss.player.core.client.PlayerUtil;
 import com.bramosystems.oss.player.core.client.Plugin;
 import com.bramosystems.oss.player.core.client.PluginNotFoundException;
 import com.bramosystems.oss.player.core.client.ui.NativePlayer;
-import com.bramosystems.oss.player.resources.sources.Links;
+import com.bramosystems.oss.player.common.client.Links;
 import com.bramosystems.oss.player.resources.sources.ResourceBundle;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.MouseMoveEvent;
@@ -34,6 +34,7 @@ import java.util.ArrayList;
  * @author Sikirulai Braheem <sbraheem at gmail.com>
  */
 public class NativeShowcase extends AbstractCase {
+
     public static AbstractCase instance = new NativeShowcase();
 
     private NativeShowcase() {
@@ -45,7 +46,6 @@ public class NativeShowcase extends AbstractCase {
 
     @Override
     public void initCase(Links link) {
-        super.initCase(link);
         Widget mp = null, mp2 = null;
         switch (link) {
             case ntiveBasic:
@@ -72,17 +72,15 @@ public class NativeShowcase extends AbstractCase {
                         mp, ResourceBundle.bundle.nativeLogger());
                 break;
             case ntiveVideo:
+                ArrayList<String> items = new ArrayList<String>();
+                items.add(new String(GWT.getHostPageBaseURL() + "media/big-buck-bunny.mp4"));
+                items.add(new String(GWT.getHostPageBaseURL() + "media/big-buck-bunny.ogv"));
+
                 try {
                     final Label lbl = new Label();
 
-                    ArrayList<String> items = new ArrayList<String>();
-                    items.add(new String(GWT.getHostPageBaseURL() + "media/big-buck-bunny.mp4"));
-                    items.add(new String(GWT.getHostPageBaseURL() + "media/big-buck-bunny.ogv"));
-
                     NativePlayer mmp = new NativePlayer(items, false, "350px", "100%");
-                    mmp.setResizeToVideoSize(true);
                     mmp.showLogger(true);
-
                     mmp.addMouseMoveHandler(new MouseMoveHandler() {
 
                         public void onMouseMove(MouseMoveEvent event) {
@@ -102,8 +100,7 @@ public class NativeShowcase extends AbstractCase {
                 addCase("Embedding video", null, mp, ResourceBundle.bundle.nativeVideo());
 
                 try {
-                    NativePlayer mmp = new NativePlayer(GWT.getHostPageBaseURL() + "media/traffic.mp4",
-                            false, "350px", "100%");
+                    NativePlayer mmp = new NativePlayer(items, false, "350px", "100%");
                     mmp.setResizeToVideoSize(true);
                     mp2 = mmp;
                 } catch (LoadException ex) {

@@ -4,8 +4,8 @@
 Widget v = null;
 try {
     VLCPlayer mp = new VLCPlayer(GWT.getHostPageBaseURL() + "media/thunder.mp3", false);
-    mp.addToPlaylist(GWT.getHostPageBaseURL() + "media/applause.mp3");
-    mp.addToPlaylist(GWT.getHostPageBaseURL() + "media/o-na-som.mp3");
+    <b>mp.addToPlaylist(GWT.getHostPageBaseURL() + "media/applause.mp3");
+    mp.addToPlaylist(GWT.getHostPageBaseURL() + "media/o-na-som.mp3");</b>
     v = mp;
 } catch (LoadException ex) {
     Window.alert("Load exp");

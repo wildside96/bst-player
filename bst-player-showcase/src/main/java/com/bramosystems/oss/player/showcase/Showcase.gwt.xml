@@ -24,8 +24,7 @@
     <inherits name="com.bramosystems.oss.player.flat.FlatVideoPlayer"/>
     <inherits name="com.bramosystems.oss.player.link.PlayableLink"/>
     <inherits name="com.bramosystems.oss.player.youtube.YouTube"/>
-    <inherits name="com.bramosystems.oss.player.resources.Sources"/>
-    <inherits name="com.bramosystems.oss.player.binder.BinderCommon"/>
+    <inherits name="com.bramosystems.oss.player.common.Common"/>
 
     <entry-point class="com.bramosystems.oss.player.showcase.client.Showcase" />
 </module>

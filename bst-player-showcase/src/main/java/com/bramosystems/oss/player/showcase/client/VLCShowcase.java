@@ -23,7 +23,7 @@ import com.bramosystems.oss.player.core.client.PluginVersionException;
 import com.bramosystems.oss.player.core.client.ui.VLCPlayer;
 import com.bramosystems.oss.player.core.event.client.PlayStateEvent;
 import com.bramosystems.oss.player.core.event.client.PlayStateHandler;
-import com.bramosystems.oss.player.resources.sources.Links;
+import com.bramosystems.oss.player.common.client.Links;
 import com.bramosystems.oss.player.resources.sources.ResourceBundle;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.MouseMoveEvent;
@@ -49,7 +49,6 @@ public class VLCShowcase extends AbstractCase {
 
     @Override
     public void initCase(Links link) {
-        super.initCase(link);
         Widget v = null, v2 = null;
         switch (link) {
             case vlcBasic:

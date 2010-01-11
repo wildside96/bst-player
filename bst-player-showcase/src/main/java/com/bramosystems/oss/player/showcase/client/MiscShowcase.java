@@ -22,7 +22,7 @@ import com.bramosystems.oss.player.core.client.Plugin;
 import com.bramosystems.oss.player.core.client.PluginNotFoundException;
 import com.bramosystems.oss.player.core.client.PluginVersionException;
 import com.bramosystems.oss.player.core.client.skin.CustomPlayerControl;
-import com.bramosystems.oss.player.resources.sources.Links;
+import com.bramosystems.oss.player.common.client.Links;
 import com.bramosystems.oss.player.resources.sources.ResourceBundle;
 import com.bramosystems.oss.player.youtube.client.ChromelessPlayer;
 import com.bramosystems.oss.player.youtube.client.PlayerParameters;
@@ -47,7 +47,6 @@ public class MiscShowcase extends AbstractCase {
 
     @Override
     public void initCase(Links link) {
-        super.initCase(link);
         Widget w = null;
         switch (link) {
             case miscBasic:
