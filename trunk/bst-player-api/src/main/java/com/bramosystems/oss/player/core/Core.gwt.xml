@@ -80,4 +80,8 @@
         </any>
     </replace-with>
 
+    <replace-with class="com.bramosystems.oss.player.core.client.impl.NativePlayerProperties.NativePlayerPropertiesSafari">
+        <when-type-is class="com.bramosystems.oss.player.core.client.impl.NativePlayerProperties"/>
+        <when-property-is name="user.agent" value="safari"/>
+    </replace-with>
 </module>

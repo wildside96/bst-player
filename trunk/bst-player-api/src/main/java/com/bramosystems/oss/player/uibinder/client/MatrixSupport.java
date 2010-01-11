@@ -1,13 +1,18 @@
 package com.bramosystems.oss.player.uibinder.client;
 
+import com.bramosystems.oss.player.core.client.AbstractMediaPlayer;
+import com.bramosystems.oss.player.core.client.LoadException;
+import com.bramosystems.oss.player.core.client.PlayerUtil;
 import com.bramosystems.oss.player.core.client.Plugin;
+import com.bramosystems.oss.player.core.client.PluginNotFoundException;
+import com.bramosystems.oss.player.core.client.PluginVersionException;
 import com.google.gwt.uibinder.client.UiConstructor;
 
 /**
  * 
  * @author Sikiru Braheem <sbraheem at bramosystems . com>
  */
-public class MatrixSupport extends BinderPlayer {
+public class MatrixSupport extends PlayerWrapper {
 
     @UiConstructor
     public MatrixSupport(String mediaURL, boolean autoplay, String height, String width) {
@@ -15,7 +20,8 @@ public class MatrixSupport extends BinderPlayer {
     }
 
     @Override
-    protected Plugin getPlugin() {
-        return Plugin.MatrixSupport;
+    protected AbstractMediaPlayer initPlayerEngine(String mediaURL, boolean autoplay, String height,
+            String width) throws LoadException, PluginNotFoundException, PluginVersionException {
+        return PlayerUtil.getPlayer(Plugin.MatrixSupport, mediaURL, autoplay, height, width);
     }
 }

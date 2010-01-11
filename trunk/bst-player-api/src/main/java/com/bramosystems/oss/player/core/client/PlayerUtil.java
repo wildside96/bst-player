@@ -141,6 +141,41 @@ public class PlayerUtil {
     public static AbstractMediaPlayer getPlayer(Plugin plugin, String mediaURL,
             boolean autoplay, String height, String width)
             throws LoadException, PluginNotFoundException, PluginVersionException {
+        return _getPlayer(_getPlugin(plugin, mediaURL), mediaURL, autoplay, height, width);
+    }
+
+    /**
+     * Utility method to get a player that best supports the specified {@code mediaURL} with
+     * the specified plugin feature.
+     *
+     * @param plugin the features of the required player plugin
+     * @param mediaURL the URL of the media to playback
+     * @param autoplay {@code true} to start playing automatically, {@code false} otherwise
+     *
+     * @return a suitable player implementation
+     *
+     * @throws LoadException if an error occurs while loading the media.
+     * @throws PluginVersionException if the required plugin version is not installed on the client.
+     * @throws PluginNotFoundException if the required plugin is not installed on the client.
+     *
+     * @since 1.1
+     * @see #getPlayer(Plugin, String, boolean, String, String)
+     */
+    public static AbstractMediaPlayer getPlayer(Plugin plugin, String mediaURL, boolean autoplay)
+            throws LoadException, PluginNotFoundException, PluginVersionException {
+        return _getPlayer(_getPlugin(plugin, mediaURL), mediaURL, autoplay);
+    }
+
+    /**
+     * Util method to get the appropriate player plugin for the specified plugin feature
+     * and media
+     *
+     * @param plugin
+     * @param mediaURL
+     * @return appropriate plugin
+     * @since 1.1
+     */
+    private static Plugin _getPlugin(Plugin plugin, String mediaURL) {
         String protocol = null;
         if (mediaURL.contains("://")) {
             protocol = mediaURL.substring(0, mediaURL.indexOf("://"));
@@ -172,12 +207,25 @@ public class PlayerUtil {
                     break;
                 }
             }
-            return _getPlayer(pg, mediaURL, autoplay, height, width);
+            return pg;
         } else {
-            return _getPlayer(plugin, mediaURL, autoplay, height, width);
+            return plugin;
         }
     }
 
+    /**
+     * Util method to instantiate the player implementation for the specified plugin
+     *
+     * @param plugin
+     * @param mediaURL
+     * @param autoplay
+     * @param height
+     * @param width
+     * @return
+     * @throws LoadException
+     * @throws PluginVersionException
+     * @throws PluginNotFoundException
+     */
     private static AbstractMediaPlayer _getPlayer(Plugin plugin, String mediaURL,
             boolean autoplay, String height, String width) throws LoadException,
             PluginVersionException, PluginNotFoundException {
@@ -197,6 +245,32 @@ public class PlayerUtil {
                 break;
             case Native:
                 player = new NativePlayer(mediaURL, autoplay, height, width);
+                break;
+            default:
+                throw new PluginNotFoundException();
+        }
+        return player;
+    }
+
+    private static AbstractMediaPlayer _getPlayer(Plugin plugin, String mediaURL,
+            boolean autoplay) throws LoadException,
+            PluginVersionException, PluginNotFoundException {
+        AbstractMediaPlayer player;
+        switch (plugin) {
+            case VLCPlayer:
+                player = new VLCPlayer(mediaURL, autoplay);
+                break;
+            case FlashPlayer:
+                player = new FlashMediaPlayer(mediaURL, autoplay);
+                break;
+            case QuickTimePlayer:
+                player = new QuickTimePlayer(mediaURL, autoplay);
+                break;
+            case WinMediaPlayer:
+                player = new WinMediaPlayer(mediaURL, autoplay);
+                break;
+            case Native:
+                player = new NativePlayer(mediaURL, autoplay);
                 break;
             default:
                 throw new PluginNotFoundException();

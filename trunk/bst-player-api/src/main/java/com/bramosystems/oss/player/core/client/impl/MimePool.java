@@ -97,7 +97,7 @@ public class MimePool {
      * @param extensions the file types supported by the plugin, multiple types should
      * be separated by commas e.g. wav,wma
      */
-    protected void addPluginExtensions(Plugin plugin, String extensions) {
+    protected final void addPluginExtensions(Plugin plugin, String extensions) {
         if (plugin == null || extensions == null) {
             return;
         }
@@ -125,7 +125,7 @@ public class MimePool {
      * @param protocols the streaming protocol supported by the plugin, multiple types should
      * be separated by commas e.g. rtp,rtsp
      */
-    protected void addPluginProtocols(Plugin plugin, String protocols) {
+    protected final void addPluginProtocols(Plugin plugin, String protocols) {
         if (plugin == null || protocols == null) {
             return;
         }
@@ -146,12 +146,11 @@ public class MimePool {
     }
 
     public static class MimePoolMozilla extends MimePool {
-// TODO: verify native support b4 release ...
 
         @Override
         protected void initPools() {
             super.initPools();
-            addPluginExtensions(Plugin.Native, "ogg,ogv");
+            addPluginExtensions(Plugin.Native, "wav,ogg,ogv");
         }
     }
 

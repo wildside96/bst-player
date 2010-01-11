@@ -1,13 +1,16 @@
 package com.bramosystems.oss.player.uibinder.client;
 
-import com.bramosystems.oss.player.core.client.Plugin;
+import com.bramosystems.oss.player.core.client.LoadException;
+import com.bramosystems.oss.player.core.client.PluginNotFoundException;
+import com.bramosystems.oss.player.core.client.PluginVersionException;
 import com.google.gwt.uibinder.client.UiConstructor;
+import java.util.ArrayList;
 
 /**
  * 
  * @author Sikiru Braheem <sbraheem at bramosystems . com>
  */
-public class FlashMediaPlayer extends BinderPlayer<com.bramosystems.oss.player.core.client.ui.FlashMediaPlayer> {
+public class FlashMediaPlayer extends PlayerWrapper<com.bramosystems.oss.player.core.client.ui.FlashMediaPlayer> {
 
     @UiConstructor
     public FlashMediaPlayer(String mediaURL, boolean autoplay, String height, String width) {
@@ -15,7 +18,25 @@ public class FlashMediaPlayer extends BinderPlayer<com.bramosystems.oss.player.c
     }
 
     @Override
-    protected Plugin getPlugin() {
-        return Plugin.FlashPlayer;
+    protected com.bramosystems.oss.player.core.client.ui.FlashMediaPlayer initPlayerEngine(String mediaURL,
+            boolean autoplay, String height, String width)
+            throws LoadException, PluginNotFoundException, PluginVersionException {
+        ArrayList<String> _urls = new ArrayList<String>();
+        if (mediaURL.contains(",")) {
+            String[] murls = mediaURL.split(",");
+            for (String url : murls) {
+                _urls.add(url);
+            }
+        } else {
+            _urls.add(mediaURL);
+        }
+
+        com.bramosystems.oss.player.core.client.ui.FlashMediaPlayer mp =
+                new com.bramosystems.oss.player.core.client.ui.FlashMediaPlayer(_urls.get(0),
+                autoplay, height, width);
+        for (int i = 1; i < _urls.size(); i++) {
+            mp.addToPlaylist(_urls.get(i));
+        }
+        return mp;
     }
 }

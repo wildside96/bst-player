@@ -56,7 +56,7 @@ public class CustomPlayerControl extends Composite {
 
     private final String STYLE_NAME = "player-CustomPlayerControl";
     private ImagePack imgPack;
-    private PushButton play, stop,  prev,  next;
+    private PushButton play, stop, prev, next;
     private Timer playTimer;
     private CSSSeekBar seekbar;
     private Label timeLabel;
@@ -288,8 +288,8 @@ public class CustomPlayerControl extends Composite {
     }
 
     private void setTime(long time, long duration) {
-        timeLabel.setText(PlayerUtil.formatMediaTime(time) +
-                " / " + PlayerUtil.formatMediaTime(duration));
+        timeLabel.setText(PlayerUtil.formatMediaTime(time)
+                + " / " + PlayerUtil.formatMediaTime(duration));
     }
 
     private void toPlayState(PlayState state) {
@@ -323,11 +323,7 @@ public class CustomPlayerControl extends Composite {
         double pos = player.getPlayPosition();
         long duration = player.getMediaDuration();
         setTime((long) pos, duration);
-        if (duration > 0) {
-            seekbar.setPlayingProgress(pos / duration);
-        } else {
-            seekbar.setPlayingProgress(0);
-        }
+        seekbar.setPlayingProgress(duration > 0 ? pos / duration : 0);
     }
 
     private enum PlayState {
