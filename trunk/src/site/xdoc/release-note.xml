@@ -16,7 +16,7 @@
                 This page contains information on the various released packages of the project.
             </p>
 
-            <subsection name="-- ---- 2009 - Version 1.1">
+            <subsection name="-- ---- 2010 - Version 1.1">
                 <p>
                     <b>New Features</b>
                 </p>
@@ -24,6 +24,7 @@
                 <ul>
                     <li>Adds NativePlayer widget to embed media using HTML 5 video elements.</li>
                     <li>Introduces YouTube module to wrap YouTube player as GWT widget</li>
+                    <li>Adds GWT 2.0's UiBinder support</li>
                     <li>Adds matrix transformation feature support</li>
                 </ul>
 
@@ -33,6 +34,32 @@
 
                 <ul>
                     <li>Adds support for Mouse and Keyboard event handlers</li>
+                </ul>
+
+                <p>
+                    <b>Bug Fixes</b>
+                </p>
+                <ul>
+                    <li>
+                        <a href="http://code.google.com/p/bst-player/issues/detail?id=8">Issue #8</a> -
+                    Setting UIMode on WinMediaPlayer now work in Google Chrome.
+                    </li>
+                    <li>
+                        <a href="http://code.google.com/p/bst-player/issues/detail?id=11">Issue #11</a> -
+                    JavaScript Exception properly handled when player is created without any suitable plugins
+                    </li>
+                    <li>
+                        <a href="http://code.google.com/p/bst-player/issues/detail?id=13">Issue #13</a> -
+                    Fixed visibility issues for unknown video codec in FlashMediaPlayer.
+                    </li>
+                    <li>
+                        <a href="http://code.google.com/p/bst-player/issues/detail?id=14">Issue #14</a> -
+                    FlashMediaPlayer now scales properly if size is smaller than video size
+                    </li>
+                    <li>
+                        <a href="http://code.google.com/p/bst-player/issues/detail?id=15">Issue #15</a> -
+                    Transparent mode support for FlashMediaPlayer implemented
+                    </li>
                 </ul>
             </subsection>
 
@@ -63,8 +90,9 @@
                     </li>
                     <li>FlatCustomControl widget replaced with the new CustomPlayerControl widget</li>
                     <li>JSNI implementation of player widgets reworked to reduce memory leaks</li>
-                    <li>More plugin-specific accessors added
-                    (<a href="http://code.google.com/p/bst-player/issues/detail?id=5">Issue #5</a>)</li>
+                    <li>More plugin-specific accessors added (
+                        <a href="http://code.google.com/p/bst-player/issues/detail?id=5">Issue #5</a>)
+                    </li>
                 </ul>
 
                 <p>
@@ -103,7 +131,8 @@
                 <ul >
                     <li>
                         All WinMediaPlayer constructors work as expected -
-                        (<a href="http://code.google.com/p/bst-player/issues/detail?id=2">Issue #2</a>)
+                        (
+                        <a href="http://code.google.com/p/bst-player/issues/detail?id=2">Issue #2</a>)
                     </li>
                 </ul>
 

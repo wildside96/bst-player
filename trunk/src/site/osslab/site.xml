@@ -18,6 +18,9 @@
         </menu>
         <menu ref="modules" />
         <menu ref="reports" />
+        <menu name="Previous Releases">
+            <item name="1.0" href="1.0/" />
+        </menu>
     </body>
     <poweredBy>
         <logo name="Maven" href="http://maven.apache.org/"
