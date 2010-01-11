@@ -25,6 +25,6 @@ import com.google.gwt.user.client.ui.Composite;
 public class Menu extends Composite {
 
     public Menu() {
-        initWidget(new com.bramosystems.oss.player.resources.sources.Menu());
+        initWidget(new com.bramosystems.oss.player.common.client.Menu());
     }
 }

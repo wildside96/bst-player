@@ -16,35 +16,30 @@
  */
 package com.bramosystems.oss.player.binder.client;
 
+import com.bramosystems.oss.player.common.client.BrowserInfo;
 import com.bramosystems.oss.player.common.client.Links;
-import com.google.gwt.resources.client.ResourceCallback;
-import com.google.gwt.resources.client.ResourceException;
-import com.google.gwt.resources.client.TextResource;
 import com.google.gwt.uibinder.client.UiConstructor;
-import com.google.gwt.user.client.ui.HTML;
+import com.google.gwt.user.client.ui.Composite;
+import com.google.gwt.user.client.ui.FlowPanel;
 
 /**
  *
  * @author Sikiru Braheem <sbraheem at bramosystems . com>
  */
-public class Sources extends HTML {
+public class CommonWidget extends Composite {
 
     @UiConstructor
-    public Sources(String name) {
-        try {
-            Links link = Links.valueOf(name);
-            link.getSource().getText(new ResourceCallback<TextResource>() {
-
-                public void onError(ResourceException e) {
-                    setHTML("<div>Failed to load code sample!</div>");
-                }
-
-                public void onSuccess(TextResource resource) {
-                    setHTML(resource.getText());
-                }
-            });
-        } catch (ResourceException ex) {
-            setHTML("<div>Failed to load code sample!</div>");
+    public CommonWidget(String name) {
+        Links link = Links.valueOf(name);
+        switch(link) {
+            case homePlugins:
+                initWidget(new BrowserInfo(BrowserInfo.InfoType.plugins));
+                break;
+            case homeMimetypes:
+                FlowPanel fp = new FlowPanel();
+                fp.add(new BrowserInfo(BrowserInfo.InfoType.mimePool));
+                fp.add(new BrowserInfo(BrowserInfo.InfoType.mimeType));
+                initWidget(fp);
         }
     }
 }

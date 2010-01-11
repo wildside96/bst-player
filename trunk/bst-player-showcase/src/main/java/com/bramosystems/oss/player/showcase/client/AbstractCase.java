@@ -15,8 +15,7 @@
  */
 package com.bramosystems.oss.player.showcase.client;
 
-import com.bramosystems.oss.player.resources.sources.Links;
-import com.google.gwt.dom.client.Style.Unit;
+import com.bramosystems.oss.player.common.client.Links;
 import com.google.gwt.resources.client.ExternalTextResource;
 import com.google.gwt.resources.client.ResourceCallback;
 import com.google.gwt.resources.client.ResourceException;
@@ -30,23 +29,13 @@ import com.google.gwt.user.client.ui.*;
 public abstract class AbstractCase extends Composite {
 
     private VerticalPanel casePanel;
-    private Label caseHeader;
 
     public AbstractCase() {
-        DockLayoutPanel dc = new DockLayoutPanel(Unit.PX);
-        initWidget(dc);
-
-        caseHeader = new Label();
-        caseHeader.setStyleName("case-header");
-        dc.addNorth(caseHeader, 40);
-
-        ScrollPanel sp = new ScrollPanel();
-        sp.setStyleName("case-content");
-        dc.add(sp);
-
         casePanel = new VerticalPanel();
         casePanel.setWidth("80%");
         casePanel.setSpacing(10);
+
+        initWidget(casePanel);
     }
 
     protected final void addCase(String title, String description, Widget player,
@@ -91,7 +80,5 @@ public abstract class AbstractCase extends Composite {
         casePanel.clear();
     }
 
-    public void initCase(Links link) {
-        caseHeader.setText(link.getTitle());
-    }
+    public abstract void initCase(Links link);
 }

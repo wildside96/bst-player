@@ -19,23 +19,23 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>gwt-maven-plugin</artifactId>
+                <configuration>
+                    <modules>
+                        <module>com.bramosystems.oss.player.showcase.Showcase</module>
+                        <module>com.bramosystems.oss.player.binder.Showcase</module>
+                                <!--module>com.bramosystems.oss.player.jshowcase.JSShowcase</module-->
+                    </modules>
+                    <disableCastChecking>true</disableCastChecking>
+                    <disableClassMetadata>true</disableClassMetadata>
+                    <soyc>false</soyc>
+                    <runTarget>uibinder.html</runTarget>
+                </configuration>
                 <executions>
                     <execution>
                         <id>showcase</id>
                         <goals>
                             <goal>compile</goal>
                         </goals>
-                        <configuration>
-                            <modules>
-                                <module>com.bramosystems.oss.player.binder.Showcase</module>
-                                <module>com.bramosystems.oss.player.showcase.Showcase</module>
-                                <!--module>com.bramosystems.oss.player.jshowcase.JSShowcase</module-->
-                            </modules>
-                            <style>DETAILED</style>
-                            <disableCastChecking>true</disableCastChecking>
-                            <disableClassMetadata>true</disableClassMetadata>
-                            <soyc>false</soyc>
-                        </configuration>
                     </execution>
                 </executions>
             </plugin>

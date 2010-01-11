@@ -15,7 +15,7 @@
  */
 package com.bramosystems.oss.player.showcase.client;
 
-import com.bramosystems.oss.player.resources.sources.Menu;
+import com.bramosystems.oss.player.common.client.Menu;
 import com.bramosystems.oss.player.resources.sources.ResourceBundle;
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.dom.client.Style.Unit;
@@ -31,7 +31,7 @@ public class Showcase extends Composite implements EntryPoint {
     public Showcase() {
         HTML banner = new HTML("<div class='app-banner'>BST Player Showcase</div>" +
                 "<div class='app-version'>Version 1.1-SNAPSHOT</div>");
- 
+
         HTML footer = new HTML("Copyright &copy; 2009 Braheem Sikiru<br/>" +
                 "All other product, service names, brands, or trademarks, are " +
                 "the property of their respective owners.");
@@ -53,5 +53,5 @@ public class Showcase extends Composite implements EntryPoint {
         RootLayoutPanel.get().add(this);
 
         History.fireCurrentHistoryState();
-    }
+}
 }

@@ -15,6 +15,8 @@
  */
 package com.bramosystems.oss.player.showcase.client;
 
+import com.bramosystems.oss.player.common.client.Links;
+
 /**
  *
  * @author Sikirulai Braheem <sbraheem at gmail.com>
@@ -29,6 +31,10 @@ public class LinkShowcase extends AbstractCase {
 
     public String getSummary() {
         return "Using playable links";
+    }
+
+    @Override
+    public void initCase(Links link) {
     }
 
 /*

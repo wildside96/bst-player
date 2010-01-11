@@ -15,7 +15,9 @@
  */
 package com.bramosystems.oss.player.showcase.client;
 
-import com.bramosystems.oss.player.resources.sources.Links;
+import com.bramosystems.oss.player.common.client.Links;
+import com.bramosystems.oss.player.showcase.client.matrix.MatrixShowcase;
+import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.user.client.History;
@@ -25,9 +27,24 @@ import com.google.gwt.user.client.ui.*;
  *
  * @author Sikirulai Braheem <sbraheem at gmail.com>
  */
-public class CaseHandler extends SimplePanel implements ValueChangeHandler<String> {
+public class CaseHandler extends Composite implements ValueChangeHandler<String> {
+
+    private Label caseHeader;
+    private ScrollPanel casePanel;
 
     public CaseHandler() {
+        DockLayoutPanel dc = new DockLayoutPanel(Unit.PX);
+        dc.setStyleName("content-wrapper");
+        initWidget(dc);
+
+        caseHeader = new Label();
+        caseHeader.setStyleName("case-header");
+        dc.addNorth(caseHeader, 40);
+
+        casePanel = new ScrollPanel();
+        casePanel.setStyleName("case-content");
+        dc.add(casePanel);
+
         History.addValueChangeHandler(this);
     }
 
@@ -53,6 +70,14 @@ public class CaseHandler extends SimplePanel implements ValueChangeHandler<Strin
             case dynVlc:
             case dynWmp:
                 c = DynaShowcase.instance;
+                break;
+            case dynvdAuto:
+            case dynvdNtv:
+            case dynvdQt:
+            case dynvdSwf:
+            case dynvdVlc:
+            case dynvdWmp:
+                c = DynaVideoShowcase.instance;
                 break;
             case miscBasic:
             case ytubeBasic:
@@ -84,9 +109,21 @@ public class CaseHandler extends SimplePanel implements ValueChangeHandler<Strin
             case wmpPlaylist:
             case wmpVideo:
                 c = WMPShowcase.instance;
+                break;
+            case matrixBasic:
+                c = MatrixShowcase.instance;
+                break;
+            case swfBasic:
+            case swfLogger:
+            case swfPlaylist:
+            case swfVideo:
+                c = SWFShowcase.instance;
+                break;
         }
         c.clearCases();
         c.initCase(link);
-        setWidget(c);
+
+        caseHeader.setText(link.getTitle());
+        casePanel.setWidget(c);
     }
 }
