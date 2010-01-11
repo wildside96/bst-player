@@ -23,6 +23,7 @@ import com.bramosystems.oss.player.core.client.PlayException;
 import com.bramosystems.oss.player.core.client.PlayerUtil;
 import com.bramosystems.oss.player.core.client.PluginNotFoundException;
 import com.bramosystems.oss.player.core.client.impl.NativePlayerImpl;
+import com.bramosystems.oss.player.core.client.impl.NativePlayerProperties;
 import com.bramosystems.oss.player.core.event.client.DebugEvent;
 import com.bramosystems.oss.player.core.event.client.DebugHandler;
 import com.bramosystems.oss.player.core.event.client.MediaInfoEvent;
@@ -137,7 +138,7 @@ public class NativePlayer extends AbstractMediaPlayer implements HasMouseDownHan
      * @throws PluginNotFoundException if browser does not support the HTML 5 specification.
      */
     public NativePlayer(String mediaURL) throws LoadException, PluginNotFoundException {
-        this(mediaURL, true, "20px", "100%");
+        this(mediaURL, true, NativePlayerProperties.get().getPlayerHeight(), "100%");
     }
 
     /**
@@ -154,9 +155,10 @@ public class NativePlayer extends AbstractMediaPlayer implements HasMouseDownHan
      */
     public NativePlayer(String mediaURL, boolean autoplay)
             throws LoadException, PluginNotFoundException {
-        this(mediaURL, autoplay, "20px", "100%");
+        this(mediaURL, autoplay, NativePlayerProperties.get().getPlayerHeight(), "100%");
     }
 
+    // TODO: if player does not support URL throw LoadException...
     /**
      * Constructs <code>NativePlayer</code> with the specified {@code height} and
      * {@code width} to playback media located at {@code mediaURL}. Media playback
@@ -394,8 +396,10 @@ public class NativePlayer extends AbstractMediaPlayer implements HasMouseDownHan
     @SuppressWarnings("unused")
     private void fireProgressChanged() {
         NativePlayerImpl.TimeRange time = impl.getBuffered();
-        double i = time.getLength();
-        fireLoadingProgress((time.getEnd(i - 1) - time.getStart(0)) * 1000 / impl.getDuration());
+        if (time != null) {
+            double i = time.getLength();
+            fireLoadingProgress((time.getEnd(i - 1) - time.getStart(0)) * 1000 / impl.getDuration());
+        }
     }
 
     @SuppressWarnings("unused")
@@ -457,7 +461,7 @@ public class NativePlayer extends AbstractMediaPlayer implements HasMouseDownHan
                     case UnsupportedMedia:
 //                        String url = mediaURL != null ? mediaURL : mediaItems.get(0).getSource();
 //                        fireError("ERROR: Media not supported - " + url);
-                        fireError("ERROR: Media not supported!");
+                        fireError("ERROR: Media not supported! '" + impl.getMediaURL() + "'");
                         break;
                 }
                 break;

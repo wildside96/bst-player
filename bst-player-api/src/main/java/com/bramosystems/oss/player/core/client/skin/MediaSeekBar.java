@@ -35,8 +35,9 @@ import com.google.gwt.user.client.ui.Widget;
  */
 public abstract class MediaSeekBar extends Composite implements MouseUpHandler, HasSeekChangeHandlers {
 
-    private Widget playing,  loading;
+    private Widget playing, loading;
     protected AbsolutePanel seekTrack;
+    private double loadingProgress, playingProgress;
 
     /**
      * Constructs <code>MediaSeekBar</code> of the specified height.
@@ -51,7 +52,7 @@ public abstract class MediaSeekBar extends Composite implements MouseUpHandler, 
 
     /**
      * Overridden to prevent subclasses from changing the wrapped widget.
-     * Subclass should call <code>initSeekBar</code> instead.
+     * Subclasses should call <code>initSeekBar</code> instead.
      *
      * @see #initSeekBar(com.google.gwt.user.client.ui.Widget, com.google.gwt.user.client.ui.Widget) 
      */
@@ -88,9 +89,32 @@ public abstract class MediaSeekBar extends Composite implements MouseUpHandler, 
      */
     public final void setLoadingProgress(double loadingProgress) {
         if ((loadingProgress >= 0) && (loadingProgress <= 1.0)) {
+            this.loadingProgress = loadingProgress;
             loadingProgress *= 100;
             loading.setWidth(loadingProgress + "%");
         }
+    }
+
+    /**
+     * Returns the progress of the media loading operation
+     *
+     * @return the progress of the loading operation between {@code 0} (the minimum)
+     * and {@code 1} (the maximum)
+     * @since 1.1
+     */
+    public final double getLoadingProgress() {
+        return loadingProgress;
+    }
+
+    /**
+     * Returns the progress of the media playback operation
+     * 
+     * @return the progress of the playback operation between {@code 0} (the minimum)
+     * and {@code 1} (the maximum)
+     * @since 1.1
+     */
+    public final double getPlayingProgress() {
+        return playingProgress;
     }
 
     /**
@@ -101,6 +125,7 @@ public abstract class MediaSeekBar extends Composite implements MouseUpHandler, 
      */
     public final void setPlayingProgress(double playingProgress) {
         if ((playingProgress >= 0) && (playingProgress <= 1.0)) {
+            this.playingProgress = playingProgress;
             playingProgress *= 100;
             playing.setWidth(playingProgress + "%");
         }
@@ -122,5 +147,4 @@ public abstract class MediaSeekBar extends Composite implements MouseUpHandler, 
     public final HandlerRegistration addSeekChangeHandler(SeekChangeHandler handler) {
         return addHandler(handler, SeekChangeEvent.TYPE);
     }
-
 }

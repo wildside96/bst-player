@@ -27,12 +27,9 @@ import com.bramosystems.oss.player.core.client.impl.PlayerWidgetFactory;
 import com.bramosystems.oss.player.core.client.impl.VLCPlayerImpl;
 import com.bramosystems.oss.player.core.client.impl.VLCStateManager;
 import com.bramosystems.oss.player.core.client.skin.CustomPlayerControl;
-import com.google.gwt.event.dom.client.MouseMoveEvent;
-import com.google.gwt.event.dom.client.MouseMoveHandler;
 import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.DOM;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
 import java.util.ArrayList;
 
@@ -71,9 +68,9 @@ public class VLCPlayer extends AbstractMediaPlayer implements PlaylistSupport {
     private VLCPlayerImpl impl;
     private Widget playerWidget;
     private VLCStateManager stateHandler;
-    private String playerId,  mediaUrl,  _width,  _height;
+    private String playerId, mediaUrl, _width, _height;
     private Logger logger;
-    private boolean isEmbedded,  autoplay,  resizeToVideoSize,  shuffleOn;
+    private boolean isEmbedded, autoplay, resizeToVideoSize, shuffleOn;
     private HandlerRegistration initListHandler;
     private ArrayList<MRL> _playlistCache;
     private CustomPlayerControl control;
@@ -140,20 +137,15 @@ public class VLCPlayer extends AbstractMediaPlayer implements PlaylistSupport {
             addDebugHandler(new DebugHandler() {
 
                 public void onDebug(DebugEvent event) {
-                    switch (event.getMessageType()) {
-                        case Error:
-                            Window.alert(event.getMessage());
-                        case Info:
-                            logger.log(event.getMessage(), false);
-                    }
+                    logger.log(event.getMessage(), false);
                 }
             });
             addMediaInfoHandler(new MediaInfoHandler() {
 
                 public void onMediaInfoAvailable(MediaInfoEvent event) {
                     MediaInfo info = event.getMediaInfo();
-                    if (info.getAvailableItems().contains(MediaInfoKey.VideoHeight) ||
-                            info.getAvailableItems().contains(MediaInfoKey.VideoWidth)) {
+                    if (info.getAvailableItems().contains(MediaInfoKey.VideoHeight)
+                            || info.getAvailableItems().contains(MediaInfoKey.VideoWidth)) {
                         checkVideoSize(Integer.parseInt(info.getItem(MediaInfoKey.VideoHeight)),
                                 Integer.parseInt(info.getItem(MediaInfoKey.VideoWidth)));
                     }
@@ -165,11 +157,10 @@ public class VLCPlayer extends AbstractMediaPlayer implements PlaylistSupport {
             _width = "0px";
         }
 
-        playerWidget = PlayerWidgetFactory.get().getPlayerWidget(Plugin.VLCPlayer, playerId, 
+        playerWidget = PlayerWidgetFactory.get().getPlayerWidget(Plugin.VLCPlayer, playerId,
                 null, false, null);
         panel.add(playerWidget, DockPanel.CENTER);
         panel.setCellHeight(playerWidget, _height);
-        panel.setCellWidth(playerWidget, _width);
         setWidth(_width);
         DOM.setStyleAttribute(playerWidget.getElement(), "backgroundColor", "#000000");   // IE workaround
     }
@@ -474,7 +465,7 @@ public class VLCPlayer extends AbstractMediaPlayer implements PlaylistSupport {
         checkAvailable();
         return impl.getRate();
     }
-    
+
     /*
      * TODO:// check up aspect ration later...
     public AspectRatio getAspectRatio() {
@@ -512,6 +503,10 @@ public class VLCPlayer extends AbstractMediaPlayer implements PlaylistSupport {
 
     private void checkVideoSize(int vidHeight, int vidWidth) {
         String _h = _height, _w = _width;
+        if (vidHeight == 0) {
+            _h = "0px";
+        }
+
         if (resizeToVideoSize) {
             if ((vidHeight > 0) && (vidWidth > 0)) {
                 // adjust to video size ...
@@ -533,12 +528,11 @@ public class VLCPlayer extends AbstractMediaPlayer implements PlaylistSupport {
     private void fixIEStyle(String _h) {
         // IE workaround for style issues ...
         DOM.setStyleAttribute(playerWidget.getElement(), "height", _h);
-//        DOM.setStyleAttribute(playerWidget.getElement(), "width", "100%");
     }
 
     private class MRL {
 
-        private String url,  option;
+        private String url, option;
 
         public MRL(String url, String option) {
             this.url = url;
@@ -579,9 +573,5 @@ public class VLCPlayer extends AbstractMediaPlayer implements PlaylistSupport {
          * Dolby mode
          */
         Dolby
-    }
-
-    public void doMouseEvents(MouseMoveHandler handler) {
-        addDomHandler(handler, MouseMoveEvent.getType());
     }
 }
