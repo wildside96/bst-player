@@ -16,11 +16,10 @@
 <!--                                                                        -->
 
 <module rename-to="bst_player_js">
-    <inherits name="com.google.gwt.i18n.I18N"/>
     <inherits name="com.bramosystems.oss.player.script.Script" />
-    <entry-point class="com.bramosystems.oss.player.script.client.JSShowcase" />
+    <entry-point class="com.bramosystems.oss.player.jscript.client.JSExporter" />
 
-    <replace-with class="com.bramosystems.oss.player.script.client.JSProvider">
+    <replace-with class="com.bramosystems.oss.player.jscript.client.JSProvider">
         <when-type-is class="com.bramosystems.oss.player.script.client.ExportProvider"/>
     </replace-with>
 
