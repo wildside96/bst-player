@@ -19,7 +19,7 @@
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>gwt-maven-plugin</artifactId>
                 <configuration>
-                    <module>com.bramosystems.oss.player.jshowcase.JSShowcase</module>
+                    <module>com.bramosystems.oss.player.script.JSShowcase</module>
                     <disableCastChecking>true</disableCastChecking>
                     <disableClassMetadata>true</disableClassMetadata>
                     <soyc>false</soyc>
@@ -27,7 +27,7 @@
                 </configuration>
                 <executions>
                     <execution>
-                        <id>showcase</id>
+                        <id>script</id>
                         <goals>
                             <goal>compile</goal>
                         </goals>
