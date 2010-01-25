@@ -14,7 +14,7 @@
  * the License.
  */
 
-package com.bramosystems.oss.player.script.client;
+package com.bramosystems.oss.player.jscript.client;
 
 import com.bramosystems.oss.player.core.client.AbstractMediaPlayer;
 import com.bramosystems.oss.player.core.client.LoadException;
@@ -24,10 +24,12 @@ import com.bramosystems.oss.player.core.client.PluginNotFoundException;
 import com.bramosystems.oss.player.core.client.PluginVersionException;
 import com.bramosystems.oss.player.core.client.skin.CSSSeekBar;
 import com.bramosystems.oss.player.core.client.skin.MediaSeekBar;
+import com.bramosystems.oss.player.script.client.ExportProvider;
 import com.google.gwt.user.client.ui.Widget;
 import java.util.HashMap;
 
 /**
+ * BST Player API export provider implementation
  *
  * @author Sikirulai Braheem <sbraheem at bramosystems dot com>
  */
