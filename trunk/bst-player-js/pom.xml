@@ -7,10 +7,10 @@
         <version>1.1-SNAPSHOT</version>
     </parent>
     <artifactId>bst-player-js</artifactId>
-    <packagingp>war</packagingp>
+    <packaging>war</packaging>
     <name>BST Player JS Library</name>
     <description>
-        Export BST Player widgets as Javascript objects
+        Export BST Player API widgets as Javascript objects
     </description>
     <build>
         <finalName>bst-player-js</finalName>
@@ -19,11 +19,8 @@
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>gwt-maven-plugin</artifactId>
                 <configuration>
-                    <module>com.bramosystems.oss.player.script.JSShowcase</module>
-                    <disableCastChecking>true</disableCastChecking>
-                    <disableClassMetadata>true</disableClassMetadata>
+                    <module>com.bramosystems.oss.player.jscript.Exporter</module>
                     <soyc>false</soyc>
-                    <style>DETAILED</style>
                 </configuration>
                 <executions>
                     <execution>
@@ -34,23 +31,12 @@
                     </execution>
                 </executions>
             </plugin>
-            <!--plugin>
-                <artifactId>maven-assembly-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>js</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>single</goal>
-                        </goals>
-                        <configuration>
-                            <descriptors>
-                                <descriptor>js.xml</descriptor>
-                            </descriptors>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin-->
+            <plugin>
+                <artifactId>maven-war-plugin</artifactId>
+                <configuration>
+                    <packagingExcludes>WEB-INF/classes/**</packagingExcludes>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
 
@@ -59,6 +45,7 @@
             <groupId>com.google.gwt</groupId>
             <artifactId>gwt-user</artifactId>
             <scope>provided</scope>
+            <version>1.7.1</version> <!-- Testing for GWT 1.x.x Compatibility -->
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
