@@ -33,6 +33,7 @@
             import flash.events.*;
             import flash.display.*;
             import flash.geom.*;
+            import mx.events.*;
 
             private var debug:Boolean = true;
             private var player:Engine, mp3:MP3Engine, vdu:VideoEngine;
@@ -59,6 +60,7 @@
                         addEventListener(MouseEvent.MOUSE_MOVE, EventUtil.fireMouseMoveEvent);
                         addEventListener(MouseEvent.CLICK, EventUtil.fireClickEvent);
                         addEventListener(MouseEvent.DOUBLE_CLICK, EventUtil.fireDoubleClickEvent);
+                        addEventListener(ResizeEvent.RESIZE, resizeDoVDUSize);
                         application.addEventListener(KeyboardEvent.KEY_UP, EventUtil.fireKeyUpEvent);
                         application.addEventListener(KeyboardEvent.KEY_DOWN, EventUtil.fireKeyDownEvent);
 
@@ -75,13 +77,14 @@
                         vdu.addEventListener(PlayStateEvent.PLAY_STOPPED, playStopped);
                         vdu.addEventListener(PlayStateEvent.PLAY_PAUSED, playPaused);
                         vdu.addEventListener(PlayStateEvent.PLAY_FINISHED, playFinished);
+                        vdu.addEventListener(MetadataEvent.METADATA_RECEIVED, metaDoVDUSize);
                         vdu.setVolume(setting.getVolume());
-                        vdu.percentHeight = 100;
-                        vdu.percentWidth = 100;
 
     //                    stage.scaleMode = StageScaleMode.NO_BORDER;
                         setupCallbacks();
                         EventUtil.fireApplicationInitialized();
+
+                        updateVDUSize();
                     } catch(err:SecurityError) {
                         Log.error(err.message);
                     } catch(err:Error) {
@@ -328,6 +331,30 @@
             private function updateVolume(event:SettingChangedEvent):void {
                 mp3.setVolume(Number(event.newValue));
                 vdu.setVolume(Number(event.newValue));
+            }
+
+            /******* fix streaching/cropping issue, let app auto-adjust video size *******/
+            private function metaDoVDUSize(event:MetadataEvent):void {
+                updateVDUSize();
+            }
+            private function resizeDoVDUSize(event:ResizeEvent):void {
+                if(player && (player is VideoEngine)) {
+                    updateVDUSize();
+                }
+            }
+            private function updateVDUSize():void {
+                var _vduHeight:int = vdu.metadata ? vdu.metadata.height : vdu.height;
+                var _vduWidth:int = vdu.metadata ? vdu.metadata.width : vdu.width;
+
+                if((height < _vduHeight) || (width < _vduWidth)) {
+                    vdu.percentHeight = 100;
+                    vdu.percentWidth = 100;
+                } else {
+                    if(vdu.metadata) {
+                        vdu.height = vdu.metadata.height;
+                        vdu.width = vdu.metadata.width;
+                    }
+                }
             }
         ]]>
     </mx:Script>

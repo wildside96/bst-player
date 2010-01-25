@@ -73,13 +73,9 @@ package com.bramosystems.oss.player.external {
                 event.stageX, event.stageY);
         }
         public static function fireMouseMoveEvent(event:MouseEvent):void {
-//            var rect:Rectangle = Application.application.systemManager.topLevelSystemManager.screen;
-            var rx:Number = Application.application.systemManager.topLevelSystemManager.stage.mouseX;
-            var ry:Number = Application.application.systemManager.topLevelSystemManager.stage.mouseY;
-            ExternalInterface.call("bstSwfMdaEvent2", playerId, 3, event.buttonDown,
+            ExternalInterface.call("bstSwfMdaEvent", playerId, 3, event.buttonDown,
                 event.altKey, event.ctrlKey, event.shiftKey, false, //event.commandKey,
-//                event.stageX, event.stageY, rect.x, rect.y);
-                event.stageX, event.stageY, rx, ry);
+                event.stageX, event.stageY);
         }
         public static function fireClickEvent(event:MouseEvent):void {
             ExternalInterface.call("bstSwfMdaEvent", playerId, 10, event.buttonDown,
