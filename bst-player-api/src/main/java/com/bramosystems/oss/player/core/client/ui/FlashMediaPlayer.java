@@ -156,7 +156,7 @@ public class FlashMediaPlayer extends AbstractMediaPlayer implements PlaylistSup
             addDebugHandler(new DebugHandler() {
 
                 public void onDebug(DebugEvent event) {
-                    log(event.getMessage(), false);
+                    logger.log(event.getMessage(), false);
                 }
             });
             addMediaInfoHandler(new MediaInfoHandler() {
@@ -168,7 +168,7 @@ public class FlashMediaPlayer extends AbstractMediaPlayer implements PlaylistSup
                         checkVideoSize(Integer.parseInt(info.getItem(MediaInfoKey.VideoHeight)),
                                 Integer.parseInt(info.getItem(MediaInfoKey.VideoWidth)));
                     }
-                    log(event.getMediaInfo().asHTMLString(), true);
+                    logger.log(event.getMediaInfo().asHTMLString(), true);
                 }
             });
             control = new CustomPlayerControl(this);
@@ -199,7 +199,6 @@ public class FlashMediaPlayer extends AbstractMediaPlayer implements PlaylistSup
     public FlashMediaPlayer(String mediaURL) throws PluginNotFoundException,
             PluginVersionException, LoadException {
         this(mediaURL, true, "0px", "100%");
-        setResizeToVideoSize(true); // fix for Issue 12
     }
 
     /**
@@ -219,7 +218,6 @@ public class FlashMediaPlayer extends AbstractMediaPlayer implements PlaylistSup
     public FlashMediaPlayer(String mediaURL, boolean autoplay) throws PluginNotFoundException,
             PluginVersionException, LoadException {
         this(mediaURL, autoplay, "0px", "100%");
-        setResizeToVideoSize(true); // fix for Issue 12
     }
 
     private void checkVideoSize(int vidHeight, int vidWidth) {
@@ -325,12 +323,6 @@ public class FlashMediaPlayer extends AbstractMediaPlayer implements PlaylistSup
     public void showLogger(boolean enable) {
         if (!isEmbedded) {
             logger.setVisible(enable);
-        }
-    }
-
-    private void log(String message, boolean asHTML) {
-        if (!isEmbedded && logger.isVisible()) {
-            logger.log(message, asHTML);
         }
     }
 
