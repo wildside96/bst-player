@@ -13,13 +13,14 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-package com.bramosystems.oss.player.script.client;
+package com.bramosystems.oss.player.jscript.client;
 
 import com.bramosystems.oss.player.script.client.ExportUtil;
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.user.client.ui.Composite;
 
 /**
+ * Export the BST Player API
  *
  * @author Sikirulai Braheem <sbraheem at gmail.com>
  */
