@@ -24,7 +24,9 @@
                 <ul>
                     <li>Adds NativePlayer widget to embed media using HTML 5 video elements.</li>
                     <li>Introduces YouTube module to wrap YouTube player as GWT widget</li>
-                    <li>Adds GWT 2.0's UiBinder support</li>
+                    <li>Adds GWT 2.0's <a href="ui-binder.html">UiBinder support</a></li>
+                    <li>Adds module to export the player widgets as <a href="javascript-support.html">
+                        Javascript object</a></li>
                     <li>Adds matrix transformation feature support</li>
                 </ul>
 

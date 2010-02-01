@@ -39,13 +39,11 @@
     &lt;artifactId&gt;bst-player-api&lt;/artifactId&gt;
     &lt;version&gt;${appropriate-version}&lt;/version&gt;
     &lt;scope&gt;provided&lt;/scope&gt;
-&lt;/dependency&gt;
-            </source>
+&lt;/dependency&gt;</source>
             <p>
                 However, you will need to add the
                 <a href="http://downloads.bramosystems.com/maven2">
-                Bramosystems Maven Repository
-                </a> definition to your POM as shown below:
+                Bramosystems Maven Repository </a> definition to your POM as shown below:
             </p>
             <source>
 &lt;repositories&gt;
@@ -56,8 +54,7 @@
         &lt;url&gt;http://downloads.bramosystems.com/maven2/releases&lt;/url&gt;
     &lt;/repository&gt;
     . . .
-&lt;/repositories&gt;
-            </source>
+&lt;/repositories&gt;</source>
             <p>
                 If you will also like to use the snapshots;
             </p>
@@ -70,8 +67,7 @@
         &lt;url&gt;http://downloads.bramosystems.com/maven2/snapshots&lt;/url&gt;
     &lt;/repository&gt;
     . . .
-&lt;/repositories&gt;
-            </source>
+&lt;/repositories&gt;</source>
             <div class="top">
                 <a href="#">Top</a>
             </div>
@@ -112,8 +108,7 @@ try {
 } catch(PluginNotFoundException e) {
      // catch PluginNotFoundException and display a friendly notice.
      panel.setWidget(PlayerUtil.getMissingPluginNotice(Plugin.WinMediaPlayer));
-}
-                </source>
+}</source>
 
                 <p>
                     The above code adds a Windows Media Player object to the panel and
@@ -124,8 +119,7 @@ try {
 player.playMedia();  // starts playback
 player.pauseMedia();  // pauses playback
 player.stopMedia();  // stops playback
-player.setVolume(0.8); // sets the playback volume to 80% of maximum
-                </source>
+player.setVolume(0.8); // sets the playback volume to 80% of maximum</source>
 
                 <p>
                     Refer to the
@@ -169,8 +163,7 @@ try {
 } catch(PluginNotFoundException e) {
      // catch PluginNotFoundException and display a friendly notice.
      panel.setWidget(PlayerUtil.getMissingPluginNotice(Plugin.QuickTimePlayer));
-}
-                </source>
+}</source>
                 <p>
                     <b>
                         <i>NOTE:- The QuickTimePlayer class requires QuickTime 7.2.1 or later</i>
@@ -212,8 +205,7 @@ try {
 } catch(PluginNotFoundException e) {
      // catch PluginNotFoundException and display a friendly notice.
      panel.setWidget(PlayerUtil.getMissingPluginNotice(Plugin.FlashPlayer));
-}
-                </source>
+}</source>
                 <p>
                     <b>
                         <i>NOTE:- Adobe Flash 9.0 or later is required</i>
@@ -253,8 +245,7 @@ try {
 } catch(PluginNotFoundException e) {
      // catch PluginNotFoundException and display a friendly notice.
      panel.setWidget(PlayerUtil.getMissingPluginNotice(Plugin.VLCPlayer));
-}
-                </source>
+}</source>
                 <p>
                     <b>
                         <i>NOTE:- VLC Player plugin 1.0.0 or later is required</i>
@@ -289,8 +280,7 @@ try {
      // catch PluginNotFoundException, thrown if client
      // browser is not HTML 5 compliant
      panel.setWidget(PlayerUtil.getMissingPluginNotice(e.getPlugin()));
-}
-                </source>
+}</source>
                 <p>
                     <b>
                         <i>NOTE:- Works only on HTML 5 supported browsers</i>
@@ -330,11 +320,9 @@ try {
 } catch(PluginNotFoundException e) {
      // required Flash plugin not found, display a friendly notice.
      panel.setWidget(PlayerUtil.getMissingPluginNotice(e.getPlugin()));
-}
-                </source>
+}</source>
                 <p>
-                    The
-                    <b>ChromelessPlayer</b> class is also available to enable custom controls
+                    The <b>ChromelessPlayer</b> class is also available to enable custom controls
                     with the YouTube player.
                 </p>
                 <p>
@@ -361,8 +349,7 @@ try {
 } catch(PluginNotFoundException e) {
      // required Flash plugin not found, display a friendly notice.
      panel.setWidget(PlayerUtil.getMissingPluginNotice(e.getPlugin()));
-}
-                </source>
+}</source>
                 <p>
                     <b>
                         <i>NOTE:- Modules that use the YouTubePlayer widget should inherit
@@ -371,6 +358,46 @@ try {
                         </i>
                     </b>
                 </p>
+            </subsection>
+
+            <subsection name="Select a suitable player dynamically">
+                <p>
+                    The
+                    <a href="bst-player-api/apidocs/com/bramosystems/oss/player/core/client/PlayerUtil.html">
+                        PlayerUtil</a> class in the <i>com.bramosystems.oss.player.core.client</i> package
+                    defines overloaded methods to dynamically select a player that can playback a specfied
+                    media.
+                </p>
+                <p>
+                    A suitable player is determined based on the features/capabilities derivable
+                    from the player plugin, its availability on the browser, and its suitability to
+                    playback the specified media.
+                 </p>
+
+                <p>
+                    Here goes an example:
+                </p>
+                <source>
+SimplePanel panel = new SimplePanel();   // create panel to hold the player
+AbstractMediaPlayer player = null;
+try {
+     // get any player that can playback media
+     player = PlayerUtil.getPlayer(Plugin.AUTO, "http://www.example.com/media.mp3",
+                    false, "50px", "100%");
+     panel.setWidget(player); // add player to panel.
+} catch(LoadException e) {
+     // catch loading exception and alert user
+     Window.alert("An error occured while loading");
+} catch (PluginVersionException ex) {
+     // catch PluginVersionException, thrown if required plugin version is not found
+     panel.setWidget(PlayerUtil.getMissingPluginNotice(e.getPlugin()));
+} catch(PluginNotFoundException e) {
+     // catch PluginNotFoundException, thrown if no plugin is not found
+     panel.setWidget(PlayerUtil.getMissingPluginNotice(e.getPlugin()));
+}</source>
+                <div class="top">
+                    <a href="#">Top</a>
+                </div>
             </subsection>
         </section>
 
@@ -381,10 +408,16 @@ try {
                 fun filled.  Even more appealing is the dynamic player plugin selection that makes
                 the development of custom media player controls more interesting.
             </p>
+        </section>
+
+        <section name="What next ?">
+            <p><a href="ui-binder.html">Use the player widgets with UiBinder</a></p>
+            <p><a href="javascript-support.html">Integrate the API in page-based applications</a></p>
+            <p><a href="custom-player.html">Create custom player controls</a></p>
+            <p><a href="script-exporter.html">Export your players as Javascript objects</a></p>
             <div class="top">
                 <a href="#">Top</a>
             </div>
         </section>
-
     </body>
 </document>
