@@ -1,29 +1,90 @@
+/*
+ * Copyright 2009 Sikirulai Braheem
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations under
+ * the License.
+ */
 package com.bramosystems.oss.player.uibinder.client;
 
 import com.bramosystems.oss.player.core.client.*;
 import com.bramosystems.oss.player.core.client.geom.MatrixSupport;
 import com.bramosystems.oss.player.core.client.geom.TransformationMatrix;
 import com.bramosystems.oss.player.core.event.client.*;
+import com.bramosystems.oss.player.util.client.RegExp;
+import com.bramosystems.oss.player.util.client.RegExp.RegexException;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.Widget;
 
+/**
+ * Provides the base implementation of player widgets with UiBinder support
+ *
+ * @author Sikiru Braheem <sbraheem at bramosystems . com>
+ * @param <T> the player implementation type
+ * @since 1.1
+ */
 public abstract class PlayerWrapper<T extends AbstractMediaPlayer> extends AbstractMediaPlayer
         implements MatrixSupport, com.bramosystems.oss.player.core.client.PlaylistSupport {
 
     private T _engine;
-    private final String GWT_HOST_URL_ID = "gwt-host::", GWT_MODULE_URL_ID = "gwt-module::";
+    private static String GWT_HOST_URL_ID = "(gwt-host::)\\S", GWT_MODULE_URL_ID = "(gwt-module::)\\S";
 
+    /**
+     * Parses the {@code mediaURL} for {@code gwt-host::} and {@code gwt-module::} keywords.
+     * The keywords are effectively replaced with their corresponding relative URLs.
+     *
+     * <p>
+     * {@code gwt-host::} is replaced with {@code GWT.getHostPageBaseURL()} while {@code gwt-module::}
+     * is replaced with {@code GWT.getModuleBaseURL()}
+     * </p>
+     * 
+     * @param mediaURL the mediaURL
+     * @return the resulting absolute URL
+     */
+    public static String resolveMediaURL(String mediaURL) {
+        RegExp.RegexResult rr = null;
+        RegExp re = null;
+        try {
+            re = RegExp.getRegExp(GWT_HOST_URL_ID, "i");
+            if (re.test(mediaURL)) {
+                rr = re.exec(mediaURL);
+                mediaURL = mediaURL.replaceAll(rr.getMatch(1), GWT.getHostPageBaseURL());
+            }
+
+            re = RegExp.getRegExp(GWT_MODULE_URL_ID, "i");
+            if (re.test(mediaURL)) {
+                rr = re.exec(mediaURL);
+                mediaURL = mediaURL.replaceAll(rr.getMatch(1), GWT.getModuleBaseURL());
+            }
+        } catch (RegexException ex) {
+        } finally {
+            re = null;
+            rr = null;
+        }
+        return mediaURL;
+    }
+
+    /**
+     * The constructor
+     *
+     * @param mediaURL the URL of the media to playback
+     * @param autoplay {@code true} to autoplay, {@code false} otherwise
+     * @param height the height of the player (in CSS units)
+     * @param width the width of the player (in CSS units)
+     */
     protected PlayerWrapper(String mediaURL, boolean autoplay, String height, String width) {
         Widget player = null;
         try {
-            mediaURL = mediaURL.toLowerCase();
-            if (mediaURL.contains(GWT_HOST_URL_ID)) {
-                mediaURL = mediaURL.replaceAll(GWT_HOST_URL_ID, GWT.getHostPageBaseURL());
-            }
-            if (mediaURL.contains(GWT_MODULE_URL_ID)) {
-                mediaURL = mediaURL.replaceAll(GWT_MODULE_URL_ID, GWT.getModuleBaseURL());
-            }
+            mediaURL = resolveMediaURL(mediaURL);
 
             _engine = initPlayerEngine(mediaURL, autoplay, height, width);
             _engine.addDebugHandler(new DebugHandler() {
@@ -67,10 +128,29 @@ public abstract class PlayerWrapper<T extends AbstractMediaPlayer> extends Abstr
         initWidget(player);
     }
 
+    /**
+     * Returns the underlying player implementation
+     *
+     * @return the underlying player
+     */
     public T getEngine() {
         return _engine;
     }
 
+    /**
+     * Called by the constructor to create the player implementation wrapped by this widget
+     *
+     * @param mediaURL the resolved URL of the media to playback
+     * @param autoplay {@code true} to autoplay, {@code false} otherwise
+     * @param height the height of the player (in CSS units)
+     * @param width the width of the player (in CSS units)
+     *
+     * @return the player implementation
+     *
+     * @throws LoadException if an error occurs while loading the media.
+     * @throws PluginNotFoundException if the required plugin is not installed on the client.
+     * @throws PluginVersionException if the required plugin version is not installed on the client.
+     */
     protected abstract T initPlayerEngine(String mediaURL, boolean autoplay, String height, String width)
             throws LoadException, PluginNotFoundException, PluginVersionException;
 

@@ -21,6 +21,8 @@ import com.bramosystems.oss.player.core.client.geom.TransformationMatrix;
 import com.bramosystems.oss.player.core.client.geom.MatrixSupport;
 import com.bramosystems.oss.player.core.client.impl.FMPStateManager;
 import com.bramosystems.oss.player.core.client.impl.FlashMediaPlayerImpl;
+import com.bramosystems.oss.player.core.client.impl.BeforeUnloadCallback;
+import com.bramosystems.oss.player.core.client.impl.PlayerWidget;
 import com.bramosystems.oss.player.core.client.skin.CustomPlayerControl;
 import com.bramosystems.oss.player.core.event.client.DebugEvent;
 import com.bramosystems.oss.player.core.event.client.DebugHandler;
@@ -31,6 +33,7 @@ import com.bramosystems.oss.player.core.event.client.PlayerStateHandler;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.user.client.Command;
+import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.ui.*;
 import java.util.ArrayList;
 
@@ -73,6 +76,7 @@ import java.util.ArrayList;
  * @author Sikirulai Braheem
  * @since 1.0
  */
+// TODO: check up set/getRate ...
 public class FlashMediaPlayer extends AbstractMediaPlayer implements PlaylistSupport, MatrixSupport {
 
     private static FMPStateManager manager = new FMPStateManager();
@@ -83,8 +87,7 @@ public class FlashMediaPlayer extends AbstractMediaPlayer implements PlaylistSup
     private Logger logger;
     private CustomPlayerControl control;
     private ArrayList<String> _playlistCache;
-    private DockPanel panel;
-    private SWFWidget swf;
+    private PlayerWidget swf;
     private String _height, _width;
 
     /**
@@ -110,11 +113,17 @@ public class FlashMediaPlayer extends AbstractMediaPlayer implements PlaylistSup
      */
     public FlashMediaPlayer(final String mediaURL, final boolean autoplay, String height, String width)
             throws PluginNotFoundException, PluginVersionException, LoadException {
+        PluginVersion req = Plugin.FlashPlayer.getVersion();
+        PluginVersion v = PlayerUtil.getFlashPlayerVersion();
+        if (v.compareTo(req) < 0) {
+            throw new PluginVersionException(req.toString(), v.toString());
+        }
 
         _playlistCache = new ArrayList<String>();
         _height = height;
         _width = width;
         resizeToVideoSize = false;
+        playerId = DOM.createUniqueId().replace("-", "");
 
         isEmbedded = (height == null) || (width == null);
         if (isEmbedded) {
@@ -124,12 +133,18 @@ public class FlashMediaPlayer extends AbstractMediaPlayer implements PlaylistSup
 
         // inject bst-flash-player version via maven resources filter...
         String playerAppFile = "bst-flash-player-${version}.swf";
-        swf = new SWFWidget(GWT.getModuleBaseURL() + playerAppFile,
-                "100%", "100%", Plugin.FlashPlayer.getVersion());
-        playerId = swf.getId();
-        swf.addProperty("flashVars", "playerId=" + playerId);
-        swf.addProperty("allowScriptAccess", "sameDomain");
-        swf.addProperty("bgcolor", "#000000");
+
+        swf = new PlayerWidget(Plugin.FlashPlayer, playerId, GWT.getModuleBaseURL() + playerAppFile,
+                autoplay, new BeforeUnloadCallback() {
+
+            public void onBeforeUnload() {
+                impl.closeMedia();
+                manager.closeMedia(playerId);
+            }
+        });
+        swf.addParam("flashVars", "playerId=" + playerId);
+        swf.addParam("allowScriptAccess", "sameDomain");
+        swf.addParam("bgcolor", "#000000");
 
         manager.init(playerId, this, new Command() {
 
@@ -144,14 +159,16 @@ public class FlashMediaPlayer extends AbstractMediaPlayer implements PlaylistSup
                 }
             }
         });
-        panel = new DockPanel();
-        panel.setStyleName("");
-        panel.setWidth("100%");
+        FlowPanel panel = new FlowPanel();
+        panel.add(swf);
 
         if (!isEmbedded) {
+            control = new CustomPlayerControl(this);
+            panel.add(control);
+
             logger = new Logger();
             logger.setVisible(false);
-            panel.add(logger, DockPanel.SOUTH);
+            panel.add(logger);
 
             addDebugHandler(new DebugHandler() {
 
@@ -171,15 +188,9 @@ public class FlashMediaPlayer extends AbstractMediaPlayer implements PlaylistSup
                     logger.log(event.getMediaInfo().asHTMLString(), true);
                 }
             });
-            control = new CustomPlayerControl(this);
-            panel.add(control, DockPanel.SOUTH);
         }
 
-        panel.add(swf, DockPanel.CENTER);
-        panel.setCellHeight(swf, _height);
-        panel.setCellWidth(swf, _width);
         initWidget(panel);
-        setWidth(_width);
     }
 
     /**
@@ -241,7 +252,7 @@ public class FlashMediaPlayer extends AbstractMediaPlayer implements PlaylistSup
             }
         }
 
-        panel.setCellHeight(swf, _h);
+        swf.setSize(_w, _h);
         setWidth(_w);
 
         if (!_height.equals(_h) && !_width.equals(_w)) {
@@ -251,7 +262,7 @@ public class FlashMediaPlayer extends AbstractMediaPlayer implements PlaylistSup
 
     private void checkAvailable() {
         if (!isPlayerOnPage(playerId)) {
-            String message = "Player closed already, create another instance";
+            String message = "Player not available, create an instance";
             fireDebug(message);
             throw new IllegalStateException(message);
         }
@@ -261,9 +272,10 @@ public class FlashMediaPlayer extends AbstractMediaPlayer implements PlaylistSup
      * Overriden to release associated resources
      */
     @Override
-    protected void onUnload() {
-        impl.closeMedia();
-        manager.closeMedia(playerId);
+    protected void onLoad() {
+        swf.setSize(_width, _height);
+        swf.setVisible(true);
+        setWidth(_width);
     }
 
     /**
@@ -529,11 +541,32 @@ public class FlashMediaPlayer extends AbstractMediaPlayer implements PlaylistSup
         switch (param) {
             case TransparencyMode:
                 if (value != null) {
-                    swf.addProperty("wmode", ((TransparencyMode) value).name().toLowerCase());
+                    swf.addParam("wmode", ((TransparencyMode) value).name().toLowerCase());
                 } else {
-                    swf.addProperty("wmode", null);
+                    swf.addParam("wmode", null);
                 }
         }
     }
+
+    @Override
+    public void setRate(final double rate) {
+        if (isPlayerOnPage(playerId)) {
+//            impl.setRate(rate);
+        } else {
+            addToPlayerReadyCommandQueue("rate", new Command() {
+
+                public void execute() {
+//                    impl.setRate(rate);
+                }
+            });
+        }
+    }
+
+    @Override
+    public double getRate() {
+        checkAvailable();
+        return 0;//impl.getRate();
+    }
+
 }
 

@@ -22,7 +22,7 @@ import com.bramosystems.oss.player.core.event.client.DebugHandler;
 import com.bramosystems.oss.player.core.client.skin.*;
 import com.bramosystems.oss.player.core.client.*;
 import com.bramosystems.oss.player.core.client.ui.*;
-import com.google.gwt.user.client.ui.DockPanel;
+import com.google.gwt.user.client.ui.FlowPanel;
 
 /**
  * Custom video player implementation using CustomPlayerControl
@@ -83,11 +83,9 @@ public class FlatVideoPlayer extends CustomVideoPlayer {
         logger = new Logger();
         logger.setVisible(false);
 
-        DockPanel vp = new DockPanel();
-        vp.setSpacing(0);
-        vp.setWidth("100%");
-        vp.add(logger, DockPanel.SOUTH);
-        vp.add(new CustomPlayerControl(this), DockPanel.SOUTH);
+        FlowPanel vp = new FlowPanel();
+        vp.add(new CustomPlayerControl(this));
+        vp.add(logger);
 
         setPlayerControlWidget(vp);
         addDebugHandler(new DebugHandler() {
@@ -139,6 +137,6 @@ public class FlatVideoPlayer extends CustomVideoPlayer {
 
     @Override
     protected void onVideoDimensionChanged(int width, int height) {
-        setSize(width + "px", height + "px");
+        setSize(width + "px", (height + 20) + "px");
     }
 }

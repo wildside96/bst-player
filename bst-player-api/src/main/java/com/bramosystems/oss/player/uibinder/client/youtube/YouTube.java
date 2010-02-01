@@ -18,47 +18,52 @@ package com.bramosystems.oss.player.uibinder.client.youtube;
 import com.bramosystems.oss.player.core.client.PluginNotFoundException;
 import com.bramosystems.oss.player.core.client.PluginVersionException;
 import com.bramosystems.oss.player.uibinder.client.PlayerWrapper;
+import com.bramosystems.oss.player.youtube.client.PlayerParameters;
 import com.bramosystems.oss.player.youtube.client.YouTubePlayer;
 import com.google.gwt.uibinder.client.UiConstructor;
 
 /**
- * Widget to embed YouTube video
+ * Wrapper class for {@link com.bramosystems.oss.player.youtube.client.YouTubePlayer}
+ * providing UiBinder support.
  *
  * <h3>Usage Example</h3>
  *
  * <p>
  * <code><pre>
- * SimplePanel panel = new SimplePanel();   // create panel to hold the player
- * Widget player = null;
- * try {
- *      // create the player
- *      player = new YouTube("http://www.youtube.com/v/VIDEO_ID&fs=1", "100%", "350px");
- * } catch(PluginVersionException e) {
- *      // catch plugin version exception and alert user to download plugin first.
- *      // An option is to use the utility method in PlayerUtil class.
- *      player = PlayerUtil.getMissingPluginNotice(e.getPlugin());
- * } catch(PluginNotFoundException e) {
- *      // catch PluginNotFoundException and tell user to download plugin, possibly providing
- *      // a link to the plugin download page.
- *      player = new HTML(".. another kind of message telling the user to download plugin..");
- * }
- *
- * panel.setWidget(player); // add player to panel.
+ * &lt;ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
+ *      xmlns:g='urn:import:com.google.gwt.user.client.ui'
+ *      xmlns:player='urn:import:com.bramosystems.oss.player.uibinder.client.youtube'&gt;
+ *         ...
+ *         &lt;player:YouTube autoplay='true' height='250px' width='100%'
+ *                 videoURL='www.youtube.com/v/video-id' /&gt;
+ *         ...
+ * &lt;/ui:UiBinder&gt;
  * </pre></code>
  *
- * @author Sikirulai Braheem <sbraheem at bramosystems dot com>
+ * @author Sikiru Braheem <sbraheem at bramosystems . com>
  * @since 1.1
  */
 public class YouTube extends PlayerWrapper<YouTubePlayer> {
 
+    /**
+     * The constructor
+     *
+     * @param videoURL the URL of the video to playback
+     * @param autoplay {@code true} to autoplay, {@code false} otherwise
+     * @param height the height of the player (in CSS units)
+     * @param width the width of the player (in CSS units)
+     */
     @UiConstructor
-    public YouTube(String videoURL, String width, String height) {
-        super(videoURL, false, height, width);
+    public YouTube(String videoURL, boolean autoplay, String width, String height) {
+        super(videoURL, autoplay, height, width);
     }
 
     @Override
     protected YouTubePlayer initPlayerEngine(String mediaURL, boolean autoplay, String height, String width)
             throws PluginNotFoundException, PluginVersionException {
-        return new YouTubePlayer(mediaURL, width, height);
+        PlayerParameters pp = new PlayerParameters();
+        pp.setAutoplay(autoplay);
+
+        return new YouTubePlayer(mediaURL, pp, width, height);
     }
 }

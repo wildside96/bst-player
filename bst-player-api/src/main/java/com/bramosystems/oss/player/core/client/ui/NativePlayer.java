@@ -21,23 +21,21 @@ import com.bramosystems.oss.player.core.client.MediaInfo;
 import com.bramosystems.oss.player.core.client.MediaInfo.MediaInfoKey;
 import com.bramosystems.oss.player.core.client.PlayException;
 import com.bramosystems.oss.player.core.client.PlayerUtil;
+import com.bramosystems.oss.player.core.client.Plugin;
 import com.bramosystems.oss.player.core.client.PluginNotFoundException;
 import com.bramosystems.oss.player.core.client.impl.NativePlayerImpl;
-import com.bramosystems.oss.player.core.client.impl.NativePlayerProperties;
+import com.bramosystems.oss.player.core.client.impl.NativePlayerUtil;
+import com.bramosystems.oss.player.core.client.impl.PlayerWidget;
 import com.bramosystems.oss.player.core.event.client.DebugEvent;
 import com.bramosystems.oss.player.core.event.client.DebugHandler;
 import com.bramosystems.oss.player.core.event.client.MediaInfoEvent;
 import com.bramosystems.oss.player.core.event.client.MediaInfoHandler;
 import com.bramosystems.oss.player.core.event.client.PlayStateEvent;
 import com.bramosystems.oss.player.core.event.client.PlayerStateEvent;
-import com.google.gwt.dom.client.Document;
-import com.google.gwt.dom.client.Element;
-import com.google.gwt.event.dom.client.*;
 import com.google.gwt.i18n.client.NumberFormat;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.ui.FlowPanel;
-import com.google.gwt.user.client.ui.Widget;
 import java.util.ArrayList;
 
 /**
@@ -65,13 +63,12 @@ import java.util.ArrayList;
  *
  * @author Sikirulai Braheem <sbraheem at bramosystems dot com>
  */
-public class NativePlayer extends AbstractMediaPlayer implements HasMouseDownHandlers,
-        HasMouseMoveHandlers, HasMouseUpHandlers, HasKeyDownHandlers, HasKeyUpHandlers, HasKeyPressHandlers {
+public class NativePlayer extends AbstractMediaPlayer {
 
     private NumberFormat volFmt = NumberFormat.getPercentFormat();
     private NativePlayerImpl impl;
     private String playerId, _height, _width;
-    private Widget playerWidget;
+    private PlayerWidget playerWidget;
     private boolean adjustToVideoSize, isEmbedded;
     private Logger logger;
 
@@ -86,7 +83,6 @@ public class NativePlayer extends AbstractMediaPlayer implements HasMouseDownHan
 
     private void _init(String width, String height) {
         FlowPanel panel = new FlowPanel();
-        panel.setSize("100%", "100%");
         panel.add(playerWidget);
         initWidget(panel);
 
@@ -121,9 +117,6 @@ public class NativePlayer extends AbstractMediaPlayer implements HasMouseDownHan
                 }
             });
         }
-
-        playerWidget.setHeight(_height);
-        setWidth(_width);
     }
 
     /**
@@ -138,7 +131,7 @@ public class NativePlayer extends AbstractMediaPlayer implements HasMouseDownHan
      * @throws PluginNotFoundException if browser does not support the HTML 5 specification.
      */
     public NativePlayer(String mediaURL) throws LoadException, PluginNotFoundException {
-        this(mediaURL, true, NativePlayerProperties.get().getPlayerHeight(), "100%");
+        this(mediaURL, true, NativePlayerUtil.get().getPlayerHeight(), "100%");
     }
 
     /**
@@ -155,7 +148,7 @@ public class NativePlayer extends AbstractMediaPlayer implements HasMouseDownHan
      */
     public NativePlayer(String mediaURL, boolean autoplay)
             throws LoadException, PluginNotFoundException {
-        this(mediaURL, autoplay, NativePlayerProperties.get().getPlayerHeight(), "100%");
+        this(mediaURL, autoplay, NativePlayerUtil.get().getPlayerHeight(), "100%");
     }
 
     // TODO: if player does not support URL throw LoadException...
@@ -177,7 +170,7 @@ public class NativePlayer extends AbstractMediaPlayer implements HasMouseDownHan
     public NativePlayer(String mediaURL, boolean autoplay, String height, String width)
             throws LoadException, PluginNotFoundException {
         this();
-        playerWidget = new NativeWidget(playerId, mediaURL, autoplay);
+        playerWidget = new PlayerWidget(Plugin.Native, playerId, mediaURL, autoplay, null);
         _init(width, height);
     }
 
@@ -202,7 +195,7 @@ public class NativePlayer extends AbstractMediaPlayer implements HasMouseDownHan
     public NativePlayer(ArrayList<String> mediaSources, boolean autoplay, String height, String width)
             throws LoadException, PluginNotFoundException {
         this();
-        playerWidget = new NativeWidget(playerId, mediaSources, autoplay);
+        playerWidget = new PlayerWidget(Plugin.Native, playerId, mediaSources, autoplay, null);
         _init(width, height);
     }
 
@@ -211,6 +204,10 @@ public class NativePlayer extends AbstractMediaPlayer implements HasMouseDownHan
      */
     @Override
     protected void onLoad() {
+        playerWidget.setSize(_width, _height);
+        playerWidget.setVisible(true);
+        setWidth(_width);
+        
         impl = NativePlayerImpl.getPlayer(playerId);
         impl.registerMediaStateHandlers(this);
         fireDebug("Browsers' Native Player");
@@ -370,8 +367,8 @@ public class NativePlayer extends AbstractMediaPlayer implements HasMouseDownHan
             }
         }
 
+        playerWidget.setSize(_w, _h);
         setWidth(_w);
-        playerWidget.setHeight(_h);
 
         if (!_height.equals(_h) && !_width.equals(_w)) {
             firePlayerStateEvent(PlayerStateEvent.State.DimensionChangedOnVideo);
@@ -385,9 +382,29 @@ public class NativePlayer extends AbstractMediaPlayer implements HasMouseDownHan
         }
     }
 
+    @Override
+    public void setRate(final double rate) {
+        if (isPlayerOnPage(playerId)) {
+            impl.setRate(rate);
+        } else {
+            addToPlayerReadyCommandQueue("rate", new Command() {
+
+                public void execute() {
+                    impl.setRate(rate);
+                }
+            });
+        }
+    }
+
+    @Override
+    public double getRate() {
+        checkAvailable();
+        return impl.getRate();
+    }
+
     private void checkAvailable() {
         if (!isPlayerOnPage(playerId)) {
-            String message = "Player not available";
+            String message = "Player not available, create an instance";
             fireDebug(message);
             throw new IllegalStateException(message);
         }
@@ -484,36 +501,5 @@ public class NativePlayer extends AbstractMediaPlayer implements HasMouseDownHan
     private enum ReadyState {
 
         HaveNothing, HaveMetadata, CurrentData, FutureData, EnoughData
-    }
-
-    private class NativeWidget extends Widget {
-
-        private Document _doc = Document.get();
-        private Element e = _doc.createElement("video");
-
-        public NativeWidget(String playerId, String mediaURL, boolean autoplay) {
-            e.setId(playerId);
-            e.setPropertyString("src", mediaURL);
-            e.setPropertyBoolean("autoplay", autoplay);
-            e.setPropertyBoolean("controls", true);
-            setElement(e);
-            setHeight("100%");
-            setWidth("100%");
-        }
-
-        public NativeWidget(String playerId, ArrayList<String> sources, boolean autoplay) {
-            e.setId(playerId);
-            e.setPropertyBoolean("autoplay", autoplay);
-            e.setPropertyBoolean("controls", true);
-
-            for (String item : sources) {
-                Element s = _doc.createElement("source");
-                s.setAttribute("src", item);
-                e.appendChild(s);
-            }
-            setElement(e);
-            setHeight("100%");
-            setWidth("100%");
-        }
     }
 }

@@ -17,7 +17,8 @@ package com.bramosystems.oss.player.core.client.ui;
 
 import com.bramosystems.oss.player.core.client.*;
 import com.bramosystems.oss.player.core.client.MediaInfo.MediaInfoKey;
-import com.bramosystems.oss.player.core.client.impl.PlayerWidgetFactory;
+import com.bramosystems.oss.player.core.client.impl.BeforeUnloadCallback;
+import com.bramosystems.oss.player.core.client.impl.PlayerWidget;
 import com.bramosystems.oss.player.core.client.impl.WMPStateManager;
 import com.bramosystems.oss.player.core.client.impl.WinMediaPlayerImpl;
 import com.bramosystems.oss.player.core.event.client.DebugEvent;
@@ -28,9 +29,7 @@ import com.bramosystems.oss.player.core.event.client.PlayerStateEvent.State;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.DOM;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
-import java.util.HashMap;
 
 /**
  * Widget to embed Windows Media Player&trade; plugin.
@@ -66,13 +65,11 @@ public class WinMediaPlayer extends AbstractMediaPlayer {
 
     private static WMPStateManager stateManager;
     private WinMediaPlayerImpl impl;
-    private Widget playerWidget;
+    private PlayerWidget playerWidget;
     private String playerId, mediaURL, _width, _height;
     private Logger logger;
     private boolean isEmbedded, autoplay, resizeToVideoSize;
-    private SimplePanel playerPanel;
     private UIMode uiMode;
-    private HashMap<String, String> params;
 
     private WinMediaPlayer() throws PluginNotFoundException, PluginVersionException {
         PluginVersion req = Plugin.WinMediaPlayer.getVersion();
@@ -87,7 +84,6 @@ public class WinMediaPlayer extends AbstractMediaPlayer {
 
         playerId = DOM.createUniqueId().replace("-", "");
         resizeToVideoSize = false;
-        params = new HashMap<String, String>();
     }
 
     /**
@@ -123,10 +119,17 @@ public class WinMediaPlayer extends AbstractMediaPlayer {
         _width = width;
 
         FlowPanel panel = new FlowPanel();
-        panel.setWidth("100%");
-        playerPanel = new SimplePanel();
-        panel.add(playerPanel);
         initWidget(panel);
+
+        playerWidget = new PlayerWidget(Plugin.WinMediaPlayer, playerId, mediaURL, autoplay,
+                new BeforeUnloadCallback() {
+
+                    public void onBeforeUnload() {
+                        stateManager.close(playerId);
+                        impl.close();
+                    }
+                });
+        panel.add(playerWidget);
 
         if (!isEmbedded) {
             logger = new Logger();
@@ -136,12 +139,7 @@ public class WinMediaPlayer extends AbstractMediaPlayer {
             addDebugHandler(new DebugHandler() {
 
                 public void onDebug(DebugEvent event) {
-                    switch (event.getMessageType()) {
-                        case Error:
-                            Window.alert(event.getMessage());
-                        case Info:
-                            logger.log(event.getMessage(), false);
-                    }
+                    logger.log(event.getMessage(), false);
                 }
             });
             addMediaInfoHandler(new MediaInfoHandler() {
@@ -161,9 +159,6 @@ public class WinMediaPlayer extends AbstractMediaPlayer {
             _height = "0px";
             setConfigParameter(ConfigParameter.WMPUIMode, UIMode.INVISIBLE);
         }
-
-        playerPanel.setHeight(_height);
-        setWidth(_width);
     }
 
     /**
@@ -211,10 +206,7 @@ public class WinMediaPlayer extends AbstractMediaPlayer {
      * @param isResizing
      */
     private void setupPlayer(final boolean isResizing) {
-        playerWidget = PlayerWidgetFactory.get().getPlayerWidget(Plugin.WinMediaPlayer,
-                playerId, mediaURL, isResizing ? true : autoplay, params);
-        playerWidget.setSize(_width, _height);
-        playerPanel.setWidget(playerWidget);
+//        setWidth(_width);
         impl = WinMediaPlayerImpl.getPlayer(playerId);
         stateManager.init(impl, WinMediaPlayer.this, isResizing);
         stateManager.registerMediaStateHandlers(impl);
@@ -228,15 +220,16 @@ public class WinMediaPlayer extends AbstractMediaPlayer {
      */
     @Override
     protected final void onLoad() {
-        setupPlayer(false);
-    }
+        playerWidget.setSize(_width, _height);
+        playerWidget.setVisible(true);
+        setWidth(_width);
 
-    /**
-     * Overridden to remove player from browsers' DOM.
-     */
-    @Override
-    protected void onUnload() {
-        close();
+        impl = WinMediaPlayerImpl.getPlayer(playerId);
+        stateManager.init(impl, WinMediaPlayer.this, false);
+        stateManager.registerMediaStateHandlers(impl);
+        if (uiMode != null) {
+            setUIMode(uiMode);
+        }
     }
 
     public void loadMedia(String mediaURL) throws LoadException {
@@ -265,7 +258,6 @@ public class WinMediaPlayer extends AbstractMediaPlayer {
      */
     @Override
     public void close() {
-        checkAvailable();
         stateManager.close(playerId);
         impl.close();
     }
@@ -303,7 +295,7 @@ public class WinMediaPlayer extends AbstractMediaPlayer {
 
     private void checkAvailable() {
         if (!isAvailable()) {
-            String message = "Player closed already, create another instance";
+            String message = "Player not available, create an instance";
             fireDebug(message);
             throw new IllegalStateException(message);
         }
@@ -406,13 +398,13 @@ public class WinMediaPlayer extends AbstractMediaPlayer {
             }
         }
 
+        playerWidget.setSize(_w, _h);
         setWidth(_w);
-        playerWidget.setHeight(_h);
 
         if (!_height.equals(_h) && !_width.equals(_w)) {
-            if (stateManager.shouldRunResizeQuickFix()) {
-                setupPlayer(true);
-            }
+//            if (stateManager.shouldRunResizeQuickFix()) {
+//                setupPlayer(true);
+//            }
             firePlayerStateEvent(State.DimensionChangedOnVideo);
         }
     }
@@ -492,7 +484,7 @@ public class WinMediaPlayer extends AbstractMediaPlayer {
             return UIMode.valueOf(impl.getUIMode().toUpperCase());
         } catch (Exception e) {
             // Chrome 3 UIMode workaround ...
-            String wm = params.get("uimode");
+            String wm = playerWidget.getParam("uimode");
             if (wm != null) {
                 return UIMode.valueOf(wm.toUpperCase());
             } else {
@@ -508,17 +500,37 @@ public class WinMediaPlayer extends AbstractMediaPlayer {
             switch (param) {
                 case WMPUIMode:
                     if (isEmbedded) {
-                        params.put("uimode", UIMode.INVISIBLE.name().toLowerCase());
+                        playerWidget.addParam("uimode", UIMode.INVISIBLE.name().toLowerCase());
                         return;
                     }
 
                     if (value != null) {
-                        params.put("uimode", ((UIMode) value).name().toLowerCase());
+                        playerWidget.addParam("uimode", ((UIMode) value).name().toLowerCase());
                     } else {
-                        params.remove("uimode");
+                        playerWidget.removeParam("uimode");
                     }
             }
         }
+    }
+
+    @Override
+    public void setRate(final double rate) {
+        if (isPlayerOnPage(playerId)) {
+            impl.setRate(rate);
+        } else {
+            addToPlayerReadyCommandQueue("rate", new Command() {
+
+                public void execute() {
+                    impl.setRate(rate);
+                }
+            });
+        }
+    }
+
+    @Override
+    public double getRate() {
+        checkAvailable();
+        return impl.getRate();
     }
 
     /**

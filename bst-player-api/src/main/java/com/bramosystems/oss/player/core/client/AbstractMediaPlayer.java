@@ -466,7 +466,7 @@ public abstract class AbstractMediaPlayer extends Composite implements HasMediaS
      * @param param the configuration parameter
      * @param value the parameter value
      * @param <T> the paramter value type
-     * @throws IllegalArgumentException if value is not of the required type
+     * @throws IllegalArgumentException if {@code value} is not of the required type
      * @since 1.1
      */
     public <T extends ConfigValue> void setConfigParameter(ConfigParameter param, T value) {
@@ -476,26 +476,92 @@ public abstract class AbstractMediaPlayer extends Composite implements HasMediaS
         }
     }
 
+    /**
+     * Sets the playback rate.
+     *
+     * <p>If this player is not available on the panel, this method call is added to the
+     * command-queue for later execution.
+     *
+     * @param rate the playback rate. A rate of 1 implies normal playback rate,
+     * fractional values are slow motion, and values greater than one are fast-forward
+     * @since 1.1
+     */
+    public void setRate(double rate) {
+    }
+
+    /**
+     * Returns the current playback rate
+     *
+     * @return the playback rate
+     * @see #setRate(double)
+     * @since 1.1
+     */
+    public double getRate() {
+        return 0;
+    }
+
+    /**
+     * Adds the mouse move handler to the player
+     *
+     * @param handler the handler
+     * @return the HandlerRegistration used to remove the handler
+     * @since 1.1
+     */
     public HandlerRegistration addMouseMoveHandler(MouseMoveHandler handler) {
         return addDomHandler(handler, MouseMoveEvent.getType());
     }
 
+    /**
+     * Adds the mouse down handler to the player
+     *
+     * @param handler the handler
+     * @return the HandlerRegistration used to remove the handler
+     * @since 1.1
+     */
     public HandlerRegistration addMouseDownHandler(MouseDownHandler handler) {
         return addDomHandler(handler, MouseDownEvent.getType());
     }
 
+    /**
+     * Adds the mouse up handler to the player
+     *
+     * @param handler the handler
+     * @return the HandlerRegistration used to remove the handler
+     * @since 1.1
+     */
     public HandlerRegistration addMouseUpHandler(MouseUpHandler handler) {
         return addDomHandler(handler, MouseUpEvent.getType());
     }
 
+    /**
+     * Adds the key down handler to the player
+     *
+     * @param handler the handler
+     * @return the HandlerRegistration used to remove the handler
+     * @since 1.1
+     */
     public HandlerRegistration addKeyDownHandler(KeyDownHandler handler) {
         return addDomHandler(handler, KeyDownEvent.getType());
     }
 
+    /**
+     * Adds the key up handler to the player
+     *
+     * @param handler the handler
+     * @return the HandlerRegistration used to remove the handler
+     * @since 1.1
+     */
     public HandlerRegistration addKeyUpHandler(KeyUpHandler handler) {
         return addDomHandler(handler, KeyUpEvent.getType());
     }
 
+    /**
+     * Adds the key press handler to the player
+     *
+     * @param handler the handler
+     * @return the HandlerRegistration used to remove the handler
+     * @since 1.1
+     */
     public HandlerRegistration addKeyPressHandler(KeyPressHandler handler) {
         return addDomHandler(handler, KeyPressEvent.getType());
     }
