@@ -114,10 +114,10 @@ public class WMPShowcase extends AbstractCase {
                         wmp1, ResourceBundle.bundle.wmpLogger());
                 break;
             case wmpVideo:
+//                String url = "http://bst-player.googlecode.com/svn/tags/showcase/media/islamic-jihad.wmv";
+                String url = GWT.getHostPageBaseURL() + "media/islamic-jihad.wmv";
                 try {
-                    WinMediaPlayer p = new WinMediaPlayer("http://bst-player.googlecode.com/svn/"
-                            + "tags/showcase/media/islamic-jihad.wmv",
-                            false, "350px", "100%");
+                    WinMediaPlayer p = new WinMediaPlayer(url, false, "350px", "100%");
                     p.showLogger(true);
                     wmp = p;
                 } catch (LoadException ex) {
@@ -131,10 +131,9 @@ public class WMPShowcase extends AbstractCase {
                         wmp, ResourceBundle.bundle.wmpVideo());
 
                 try {
-                    WinMediaPlayer p = new WinMediaPlayer("http://bst-player.googlecode.com/svn/"
-                            + "tags/showcase/media/islamic-jihad.wmv",
-                            false, "350px", "100%");
+                    WinMediaPlayer p = new WinMediaPlayer(url, false, "350px", "100%");
                     p.setResizeToVideoSize(true);
+                    p.showLogger(true);
                     wmp1 = p;
                 } catch (LoadException ex) {
                     Window.alert("Load exp");

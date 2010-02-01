@@ -23,6 +23,8 @@ import com.bramosystems.oss.player.core.client.PluginNotFoundException;
 import com.bramosystems.oss.player.core.client.PluginVersionException;
 import com.bramosystems.oss.player.core.client.skin.CustomPlayerControl;
 import com.bramosystems.oss.player.common.client.Links;
+import com.bramosystems.oss.player.core.client.PluginVersion;
+import com.bramosystems.oss.player.core.client.ui.SWFWidget;
 import com.bramosystems.oss.player.resources.sources.ResourceBundle;
 import com.bramosystems.oss.player.youtube.client.ChromelessPlayer;
 import com.bramosystems.oss.player.youtube.client.PlayerParameters;
@@ -65,6 +67,20 @@ public class MiscShowcase extends AbstractCase {
                 }
                 addCase("Playing with any supported plugin", null, w,
                         ResourceBundle.bundle.miscBasic());
+                break;
+            case miscFlash:
+                try {
+                    SWFWidget swf = new SWFWidget("http://www.youtube.com/v/IqnWs_j5MbM",
+                            "100%", "350px", PluginVersion.get(9, 0, 0));
+                    swf.addProperty("bgcolor", "#000000");
+                    w = swf;
+                } catch (PluginVersionException ex) {
+                    w = PlayerUtil.getMissingPluginNotice(Plugin.Auto);
+                } catch (PluginNotFoundException ex) {
+                    w = PlayerUtil.getMissingPluginNotice(Plugin.Auto);
+                }
+                addCase("Embed a generic Flash application", "YouTube Video (Asa - 'No one knows')", w,
+                        ResourceBundle.bundle.miscFlash());
                 break;
             case ytubeBasic:
                 try {

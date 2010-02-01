@@ -32,8 +32,8 @@ public enum MenuEntry {
     dyn("Custom Audio Player", Links.dynWmp, Links.dynSwf, Links.dynQt, Links.dynVlc, Links.dynNtv, Links.dynAuto),
     dynvd("Custom Video Player", Links.dynvdWmp, Links.dynvdSwf, Links.dynvdQt, Links.dynvdVlc, Links.dynvdNtv, Links.dynvdAuto),
     matrix("Matrix Transformation", Links.matrixBasic),
-    youtube("YouTube Videos", Links.ytubeBasic, Links.ytubeChrome),
-    misc("Miscellaneous Examples", Links.miscBasic);
+    ytube("YouTube Videos", Links.ytubeBasic, Links.ytubeChrome),
+    misc("Miscellaneous Examples", Links.miscBasic, Links.miscFlash);
     private String desc;
     private Links[] links;
 

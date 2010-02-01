@@ -4,6 +4,7 @@
             <actionName>CUSTOM-hosted mode</actionName>
             <displayName>hosted mode</displayName>
             <goals>
+                <goal>clean</goal>
                 <goal>gwt:run</goal>
             </goals>
         </action>

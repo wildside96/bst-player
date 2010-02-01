@@ -30,8 +30,6 @@ import com.google.gwt.event.dom.client.KeyPressEvent;
 import com.google.gwt.event.dom.client.KeyPressHandler;
 import com.google.gwt.event.dom.client.KeyUpEvent;
 import com.google.gwt.event.dom.client.KeyUpHandler;
-import com.google.gwt.event.dom.client.MouseMoveEvent;
-import com.google.gwt.event.dom.client.MouseMoveHandler;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
 
@@ -103,14 +101,6 @@ public class SWFShowcase extends AbstractCase {
                             false, "350px", "100%");
                     mmp.setResizeToVideoSize(true);
                     mmp.showLogger(true);
-                    mmp.addMouseMoveHandler(new MouseMoveHandler() {
-
-                        public void onMouseMove(MouseMoveEvent event) {
-                            lbl.setText("x:y = " + event.getX() + ":" + event.getY() +
-                                    ", cx:cy = " + event.getClientX() + ":" + event.getClientY() +
-                                    ", sx:xy = " + event.getScreenX() + ":" + event.getScreenY());
-                        }
-                    });
                     mmp.addKeyDownHandler(new KeyDownHandler() {
 
                         public void onKeyDown(KeyDownEvent event) {

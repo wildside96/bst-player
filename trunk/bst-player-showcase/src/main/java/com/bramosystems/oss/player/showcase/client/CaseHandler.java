@@ -80,6 +80,7 @@ public class CaseHandler extends Composite implements ValueChangeHandler<String>
                 c = DynaVideoShowcase.instance;
                 break;
             case miscBasic:
+            case miscFlash:
             case ytubeBasic:
             case ytubeChrome:
                 c = MiscShowcase.instance;

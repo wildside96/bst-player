@@ -86,7 +86,9 @@ public class ViewFactory {
         matrixBasic(null),
         ytubeBasic((UiBinder<Widget, TemplateFactory>) GWT.create(YTubeBasic.class)),
         ytubeChrome((UiBinder<Widget, TemplateFactory>) GWT.create(YTubeChrome.class)),
-        miscBasic((UiBinder<Widget, TemplateFactory>) GWT.create(MiscBasic.class));
+        miscBasic((UiBinder<Widget, TemplateFactory>) GWT.create(MiscBasic.class)),
+        miscFlash((UiBinder<Widget, TemplateFactory>) GWT.create(MiscFlash.class));
+
         private Widget view;
 
         private Views(UiBinder<Widget, TemplateFactory> view) {
