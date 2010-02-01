@@ -9,10 +9,15 @@
             <item name="Getting Started" href="getting-started.html" />
             <item name="Release Notes" href="release-note.html" />
             <item name="Migration Guide" href="migration.html" />
+            <item name="UiBinder Support" href="ui-binder.html" />
+            <item name="Javascript Support" href="javascript-support.html" />
             <item name="Download" href="http://code.google.com/p/bst-player/downloads/list" />
             <item name="Forum" href="http://groups.google.com/group/bst-player" />
             <item name="Issues" href="http://code.google.com/p/bst-player/issues/" />
-            <!--item name="Wikis" href="http://code.google.com/p/bst-player/w/list" /-->
+        </menu>
+        <menu name="Custom Players">
+            <item name="Create your own player" href="custom-player.html" />
+            <item name="Export to Javascript" href="script-exporter.html" />
         </menu>
         <menu name="Demo Application">
             <item name="BST Player Showcase" href="demo/showcase/index.html" />

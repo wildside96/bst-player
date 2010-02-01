@@ -112,9 +112,10 @@
     </dependencyManagement>
 
     <modules>
-        <module>bst-player-api</module>
-        <module>bst-player-showcase</module>
         <module>bst-flash-player</module>
+        <module>bst-player-api</module>
+        <module>bst-player-js</module>
+        <module>bst-player-showcase</module>
     </modules>
 
     <reporting>
