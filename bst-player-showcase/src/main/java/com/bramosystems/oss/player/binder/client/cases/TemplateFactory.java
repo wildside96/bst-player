@@ -108,6 +108,9 @@ public class TemplateFactory {
     @UiTemplate("misc-basic.ui.xml")
     public static interface MiscBasic extends UiBinder<Widget, TemplateFactory> {
     }
+    @UiTemplate("misc-flash.ui.xml")
+    public static interface MiscFlash extends UiBinder<Widget, TemplateFactory> {
+    }
 
     @UiTemplate("pll-swf.ui.xml")
     public static interface ListSwf extends UiBinder<Widget, TemplateFactory> {

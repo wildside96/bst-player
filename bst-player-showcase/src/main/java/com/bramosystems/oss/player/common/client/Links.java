@@ -61,18 +61,18 @@ public enum Links {
     listVlc("Playlists with VLC Media Player", ResourceBundle.bundle.pllVlc()),
     listAuto("Playlist with any suitable player", ResourceBundle.bundle.pllAuto()),
 
-    dynWmp("Custom controls with Windows Media Player plugin", ResourceBundle.bundle.audWmp()),
-    dynSwf("Custom controls with Flash plugin", ResourceBundle.bundle.audSwf()),
-    dynQt("Custom controls with QuickTime plugin", ResourceBundle.bundle.audQt()),
-    dynVlc("Custom controls with VLC Player Plugin", ResourceBundle.bundle.audVlc()),
-    dynNtv("Custom controls with HTML 5 media elements", ResourceBundle.bundle.audNtv()),
+    dynWmp("With Windows Media Player plugin", ResourceBundle.bundle.audWmp()),
+    dynSwf("With Flash plugin", ResourceBundle.bundle.audSwf()),
+    dynQt("With QuickTime plugin", ResourceBundle.bundle.audQt()),
+    dynVlc("With VLC Player Plugin", ResourceBundle.bundle.audVlc()),
+    dynNtv("With HTML 5 media elements", ResourceBundle.bundle.audNtv()),
     dynAuto("Plugin determined at runtime", ResourceBundle.bundle.audAuto()),
 
-    dynvdWmp("Custom controls with Windows Media Player plugin", ResourceBundle.bundle.vidWmp()),
-    dynvdSwf("Custom controls with Flash plugin", ResourceBundle.bundle.vidSwf()),
-    dynvdQt("Custom controls with QuickTime plugin", ResourceBundle.bundle.vidQt()),
-    dynvdVlc("Custom controls with VLC Media Player", ResourceBundle.bundle.vidVlc()),
-    dynvdNtv("Custom controls with HTML 5 media elements", ResourceBundle.bundle.vidNtv()),
+    dynvdWmp("With Windows Media Player plugin", ResourceBundle.bundle.vidWmp()),
+    dynvdSwf("With Flash plugin", ResourceBundle.bundle.vidSwf()),
+    dynvdQt("With QuickTime plugin", ResourceBundle.bundle.vidQt()),
+    dynvdVlc("With VLC Media Player", ResourceBundle.bundle.vidVlc()),
+    dynvdNtv("With HTML 5 media elements", ResourceBundle.bundle.vidNtv()),
     dynvdAuto("Plugin determined at runtime", ResourceBundle.bundle.vidAuto()),
 
     matrixBasic("Matrix Support", null),
@@ -80,7 +80,8 @@ public enum Links {
     ytubeBasic("Embed YouTube video", ResourceBundle.bundle.ytubeBasic()),
     ytubeChrome("Custom YouTube player", ResourceBundle.bundle.ytubeChrome()),
 
-    miscBasic("Just play my file!", ResourceBundle.bundle.miscBasic());
+    miscBasic("Just play my file!", ResourceBundle.bundle.miscBasic()),
+    miscFlash("Embed Adobe Flash", ResourceBundle.bundle.miscFlash());
 
     private ExternalTextResource source;
     private String title;

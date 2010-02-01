@@ -82,6 +82,8 @@ public interface ResourceBundle extends ClientBundle {
 
     @Source("misc-basic.html")
     public ExternalTextResource miscBasic();
+    @Source("misc-flash.html")
+    public ExternalTextResource miscFlash();
 
     @Source("ytube-basic.html")
     public ExternalTextResource ytubeBasic();

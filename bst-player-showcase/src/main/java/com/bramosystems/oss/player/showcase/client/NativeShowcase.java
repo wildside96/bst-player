@@ -23,8 +23,6 @@ import com.bramosystems.oss.player.core.client.ui.NativePlayer;
 import com.bramosystems.oss.player.common.client.Links;
 import com.bramosystems.oss.player.resources.sources.ResourceBundle;
 import com.google.gwt.core.client.GWT;
-import com.google.gwt.event.dom.client.MouseMoveEvent;
-import com.google.gwt.event.dom.client.MouseMoveHandler;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
 import java.util.ArrayList;
@@ -77,21 +75,9 @@ public class NativeShowcase extends AbstractCase {
                 items.add(new String(GWT.getHostPageBaseURL() + "media/big-buck-bunny.ogv"));
 
                 try {
-                    final Label lbl = new Label();
-
                     NativePlayer mmp = new NativePlayer(items, false, "350px", "100%");
                     mmp.showLogger(true);
-                    mmp.addMouseMoveHandler(new MouseMoveHandler() {
-
-                        public void onMouseMove(MouseMoveEvent event) {
-                            lbl.setText("X:Y = " + event.getX() + ":" + event.getY());
-                        }
-                    });
-                    VerticalPanel vp = new VerticalPanel();
-                    vp.setWidth("100%");
-                    vp.add(mmp);
-                    vp.add(lbl);
-                    mp = vp; //mmp;
+                    mp = mmp;
                 } catch (LoadException ex) {
                     Window.alert("Load exception");
                 } catch (PluginNotFoundException ex) {

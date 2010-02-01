@@ -3,7 +3,8 @@
         <pre>
 Widget mp = null;
 try {
-    FlashMediaPlayer p = new FlashMediaPlayer(GWT.getHostPageBaseURL() + "media/o-na-som.mp3", false);
+    FlashMediaPlayer p = new FlashMediaPlayer(GWT.getHostPageBaseURL() +
+        "media/o-na-som.mp3", false);
     <b>p.showLogger(true);</b>
     wmp = p;
 } catch (LoadException ex) {
