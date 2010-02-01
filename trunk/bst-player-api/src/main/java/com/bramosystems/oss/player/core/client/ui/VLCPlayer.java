@@ -23,9 +23,10 @@ import com.bramosystems.oss.player.core.event.client.MediaInfoHandler;
 import com.bramosystems.oss.player.core.event.client.DebugHandler;
 import com.bramosystems.oss.player.core.client.*;
 import com.bramosystems.oss.player.core.client.MediaInfo.MediaInfoKey;
-import com.bramosystems.oss.player.core.client.impl.PlayerWidgetFactory;
 import com.bramosystems.oss.player.core.client.impl.VLCPlayerImpl;
 import com.bramosystems.oss.player.core.client.impl.VLCStateManager;
+import com.bramosystems.oss.player.core.client.impl.BeforeUnloadCallback;
+import com.bramosystems.oss.player.core.client.impl.PlayerWidget;
 import com.bramosystems.oss.player.core.client.skin.CustomPlayerControl;
 import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.user.client.Command;
@@ -66,7 +67,7 @@ import java.util.ArrayList;
 public class VLCPlayer extends AbstractMediaPlayer implements PlaylistSupport {
 
     private VLCPlayerImpl impl;
-    private Widget playerWidget;
+    private PlayerWidget playerWidget;
     private VLCStateManager stateHandler;
     private String playerId, mediaUrl, _width, _height;
     private Logger logger;
@@ -74,7 +75,7 @@ public class VLCPlayer extends AbstractMediaPlayer implements PlaylistSupport {
     private HandlerRegistration initListHandler;
     private ArrayList<MRL> _playlistCache;
     private CustomPlayerControl control;
-    private DockPanel panel;
+//    private FlowPanel panel;
 
     VLCPlayer() throws PluginNotFoundException, PluginVersionException {
         PluginVersion req = Plugin.VLCPlayer.getVersion();
@@ -110,7 +111,7 @@ public class VLCPlayer extends AbstractMediaPlayer implements PlaylistSupport {
      * @throws PluginVersionException if the required VLCPlayer plugin version is not installed on the client.
      * @throws PluginNotFoundException if the VLCPlayer plugin is not installed on the client.
      */
-    public VLCPlayer(String mediaURL, boolean autoplay, String height, String width)
+    public VLCPlayer(String mediaURL, final boolean autoplay, String height, String width)
             throws LoadException, PluginVersionException, PluginNotFoundException {
         this();
 
@@ -119,20 +120,27 @@ public class VLCPlayer extends AbstractMediaPlayer implements PlaylistSupport {
         _height = height;
         _width = width;
 
-        panel = new DockPanel();
-        panel.setHorizontalAlignment(DockPanel.ALIGN_CENTER);
-        panel.setStyleName("");
-        panel.setWidth("100%");
+        FlowPanel panel = new FlowPanel();
         initWidget(panel);
+
+        playerWidget = new PlayerWidget(Plugin.VLCPlayer, playerId, mediaURL, autoplay,
+                new BeforeUnloadCallback() {
+
+                    public void onBeforeUnload() {
+                        stateHandler.close();
+                    }
+                });
+//        playerWidget.getElement().getStyle().setProperty("backgroundColor", "#000000");   // IE workaround
+        panel.add(playerWidget);
 
         isEmbedded = (height == null) || (width == null);
         if (!isEmbedded) {
+            control = new CustomPlayerControl(this);
+            panel.add(control);
+
             logger = new Logger();
             logger.setVisible(false);
-            panel.add(logger, DockPanel.SOUTH);
-
-            control = new CustomPlayerControl(this);
-            panel.add(control, DockPanel.SOUTH);
+            panel.add(logger);
 
             addDebugHandler(new DebugHandler() {
 
@@ -156,13 +164,6 @@ public class VLCPlayer extends AbstractMediaPlayer implements PlaylistSupport {
             _height = "0px";
             _width = "0px";
         }
-
-        playerWidget = PlayerWidgetFactory.get().getPlayerWidget(Plugin.VLCPlayer, playerId,
-                null, false, null);
-        panel.add(playerWidget, DockPanel.CENTER);
-        panel.setCellHeight(playerWidget, _height);
-        setWidth(_width);
-        DOM.setStyleAttribute(playerWidget.getElement(), "backgroundColor", "#000000");   // IE workaround
     }
 
     /**
@@ -203,9 +204,11 @@ public class VLCPlayer extends AbstractMediaPlayer implements PlaylistSupport {
      */
     @Override
     protected final void onLoad() {
-        fixIEStyle(_height);
-        impl = VLCPlayerImpl.getPlayer(playerId);
+        playerWidget.setSize(_width, _height);
+        playerWidget.setVisible(true);
+        setWidth(_width);
 
+        impl = VLCPlayerImpl.getPlayer(playerId);
         fireDebug("VLC Media Player plugin");
         fireDebug("Version : " + impl.getPluginVersion());
         stateHandler.start(this, impl);   // start state pooling ...
@@ -223,17 +226,6 @@ public class VLCPlayer extends AbstractMediaPlayer implements PlaylistSupport {
             } catch (PlayException ex) {
             }
         }
-    }
-
-    /**
-     * Subclasses that override this method should call <code>super.onUnload()</code>
-     * to ensure the player is properly removed from the browser's DOM.
-     *
-     * Overridden to remove player from browsers' DOM.
-     */
-    @Override
-    protected void onUnload() {
-        close();
     }
 
     public void loadMedia(String mediaURL) throws LoadException {
@@ -278,7 +270,6 @@ public class VLCPlayer extends AbstractMediaPlayer implements PlaylistSupport {
     @Override
     public void close() {
         stateHandler.close();
-        panel.remove(playerWidget);
     }
 
     public long getMediaDuration() {
@@ -309,7 +300,7 @@ public class VLCPlayer extends AbstractMediaPlayer implements PlaylistSupport {
 
     private void checkAvailable() {
         if (!isPlayerOnPage(playerId)) {
-            String message = "Player closed already, create another instance";
+            String message = "Player not available, create an instance";
             fireDebug(message);
             throw new IllegalStateException(message);
         }
@@ -456,18 +447,28 @@ public class VLCPlayer extends AbstractMediaPlayer implements PlaylistSupport {
         impl.toggleFullScreen();
     }
 
-    public void setRate(double rate) {
-        checkAvailable();
-        impl.setRate(rate);
+    @Override
+    public void setRate(final double rate) {
+        if (isPlayerOnPage(playerId)) {
+            impl.setRate(rate);
+        } else {
+            addToPlayerReadyCommandQueue("rate", new Command() {
+
+                public void execute() {
+                    impl.setRate(rate);
+                }
+            });
+        }
     }
 
+    @Override
     public double getRate() {
         checkAvailable();
         return impl.getRate();
     }
 
     /*
-     * TODO:// check up aspect ration later...
+     * TODO:// check up aspect ratio later...
     public AspectRatio getAspectRatio() {
     checkAvailable();
     if (impl.hasVideo(playerId)) {
@@ -516,18 +517,12 @@ public class VLCPlayer extends AbstractMediaPlayer implements PlaylistSupport {
             }
         }
 
+        playerWidget.setSize(_w, _h);
         setWidth(_w);
-        panel.setCellHeight(playerWidget, _h);
-        fixIEStyle(_h);
 
         if (!_height.equals(_h) && !_width.equals(_w)) {
             firePlayerStateEvent(PlayerStateEvent.State.DimensionChangedOnVideo);
         }
-    }
-
-    private void fixIEStyle(String _h) {
-        // IE workaround for style issues ...
-        DOM.setStyleAttribute(playerWidget.getElement(), "height", _h);
     }
 
     private class MRL {

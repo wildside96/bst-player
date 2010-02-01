@@ -59,14 +59,15 @@ public class MimePool {
         addPluginExtensions(Plugin.QuickTimePlayer, "wav,bwf,mid,midi,smf,au,snd,aiff,aif,aifc,"
                 + "cdda,ac3,caf,aac,adts,amr,amc,gsm,3gp,3gpp,3g2,3gp2,mp2,mp3,mp4,mov,"
                 + "qt,mqv,mpeg,mpg,m3u,sdv,m1s,m1a,m1v,mpm,mpv,mpa,m2a,m4a,m4p,m4b");
-        addPluginExtensions(Plugin.WinMediaPlayer, "asf,asx,wmv,wvx,wm,wma,wax,wav,mp3,mid,midi,smf,m3u");
+        addPluginExtensions(Plugin.WinMediaPlayer, "asf,aif,aifc,aiff,au,avi,mid,mpe,mpeg,mpg,mpv2,mp2,mp3," +
+                "m1v,snd,wav,wm,wma,wmv");
         addPluginExtensions(Plugin.FlashPlayer, "flv,f4v,m4a,mp4v,mp3,m3u"); // 3gp,3g2,mov,mp4
         addPluginExtensions(Plugin.VLCPlayer, "mp2,mp3,mpga,mpega,mpg,mpeg,mpe,vob,mp4,mpg4,avi,mov,"
                 + "qt,ogg,ogv,vlc,asf,asx,wmv,wav,3gp,3gpp,3g2,3gpp2,divx,flv,mkv,mka,xspf,m4a,m3u,wma");
 
         addPluginProtocols(Plugin.QuickTimePlayer, "rtsp,rts");
         addPluginProtocols(Plugin.VLCPlayer, "rtp,rtsp,mms,udp");
-        addPluginProtocols(Plugin.WinMediaPlayer, "mms");
+        addPluginProtocols(Plugin.WinMediaPlayer, "rtsp,rtspu,rtspt,mms,mmsu,mmst,wmpcd,wmpdvd");
     }
 
     /**

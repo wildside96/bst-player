@@ -109,6 +109,20 @@ public class WinMediaPlayerImpl extends JavaScriptObject {
     }
     }-*/;
 
+    public final native void setRate(double rate) /*-{
+    try {
+    this.settings.rate = rate;
+    } catch(e) {}
+    }-*/;
+
+    public final native double getRate() /*-{
+    try {
+    return this.settings.rate;
+    } catch(e) {
+    return 0;
+    }
+    }-*/;
+
     public final native String getPlayerVersion() /*-{
     return this.versionInfo;
     }-*/;

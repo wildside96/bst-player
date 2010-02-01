@@ -82,17 +82,9 @@ public class FMPStateManager {
         cache.get(playerId).onEvent(type, buttonDown, alt, ctrl, shift, cmd, stageX, stageY);
     }
 
-    private void onEvent(String playerId, int type, boolean buttonDown, boolean alt, boolean ctrl,
-            boolean shift, boolean cmd, int stageX, int stageY, int screenX, int screenY) {
-        cache.get(playerId).onEvent(type, buttonDown, alt, ctrl, shift, cmd, stageX, stageY, screenX, screenY);
-    }
-
     private native void initGlobalCallbacks(FMPStateManager impl) /*-{
     $wnd.bstSwfMdaEvent = function(playerId,type,buttonDown,alt,ctrl,shift,cmd,stageX_keyCode,stageY_charCode){
     impl.@com.bramosystems.oss.player.core.client.impl.FMPStateManager::onEvent(Ljava/lang/String;IZZZZZII)(playerId,type,buttonDown,alt,ctrl,shift,cmd,stageX_keyCode,stageY_charCode);
-    }
-    $wnd.bstSwfMdaEvent2 = function(playerId,type,buttonDown,alt,ctrl,shift,cmd,stageX_keyCode,stageY_charCode,screenX,screenY){
-    impl.@com.bramosystems.oss.player.core.client.impl.FMPStateManager::onEvent(Ljava/lang/String;IZZZZZIIII)(playerId,type,buttonDown,alt,ctrl,shift,cmd,stageX_keyCode,stageY_charCode,screenX,screenY);
     }
     $wnd.bstSwfMdaMediaStateChanged = function(playerId, state, listIndex){
     impl.@com.bramosystems.oss.player.core.client.impl.FMPStateManager::onState(Ljava/lang/String;II)(playerId, state, listIndex);
@@ -186,22 +178,9 @@ public class FMPStateManager {
 
         public void onEvent(int type, boolean buttonDown, boolean alt, boolean ctrl,
                 boolean shift, boolean cmd, int stageX_keyCode, int stageY_charCode) {
-            onEvent(type, buttonDown, alt, ctrl, shift, cmd, stageX_keyCode, stageY_charCode,
-//                    player.getAbsoluteLeft(), player.getAbsoluteTop());
-                    stageX_keyCode, stageY_charCode);
-        }
-
-        public void onEvent(int type, boolean buttonDown, boolean alt, boolean ctrl,
-                boolean shift, boolean cmd, int stageX_keyCode, int stageY_charCode,
-                int screenX, int screenY) {
-            String evt = "[Type] : " + type + ", buttonDown = " + buttonDown +
-                    ", alt = " + alt + ", ctrl = " + ctrl + ", shift = " + shift +
-                    ", cmd = " + cmd + ", stgX/KeyCd = " + stageX_keyCode +
-                    ", stgY/CharCd = " + stageY_charCode + ", screenX = " + screenX +
-                    ", screenY = " + screenY;
-//            onMessage(0, evt);
 
             int button = buttonDown ? NativeEvent.BUTTON_LEFT : NativeEvent.BUTTON_RIGHT;
+            int screenX = -1, screenY = -1;
 
             Document _doc = Document.get();
             NativeEvent event = null;

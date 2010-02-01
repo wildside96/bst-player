@@ -43,20 +43,9 @@ public class QTStateManagerIE extends QTStateManager {
 
     @Override
     public void registerMediaStateListener(QuickTimePlayerImpl impl, String mediaUrl) {
-//        Timer tt = new Timer() {
-
-//            @Override
-//            public void run() {
-//                QuickTimePlayerImpl impl = QuickTimePlayerImpl.getPlayer(playerId);
-//                if (impl != null) {
-//                    cancel();
-//                    impl.resetPropertiesOnReload(false);
-//                    registerMediaStateListenerImpl(QTStateManagerIE.this, impl);
-//                    impl.load(mediaUrl);
-//                }
-//            }
-//        };
-//        tt.scheduleRepeating(200);
+        impl.resetPropertiesOnReload(false);
+        registerMediaStateListenerImpl(this, impl);
+        impl.load(mediaUrl);
     }
 
     private native void registerMediaStateListenerImpl(QTStateManager impl, QuickTimePlayerImpl playr) /*-{

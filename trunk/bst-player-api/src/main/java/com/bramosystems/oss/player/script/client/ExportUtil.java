@@ -19,6 +19,7 @@ import com.bramosystems.oss.player.core.client.AbstractMediaPlayer;
 import com.bramosystems.oss.player.core.client.ConfigParameter;
 import com.bramosystems.oss.player.core.client.LoadException;
 import com.bramosystems.oss.player.core.client.PlayException;
+import com.bramosystems.oss.player.core.client.PlaylistSupport;
 import com.bramosystems.oss.player.core.client.Plugin;
 import com.bramosystems.oss.player.core.client.PluginNotFoundException;
 import com.bramosystems.oss.player.core.client.PluginVersionException;
@@ -29,8 +30,6 @@ import com.bramosystems.oss.player.core.event.client.DebugEvent;
 import com.bramosystems.oss.player.core.event.client.DebugHandler;
 import com.bramosystems.oss.player.core.event.client.LoadingProgressEvent;
 import com.bramosystems.oss.player.core.event.client.LoadingProgressHandler;
-import com.bramosystems.oss.player.core.event.client.MediaInfoEvent;
-import com.bramosystems.oss.player.core.event.client.MediaInfoHandler;
 import com.bramosystems.oss.player.core.event.client.PlayStateEvent;
 import com.bramosystems.oss.player.core.event.client.PlayStateHandler;
 import com.bramosystems.oss.player.core.event.client.PlayerStateEvent;
@@ -214,7 +213,13 @@ public class ExportUtil {
     }
     }-*/;
 
-    private static native void runCallback(JavaScriptObject _function, JavaScriptObject _event) /*-{
+    private static void runCallback(JavaScriptObject _function, JavaScriptObject _event) {
+        if (_function != null) {
+            runCallbackImpl(_function, _event);
+        }
+    }
+
+    private static native void runCallbackImpl(JavaScriptObject _function, JavaScriptObject _event) /*-{
     _function(_event);
     }-*/;
 
@@ -225,16 +230,14 @@ public class ExportUtil {
     private static native void putEventValue(JavaScriptObject _event, String param, double value) /*-{
     _event[param] = value;
     }-*/;
-
     private static final ExportProvider provider = GWT.create(ExportProvider.class);
 
-    private static class ScriptPlayer extends AbstractMediaPlayer {
+    private static class ScriptPlayer extends AbstractMediaPlayer implements PlaylistSupport {
 
         private enum EventName {
 
             onPlayerState, onPlayState, onLoadingProgress, onMediaInfo, onError, onDebug
         }
-
         private AbstractMediaPlayer player;
         private HashMap<EventName, JavaScriptObject> eventHandlers;
 
@@ -303,7 +306,7 @@ public class ExportUtil {
                         runCallback(eventHandlers.get(EventName.onLoadingProgress), evt);
                     }
                 });
-                player.addMediaInfoHandler(new MediaInfoHandler() {
+/*                player.addMediaInfoHandler(new MediaInfoHandler() {
 
                     public void onMediaInfoAvailable(MediaInfoEvent event) {
                         JavaScriptObject evt = JavaScriptObject.createObject();
@@ -311,6 +314,7 @@ public class ExportUtil {
                         runCallback(eventHandlers.get(EventName.onMediaInfo), evt);
                     }
                 });
+*/
             } catch (LoadException ex) {
             } catch (PluginNotFoundException ex) {
                 initWidget(provider.getMissingPluginWidget());
@@ -505,6 +509,99 @@ public class ExportUtil {
                 }
             } catch (Exception e) {
             }
+        }
+
+        public void setShuffleEnabled(boolean enable) {
+            if (player == null) {
+                return;
+            }
+
+            if (player instanceof PlaylistSupport) {
+                ((PlaylistSupport) player).setShuffleEnabled(enable);
+            }
+        }
+
+        public boolean isShuffleEnabled() {
+            if (player == null) {
+                return false;
+            }
+
+            if (player instanceof PlaylistSupport) {
+                return ((PlaylistSupport) player).isShuffleEnabled();
+            }
+            return false;
+        }
+
+        public void addToPlaylist(String mediaURL) {
+            if (player == null) {
+                return;
+            }
+
+            if (player instanceof PlaylistSupport) {
+                ((PlaylistSupport) player).addToPlaylist(mediaURL);
+            }
+        }
+
+        public void removeFromPlaylist(int index) {
+            if (player == null) {
+                return;
+            }
+
+            if (player instanceof PlaylistSupport) {
+                ((PlaylistSupport) player).removeFromPlaylist(index);
+            }
+        }
+
+        public void clearPlaylist() {
+            if (player == null) {
+                return;
+            }
+
+            if (player instanceof PlaylistSupport) {
+                ((PlaylistSupport) player).clearPlaylist();
+            }
+        }
+
+        public void playNext() throws PlayException {
+            if (player == null) {
+                return;
+            }
+
+            if (player instanceof PlaylistSupport) {
+                ((PlaylistSupport) player).playNext();
+            }
+        }
+
+        public void playPrevious() throws PlayException {
+            if (player == null) {
+                return;
+            }
+
+            if (player instanceof PlaylistSupport) {
+                ((PlaylistSupport) player).playPrevious();
+            }
+        }
+
+        public void play(int index) throws IndexOutOfBoundsException {
+            if (player == null) {
+                return;
+            }
+
+            if (player instanceof PlaylistSupport) {
+                ((PlaylistSupport) player).play(index);
+            }
+        }
+
+        public int getPlaylistSize() {
+            if (player == null) {
+                return 0;
+            }
+
+            if (player instanceof PlaylistSupport) {
+                return ((PlaylistSupport) player).getPlaylistSize();
+            }
+
+            return 0;
         }
     }
 

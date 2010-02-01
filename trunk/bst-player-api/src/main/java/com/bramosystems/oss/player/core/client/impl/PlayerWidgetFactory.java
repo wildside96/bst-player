@@ -22,7 +22,9 @@ import com.google.gwt.dom.client.Document;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.dom.client.ObjectElement;
 import com.google.gwt.dom.client.ParamElement;
+import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Widget;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 
@@ -30,15 +32,6 @@ public class PlayerWidgetFactory {
 
     private static PlayerWidgetFactory factory = GWT.create(PlayerWidgetFactory.class);
     private Document _doc = Document.get();
-
-    private class PlayerWidget extends Widget {
-
-        public PlayerWidget(Element playerElement) {
-            setElement(playerElement);
-            setHeight("100%");
-            setWidth("100%");
-        }
-    }
 
     protected class XObject {
 
@@ -66,7 +59,6 @@ public class PlayerWidgetFactory {
 
         public XEmbed(String id) {
             e.setId(id);
-//            addParam("name", id);
         }
 
         public final void addParam(String name, String value) {
@@ -86,16 +78,15 @@ public class PlayerWidgetFactory {
     }
 
     public Widget getSWFWidget(String playerId, String swfURL, HashMap<String, String> params) {
-        return new PlayerWidget(getSWFElement(playerId, swfURL, params));
+        return new PlayerWidget2(getSWFElement(playerId, swfURL, params), null);
     }
 
     public Widget getPlayerWidget(Plugin plugin, String playerId, String mediaURL,
-            boolean autoplay, HashMap<String, String> params) {
+            boolean autoplay, HashMap<String, String> params, BeforeUnloadCallback callback) {
         Element e = null;
         switch (plugin) {
             case FlashPlayer:
-                break;
-            case Native:
+                e = getSWFElement(playerId, mediaURL, params);
                 break;
             case QuickTimePlayer:
                 e = getQTElement(playerId, mediaURL, autoplay);
@@ -107,7 +98,7 @@ public class PlayerWidgetFactory {
                 e = getWMPElement(playerId, mediaURL, autoplay, params);
                 break;
         }
-        PlayerWidget pw = new PlayerWidget(e);
+        PlayerWidget2 pw = new PlayerWidget2(e, callback);
         return pw;
     }
 
@@ -163,17 +154,80 @@ public class PlayerWidgetFactory {
     }
 
     protected Element getSWFElement(String playerId, String swfURL, HashMap<String, String> params) {
-        Element e = Document.get().createElement("embed");
-        e.setId(playerId);
-        e.setAttribute("type", "application/x-shockwave-flash");
-        e.setAttribute("src", swfURL);
-        e.setAttribute("name", playerId);
+        XEmbed e = new XEmbed(playerId);
+        e.addParam("type", "application/x-shockwave-flash");
+        e.addParam("src", swfURL);
+        e.addParam("name", playerId);
 
         Iterator<String> keys = params.keySet().iterator();
         while (keys.hasNext()) {
             String name = keys.next();
-            e.setAttribute(name, params.get(name));
+            e.addParam(name, params.get(name));
         }
-        return e;
+        return e.getElement();
+    }
+
+    public Element getNativeElement(String playerId, String mediaURL, boolean autoplay) {
+        Element videoElement = _doc.createElement("video");
+        videoElement.setId(playerId);
+        videoElement.setPropertyString("src", mediaURL);
+        videoElement.setPropertyBoolean("autoplay", autoplay);
+        videoElement.setPropertyBoolean("controls", true);
+        return videoElement;
+    }
+
+    public Element getNativeElement(String playerId, ArrayList<String> sources, boolean autoplay) {
+        Element videoElement = _doc.createElement("video");
+        videoElement.setId(playerId);
+        videoElement.setPropertyBoolean("autoplay", autoplay);
+        videoElement.setPropertyBoolean("controls", true);
+
+        for (String item : sources) {
+            Element s = _doc.createElement("source");
+            s.setAttribute("src", item);
+            videoElement.appendChild(s);
+        }
+        return videoElement;
+    }
+
+//    public class PlayerWidget2 extends Widget {
+    private class PlayerWidget2 extends HTML {
+
+        private Element e;
+        private BeforeUnloadCallback callback;
+
+        public PlayerWidget2(Element playerElement, BeforeUnloadCallback callback) {
+//            setElement(playerElement);
+            setHTML(playerElement.getString());
+//            e = playerElement;
+            this.callback = callback;
+
+            setHeight("100%");
+            setWidth("100%");
+            setStyleName("");
+        }
+/*
+        @Override
+        protected void onLoad() {
+            Window.alert("Player Widget onload ...");
+            Timer t = new Timer() {
+
+                @Override
+                public void run() {
+                    if (callback != null) {
+                        callback.onInjected();
+                    }
+                }
+            };
+//            t.schedule(500);
+        }
+
+        @Override
+        protected void onUnload() {
+            if (callback != null) {
+                callback.onBeforeRemove();
+            }
+        }
+*/
     }
 }

@@ -152,9 +152,9 @@ public class WMPStateManager {
 
     public native void registerMediaStateHandlersImpl(WMPStateManager impl, WinMediaPlayerImpl player) /*-{
         // do nothing, provided for DOM event registration in IE.
-    player.onmousemove = function(evt) {
-    impl.@com.bramosystems.oss.player.core.client.impl.WMPStateManager::fireCMEvents(IIIDD)(3,evt.button,evt.ctrlKey,evt.clientX,evt.clientY);
-    }
+//    player.onmousemove = function(evt) {
+//    impl.@com.bramosystems.oss.player.core.client.impl.WMPStateManager::fireCMEvents(IIIDD)(3,evt.button,evt.ctrlKey,evt.clientX,evt.clientY);
+//    }
     }-*/;
 
     protected class StateManager {

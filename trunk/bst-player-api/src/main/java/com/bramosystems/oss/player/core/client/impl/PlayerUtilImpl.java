@@ -80,7 +80,6 @@ public class PlayerUtilImpl {
      * @param version wraps the detected version numbers.
      */
     public void getFlashPluginVersion(PluginVersion version) {
-        // TODO: find out about adobe flash versioning scheme
         MimeType mt = MimeType.getMimeType("application/x-shockwave-flash");  // get SWF mime type...
         if (mt != null) {   // plugin present
             try {

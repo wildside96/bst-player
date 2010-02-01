@@ -24,25 +24,25 @@ import com.google.gwt.core.client.GWT;
  * @author Sikirulai Braheem <sbraheem at bramosystems dot com>
  * @since 1.1
  */
-public class NativePlayerProperties {
+public class NativePlayerUtil {
 
-    private static NativePlayerProperties instance;
+    private static NativePlayerUtil instance;
 
-    public static NativePlayerProperties get() {
+    public static NativePlayerUtil get() {
         if (instance == null) {
-            instance = GWT.create(NativePlayerProperties.class);
+            instance = GWT.create(NativePlayerUtil.class);
         }
         return instance;
     }
 
-    private NativePlayerProperties() {
+    private NativePlayerUtil() {
     }
 
     public String getPlayerHeight() {
         return "20px";
     }
 
-    public static class NativePlayerPropertiesSafari extends NativePlayerProperties {
+    public static class NativePlayerPropertiesSafari extends NativePlayerUtil {
 
         @Override
         public String getPlayerHeight() {
@@ -55,7 +55,7 @@ public class NativePlayerProperties {
         private native boolean isChrome() /*-{
         try {
         return navigator.userAgent.toLowerCase().indexOf('chrome') > 0;
-        }catch(e){
+        }catch(videoElement){
         return false;
         }
         }-*/;

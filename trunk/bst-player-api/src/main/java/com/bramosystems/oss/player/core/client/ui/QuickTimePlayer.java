@@ -18,9 +18,10 @@ package com.bramosystems.oss.player.core.client.ui;
 import com.bramosystems.oss.player.core.client.geom.MatrixSupport;
 import com.bramosystems.oss.player.core.client.*;
 import com.bramosystems.oss.player.core.client.MediaInfo.MediaInfoKey;
-import com.bramosystems.oss.player.core.client.impl.PlayerWidgetFactory;
 import com.bramosystems.oss.player.core.client.impl.QTStateManager;
 import com.bramosystems.oss.player.core.client.impl.QuickTimePlayerImpl;
+import com.bramosystems.oss.player.core.client.impl.BeforeUnloadCallback;
+import com.bramosystems.oss.player.core.client.impl.PlayerWidget;
 import com.bramosystems.oss.player.core.event.client.DebugEvent;
 import com.bramosystems.oss.player.core.event.client.DebugHandler;
 import com.bramosystems.oss.player.core.event.client.MediaInfoEvent;
@@ -30,6 +31,7 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.i18n.client.NumberFormat;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.DOM;
+import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.ui.*;
 
 /**
@@ -62,16 +64,14 @@ import com.google.gwt.user.client.ui.*;
  *
  * @author Sikirulai Braheem
  */
-//TODO: fix sturborn pixel for custom players
 public class QuickTimePlayer extends AbstractMediaPlayer implements MatrixSupport {
 
     private static QTStateManager manager = GWT.create(QTStateManager.class);
     private static NumberFormat mxNf = NumberFormat.getFormat("#0.0###"); // fix QT Matrix precision issues
     private QuickTimePlayerImpl impl;
-    private Widget playerWidget;
+    private PlayerWidget playerWidget;
     private String playerId, mediaUrl;
     private Logger logger;
-    private FlowPanel panel;
     private boolean isEmbedded, resizeToVideoSize;
     private String _height, _width;
 
@@ -114,15 +114,17 @@ public class QuickTimePlayer extends AbstractMediaPlayer implements MatrixSuppor
         mediaUrl = mediaURL;
         manager.init(playerId, this);
 
-        panel = new FlowPanel();
-        panel.setWidth("100%");
-        panel.setStyleName("");
-
-        playerWidget = PlayerWidgetFactory.get().getPlayerWidget(Plugin.QuickTimePlayer, playerId,
-                mediaURL, autoplay, null);
-        panel.add(playerWidget);
-
+        FlowPanel panel = new FlowPanel();
         initWidget(panel);
+
+        playerWidget = new PlayerWidget(Plugin.QuickTimePlayer, playerId,
+                mediaURL, autoplay, new BeforeUnloadCallback() {
+
+            public void onBeforeUnload() {
+                manager.close(playerId);
+            }
+        });
+        panel.add(playerWidget);
 
         _height = height;
         _width = width;
@@ -154,8 +156,6 @@ public class QuickTimePlayer extends AbstractMediaPlayer implements MatrixSuppor
             _height = "0px";
             _width = "0px";
         }
-        playerWidget.setHeight(_height);
-        setWidth(_width);
     }
 
     /**
@@ -200,20 +200,22 @@ public class QuickTimePlayer extends AbstractMediaPlayer implements MatrixSuppor
      */
     @Override
     protected final void onLoad() {
-        impl = QuickTimePlayerImpl.getPlayer(playerId);
-        manager.registerMediaStateListener(impl, mediaUrl);
-    }
+        playerWidget.setSize(_width, _height);
+        playerWidget.setVisible(true);
+        setWidth(_width);
 
-    /**
-     * Subclasses that override this method should call <code>super.onUnload()</code>
-     * to ensure the player is properly removed from the browser's DOM.
-     *
-     * Overridden to remove player from browsers' DOM.
-     */
-    @Override
-    protected void onUnload() {
-        manager.close(playerId);
-        panel.remove(playerWidget);
+        Timer tt = new Timer() {
+
+            @Override
+            public void run() {
+                impl = QuickTimePlayerImpl.getPlayer(playerId);
+                if (impl != null) {
+                    cancel();
+                    manager.registerMediaStateListener(impl, mediaUrl);
+                }
+            }
+        };
+        tt.scheduleRepeating(200);  // IE workarround ...
     }
 
     public void loadMedia(String mediaURL) throws LoadException {
@@ -236,9 +238,12 @@ public class QuickTimePlayer extends AbstractMediaPlayer implements MatrixSuppor
         impl.pause();
     }
 
+    /**
+     * @deprecated As of version 1.1. Remove widget from panel instead.
+     */
     @Override
     public void close() {
-        onUnload();
+        manager.close(playerId);
     }
 
     public long getMediaDuration() {
@@ -268,7 +273,7 @@ public class QuickTimePlayer extends AbstractMediaPlayer implements MatrixSuppor
 
     private void checkAvailable() {
         if (!isPlayerOnPage(playerId)) {
-            String message = "Player closed already, create another instance";
+            String message = "Player not available, create an instance";
             fireDebug(message);
             throw new IllegalStateException(message);
         }
@@ -461,8 +466,8 @@ public class QuickTimePlayer extends AbstractMediaPlayer implements MatrixSuppor
             }
         }
 
+        playerWidget.setSize(_w, _h);
         setWidth(_w);
-        playerWidget.setHeight(_h);
 
         if (!_height.equals(_h) && !_width.equals(_w)) {
             firePlayerStateEvent(PlayerStateEvent.State.DimensionChangedOnVideo);
@@ -537,6 +542,26 @@ public class QuickTimePlayer extends AbstractMediaPlayer implements MatrixSuppor
             }
         }
         return new String(_temp, 0, count);
+    }
+
+    @Override
+    public void setRate(final double rate) {
+        if (isPlayerOnPage(playerId)) {
+            impl.setRate(rate);
+        } else {
+            addToPlayerReadyCommandQueue("rate", new Command() {
+
+                public void execute() {
+                    impl.setRate(rate);
+                }
+            });
+        }
+    }
+
+    @Override
+    public double getRate() {
+        checkAvailable();
+        return impl.getRate();
     }
 
     /**

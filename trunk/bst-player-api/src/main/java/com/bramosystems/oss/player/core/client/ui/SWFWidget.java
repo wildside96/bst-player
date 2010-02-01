@@ -20,10 +20,9 @@ import com.bramosystems.oss.player.core.client.PlayerUtil;
 import com.bramosystems.oss.player.core.client.PluginVersionException;
 import com.bramosystems.oss.player.core.client.PluginNotFoundException;
 import com.bramosystems.oss.player.core.client.Plugin;
-import com.bramosystems.oss.player.core.client.impl.PlayerWidgetFactory;
+import com.bramosystems.oss.player.core.client.impl.PlayerWidget;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.ui.*;
-import java.util.HashMap;
 
 /**
  * Widget to embed a generic Shockwave Flash application.
@@ -61,8 +60,7 @@ import java.util.HashMap;
 public class SWFWidget extends Composite {
 
     private String playerId,  swfURL,  height,  width;
-    private SimplePanel panel;
-    private HashMap<String, String> params;
+    private PlayerWidget widget;
 
     /**
      * Constructs <code>SWFWidget</code> with the specified {@code height} and
@@ -104,10 +102,9 @@ public class SWFWidget extends Composite {
         this.width = width;
         this.height = height;
         playerId = DOM.createUniqueId().replace("-", "");
-        params = new HashMap<String, String>();
 
-        panel = new SimplePanel();
-        initWidget(panel);
+        widget = new PlayerWidget(Plugin.FlashPlayer, playerId, swfURL, false, null);
+        initWidget(widget);
         setSize(width, height);
     }
 
@@ -136,17 +133,18 @@ public class SWFWidget extends Composite {
      */
     public void addProperty(String name, String value) {
         if (!isEmpty(name)) {
-            if (isEmpty(value) && params.containsKey(name)) {
-                params.remove(name);
+            if (isEmpty(value) && (widget.getParam(name) != null)) {
+                widget.removeParam(name);
             } else if (!isEmpty(value)) {
-                params.put(name, value);
+                widget.addParam(name, value);
             }
         }
     }
 
     @Override
     protected void onLoad() {
-        panel.setWidget(PlayerWidgetFactory.get().getSWFWidget(playerId, swfURL, params));
+        widget.setSize(width, height);
+        widget.setVisible(true);
     }
 
     private boolean isEmpty(String value) {

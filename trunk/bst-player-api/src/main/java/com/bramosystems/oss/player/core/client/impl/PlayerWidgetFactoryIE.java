@@ -15,10 +15,7 @@
  */
 package com.bramosystems.oss.player.core.client.impl;
 
-import com.bramosystems.oss.player.core.client.Plugin;
 import com.google.gwt.dom.client.Element;
-import com.google.gwt.user.client.DOM;
-import com.google.gwt.user.client.ui.Widget;
 import java.util.HashMap;
 import java.util.Iterator;
 
@@ -33,19 +30,6 @@ public class PlayerWidgetFactoryIE extends PlayerWidgetFactory {
     }
 
     PlayerWidgetFactoryIE() {
-    }
-
-    @Override
-    public Widget getPlayerWidget(Plugin plugin, String playerId, String mediaURL, boolean autoplay,
-            HashMap<String, String> params) {
-        Widget w = super.getPlayerWidget(plugin, playerId, mediaURL, autoplay, params);
-        switch (plugin) {
-            case QuickTimePlayer:
-                DOM.setStyleAttribute(w.getElement(), "behavior",
-                        "url(#" + QTStateManagerIE.behaviourObjId + ")");
-                break;
-        }
-        return w;
     }
 
     @Override
@@ -76,6 +60,7 @@ public class PlayerWidgetFactoryIE extends PlayerWidgetFactory {
     @Override
     protected Element getQTElement(String playerId, String mediaURL, boolean autoplay) {
         XObjectIE xo = new XObjectIE(playerId, "clsid:02BF25D5-8C17-4B23-BC80-D3488ABDDC6B");
+        xo.getElement().setAttribute("style", "behavior: url(#" + QTStateManagerIE.behaviourObjId + ")");
         xo.addParam("AutoPlay", Boolean.toString(autoplay));
         xo.addParam("Src", mediaURL);
         xo.addParam("BGCOLOR", "#000000");
