@@ -20,7 +20,6 @@
                 <artifactId>gwt-maven-plugin</artifactId>
                 <configuration>
                     <module>com.bramosystems.oss.player.jscript.Exporter</module>
-                    <soyc>false</soyc>
                 </configuration>
                 <executions>
                     <execution>
