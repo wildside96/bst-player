@@ -144,7 +144,6 @@ public class SWFWidget extends Composite {
     @Override
     protected void onLoad() {
         widget.setSize(width, height);
-        widget.setVisible(true);
     }
 
     private boolean isEmpty(String value) {

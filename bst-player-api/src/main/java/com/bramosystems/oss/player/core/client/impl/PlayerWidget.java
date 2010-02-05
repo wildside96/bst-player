@@ -47,6 +47,7 @@ public class PlayerWidget extends Widget {
         this.callback = callback;
         this.plugin = plugin;
         this.playerId = playerId;
+        this.autoplay = autoplay;
         this.mediaURL = mediaURL;
     }
 
@@ -57,6 +58,7 @@ public class PlayerWidget extends Widget {
         this.plugin = plugin;
         this.playerId = playerId;
         this.mediaURLs = mediaURL;
+        this.autoplay = autoplay;
         isMultiSource = true;
     }
 
@@ -74,31 +76,7 @@ public class PlayerWidget extends Widget {
 
     @Override
     protected void onLoad() {
-        Element e = DOM.createDiv();
-        PlayerWidgetFactory pf = PlayerWidgetFactory.get();
-        switch (plugin) {
-            case Native:
-                if (isMultiSource) {
-                    e = pf.getNativeElement(playerId, mediaURLs, autoplay);
-                } else {
-                    e = pf.getNativeElement(playerId, mediaURL, autoplay);
-                }
-                break;
-            case FlashPlayer:
-                e = pf.getSWFElement(playerId, mediaURL, params);
-                break;
-            case QuickTimePlayer:
-                e = pf.getQTElement(playerId, mediaURL, autoplay);
-                break;
-            case VLCPlayer:
-                e = pf.getVLCElement(playerId, "", false);
-                break;
-            case WinMediaPlayer:
-                e = pf.getWMPElement(playerId, mediaURL, autoplay, params);
-                break;
-        }
-        getElement().setInnerHTML(e.getString());
-        setVisible(false);
+        injectWidget(false);
     }
 
     @Override
@@ -126,5 +104,57 @@ public class PlayerWidget extends Widget {
             _e.getStyle().setProperty("width", width);
         }
         super.setWidth(width);
+    }
+
+    public void replace(Plugin plugin, String playerId, String mediaURL, boolean autoplay) {
+        this.plugin = plugin;
+        this.playerId = playerId;
+        this.autoplay = autoplay;
+        this.mediaURL = mediaURL;
+        injectWidget(true);
+    }
+
+    public void replace(Plugin plugin, String playerId, ArrayList<String> mediaURL, boolean autoplay) {
+        this.plugin = plugin;
+        this.playerId = playerId;
+        this.mediaURLs = mediaURL;
+        this.autoplay = autoplay;
+        isMultiSource = true;
+        injectWidget(true);
+    }
+
+    private void injectWidget(boolean updateDimension) {
+        Element e = DOM.createDiv();
+        PlayerWidgetFactory pf = PlayerWidgetFactory.get();
+        switch (plugin) {
+            case Native:
+                if (isMultiSource) {
+                    e = pf.getNativeElement(playerId, mediaURLs, autoplay);
+                } else {
+                    e = pf.getNativeElement(playerId, mediaURL, autoplay);
+                }
+                break;
+            case FlashPlayer:
+                e = pf.getSWFElement(playerId, mediaURL, params);
+                break;
+            case QuickTimePlayer:
+                e = pf.getQTElement(playerId, mediaURL, autoplay);
+                break;
+            case VLCPlayer:
+                e = pf.getVLCElement(playerId, "", false);
+                break;
+            case WinMediaPlayer:
+                e = pf.getWMPElement(playerId, mediaURL, autoplay, params);
+                break;
+        }
+        if(updateDimension) {
+            String curHeight = getElement().getFirstChildElement().getAttribute("height");
+            String curWidth = getElement().getFirstChildElement().getAttribute("width");
+            e.setAttribute("height", curHeight);
+            e.getStyle().setProperty("height", curHeight);
+            e.setAttribute("width", curWidth);
+            e.getStyle().setProperty("width", curWidth);
+        }
+        getElement().setInnerHTML(e.getString());
     }
 }

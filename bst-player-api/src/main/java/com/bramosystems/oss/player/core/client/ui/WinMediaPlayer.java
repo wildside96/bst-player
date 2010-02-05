@@ -68,8 +68,9 @@ public class WinMediaPlayer extends AbstractMediaPlayer {
     private PlayerWidget playerWidget;
     private String playerId, mediaURL, _width, _height;
     private Logger logger;
-    private boolean isEmbedded, autoplay, resizeToVideoSize;
+    private boolean isEmbedded, resizeToVideoSize;
     private UIMode uiMode;
+    private BeforeUnloadCallback unloadCallback;
 
     private WinMediaPlayer() throws PluginNotFoundException, PluginVersionException {
         PluginVersion req = Plugin.WinMediaPlayer.getVersion();
@@ -81,6 +82,14 @@ public class WinMediaPlayer extends AbstractMediaPlayer {
         if (stateManager == null) {
             stateManager = GWT.create(WMPStateManager.class);
         }
+
+        unloadCallback = new BeforeUnloadCallback() {
+
+            public void onBeforeUnload() {
+                stateManager.close(playerId);
+                impl.close();
+            }
+        };
 
         playerId = DOM.createUniqueId().replace("-", "");
         resizeToVideoSize = false;
@@ -111,7 +120,6 @@ public class WinMediaPlayer extends AbstractMediaPlayer {
             throws LoadException, PluginNotFoundException, PluginVersionException {
         this();
 
-        this.autoplay = autoplay;
         this.mediaURL = mediaURL;
         isEmbedded = (height == null) || (width == null);
 
@@ -121,14 +129,7 @@ public class WinMediaPlayer extends AbstractMediaPlayer {
         FlowPanel panel = new FlowPanel();
         initWidget(panel);
 
-        playerWidget = new PlayerWidget(Plugin.WinMediaPlayer, playerId, mediaURL, autoplay,
-                new BeforeUnloadCallback() {
-
-                    public void onBeforeUnload() {
-                        stateManager.close(playerId);
-                        impl.close();
-                    }
-                });
+        playerWidget = new PlayerWidget(Plugin.WinMediaPlayer, playerId, mediaURL, autoplay, unloadCallback);
         panel.add(playerWidget);
 
         if (!isEmbedded) {
@@ -149,7 +150,7 @@ public class WinMediaPlayer extends AbstractMediaPlayer {
                     MediaInfo info = event.getMediaInfo();
                     if (info.getAvailableItems().contains(MediaInfoKey.VideoHeight)
                             || info.getAvailableItems().contains(MediaInfoKey.VideoWidth)) {
-                        checkVideoSize(Integer.parseInt(info.getItem(MediaInfoKey.VideoHeight)) + 16,
+                        checkVideoSize(Integer.parseInt(info.getItem(MediaInfoKey.VideoHeight)) + 50,
                                 Integer.parseInt(info.getItem(MediaInfoKey.VideoWidth)));
                     }
                 }
@@ -198,15 +199,16 @@ public class WinMediaPlayer extends AbstractMediaPlayer {
     }
 
     /**
-     * TODO: look for more elegant solutions. This is rather dirty :-;
-     *
      * Quick resizing-fix for non-IE browsers. Method replaces player object
      * with another using video size of previously loaded media metadata.
      *
      * @param isResizing
      */
     private void setupPlayer(final boolean isResizing) {
-//        setWidth(_width);
+        if (isResizing) {
+            playerWidget.replace(Plugin.WinMediaPlayer, playerId, mediaURL, true);
+        }
+
         impl = WinMediaPlayerImpl.getPlayer(playerId);
         stateManager.init(impl, WinMediaPlayer.this, isResizing);
         stateManager.registerMediaStateHandlers(impl);
@@ -220,16 +222,11 @@ public class WinMediaPlayer extends AbstractMediaPlayer {
      */
     @Override
     protected final void onLoad() {
+        playerWidget.setVisible(false);
         playerWidget.setSize(_width, _height);
         playerWidget.setVisible(true);
         setWidth(_width);
-
-        impl = WinMediaPlayerImpl.getPlayer(playerId);
-        stateManager.init(impl, WinMediaPlayer.this, false);
-        stateManager.registerMediaStateHandlers(impl);
-        if (uiMode != null) {
-            setUIMode(uiMode);
-        }
+        setupPlayer(false);
     }
 
     public void loadMedia(String mediaURL) throws LoadException {
@@ -402,9 +399,9 @@ public class WinMediaPlayer extends AbstractMediaPlayer {
         setWidth(_w);
 
         if (!_height.equals(_h) && !_width.equals(_w)) {
-//            if (stateManager.shouldRunResizeQuickFix()) {
-//                setupPlayer(true);
-//            }
+            if (stateManager.shouldRunResizeQuickFix()) {
+                setupPlayer(true);
+            }
             firePlayerStateEvent(State.DimensionChangedOnVideo);
         }
     }

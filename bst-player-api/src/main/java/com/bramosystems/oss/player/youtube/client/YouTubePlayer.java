@@ -16,13 +16,16 @@
 package com.bramosystems.oss.player.youtube.client;
 
 import com.bramosystems.oss.player.core.client.AbstractMediaPlayer;
+import com.bramosystems.oss.player.core.client.ConfigParameter;
+import com.bramosystems.oss.player.core.client.ConfigValue;
 import com.bramosystems.oss.player.core.client.LoadException;
 import com.bramosystems.oss.player.core.client.PlayException;
+import com.bramosystems.oss.player.core.client.Plugin;
 import com.bramosystems.oss.player.core.client.PluginNotFoundException;
-import com.bramosystems.oss.player.core.client.PluginVersion;
 import com.bramosystems.oss.player.core.client.PluginVersionException;
+import com.bramosystems.oss.player.core.client.TransparencyMode;
+import com.bramosystems.oss.player.core.client.impl.PlayerWidget;
 import com.bramosystems.oss.player.core.client.ui.Logger;
-import com.bramosystems.oss.player.core.client.ui.SWFWidget;
 import com.bramosystems.oss.player.core.event.client.DebugEvent;
 import com.bramosystems.oss.player.core.event.client.DebugHandler;
 import com.bramosystems.oss.player.core.event.client.LoadingProgressEvent;
@@ -71,9 +74,10 @@ public class YouTubePlayer extends AbstractMediaPlayer {
 
     private static YouTubeEventManager eventMgr = new YouTubeEventManager();
     protected YouTubePlayerImpl impl;
-    protected String playerId, apiId;
+    protected String playerId, apiId, _width, _height;
     private Timer bufferingTimer;
     private Logger logger;
+    private PlayerWidget swf;
 
     /**
      * Constructs <code>YouTubePlayer</code> with the specified {@code height} and
@@ -121,16 +125,20 @@ public class YouTubePlayer extends AbstractMediaPlayer {
         if (videoURL == null) {
             throw new NullPointerException("videoURL cannot be null");
         }
-        apiId = "apiid_" + DOM.createUniqueId().replace("-", "");
 
-        SWFWidget swf = new SWFWidget(getNormalizedVideoAppURL(videoURL, playerParameters),
-                width, height, PluginVersion.get(8, 0, 0));
-        swf.addProperty("allowScriptAccess", "always");
-        swf.addProperty("bgcolor", "#000000");
+        apiId = "apiid_" + DOM.createUniqueId().replace("-", "");
+        _width = width;
+        _height = height;
+
+        playerId = DOM.createUniqueId().replace("-", "");
+        swf = new PlayerWidget(Plugin.FlashPlayer, playerId,
+                getNormalizedVideoAppURL(videoURL, playerParameters),
+                false, null);
+        swf.addParam("allowScriptAccess", "always");
+        swf.addParam("bgcolor", "#000000");
         if (playerParameters.isFullScreenEnabled()) {
-            swf.addProperty("allowFullScreen", "true");
+            swf.addParam("allowFullScreen", "true");
         }
-        playerId = swf.getId();
 
         logger = new Logger();
         logger.setVisible(false);
@@ -179,6 +187,11 @@ public class YouTubePlayer extends AbstractMediaPlayer {
                 }
             }
         });
+    }
+
+    @Override
+    protected void onLoad() {
+        swf.setSize(_width, _height);
     }
 
     /**
@@ -380,11 +393,6 @@ public class YouTubePlayer extends AbstractMediaPlayer {
         }
     }
 
-//    @Override
-//    protected void onUnload() {
-//        close();
-//    }
-
     /**
      * @deprecated As of version 1.1. Remove widget from panel instead.
      */
@@ -523,6 +531,19 @@ public class YouTubePlayer extends AbstractMediaPlayer {
      */
     public HandlerRegistration addPlaybackQualityChangeHandler(PlaybackQualityChangeHandler handler) {
         return addHandler(handler, PlaybackQualityChangeEvent.TYPE);
+    }
+
+    @Override
+    public <T extends ConfigValue> void setConfigParameter(ConfigParameter param, T value) {
+        super.setConfigParameter(param, value);
+        switch (param) {
+            case TransparencyMode:
+                if (value != null) {
+                    swf.addParam("wmode", ((TransparencyMode) value).name().toLowerCase());
+                } else {
+                    swf.addParam("wmode", null);
+                }
+        }
     }
 
     private void onYTStateChanged(int state) {

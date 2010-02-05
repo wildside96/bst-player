@@ -25,6 +25,7 @@ import com.bramosystems.oss.player.core.client.MediaInfo;
 import com.google.gwt.dom.client.Document;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.dom.client.NativeEvent;
+import com.google.gwt.event.dom.client.DomEvent;
 import com.google.gwt.user.client.Timer;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -122,9 +123,9 @@ public class WMPStateManager {
     $wnd.OnDSMouseUpEvt = function(nButton,nShiftState,fX,fY) {
     impl.@com.bramosystems.oss.player.core.client.impl.WMPStateManager::fireCMEvents(IIIDD)(2,nButton,nShiftState,fX,fY);
     }
-//    $wnd.OnDSMouseMoveEvt = function(nButton,nShiftState,fX,fY) {
-//    impl.@com.bramosystems.oss.player.core.client.impl.WMPStateManager::fireCMEvents(IIIDD)(3,nButton,nShiftState,fX,fY);
-//    }
+    $wnd.OnDSMouseMoveEvt = function(nButton,nShiftState,fX,fY) {
+    impl.@com.bramosystems.oss.player.core.client.impl.WMPStateManager::fireCMEvents(IIIDD)(3,nButton,nShiftState,fX,fY);
+    }
     $wnd.OnDSClickEvt = function(nButton,nShiftState,fX,fY) {
     impl.@com.bramosystems.oss.player.core.client.impl.WMPStateManager::fireCMEvents(IIIDD)(10,nButton,nShiftState,fX,fY);
     }
@@ -147,15 +148,7 @@ public class WMPStateManager {
 
     public void registerMediaStateHandlers(WinMediaPlayerImpl player) {
         // do nothing, provided for DOM event registration in IE.
-        registerMediaStateHandlersImpl(this, player);
     }
-
-    public native void registerMediaStateHandlersImpl(WMPStateManager impl, WinMediaPlayerImpl player) /*-{
-        // do nothing, provided for DOM event registration in IE.
-//    player.onmousemove = function(evt) {
-//    impl.@com.bramosystems.oss.player.core.client.impl.WMPStateManager::fireCMEvents(IIIDD)(3,evt.button,evt.ctrlKey,evt.clientX,evt.clientY);
-//    }
-    }-*/;
 
     protected class StateManager {
 
@@ -288,12 +281,6 @@ public class WMPStateManager {
             int screenX = -1; //e.getAbsoluteLeft() + (int) fX; // - e.getScrollLeft();
             int screenY = -1; //e.getAbsoluteTop() + (int) fY; // - e.getScrollTop();
 
-//            debug("[Click/Mouse Event] type : " + type + ", button : " + button + ", meta : " +  shiftState);
-//            debug("x:y = " + fX + ":" + fY + ", cx:cy = " + clientX + ":" + clientY +
-//                    ", al:at = " + e.getAbsoluteLeft() + ":" + e.getAbsoluteTop() +
-//                    ", bol:bot = " + e.getOwnerDocument().getBodyOffsetLeft() + ":" +
-//                    e.getOwnerDocument().getBodyOffsetTop());
-
             Document _doc = Document.get();
             NativeEvent event = null;
             switch (type) {
@@ -327,7 +314,7 @@ public class WMPStateManager {
                     event = _doc.createKeyPressEvent(ctrl, alt, shift, false, button, button);
                     break;
             }
-//            DomEvent.fireNativeEvent(event, handlers, e);
+            DomEvent.fireNativeEvent(event, handlers, e);
         }
     }
 }
