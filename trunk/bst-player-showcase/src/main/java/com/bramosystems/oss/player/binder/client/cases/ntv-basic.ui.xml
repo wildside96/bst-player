@@ -26,7 +26,7 @@
             Note: Some browsers do not support MP3 playback with the NativePlayer
         </g:HTML>
         <player:Native autoplay='true' height='25px' width='100%'
-            mediaURL='GWT-HOST::media/thunder.mp3' />
+            mediaURL='gwt-host::media/thunder.mp3' />
         <showcase:Sources name='ntiveBasic' />
     </g:VerticalPanel>
 </ui:UiBinder>

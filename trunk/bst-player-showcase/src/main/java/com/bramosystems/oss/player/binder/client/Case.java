@@ -17,11 +17,9 @@
 package com.bramosystems.oss.player.binder.client;
 
 import com.bramosystems.oss.player.common.client.Links;
-import com.google.gwt.core.client.GWT;
+import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
-import com.google.gwt.uibinder.client.UiBinder;
-import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.user.client.History;
 import com.google.gwt.user.client.ui.*;
 
@@ -31,18 +29,22 @@ import com.google.gwt.user.client.ui.*;
  */
 public class Case extends Composite implements ValueChangeHandler<String> {
 
-    interface CaseBinder extends UiBinder<Widget, Case> {
-    }
-    private static final CaseBinder binder = GWT.create(CaseBinder.class);
-    @UiField
-    Label caseHeader;
-    @UiField
-    ScrollPanel casePanel;
+    private Label caseHeader;
+    private ScrollPanel casePanel;
 
     public Case() {
-        Widget fl = binder.createAndBindUi(this);
-        initWidget(fl);
+        caseHeader = new Label();
+        caseHeader.setStyleName("case-header");
 
+        casePanel = new ScrollPanel();
+        casePanel.setStyleName("case-content");
+
+        DockLayoutPanel dp = new DockLayoutPanel(Unit.PX);
+        dp.setStyleName("content-wrapper");
+        dp.addNorth(caseHeader, 40);
+        dp.add(casePanel);
+
+        initWidget(dp);
         History.addValueChangeHandler(this);
     }
 

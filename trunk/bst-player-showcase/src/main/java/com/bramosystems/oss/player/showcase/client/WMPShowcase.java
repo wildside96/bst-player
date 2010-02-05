@@ -114,8 +114,7 @@ public class WMPShowcase extends AbstractCase {
                         wmp1, ResourceBundle.bundle.wmpLogger());
                 break;
             case wmpVideo:
-//                String url = "http://bst-player.googlecode.com/svn/tags/showcase/media/islamic-jihad.wmv";
-                String url = GWT.getHostPageBaseURL() + "media/islamic-jihad.wmv";
+                String url = "http://bst-player.googlecode.com/svn/tags/showcase/media/islamic-jihad.wmv";
                 try {
                     WinMediaPlayer p = new WinMediaPlayer(url, false, "350px", "100%");
                     p.showLogger(true);
