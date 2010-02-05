@@ -75,7 +75,6 @@ public class VLCPlayer extends AbstractMediaPlayer implements PlaylistSupport {
     private HandlerRegistration initListHandler;
     private ArrayList<MRL> _playlistCache;
     private CustomPlayerControl control;
-//    private FlowPanel panel;
 
     VLCPlayer() throws PluginNotFoundException, PluginVersionException {
         PluginVersion req = Plugin.VLCPlayer.getVersion();
@@ -205,7 +204,6 @@ public class VLCPlayer extends AbstractMediaPlayer implements PlaylistSupport {
     @Override
     protected final void onLoad() {
         playerWidget.setSize(_width, _height);
-        playerWidget.setVisible(true);
         setWidth(_width);
 
         impl = VLCPlayerImpl.getPlayer(playerId);
@@ -505,7 +503,7 @@ public class VLCPlayer extends AbstractMediaPlayer implements PlaylistSupport {
     private void checkVideoSize(int vidHeight, int vidWidth) {
         String _h = _height, _w = _width;
         if (vidHeight == 0) {
-            _h = "0px";
+//            _h = "0px";
         }
 
         if (resizeToVideoSize) {

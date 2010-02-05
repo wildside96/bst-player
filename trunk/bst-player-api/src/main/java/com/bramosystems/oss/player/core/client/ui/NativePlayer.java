@@ -205,7 +205,6 @@ public class NativePlayer extends AbstractMediaPlayer {
     @Override
     protected void onLoad() {
         playerWidget.setSize(_width, _height);
-        playerWidget.setVisible(true);
         setWidth(_width);
         
         impl = NativePlayerImpl.getPlayer(playerId);

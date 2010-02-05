@@ -157,7 +157,6 @@ public class MimePool {
 
     public static class MimePoolSafari extends MimePool {
 
-// TODO: verify native support b4 release ...
         @Override
         protected void initPools() {
             super.initPools();

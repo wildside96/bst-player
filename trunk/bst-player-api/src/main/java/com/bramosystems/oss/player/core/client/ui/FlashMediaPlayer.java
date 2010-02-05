@@ -76,7 +76,6 @@ import java.util.ArrayList;
  * @author Sikirulai Braheem
  * @since 1.0
  */
-// TODO: check up set/getRate ...
 public class FlashMediaPlayer extends AbstractMediaPlayer implements PlaylistSupport, MatrixSupport {
 
     private static FMPStateManager manager = new FMPStateManager();
@@ -274,7 +273,6 @@ public class FlashMediaPlayer extends AbstractMediaPlayer implements PlaylistSup
     @Override
     protected void onLoad() {
         swf.setSize(_width, _height);
-        swf.setVisible(true);
         setWidth(_width);
     }
 
@@ -547,7 +545,9 @@ public class FlashMediaPlayer extends AbstractMediaPlayer implements PlaylistSup
                 }
         }
     }
-
+/*
+ * Not available yet !
+ * 
     @Override
     public void setRate(final double rate) {
         if (isPlayerOnPage(playerId)) {
@@ -567,6 +567,6 @@ public class FlashMediaPlayer extends AbstractMediaPlayer implements PlaylistSup
         checkAvailable();
         return 0;//impl.getRate();
     }
-
+*/
 }
 

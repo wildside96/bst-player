@@ -123,7 +123,7 @@ public abstract class CustomVideoPlayer extends AbstractMediaPlayer implements P
         hp.add(container);
 
         super.initWidget(hp);
-        setSize(width, height);
+//        setSize(width, height);
     }
 
     /**
