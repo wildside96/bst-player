@@ -64,7 +64,6 @@ public class DynaVideoShowcase extends AbstractCase {
                             GWT.getHostPageBaseURL() + "media/traffic.flv",
                             false, "350px", "100%");
                     vp.showLogger(true);
-                    vp.setResizeToVideoSize(true);
                     v = vp;
                 } catch (LoadException ex) {
                     Window.alert("Load exp");
@@ -96,7 +95,7 @@ public class DynaVideoShowcase extends AbstractCase {
             case dynvdVlc:
                 try {
                     FlatVideoPlayer vp = new FlatVideoPlayer(Plugin.VLCPlayer,
-                            "http://streams.videolan.org/streams-videolan/vob/Starship_Troopers.vob",
+                            GWT.getHostPageBaseURL() + "media/big-buck-bunny.mp4",
                             false, "350px", "100%");
                     vp.showLogger(true);
                     v = vp;
