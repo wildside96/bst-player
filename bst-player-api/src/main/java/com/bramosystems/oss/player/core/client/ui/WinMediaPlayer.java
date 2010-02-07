@@ -155,9 +155,10 @@ public class WinMediaPlayer extends AbstractMediaPlayer {
                     }
                 }
             });
+            setUIMode(UIMode.FULL);
         } else {
-            _width = "0px";
-            _height = "0px";
+            _width = "1px";
+            _height = "1px";
             setConfigParameter(ConfigParameter.WMPUIMode, UIMode.INVISIBLE);
         }
     }
