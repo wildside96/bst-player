@@ -73,7 +73,6 @@ public abstract class CustomVideoPlayer extends AbstractMediaPlayer implements P
         }
 
         engine = PlayerUtil.getPlayer(playerPlugin, mediaURL, autoplay, height, "100%");
-        engine.setConfigParameter(ConfigParameter.WMPUIMode, WinMediaPlayer.UIMode.INVISIBLE);
         engine.addDebugHandler(new DebugHandler() {
 
             public void onDebug(DebugEvent event) {
@@ -112,6 +111,7 @@ public abstract class CustomVideoPlayer extends AbstractMediaPlayer implements P
             }
         });
 
+        engine.setConfigParameter(ConfigParameter.WMPUIMode, WinMediaPlayer.UIMode.NONE);
         engine.setControllerVisible(false);
         engine.showLogger(false);
 
@@ -123,7 +123,7 @@ public abstract class CustomVideoPlayer extends AbstractMediaPlayer implements P
         hp.add(container);
 
         super.initWidget(hp);
-//        setSize(width, height);
+        setWidth(width);
     }
 
     /**

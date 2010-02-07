@@ -21,8 +21,9 @@
                 </script>
             </div>
             <p>
-                The API makes Windows Media Player, QuickTime player, Flash player and VLC Media Player
-                plugins available in GWT applications like other GWT widgets.
+                The API makes Windows Media Player, QuickTime player, Flash player, VLC Media Player
+                plugins, HTML 5 video elements and YouTube videos available in GWT applications
+                like other GWT widgets.
             </p>
             <p>
                 The API feature sets of classes and interfaces that presents a consistent means of

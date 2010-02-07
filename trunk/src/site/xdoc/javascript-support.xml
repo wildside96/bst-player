@@ -47,7 +47,8 @@
                 </p>
 
                 <source>
-&lt;script type="text/javascript" src="folder-name/bst_player_js/bst_player_js.nocache.js"&gt;&lt;/script&gt;</source>
+&lt;script type="text/javascript" src="folder-name/bst_player_js/bst_player_js.nocache.js"&gt;
+&lt;/script&gt;</source>
             </subsection>
 
             <subsection name="Create the widgets HTML container elements">
@@ -158,7 +159,7 @@
                         <td>QuickTime plugin</td>
                     </tr>
                     <tr>
-                        <td>FlashMediaPlayer</td>
+                        <td>FlashPlayer</td>
                         <td>Adobe Flash plugin for playing Flash supported file formats</td>
                     </tr>
                     <tr>
@@ -501,7 +502,7 @@
                       player.inject('_pid');
                   }
                 </script>
-                <script type="text/javascript" src="bst_player_js/bst_player_js.nocache.js"></script>
+                <script type="text/javascript" src="demo/bst-player-js/bst_player_js/bst_player_js.nocache.js"></script>
 
                 <div align="center" style="width:350px;margin:20px;border:silver 1px solid;padding:5px">
                     <div id="_pid"></div>

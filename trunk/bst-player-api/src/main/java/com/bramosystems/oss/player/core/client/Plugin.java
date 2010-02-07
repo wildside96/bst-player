@@ -44,11 +44,6 @@ public enum Plugin {
     Native("", 0,0,0),
 
     /**
-     * Specifies the Window Media Player&trade; plugin
-     */
-    WinMediaPlayer("http://www.microsoft.com/windowsmedia", 1, 1, 1),
-
-    /**
      * Specifies the QuickTime&trade; Player plugin
      */
     QuickTimePlayer("http://www.apple.com/quicktime/download", 7, 2, 1),
@@ -57,6 +52,11 @@ public enum Plugin {
      * Specifies the Flash Player plugin
      */
     FlashPlayer("http://www.adobe.com/go/getflash", 9, 0, 0),
+
+    /**
+     * Specifies the Window Media Player&trade; plugin
+     */
+    WinMediaPlayer("http://www.microsoft.com/windowsmedia", 1, 1, 1),
 
     /**
      * Specifies the VLC Media Player plugin
