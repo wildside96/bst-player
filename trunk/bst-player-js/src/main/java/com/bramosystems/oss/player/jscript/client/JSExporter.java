@@ -16,7 +16,6 @@
 package com.bramosystems.oss.player.jscript.client;
 
 import com.bramosystems.oss.player.script.client.ExportUtil;
-import com.bramosystems.oss.player.script.client.ExportUtil;
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.user.client.ui.Composite;
 
