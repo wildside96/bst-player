@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<document xmlns="http://maven.apache.org/XDOC/2.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/XDOC/2.0 http://maven.apache.org/xsd/xdoc-2.0.xsd">
+    <head>
+        <meta name="description" content="Information about released packages" />
+    </head>
+
+    <properties>
+        <title>Release Note</title>
+    </properties>
+    
+    <body>
+        <section name="Release Notes">
+            <p>
+                This page contains information on the various released packages of the project.
+            </p>
+
+            <subsection name="-- ---- 2010 - Version 1.1">
+                <p>
+                    <b>New Features</b>
+                </p>
+
+                <ul>
+                    <li>Adds NativePlayer widget to embed media using HTML 5 video elements.</li>
+                    <li>Introduces YouTube module to wrap YouTube player as GWT widget</li>
+                    <li>Adds GWT 2.0's <a href="ui-binder.html">UiBinder support</a></li>
+                    <li>Adds module to export the player widgets as <a href="javascript-support.html">
+                        Javascript object</a></li>
+                    <li>Adds matrix transformation feature support</li>
+                </ul>
+
+                <p>
+                    <b>Improvements</b>
+                </p>
+
+                <ul>
+                    <li>Adds support for Mouse and Keyboard event handlers</li>
+                </ul>
+
+                <p>
+                    <b>Bug Fixes</b>
+                </p>
+                <ul>
+                    <li>
+                        <a href="http://code.google.com/p/bst-player/issues/detail?id=8">Issue #8</a> -
+                    Setting UIMode on WinMediaPlayer now work in Google Chrome.
+                    </li>
+                    <li>
+                        <a href="http://code.google.com/p/bst-player/issues/detail?id=11">Issue #11</a> -
+                    JavaScript Exception properly handled when player is created without any suitable plugins
+                    </li>
+                    <li>
+                        <a href="http://code.google.com/p/bst-player/issues/detail?id=13">Issue #13</a> -
+                    Fixed visibility issues for unknown video codec in FlashMediaPlayer.
+                    </li>
+                    <li>
+                        <a href="http://code.google.com/p/bst-player/issues/detail?id=14">Issue #14</a> -
+                    FlashMediaPlayer now scales properly if size is smaller than video size
+                    </li>
+                    <li>
+                        <a href="http://code.google.com/p/bst-player/issues/detail?id=15">Issue #15</a> -
+                    Transparent mode support for FlashMediaPlayer implemented
+                    </li>
+                </ul>
+            </subsection>
+
+            <subsection name="26 July 2009 - Version 1.0">
+                <p>
+                    <b>New Features</b>
+                </p>
+
+                <ul>
+                    <li>Supports GWT 1.7</li>
+                    <li>Introduces VLCPlayer widget to embed VLC Media Player plugin.</li>
+                    <li>Players can auto-adjust size to match the dimension of videos</li>
+                    <li>Client-side playlists support added</li>
+                    <li>Introduces automatic player selection based on desired plugin features</li>
+                </ul>
+
+                <p>
+                    <b>Improvements</b>
+                </p>
+
+                <ul>
+                    <li>Code refactoring: library split into modules and packages renamed.</li>
+                    <li>MediaStateListeners replaced with media state handlers inline
+                    with GWT 1.6 event system
+                    </li>
+                    <li>FlashMP3Player and FlashVideoPlayer widgets replaced
+                    with the new FlashMediaPlayer widget
+                    </li>
+                    <li>FlatCustomControl widget replaced with the new CustomPlayerControl widget</li>
+                    <li>JSNI implementation of player widgets reworked to reduce memory leaks</li>
+                    <li>More plugin-specific accessors added (
+                        <a href="http://code.google.com/p/bst-player/issues/detail?id=5">Issue #5</a>)
+                    </li>
+                </ul>
+
+                <p>
+                    <b>Bug Fixes</b>
+                </p>
+                <ul>
+                    <li>Method calls on QuickTimePlayer object works in Internet Explorer</li>
+                </ul>
+            </subsection>
+
+            <subsection name="13 March 2009 - Version 0.6">
+                <p>
+                    This release introduces the following features
+                </p>
+
+                <ul >
+                    <li>
+                        FlashVideoPlayer for Flash video playback support, other players also
+                        support video playback
+                    </li>
+                    <li>
+                        SWFWidget class to embed generic Flash applications
+                    </li>
+                    <li>
+                        Media metadata now supported via MediaInfo class
+                    </li>
+                    <li>
+                        Automatic player plugin selection algorithm refined to support streaming
+                        media protocols.
+                    </li>
+                </ul>
+
+                <p>
+                    <b>Bug Fixes</b>
+                </p>
+                <ul >
+                    <li>
+                        All WinMediaPlayer constructors work as expected -
+                        (
+                        <a href="http://code.google.com/p/bst-player/issues/detail?id=2">Issue #2</a>)
+                    </li>
+                </ul>
+
+                <p>
+                    <b>Known Issue</b>
+                </p>
+                <ul >
+                    <li>
+                        Method calls on QuickTimePlayer object does not work in Internet
+                        Explorer although embedding QuickTime plugin with the widget works fine
+                    </li>
+                </ul>
+            </subsection>
+
+            <subsection name="13 February 2009 - Version 0.5.1">
+                <p>
+                    This release fixes various bugs in the JSNI implementation
+                    of the player widgets.
+                </p>
+                <p>
+                    <b>Known Issue</b>
+                </p>
+                <ul >
+                    <li>
+                        Method calls on QuickTimePlayer object does not work in Internet
+                        Explorer although embedding QuickTime plugin with the widget works fine
+                    </li>
+                </ul>
+            </subsection>
+
+            <subsection name="03 February 2009 - Version 0.5">
+                <p> Initial release </p>
+            </subsection>
+        </section>
+    </body>
+</document>

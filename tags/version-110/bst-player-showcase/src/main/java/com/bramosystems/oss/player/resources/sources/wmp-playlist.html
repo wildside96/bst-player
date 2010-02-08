@@ -1,0 +1,31 @@
+<html>
+    <div class='case-code'>
+        <pre>
+Widget wmp = null;
+try {
+    WinMediaPlayer p = new WinMediaPlayer(GWT.getHostPageBaseURL() + "media/playlist.wpl", false);
+    p.showLogger(true);
+    wmp = p;
+} catch (LoadException ex) {
+    Window.alert("Load exp");
+} catch (PluginVersionException ex) {
+    wmp = PlayerUtil.getMissingPluginNotice(Plugin.WinMediaPlayer);
+} catch (PluginNotFoundException ex) {
+    wmp = PlayerUtil.getMissingPluginNotice(Plugin.WinMediaPlayer);
+}
+panel.add(wmp);
+        </pre>
+    </div>
+    <div class='ui-case-code'>
+        <pre>
+&lt;ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
+    xmlns:g='urn:import:com.google.gwt.user.client.ui'
+    xmlns:player='urn:import:com.bramosystems.oss.player.uibinder.client'&gt;
+        ...
+        &lt;player:WinMediaPlayer autoplay='false' height='50px' width='100%'
+            showLogger='true' mediaURL='GWT-HOST::media/playlist.wpl' /&gt;
+        ...
+&lt;/ui:UiBinder&gt;
+        </pre>
+    </div>
+</html>

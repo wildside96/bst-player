@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <artifactId>bst-player</artifactId>
+        <groupId>com.bramosystems.oss.player</groupId>
+        <version>1.1</version>
+    </parent>
+    <artifactId>bst-player-api</artifactId>
+    <name>BST Player API</name>
+    <description>
+        Provides a consistent API for embedding popular media player plugins in web applications.
+    </description>
+
+    <properties>
+        <flex.apps.dir>
+            ${project.build.directory}/classes/com/bramosystems/oss/player/core/public
+        </flex.apps.dir>
+    </properties>
+
+    <build>
+        <resources>
+            <resource>
+                <directory>src/main/java</directory>
+                <filtering>true</filtering>
+                <includes>
+                    <include>**/FlashMediaPlayer.java</include>
+                </includes>
+            </resource>
+            <resource>
+                <directory>src/main/java</directory>
+                <filtering>false</filtering>
+                <excludes>
+                    <exclude>**/FlashMediaPlayer.java</exclude>
+                </excludes>
+            </resource>
+        </resources>
+
+        <plugins>
+            <plugin>
+                <groupId>net.israfil.mojo</groupId>
+                <artifactId>maven-flex2-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>copy-flex</id>
+                        <phase>process-classes</phase>
+                        <goals>
+                            <goal>copy-flex-applications</goal>
+                        </goals>
+                        <configuration>
+                            <modules>
+                                <swfModule>
+                                    <groupId>${project.groupId}</groupId>
+                                    <artifactId>bst-flash-player</artifactId>
+                                    <targetPath>${flex.apps.dir}</targetPath>
+                                </swfModule>
+                            </modules>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>gwt-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>test-api</id>
+                        <goals>
+                            <goal>test</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
+    <dependencies>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <version>${project.version}</version>
+            <artifactId>bst-flash-player</artifactId>
+            <scope>provided</scope>
+            <type>swf</type>
+        </dependency>
+        <dependency>
+            <groupId>com.google.gwt</groupId>
+            <artifactId>gwt-user</artifactId>
+        </dependency>
+            <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+        </dependency>
+    </dependencies>
+</project>

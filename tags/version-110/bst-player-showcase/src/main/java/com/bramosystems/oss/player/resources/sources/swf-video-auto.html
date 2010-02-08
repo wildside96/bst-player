@@ -1,0 +1,33 @@
+<html>
+    <div class='case-code'>
+        <pre>
+Widget mp = null;
+try {
+    FlashMediaPlayer mmp = new FlashMediaPlayer(GWT.getHostPageBaseURL() + "media/traffic.flv",
+            false, "350px", "100%");
+    mmp.showLogger(true);
+    <b>mmp.setResizeToVideoSize(true);</b>
+    mp = mmp;
+} catch (LoadException ex) {
+    Window.alert("Load exp");
+} catch (PluginVersionException ex) {
+    mp = PlayerUtil.getMissingPluginNotice(Plugin.FlashPlayer, ex.getRequiredVersion());
+} catch (PluginNotFoundException ex) {
+    mp = PlayerUtil.getMissingPluginNotice(Plugin.FlashPlayer);
+}
+panel.add(mp);
+        </pre>
+    </div>
+    <div class='ui-case-code'>
+        <pre>
+&lt;ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
+    xmlns:g='urn:import:com.google.gwt.user.client.ui'
+    xmlns:player='urn:import:com.bramosystems.oss.player.uibinder.client'&gt;
+        ...
+        &lt;player:FlashMediaPlayer autoplay='true' height='350px' width='100%' showLogger='true'
+            mediaURL='GWT-HOST::media/traffic.flv' <b>resizeToVideoSize='true'</b> /&gt;
+        ...
+&lt;/ui:UiBinder&gt;
+        </pre>
+    </div>
+</html>

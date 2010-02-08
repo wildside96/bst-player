@@ -1,0 +1,36 @@
+<html>
+    <div class='case-code'>
+        <pre>
+Widget mp = null;
+try {
+    FlashMediaPlayer fp = new FlashMediaPlayer(GWT.getHostPageBaseURL() +
+                                "media/playlist.m3u", false);
+    fp.showLogger(true);
+    mp = fp;
+} catch (LoadException ex) {
+    Window.alert("Load exp");
+} catch (PluginVersionException ex) {
+    mp = PlayerUtil.getMissingPluginNotice(Plugin.FlashPlayer, ex.getRequiredVersion());
+} catch (PluginNotFoundException ex) {
+    mp = PlayerUtil.getMissingPluginNotice(Plugin.FlashPlayer);
+}
+panel.add(mp);
+        </pre>
+    </div>
+    <div class='ui-case-code'>
+        <pre>
+&lt;ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
+    xmlns:g='urn:import:com.google.gwt.user.client.ui'
+    xmlns:player='urn:import:com.bramosystems.oss.player.uibinder.client'&gt;
+        ...
+        &lt;player:FlashMediaPlayer autoplay='true' height='20px' width='100%'
+            showLogger='true' mediaURL='GWT-HOST::media/playlist.m3u' /&gt;
+        ...
+&lt;/ui:UiBinder&gt;
+        </pre>
+    </div>
+    <div>
+        <b>Note:</b> All file entries in the M3U playlist <b>MUST</b> be in Adobe Flash
+        supported media formats.
+    </div>
+</html>
