@@ -38,8 +38,9 @@
 
             <subsection name="Add the script to the host page">
                 <p>
-                    Download the bst-player-js library and unzip into a folder of your choice.  The library
-                    is a GWT application exporting the core player and seekbar widgets as Javascript objects.
+                    Download the <a href="http://code.google.com/p/bst-player/downloads/list">BST Player JS
+                    Library</a> and unzip into a folder of your choice.  The library is a GWT application
+                    exporting the core player and seekbar widgets as Javascript objects.
                 </p>
                 
                 <p>Add the
@@ -388,7 +389,8 @@
           player.setPlayPosition(evt.seekPosition * player.getMediaDuration());
       });
 
-      player = new bstplayer.Player('Auto', 'applause.mp3', false, null, null, null);
+      player = new bstplayer.Player('Auto', 'demo/bst-player-js/tools/applause.mp3',
+                                false, null, null, null);
       player.addEventListener('onPlayState', function(evt){
           switch(evt.playState) {
               case 'Paused':
@@ -433,7 +435,8 @@
       player.inject('_pid');
   }
 &lt;/script&gt;
-&lt;script type='text/javascript' src='bst_player_js/bst_player_js.nocache.js'&gt;&lt;/script&gt;
+&lt;script type='text/javascript'
+    src='demo/bst-player-js/bst_player_js/bst_player_js.nocache.js'&gt;&lt;/script&gt;
 
 &lt;div align='center' style='width:350px;margin:20px;border:silver 1px solid;padding:5px'&gt;
     &lt;div id='_pid'&gt;&lt;/div&gt;
@@ -457,7 +460,7 @@
                           player.setPlayPosition(evt.seekPosition * player.getMediaDuration());
                       });
 
-                      player = new bstplayer.Player('Auto', 'applause.mp3', false, null, null, null);
+                      player = new bstplayer.Player('Auto', 'demo/bst-player-js/tools/applause.mp3', false, null, null, null);
                       player.addEventListener('onPlayState', function(evt){
                           switch(evt.playState) {
                               case 'Paused':

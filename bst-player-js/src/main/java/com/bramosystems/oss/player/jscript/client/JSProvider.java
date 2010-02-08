@@ -25,7 +25,6 @@ import com.bramosystems.oss.player.core.client.PluginVersionException;
 import com.bramosystems.oss.player.core.client.skin.CSSSeekBar;
 import com.bramosystems.oss.player.core.client.skin.MediaSeekBar;
 import com.bramosystems.oss.player.script.client.ExportProvider;
-import com.bramosystems.oss.player.script.client.ExportProvider;
 import com.google.gwt.user.client.ui.Widget;
 import java.util.HashMap;
 
