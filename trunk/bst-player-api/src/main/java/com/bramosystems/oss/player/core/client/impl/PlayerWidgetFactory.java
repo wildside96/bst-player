@@ -15,15 +15,12 @@
  */
 package com.bramosystems.oss.player.core.client.impl;
 
-import com.bramosystems.oss.player.core.client.Plugin;
 import com.bramosystems.oss.player.util.client.MimeType;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.Document;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.dom.client.ObjectElement;
 import com.google.gwt.dom.client.ParamElement;
-import com.google.gwt.user.client.ui.HTML;
-import com.google.gwt.user.client.ui.Widget;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -73,33 +70,8 @@ public class PlayerWidgetFactory {
     PlayerWidgetFactory() {
     }
 
-    public static final PlayerWidgetFactory get() {
+    protected static final PlayerWidgetFactory get() {
         return factory;
-    }
-
-    public Widget getSWFWidget(String playerId, String swfURL, HashMap<String, String> params) {
-        return new PlayerWidget2(getSWFElement(playerId, swfURL, params), null);
-    }
-
-    public Widget getPlayerWidget(Plugin plugin, String playerId, String mediaURL,
-            boolean autoplay, HashMap<String, String> params, BeforeUnloadCallback callback) {
-        Element e = null;
-        switch (plugin) {
-            case FlashPlayer:
-                e = getSWFElement(playerId, mediaURL, params);
-                break;
-            case QuickTimePlayer:
-                e = getQTElement(playerId, mediaURL, autoplay);
-                break;
-            case VLCPlayer:
-                e = getVLCElement(playerId, "", false);
-                break;
-            case WinMediaPlayer:
-                e = getWMPElement(playerId, mediaURL, autoplay, params);
-                break;
-        }
-        PlayerWidget2 pw = new PlayerWidget2(e, callback);
-        return pw;
     }
 
     protected Element getVLCElement(String playerId, String mediaURL, boolean autoplay) {
@@ -115,9 +87,9 @@ public class PlayerWidgetFactory {
     protected Element getWMPElement(String playerId, String mediaURL, boolean autoplay,
             HashMap<String, String> params) {
         XObject xo = new XObject(playerId);
-        xo.getElement().setType(getWMPPluginType());
-        xo.addParam("autostart", Boolean.toString(autoplay));
-        xo.addParam("URL", mediaURL);
+        xo.getElement().setType(hasWMPFFPlugin() ? wmpFFMimeType : wmpAppMimeType);
+        xo.addParam("autostart", hasWMPFFPlugin() ? Boolean.toString(autoplay) : (autoplay ? "1" : "0"));
+        xo.addParam(hasWMPFFPlugin() ? "URL" : "SRC", mediaURL);
 
         Iterator<String> keys = params.keySet().iterator();
         while (keys.hasNext()) {
@@ -125,18 +97,6 @@ public class PlayerWidgetFactory {
             xo.addParam(name, params.get(name));
         }
         return xo.getElement();
-    }
-
-    private String getWMPPluginType() {
-        // check for firefox plugin mime type...
-        String ffMime = "application/x-ms-wmp";
-        String genericMime = "application/x-mplayer2";
-        MimeType mt = MimeType.getMimeType(ffMime);
-        if (mt != null) {
-            return ffMime;
-        } else {
-            return genericMime;
-        }
     }
 
     protected Element getQTElement(String playerId, String mediaURL, boolean autoplay) {
@@ -167,7 +127,7 @@ public class PlayerWidgetFactory {
         return e.getElement();
     }
 
-    public Element getNativeElement(String playerId, String mediaURL, boolean autoplay) {
+    protected Element getNativeElement(String playerId, String mediaURL, boolean autoplay) {
         Element videoElement = _doc.createElement("video");
         videoElement.setId(playerId);
         videoElement.setPropertyString("src", mediaURL);
@@ -176,7 +136,7 @@ public class PlayerWidgetFactory {
         return videoElement;
     }
 
-    public Element getNativeElement(String playerId, ArrayList<String> sources, boolean autoplay) {
+    protected Element getNativeElement(String playerId, ArrayList<String> sources, boolean autoplay) {
         Element videoElement = _doc.createElement("video");
         videoElement.setId(playerId);
         videoElement.setPropertyBoolean("autoplay", autoplay);
@@ -190,44 +150,14 @@ public class PlayerWidgetFactory {
         return videoElement;
     }
 
-//    public class PlayerWidget2 extends Widget {
-    private class PlayerWidget2 extends HTML {
-
-        private Element e;
-        private BeforeUnloadCallback callback;
-
-        public PlayerWidget2(Element playerElement, BeforeUnloadCallback callback) {
-//            setElement(playerElement);
-            setHTML(playerElement.getString());
-//            e = playerElement;
-            this.callback = callback;
-
-            setHeight("100%");
-            setWidth("100%");
-            setStyleName("");
+    public static boolean hasWMPFFPlugin() {
+        // check for firefox plugin mime type...
+        MimeType mt = MimeType.getMimeType(wmpFFMimeType);
+        if (mt != null) {
+            return true;
+        } else {
+            return false;
         }
-/*
-        @Override
-        protected void onLoad() {
-            Window.alert("Player Widget onload ...");
-            Timer t = new Timer() {
-
-                @Override
-                public void run() {
-                    if (callback != null) {
-                        callback.onInjected();
-                    }
-                }
-            };
-//            t.schedule(500);
-        }
-
-        @Override
-        protected void onUnload() {
-            if (callback != null) {
-                callback.onBeforeRemove();
-            }
-        }
-*/
     }
+    private static String wmpFFMimeType = "application/x-ms-wmp", wmpAppMimeType = "application/x-mplayer2";
 }
