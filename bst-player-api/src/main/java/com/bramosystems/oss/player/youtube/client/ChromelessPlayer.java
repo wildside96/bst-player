@@ -48,7 +48,9 @@ import com.bramosystems.oss.player.core.client.PluginVersionException;
  * @since 1.1
  */
 public class ChromelessPlayer extends YouTubePlayer {
+
     private String videoURL;
+    private PlayerParameters params;
 
     /**
      * Constructs <code>ChromelessPlayer</code> with the specified {@code height} and
@@ -93,15 +95,20 @@ public class ChromelessPlayer extends YouTubePlayer {
     @Override
     protected String getNormalizedVideoAppURL(String videoURL, PlayerParameters playerParameters) {
         parseURLParams(videoURL, playerParameters);
-        playerParameters.setPlayerAPIId(apiId);
+        params = playerParameters;
+        params.setPlayerAPIId(apiId);
         this.videoURL = videoURL;
-        return "http://www.youtube.com/apiplayer?version=3&enablejsapi=1&playerapiid=" +
-                playerParameters.getPlayerAPIId();
+        return "http://www.youtube.com/apiplayer?version=3&enablejsapi=1&playerapiid="
+                + params.getPlayerAPIId();
     }
 
     @Override
     protected void playerInit() {
-        impl.loadVideoByUrl(videoURL, 0);
+        if (params.isAutoplay()) {
+            impl.loadVideoByUrl(videoURL, 0);
+        } else {
+            impl.cueVideoByUrl(videoURL, 0);
+        }
     }
 
     /**

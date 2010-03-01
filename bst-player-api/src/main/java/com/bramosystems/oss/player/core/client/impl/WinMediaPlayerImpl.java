@@ -36,11 +36,15 @@ public class WinMediaPlayerImpl extends JavaScriptObject {
     }-*/;
 
     public final native void setURL(String mediaURL) /*-{
+    try {
     this.URL = mediaURL;
+    } catch(e) {}
     }-*/;
 
     public final native String getURL() /*-{
+    try {
     return this.URL;
+    } catch(e) {return null;}
     }-*/;
 
     public final native void play() /*-{
@@ -56,39 +60,57 @@ public class WinMediaPlayerImpl extends JavaScriptObject {
     }-*/;
 
     public final native void pause() /*-{
+    try {
     this.controls.pause();
+    } catch(e) {}
     }-*/;
 
     public final native void close() /*-{
-    this.close();
+     try {
+     this.close();
+     } catch(e){} // suppress exp...
     }-*/;
 
     public final native double getDuration() /*-{
+    try {
     return this.currentMedia.duration * 1000;
+    } catch(e) {return -1;}
     }-*/;
 
     public final native double getCurrentPosition() /*-{
+    try {
     return this.controls.currentPosition * 1000;
+    } catch(e) {return -1;}
     }-*/;
 
     public final native void setCurrentPosition(double position) /*-{
+    try {
     this.controls.currentPosition = position / 1000;
+    } catch(e) {}
     }-*/;
 
     public final native int getVolume() /*-{
+    try {
     return this.settings.volume;
+    } catch(e) {return -1;}
     }-*/;
 
     public final native void setVolume(int volume) /*-{
+    try {
     this.settings.volume = volume;
+    } catch(e) {}
     }-*/;
 
     public final native void setUIMode(String mode) /*-{
+    try {
      this.uiMode = mode;
+    } catch(e) {}
     }-*/;
 
     public final native String getUIMode() /*-{
+    try {
     return this.uiMode || '';
+    } catch(e) {return null;}
     }-*/;
 
     public final native void setLoopCount(int count) /*-{
@@ -124,11 +146,15 @@ public class WinMediaPlayerImpl extends JavaScriptObject {
     }-*/;
 
     public final native String getPlayerVersion() /*-{
+    try {
     return this.versionInfo;
+    } catch(e) {return null;}
     }-*/;
 
     public final native int getPlayState() /*-{
+    try {
     return this.playState || -10;
+    } catch(e) {return -10;}
     }-*/;
 
     public final native void fillMetadata(MediaInfo info, String errorMsg) /*-{
@@ -155,27 +181,33 @@ public class WinMediaPlayerImpl extends JavaScriptObject {
     }-*/;
 
     public final native String getErrorDiscription() /*-{
+    try {
     var err = this.error;
     if(err == undefined)
     return '';
 
     return err.item(0).errorDescription;
+    } catch(e) {return null;}
     }-*/;
 
     public final native double getDownloadProgress() /*-{
+    try {
     if(this.network) {
     return this.network.downloadProgress / 100;
     } else {
     return -1;
     }
+    } catch(e) {return -1;}
     }-*/;
 
     public final native double getBufferingProgress() /*-{
+    try {
     if(this.network) {
     return this.network.bufferingProgress / 100;
     } else {
     return -1;
     }
+    } catch(e) {return -1;}
     }-*/;
 
     public final native int getVideoHeight() /*-{
@@ -195,19 +227,27 @@ public class WinMediaPlayerImpl extends JavaScriptObject {
     }-*/;
 
     public final native void setStretchToFit(boolean stretch) /*-{
+    try {
     this.stretchToFit = stretch;
+    } catch(e) {}
     }-*/;
 
     public final native boolean isStretchToFit() /*-{
+    try {
     return this.stretchToFit;
+    } catch(e) {return false;}
     }-*/;
 
     public final native void setWindowlessVideo(boolean windowless) /*-{
+    try {
      this.windowlessVideo = windowless;
+    } catch(e) {}
     }-*/;
 
     public final native boolean isWindowlessVideo() /*-{
+    try {
     return this.windowlessVideo;
+    } catch(e) {return false;}
     }-*/;
 
     public final native String getAspectRatio() /*-{
@@ -219,11 +259,19 @@ public class WinMediaPlayerImpl extends JavaScriptObject {
     }-*/;
 
     public final native boolean requestMediaAccessRight(String accessLevel) /*-{
+    try {
     return this.settings.requestMediaAccessRights(accessLevel);
+    } catch(e) {
+     return false;
+     }
     }-*/;
 
     public final native String getMediaAccessRight() /*-{
+    try {
     return this.settings.mediaAccessRights;
+    } catch(e) {
+     return null;
+     }
     }-*/;
 
     public final native String getPlayerId() /*-{
