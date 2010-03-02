@@ -64,7 +64,7 @@ import com.google.gwt.user.client.ui.*;
  * <p><a name='non-ie-browser'><h3>Embedding in non-IE browsers</h3></a>
  * As of version 1.1.1, this widget requires the <b>Windows Media Player plugin for Firefox</b> in
  * non-IE browsers.  The plugin provides javascript support for the underlying Windows Media
- * Player&trade;.  However, an overloaded constructor is provided if the requirement is simply
+ * Player&trade;.  However, this requirement can be suppressed if the need is simply
  * to embed Windows Media Player&trade; without any programmatic access.  In this case, all method
  * calls are ignored.
  *
@@ -80,9 +80,10 @@ public class WinMediaPlayer extends AbstractMediaPlayer {
     private boolean isEmbedded, resizeToVideoSize;
     private UIMode uiMode;
     private BeforeUnloadCallback unloadCallback;
+    private EmbedMode embedMode;
 
-    private WinMediaPlayer(boolean embedOnly) throws PluginNotFoundException, PluginVersionException {
-        if (!embedOnly && !PlayerWidgetFactory.hasWMPFFPlugin()) {
+    private WinMediaPlayer(EmbedMode embedMode) throws PluginNotFoundException, PluginVersionException {
+        if (embedMode.equals(EmbedMode.PROGRAMMABLE) && !PlayerWidgetFactory.hasWMPFFPlugin()) {
             throw new PluginNotFoundException("'Media Player plugin for Firefox' is required");
         }
 
@@ -96,13 +97,11 @@ public class WinMediaPlayer extends AbstractMediaPlayer {
             stateManager = GWT.create(WMPStateManager.class);
         }
 
+        this.embedMode = embedMode;
         unloadCallback = new BeforeUnloadCallback() {
 
             public void onBeforeUnload() {
                 stateManager.close(playerId);
-                if (impl != null) {
-                    Window.alert(impl.getPlayerVersion());
-                }
                 impl.close();
             }
         };
@@ -116,8 +115,8 @@ public class WinMediaPlayer extends AbstractMediaPlayer {
      * {@code width} to playback media located at {@code mediaURL}. Media playback
      * begins automatically if {@code autoplay} is {@code true}.
      *
-     * <p> The {@code embedOnly} parameter is provided to permit using the widget without any other
-     * method call.
+     * <p> The {@code embedMode} parameter is provided to permit using the widget without any other
+     * programmatic access.
      *
      * <p> {@code height} and {@code width} are specified as CSS units. A value of {@code null}
      * for {@code height} or {@code width} puts the player in embedded mode.  When in embedded mode,
@@ -126,36 +125,26 @@ public class WinMediaPlayer extends AbstractMediaPlayer {
      * video control, specify valid CSS values for {@code height} and {@code width} but hide the
      * player controls with {@code setControllerVisible(false)}.
      *
-     * <p><b>Note:</b> A value of {@code null} for {@code height} or {@code width} throws
-     * IllegalArgumentException unless {@code embedOnly} is {@code false}.
-     *
      * @param mediaURL the URL of the media to playback
      * @param autoplay {@code true} to start playing automatically, {@code false} otherwise
      * @param height the height of the player
      * @param width the width of the player.
-     * @param embedOnly {@code true} if player will be embedding media only and no other method will
-     * be called on this player, {@code false} otherwise
+     * @param embedMode the embed mode of the widget
      *
      * @throws LoadException if an error occurs while loading the media.
      * @throws PluginVersionException if the required Windows Media Player plugin version is not installed on the client.
      * @throws PluginNotFoundException if the Windows Media Player plugin is not installed on the client.
-     * @throws IllegalArgumentException if {@code height} or {@code width} is null and {@code embedOnly} is true
      *
      * @since 1.1.1
-     * @see <a href='#non-ie-browser'>Embedding in non-IE browsers</a>
+     * @see EmbedMode
+     * 
+     * TODO: verify version number ....
      */
     public WinMediaPlayer(String mediaURL, boolean autoplay, String height, String width,
-            boolean embedOnly)
+            EmbedMode embedMode)
             throws LoadException, PluginNotFoundException, PluginVersionException {
-        this(embedOnly);
-
+        this(embedMode);
         this.mediaURL = mediaURL;
-        if (!embedOnly && ((height == null) || (width == null))) {
-            isEmbedded = true;
-        } else {
-            throw new IllegalArgumentException("height and width cannot be null");
-        }
-
 
         _height = height;
         _width = width;
@@ -209,6 +198,8 @@ public class WinMediaPlayer extends AbstractMediaPlayer {
      * video control, specify valid CSS values for {@code height} and {@code width} but hide the
      * player controls with {@code setControllerVisible(false)}.
      *
+     * <p>This is the same as calling {@code WinMediaPlayer(mediaURL, true, "50px", "100%", EmbedMode.PROGRAMMABLE)}</p>
+     *
      * @param mediaURL the URL of the media to playback
      * @param autoplay {@code true} to start playing automatically, {@code false} otherwise
      * @param height the height of the player
@@ -220,7 +211,7 @@ public class WinMediaPlayer extends AbstractMediaPlayer {
      */
     public WinMediaPlayer(String mediaURL, boolean autoplay, String height, String width)
             throws LoadException, PluginNotFoundException, PluginVersionException {
-        this(mediaURL, autoplay, height, width, false);
+        this(mediaURL, autoplay, height, width, EmbedMode.PROGRAMMABLE);
     }
 
     /**
@@ -237,7 +228,7 @@ public class WinMediaPlayer extends AbstractMediaPlayer {
      */
     public WinMediaPlayer(String mediaURL) throws LoadException,
             PluginNotFoundException, PluginVersionException {
-        this(mediaURL, true, "50px", "100%", false);
+        this(mediaURL, true, "50px", "100%");
     }
 
     /**
@@ -256,7 +247,7 @@ public class WinMediaPlayer extends AbstractMediaPlayer {
      */
     public WinMediaPlayer(String mediaURL, boolean autoplay) throws LoadException,
             PluginNotFoundException, PluginVersionException {
-        this(mediaURL, autoplay, "50px", "100%", false);
+        this(mediaURL, autoplay, "50px", "100%");
     }
 
     /**
@@ -644,5 +635,35 @@ public class WinMediaPlayer extends AbstractMediaPlayer {
          * volume controls in addition to the video or visualization window.
          */
         FULL
+    }
+
+    /**
+     * An enum of embed modes of the WinMediaPlayer widget.
+     *
+     * <p>The WinMediaPlayer widget requires the <b>Windows Media Player plugin for Firefox</b> which
+     * provides extensive javascript support in non-IE browsers.  However, this requirement can be
+     * suppressed if the need is simply to embed Windows Media Player&trade; without any programmatic
+     * access.
+     *
+     * @author Sikirulai Braheem
+     * @since 1.1.1
+     * TODO: verify version number before release....
+     */
+    public static enum EmbedMode {
+
+        /**
+         * The widget is used to embed Windows Media Player&trade; without any programmatic access.
+         *
+         * <p>In this mode, all method calls are ignored
+         *
+         * TODO: verify applicable methods...
+         */
+        EMBED_ONLY,
+
+        /**
+         * The widget is used to embed Windows Media Player&trade; with full programmatic access. This mode
+         * requires the Windows Media Player plugin for Firefox in non-IE browsers.
+         */
+        PROGRAMMABLE
     }
 }

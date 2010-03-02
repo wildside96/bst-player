@@ -65,6 +65,12 @@ public enum Plugin {
     VLCPlayer("http://www.videolan.org", 1, 0, 0),
 
     /**
+     * Specifies the DivX Web Player plugin
+     * @since 1.2
+     */
+    DivXPlayer("http://go.divx.com/plugin/download", 1, 0, 1),
+
+    /**
      * Similar to {@linkplain #Auto}, specifies any media player plugin that supports
      * client-side playlist management as defined by the {@linkplain PlaylistSupport}
      * interface.

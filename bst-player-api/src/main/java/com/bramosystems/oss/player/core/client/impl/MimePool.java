@@ -64,6 +64,7 @@ public class MimePool {
         addPluginExtensions(Plugin.FlashPlayer, "flv,f4v,m4a,mp4v,mp3,m3u"); // 3gp,3g2,mov,mp4
         addPluginExtensions(Plugin.VLCPlayer, "mp2,mp3,mpga,mpega,mpg,mpeg,mpe,vob,mp4,mpg4,avi,mov,"
                 + "qt,ogg,ogv,vlc,asf,asx,wmv,wav,3gp,3gpp,3g2,3gpp2,divx,flv,mkv,mka,xspf,m4a,m3u,wma");
+        addPluginExtensions(Plugin.DivXPlayer, "divx,avi,mkv");
 
         addPluginProtocols(Plugin.QuickTimePlayer, "rtsp,rts");
         addPluginProtocols(Plugin.VLCPlayer, "rtp,rtsp,mms,udp");

@@ -61,6 +61,9 @@ public class PlayerUtilImpl {
             case VLCPlayer:
                 getVLCPluginVersion(pv);
                 break;
+            case DivXPlayer:
+                getDivXPluginVersion(pv);
+                break;
             case Native:
                 if (isHTML5CompliantClient()) {
                     pv = PluginVersion.get(0, 0, 1);
@@ -163,6 +166,28 @@ public class PlayerUtilImpl {
             try {
                 String desc = mt.getEnabledPlugin().getDescription();
                 if (mt.getEnabledPlugin().getName().toLowerCase().contains("vlc")) {
+                    RegExp.RegexResult res = RegExp.getRegExp("(\\d+).(\\d+).(\\d+)", "").exec(desc);
+                    version.setMajor(Integer.parseInt(res.getMatch(1)));
+                    version.setMinor(Integer.parseInt(res.getMatch(2)));
+                    version.setRevision(Integer.parseInt(res.getMatch(3)));
+                }
+            } catch (RegexException ex) {
+            } catch (PluginNotFoundException ex) {
+            }
+        }
+    }
+
+    /**
+     * DivX plugin detection
+     * @param version wraps the detected version numbers.
+     */
+    public void getDivXPluginVersion(PluginVersion version) {
+        // check for DivX plugin mime type
+        MimeType mt = MimeType.getMimeType("video/divx");
+        if (mt != null) {   // plugin present...
+            try {
+                String desc = mt.getEnabledPlugin().getDescription();
+                if (mt.getEnabledPlugin().getName().toLowerCase().contains("divx")) {
                     RegExp.RegexResult res = RegExp.getRegExp("(\\d+).(\\d+).(\\d+)", "").exec(desc);
                     version.setMajor(Integer.parseInt(res.getMatch(1)));
                     version.setMinor(Integer.parseInt(res.getMatch(2)));

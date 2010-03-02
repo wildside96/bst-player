@@ -160,4 +160,19 @@ public class PlayerWidgetFactory {
         }
     }
     private static String wmpFFMimeType = "application/x-ms-wmp", wmpAppMimeType = "application/x-mplayer2";
+
+    protected Element getDivXElement(String playerId, String mediaURL, 
+            boolean autoplay, HashMap<String, String> params) {
+        XEmbed xo = new XEmbed(playerId);
+        xo.addParam("type", "video/divx");
+        xo.addParam("autoPlay", Boolean.toString(autoplay));
+        xo.addParam("src", mediaURL);
+
+        Iterator<String> keys = params.keySet().iterator();
+        while (keys.hasNext()) {
+            String name = keys.next();
+            xo.addParam(name, params.get(name));
+        }
+        return xo.getElement();
+    }
 }

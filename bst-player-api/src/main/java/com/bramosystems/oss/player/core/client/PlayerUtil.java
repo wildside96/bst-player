@@ -246,6 +246,7 @@ public class PlayerUtil {
             case Native:
                 player = new NativePlayer(mediaURL, autoplay, height, width);
                 break;
+            case DivXPlayer:
             default:
                 throw new PluginNotFoundException();
         }
@@ -272,6 +273,7 @@ public class PlayerUtil {
             case Native:
                 player = new NativePlayer(mediaURL, autoplay);
                 break;
+            case DivXPlayer:
             default:
                 throw new PluginNotFoundException();
         }
@@ -350,6 +352,27 @@ public class PlayerUtil {
     public static PluginVersion getVLCPlayerPluginVersion() throws PluginNotFoundException {
         PluginVersion v = new PluginVersion();
         impl.getVLCPluginVersion(v);
+        if (v.equals(new PluginVersion())) {
+            throw new PluginNotFoundException(Plugin.VLCPlayer);
+        }
+
+        return v;
+    }
+
+    /**
+     * Detects the version of the DivX Web Player plugin available on the clients browser.
+     *
+     * @return <code>PluginVersion</code> object wrapping the version numbers of the
+     * plugin on the browser.
+     *
+     * @throws PluginNotFoundException if a plugin could not be found.
+     * (especially if none is installed or the plugin is disabled).
+     *
+     * @since 1.2
+     */
+    public static PluginVersion getDivXPlayerPluginVersion() throws PluginNotFoundException {
+        PluginVersion v = new PluginVersion();
+        impl.getDivXPluginVersion(v);
         if (v.equals(new PluginVersion())) {
             throw new PluginNotFoundException(Plugin.VLCPlayer);
         }
@@ -452,6 +475,10 @@ public class PlayerUtil {
                 message = "VLC Media Player " + version + " plugin or later is required to "
                         + "play this media. Click here to get VLC Media Player";
                 break;
+            case DivXPlayer:
+                message = "DivX Web Player " + version + " plugin or later is required to "
+                        + "play this media. Click here to get DivX Web Player";
+                break;
             case Native:
                 title = "Browser Not Compliant";
                 message = "An HTML 5 compliant browser is required";
@@ -503,6 +530,10 @@ public class PlayerUtil {
             case VLCPlayer:
                 message = "VLC Media Player is required to play "
                         + "this media. Click here to get VLC Media Player";
+                break;
+            case DivXPlayer:
+                message = "DivX Web Player is required to play "
+                        + "this media. Click here to get DivX Web Player";
                 break;
             case PlaylistSupport:
                 message = "No player plugin with client-side playlist "
