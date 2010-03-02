@@ -83,4 +83,19 @@ public class PlayerWidgetFactoryIE extends PlayerWidgetFactory {
         }
         return xo.getElement();
     }
+
+    @Override
+    protected Element getDivXElement(String playerId, String mediaURL, boolean autoplay,
+            HashMap<String, String> params) {
+        XObjectIE xo = new XObjectIE(playerId, "clsid:67DABFBF-D0AB-41fa-9C46-CC0F21721616");
+        xo.addParam("autoPlay", Boolean.toString(autoplay));
+        xo.addParam("src", mediaURL);
+
+        Iterator<String> keys = params.keySet().iterator();
+        while (keys.hasNext()) {
+            String name = keys.next();
+            xo.addParam(name, params.get(name));
+        }
+        return xo.getElement();
+    }
 }
