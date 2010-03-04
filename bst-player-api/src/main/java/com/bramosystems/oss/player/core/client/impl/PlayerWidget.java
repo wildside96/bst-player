@@ -146,6 +146,9 @@ public class PlayerWidget extends Widget {
             case WinMediaPlayer:
                 e = pf.getWMPElement(playerId, mediaURL, autoplay, params);
                 break;
+            case DivXPlayer:
+                e = pf.getDivXElement(playerId, mediaURL, autoplay, params);
+                break;
         }
         if(updateDimension) {
             String curHeight = getElement().getFirstChildElement().getAttribute("height");

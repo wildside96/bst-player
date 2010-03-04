@@ -30,7 +30,6 @@ import com.bramosystems.oss.player.core.event.client.PlayerStateEvent.State;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.DOM;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
 
 /**
