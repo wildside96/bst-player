@@ -67,7 +67,7 @@ public class DivXPlayerImpl extends JavaScriptObject {
     }-*/;
 
     public native final double getMediaDuration() /*-{
-    return this.GetTotalTime();
+    return this.GetTotalTime() * 1000;
     }-*/;
 
     public native final void setMute(boolean mute) /*-{
@@ -124,5 +124,9 @@ public class DivXPlayerImpl extends JavaScriptObject {
 
     public native final void setMode(String mode) /*-{
     this.SetMode(mode);
+    }-*/;
+
+    public native final void setSize(int width, int height) /*-{
+    this.Resize(width, height);
     }-*/;
 }

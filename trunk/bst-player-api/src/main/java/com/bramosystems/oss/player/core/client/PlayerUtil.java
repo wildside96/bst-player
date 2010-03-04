@@ -374,7 +374,7 @@ public class PlayerUtil {
         PluginVersion v = new PluginVersion();
         impl.getDivXPluginVersion(v);
         if (v.equals(new PluginVersion())) {
-            throw new PluginNotFoundException(Plugin.VLCPlayer);
+            throw new PluginNotFoundException(Plugin.DivXPlayer);
         }
 
         return v;

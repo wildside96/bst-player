@@ -14,4 +14,14 @@
                 <goal>gwt:test</goal>
             </goals>
         </action>
+        <action>
+            <actionName>CUSTOM-api-dev-mode</actionName>
+            <displayName>api-dev-mode</displayName>
+            <goals>
+                <goal>gwt:run</goal>
+            </goals>
+            <activatedProfiles>
+                <activatedProfile>dev-mode</activatedProfile>
+            </activatedProfiles>
+        </action>
     </actions>
