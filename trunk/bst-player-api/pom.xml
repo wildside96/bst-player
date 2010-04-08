@@ -38,6 +38,13 @@
 
         <plugins>
             <plugin>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>1.6</source>
+                    <target>1.6</target>
+                </configuration>
+            </plugin>
+            <plugin>
                 <groupId>net.israfil.mojo</groupId>
                 <artifactId>maven-flex2-plugin</artifactId>
                 <executions>
