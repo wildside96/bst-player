@@ -64,7 +64,7 @@ import com.google.gwt.user.client.ui.*;
  *
  * @author Sikirulai Braheem
  */
-public class QuickTimePlayer extends AbstractMediaPlayer implements MatrixSupport {
+public class QuickTimePlayer extends AbstractMediaPlayerWithPlaylist implements MatrixSupport {
 
     private static QTStateManager manager = GWT.create(QTStateManager.class);
     private static NumberFormat mxNf = NumberFormat.getFormat("#0.0###"); // fix QT Matrix precision issues
