@@ -15,14 +15,16 @@
  */
 package com.bramosystems.oss.player.core.client.ui;
 
-import com.bramosystems.oss.player.core.client.AbstractMediaPlayer;
+import java.util.ArrayList;
+
+import com.bramosystems.oss.player.core.client.AbstractMediaPlayerWithPlaylist;
 import com.bramosystems.oss.player.core.client.LoadException;
 import com.bramosystems.oss.player.core.client.MediaInfo;
-import com.bramosystems.oss.player.core.client.MediaInfo.MediaInfoKey;
 import com.bramosystems.oss.player.core.client.PlayException;
 import com.bramosystems.oss.player.core.client.PlayerUtil;
 import com.bramosystems.oss.player.core.client.Plugin;
 import com.bramosystems.oss.player.core.client.PluginNotFoundException;
+import com.bramosystems.oss.player.core.client.MediaInfo.MediaInfoKey;
 import com.bramosystems.oss.player.core.client.impl.NativePlayerImpl;
 import com.bramosystems.oss.player.core.client.impl.NativePlayerUtil;
 import com.bramosystems.oss.player.core.client.impl.PlayerWidget;
@@ -36,7 +38,6 @@ import com.google.gwt.i18n.client.NumberFormat;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.ui.FlowPanel;
-import java.util.ArrayList;
 
 /**
  * Widget to embed media files with HTML 5 video elements in compliant browsers.
@@ -63,7 +64,7 @@ import java.util.ArrayList;
  *
  * @author Sikirulai Braheem <sbraheem at bramosystems dot com>
  */
-public class NativePlayer extends AbstractMediaPlayer {
+public class NativePlayer extends AbstractMediaPlayerWithPlaylist {
 
     private NumberFormat volFmt = NumberFormat.getPercentFormat();
     private NativePlayerImpl impl;

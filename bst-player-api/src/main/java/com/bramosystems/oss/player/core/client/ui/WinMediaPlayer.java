@@ -15,7 +15,17 @@
  */
 package com.bramosystems.oss.player.core.client.ui;
 
-import com.bramosystems.oss.player.core.client.*;
+import com.bramosystems.oss.player.core.client.AbstractMediaPlayerWithPlaylist;
+import com.bramosystems.oss.player.core.client.ConfigParameter;
+import com.bramosystems.oss.player.core.client.ConfigValue;
+import com.bramosystems.oss.player.core.client.LoadException;
+import com.bramosystems.oss.player.core.client.MediaInfo;
+import com.bramosystems.oss.player.core.client.PlayException;
+import com.bramosystems.oss.player.core.client.PlayerUtil;
+import com.bramosystems.oss.player.core.client.Plugin;
+import com.bramosystems.oss.player.core.client.PluginNotFoundException;
+import com.bramosystems.oss.player.core.client.PluginVersion;
+import com.bramosystems.oss.player.core.client.PluginVersionException;
 import com.bramosystems.oss.player.core.client.MediaInfo.MediaInfoKey;
 import com.bramosystems.oss.player.core.client.impl.BeforeUnloadCallback;
 import com.bramosystems.oss.player.core.client.impl.PlayerWidget;
@@ -30,7 +40,7 @@ import com.bramosystems.oss.player.core.event.client.PlayerStateEvent.State;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.DOM;
-import com.google.gwt.user.client.ui.*;
+import com.google.gwt.user.client.ui.FlowPanel;
 
 /**
  * Widget to embed Windows Media Player&trade; plugin.
@@ -69,7 +79,7 @@ import com.google.gwt.user.client.ui.*;
  *
  * @author Sikirulai Braheem
  */
-public class WinMediaPlayer extends AbstractMediaPlayer {
+public class WinMediaPlayer extends AbstractMediaPlayerWithPlaylist {
 
     private static WMPStateManager stateManager;
     private WinMediaPlayerImpl impl;
