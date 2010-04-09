@@ -38,10 +38,10 @@ public class RegExp extends JavaScriptObject {
      * <p>
      * The flags can include the following:
      * <ul>
-     * <li>g — performs a global match, that is all matches are found rather than stopping
+     * <li>g - performs a global match, that is all matches are found rather than stopping
      * after the first match</li>
-     * <li>i — performs a match without case sensitivity</li>
-     * <li>m — performs multiline matching, that is the caret (^) character and dollar sign
+     * <li>i - performs a match without case sensitivity</li>
+     * <li>m - performs multiline matching, that is the caret (^) character and dollar sign
      * ($) match before and after new-line characters</li>
      * </ul>
      * </p>
