@@ -32,6 +32,26 @@ public class MimePool {
     private HashMap<Plugin, HashSet<String>> protPool;
     private static MimePool instance;
 
+    // TODO: Find mime-types for these extensions:
+    // "wav,bwf,mid,midi,smf,au,snd,aiff,aif,aifc,"
+    //  "cdda,ac3,caf,aac,adts,amr,amc,gsm,3gp,3gpp,3g2,3gp2,mp2,mp3,mp4,mov,"
+    //  "qt,mqv,mpeg,mpg,m3u,sdv,m1s,m1a,m1v,mpm,mpv,mpa,m2a,m4a,m4p,m4b");
+
+    
+    private static final String[][] AudioMap = new String[][] {
+        {"audio/mpeg","mp3"},
+        {"audip/mp4","m4a,m4b,aac"},
+        {"audio/ogg","ogg"},
+        {"audio/x-wav","wav"},
+        {"audio/x-mpegurl","m3u"}
+    };
+
+    private static final String[][] VideoMap = new String[][] {
+        {"video/mpeg","mpg,mpeg"},
+        {"video/mp4","mp4"},
+        {"video/ogg","ogv"}
+    };
+
     /**
      * Returns the MimePool object
      *
@@ -65,10 +85,30 @@ public class MimePool {
         addPluginExtensions(Plugin.VLCPlayer, "mp2,mp3,mpga,mpega,mpg,mpeg,mpe,vob,mp4,mpg4,avi,mov,"
                 + "qt,ogg,ogv,vlc,asf,asx,wmv,wav,3gp,3gpp,3g2,3gpp2,divx,flv,mkv,mka,xspf,m4a,m3u,wma");
         addPluginExtensions(Plugin.DivXPlayer, "divx,avi,mkv");
+        addNativePluginExtensions();
 
         addPluginProtocols(Plugin.QuickTimePlayer, "rtsp,rts");
         addPluginProtocols(Plugin.VLCPlayer, "rtp,rtsp,mms,udp");
         addPluginProtocols(Plugin.WinMediaPlayer, "rtsp,rtspu,rtspt,mms,mmsu,mmst,wmpcd,wmpdvd");
+        
+    }
+
+    private void addNativePluginExtensions() {
+        NativePlayerUtil npu = NativePlayerUtil.get();
+        for (int i=0;i<AudioMap.length;i++) {
+            String mime = AudioMap[i][0];
+            String ext = AudioMap[i][1];
+            if (npu.canPlayAudio(mime)) {
+                addPluginExtensions(Plugin.Native, ext);
+            }
+        }
+        for (int i=0;i<VideoMap.length;i++) {
+            String mime = VideoMap[i][0];
+            String ext = VideoMap[i][1];
+            if (npu.canPlayVideo(mime)) {
+                addPluginExtensions(Plugin.Native, ext);
+            }
+        }
     }
 
     /**
@@ -147,23 +187,4 @@ public class MimePool {
         }
     }
 
-    public static class MimePoolMozilla extends MimePool {
-
-        @Override
-        protected void initPools() {
-            super.initPools();
-            addPluginExtensions(Plugin.Native, "wav,ogg,ogv");
-        }
-    }
-
-    public static class MimePoolSafari extends MimePool {
-
-        @Override
-        protected void initPools() {
-            super.initPools();
-            addPluginExtensions(Plugin.Native, "wav,bwf,mid,midi,smf,au,snd,aiff,aif,aifc,"
-                    + "cdda,ac3,caf,aac,adts,amr,amc,gsm,3gp,3gpp,3g2,3gp2,mp2,mp3,mp4,mov,"
-                    + "qt,mqv,mpeg,mpg,m3u,sdv,m1s,m1a,m1v,mpm,mpv,mpa,m2a,m4a,m4p,m4b");
-        }
-    }
 }

@@ -176,12 +176,8 @@ public class PlayerUtil {
      * @since 1.1
      */
     private static Plugin _getPlugin(Plugin plugin, String mediaURL) {
-        String protocol = null;
-        if (mediaURL.contains("://")) {
-            protocol = mediaURL.substring(0, mediaURL.indexOf("://"));
-        }
-
-        String ext = mediaURL.substring(mediaURL.lastIndexOf(".") + 1);
+        String protocol = extractProtocol(mediaURL);
+        String ext = extractExt(mediaURL);
         Plugin pg = Plugin.Auto, _plugins[] = null;
 
         switch (plugin) {
@@ -211,6 +207,24 @@ public class PlayerUtil {
         } else {
             return plugin;
         }
+    }
+
+    private static String extractExt(String mediaURL) {
+       return mediaURL.substring(mediaURL.lastIndexOf(".") + 1);
+    }
+
+    private static String extractProtocol(String mediaURL) {
+        if (mediaURL.contains("://")) {
+            return mediaURL.substring(0, mediaURL.indexOf("://"));
+        } else {
+            return null;
+        }
+    }
+    
+    public static boolean canHandleMedia(Plugin plugin, String mediaURL) {
+        String protocol = extractProtocol(mediaURL);
+        String ext = extractExt(mediaURL);
+        return impl.canHandleMedia(plugin, protocol, ext);
     }
 
     /**
