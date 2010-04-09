@@ -76,6 +76,10 @@ public class NativePlayerImpl extends JavaScriptObject {
     this.src = mediaURL;
     }-*/;
 
+    public final native void load() /*-{
+    this.load();
+    }-*/;
+
     public final native String getMediaURL() /*-{
     return this.currentSrc;
     }-*/;
