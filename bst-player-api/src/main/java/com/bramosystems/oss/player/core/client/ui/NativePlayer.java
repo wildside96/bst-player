@@ -218,6 +218,7 @@ public class NativePlayer extends AbstractMediaPlayerWithPlaylist {
     public void loadMedia(String mediaURL) throws LoadException {
         checkAvailable();
         impl.setMediaURL(mediaURL);
+        impl.load();
     }
 
     @Override
