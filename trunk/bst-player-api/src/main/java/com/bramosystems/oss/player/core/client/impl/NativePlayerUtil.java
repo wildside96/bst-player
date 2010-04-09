@@ -41,6 +41,24 @@ public class NativePlayerUtil {
     public String getPlayerHeight() {
         return "20px";
     }
+    
+    public native boolean canPlayAudio(String mime)/*-{
+    try {
+    var test = new Audio();
+    return test.canPlayType(mime);
+    } catch(e){
+    return false;
+    }
+    }-*/;
+
+    public native boolean canPlayVideo(String mime)/*-{
+    try {
+    var test = new Video();
+    return test.canPlayType(mime);
+    } catch(e){
+    return false;
+    }
+    }-*/;
 
     public static class NativePlayerPropertiesSafari extends NativePlayerUtil {
 

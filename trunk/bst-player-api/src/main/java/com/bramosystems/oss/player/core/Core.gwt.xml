@@ -56,21 +56,6 @@
         </any>
     </replace-with>
 
-    <!-- MimePool mappings -->
-    <!--when-property-is name="user.agent" value="ie6,ie8,gecko,gecko1_8,safari,opera"/-->
-    <replace-with class="com.bramosystems.oss.player.core.client.impl.MimePool.MimePoolMozilla">
-        <when-type-is class="com.bramosystems.oss.player.core.client.impl.MimePool"/>
-        <any>
-            <when-property-is name="user.agent" value="gecko1_8"/>
-            <when-property-is name="user.agent" value="gecko"/>
-        </any>
-    </replace-with>
-
-    <replace-with class="com.bramosystems.oss.player.core.client.impl.MimePool.MimePoolSafari">
-        <when-type-is class="com.bramosystems.oss.player.core.client.impl.MimePool"/>
-        <when-property-is name="user.agent" value="safari"/>
-    </replace-with>
-
     <!-- PlayerWidgetFactoryImpl mapping for IE6/7/8 -->
     <replace-with class="com.bramosystems.oss.player.core.client.impl.PlayerWidgetFactoryIE">
         <when-type-is class="com.bramosystems.oss.player.core.client.impl.PlayerWidgetFactory"/>
