@@ -112,6 +112,14 @@ public abstract class AbstractMediaPlayerWithPlaylist extends
 
     @Override
     public void playNext() throws PlayException {
+        if (this.getPlayPosition() < 0.01) {
+            try {
+                this.playMedia();
+                return;
+            } catch (PlayException e) {
+                fireDebug(e.getMessage());
+            }
+        }
         if (playList.isEmpty()) {
             pos = -1;
         } else if (isShuffleEnabled()) {
