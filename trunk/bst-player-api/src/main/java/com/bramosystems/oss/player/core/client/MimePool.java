@@ -13,44 +13,28 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-package com.bramosystems.oss.player.core.client.impl;
+package com.bramosystems.oss.player.core.client;
 
-import com.bramosystems.oss.player.core.client.Plugin;
+import com.bramosystems.oss.player.core.client.impl.NativePlayerUtil;
 import com.google.gwt.core.client.GWT;
+import java.util.Arrays;
+import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 
 /**
  * Utility class to get the file types associated with browser plugins
  *
  * @author Sikirulai Braheem <sbraheem at bramosystems dot com>
- * @since 1.1
+ * @since 1.1.1
  */
-public class MimePool {
+public abstract class MimePool {
 
-    private HashMap<Plugin, HashSet<String>> pool;
-    private HashMap<Plugin, HashSet<String>> protPool;
+    private EnumMap<Plugin, HashSet<String>> pool;
+    private EnumMap<Plugin, HashSet<String>> protPool;
+    private HashMap<String, String> mimeTypes;
     private static MimePool instance;
-
-    // TODO: Find mime-types for these extensions:
-    // "wav,bwf,mid,midi,smf,au,snd,aiff,aif,aifc,"
-    //  "cdda,ac3,caf,aac,adts,amr,amc,gsm,3gp,3gpp,3g2,3gp2,mp2,mp3,mp4,mov,"
-    //  "qt,mqv,mpeg,mpg,m3u,sdv,m1s,m1a,m1v,mpm,mpv,mpa,m2a,m4a,m4p,m4b");
-
-    
-    private static final String[][] AudioMap = new String[][] {
-        {"audio/mpeg","mp3"},
-        {"audip/mp4","m4a,m4b,aac"},
-        {"audio/ogg","ogg"},
-        {"audio/x-wav","wav"},
-        {"audio/x-mpegurl","m3u"}
-    };
-
-    private static final String[][] VideoMap = new String[][] {
-        {"video/mpeg","mpg,mpeg"},
-        {"video/mp4","mp4"},
-        {"video/ogg","ogv"}
-    };
 
     /**
      * Returns the MimePool object
@@ -64,52 +48,30 @@ public class MimePool {
         return instance;
     }
 
-    private MimePool() {
-        pool = new HashMap<Plugin, HashSet<String>>();
-        protPool = new HashMap<Plugin, HashSet<String>>();
+    @SuppressWarnings("OverridableMethodCallInConstructor")
+    protected MimePool() {
+        pool = new EnumMap<Plugin, HashSet<String>>(Plugin.class);
+        protPool = new EnumMap<Plugin, HashSet<String>>(Plugin.class);
+        mimeTypes = new HashMap<String, String>();
 
+        initMimeTypes(mimeTypes);
         initPools();
+        addNativePluginExtensions();
     }
 
     /**
      * Called by the constructor method to fill the mime pools
      */
-    protected void initPools() {
-        // fill the mimetype pool...
-        addPluginExtensions(Plugin.QuickTimePlayer, "wav,bwf,mid,midi,smf,au,snd,aiff,aif,aifc,"
-                + "cdda,ac3,caf,aac,adts,amr,amc,gsm,3gp,3gpp,3g2,3gp2,mp2,mp3,mp4,mov,"
-                + "qt,mqv,mpeg,mpg,m3u,sdv,m1s,m1a,m1v,mpm,mpv,mpa,m2a,m4a,m4p,m4b");
-        addPluginExtensions(Plugin.WinMediaPlayer, "asf,aif,aifc,aiff,au,avi,mid,mpe,mpeg,mpg,mpv2,mp2,mp3," +
-                "m1v,snd,wav,wm,wma,wmv");
-        addPluginExtensions(Plugin.FlashPlayer, "flv,f4v,m4a,mp4v,mp3,m3u"); // 3gp,3g2,mov,mp4
-        addPluginExtensions(Plugin.VLCPlayer, "mp2,mp3,mpga,mpega,mpg,mpeg,mpe,vob,mp4,mpg4,avi,mov,"
-                + "qt,ogg,ogv,vlc,asf,asx,wmv,wav,3gp,3gpp,3g2,3gpp2,divx,flv,mkv,mka,xspf,m4a,m3u,wma");
-        addPluginExtensions(Plugin.DivXPlayer, "divx,avi,mkv");
-        addNativePluginExtensions();
+    protected abstract void initPools();
 
-        addPluginProtocols(Plugin.QuickTimePlayer, "rtsp,rts");
-        addPluginProtocols(Plugin.VLCPlayer, "rtp,rtsp,mms,udp");
-        addPluginProtocols(Plugin.WinMediaPlayer, "rtsp,rtspu,rtspt,mms,mmsu,mmst,wmpcd,wmpdvd");
-        
-    }
-
-    private void addNativePluginExtensions() {
-        NativePlayerUtil npu = NativePlayerUtil.get();
-        for (int i=0;i<AudioMap.length;i++) {
-            String mime = AudioMap[i][0];
-            String ext = AudioMap[i][1];
-            if (npu.canPlayAudio(mime)) {
-                addPluginExtensions(Plugin.Native, ext);
-            }
-        }
-        for (int i=0;i<VideoMap.length;i++) {
-            String mime = VideoMap[i][0];
-            String ext = VideoMap[i][1];
-            if (npu.canPlayVideo(mime)) {
-                addPluginExtensions(Plugin.Native, ext);
-            }
-        }
-    }
+    /**
+     * Called by the constructor method to populate all known audio/video
+     * mime types.
+     *
+     * @param mimeTypes the mimeType map to be filled.  The map is filled as
+     * (mimeType,file-extension) value pairs.
+     */
+    protected abstract void initMimeTypes(HashMap<String, String> mimeTypes);
 
     /**
      * Returns the file extensions registered on the specified plugin
@@ -153,9 +115,7 @@ public class MimePool {
             }
 
             String[] suffxs = extensions.split(",");
-            for (String suf : suffxs) {
-                suffx.add(suf);
-            }
+            suffx.addAll(Arrays.asList(suffxs));
         }
     }
 
@@ -181,10 +141,29 @@ public class MimePool {
             }
 
             String[] suffxs = protocols.split(",");
-            for (String suf : suffxs) {
-                suffx.add(suf);
-            }
+            suffx.addAll(Arrays.asList(suffxs));
         }
     }
 
+    /**
+     * Adds all audio/video file types that have native support on the client.
+     * This call has no effect on non-HTML5 compliant browsers.
+     */
+    protected void addNativePluginExtensions() {
+        if (PlayerUtil.isHTML5CompliantClient()) {
+            NativePlayerUtil.TestUtil test = NativePlayerUtil.getTestUtil();
+            Iterator<String> mimeKeys = mimeTypes.keySet().iterator();
+            while (mimeKeys.hasNext()) {
+                String mime = mimeKeys.next();
+                try {
+                    switch (test.canPlayType(mime)) {
+                        case maybe:
+                        case probably:
+                            addPluginExtensions(Plugin.Native, mimeTypes.get(mime));
+                    }
+                } catch (Exception e) { // mimeType cannot be played ...
+                }
+            }
+        }
+    }
 }

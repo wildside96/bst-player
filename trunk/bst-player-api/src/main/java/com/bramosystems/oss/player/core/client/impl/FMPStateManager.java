@@ -43,6 +43,16 @@ public class FMPStateManager {
         initGlobalCallbacks(this);
     }
 
+    public static interface FMPStateCallback {
+        public void onInit();
+        public void onMessage(int type, String message);
+        public void onProgress(double progress);
+        public void onMediaInfo(String info);
+        public void onEvent(int type, boolean buttonDown, boolean alt, boolean ctrl,
+            boolean shift, boolean cmd, int stageX, int stageY);
+        public void onStateChanged(int stateId, int listIndex);
+    }
+
     public final void init(String playerId, FlashMediaPlayer player, Command initCommand) {
         cache.put(playerId, new EventHandler(player, initCommand));
     }

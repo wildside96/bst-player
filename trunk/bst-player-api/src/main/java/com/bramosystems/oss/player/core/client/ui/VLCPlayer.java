@@ -80,7 +80,7 @@ public class VLCPlayer extends AbstractMediaPlayer implements PlaylistSupport {
         PluginVersion req = Plugin.VLCPlayer.getVersion();
         PluginVersion v = PlayerUtil.getVLCPlayerPluginVersion();
         if (v.compareTo(req) < 0) {
-            throw new PluginVersionException(req.toString(), v.toString());
+            throw new PluginVersionException(Plugin.VLCPlayer, req.toString(), v.toString());
         }
 
         _playlistCache = new ArrayList<MRL>();

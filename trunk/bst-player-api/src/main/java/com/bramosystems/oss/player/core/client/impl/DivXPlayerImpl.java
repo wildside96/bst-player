@@ -82,6 +82,11 @@ public class DivXPlayerImpl extends JavaScriptObject {
     this.SetVolume(volume);
     }-*/;
 
+    // TODO: not implemented in divx yet..
+    public native final double getVolume() /*-{
+    return 0; //this.Getvolume();
+    }-*/;
+
     public native final void setBufferingMode(String mode) /*-{
     this.SetBufferingMode(mode);
     }-*/;

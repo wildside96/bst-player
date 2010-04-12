@@ -20,11 +20,12 @@ import java.util.ArrayList;
 import com.bramosystems.oss.player.core.client.AbstractMediaPlayerWithPlaylist;
 import com.bramosystems.oss.player.core.client.LoadException;
 import com.bramosystems.oss.player.core.client.MediaInfo;
+import com.bramosystems.oss.player.core.client.MediaInfo.MediaInfoKey;
 import com.bramosystems.oss.player.core.client.PlayException;
 import com.bramosystems.oss.player.core.client.PlayerUtil;
 import com.bramosystems.oss.player.core.client.Plugin;
 import com.bramosystems.oss.player.core.client.PluginNotFoundException;
-import com.bramosystems.oss.player.core.client.MediaInfo.MediaInfoKey;
+import com.bramosystems.oss.player.core.client.impl.LoopManager;
 import com.bramosystems.oss.player.core.client.impl.NativePlayerImpl;
 import com.bramosystems.oss.player.core.client.impl.NativePlayerUtil;
 import com.bramosystems.oss.player.core.client.impl.PlayerWidget;
@@ -72,10 +73,11 @@ public class NativePlayer extends AbstractMediaPlayerWithPlaylist {
     private PlayerWidget playerWidget;
     private boolean adjustToVideoSize, isEmbedded;
     private Logger logger;
+    private LoopManager loopManager;
 
     private NativePlayer() throws PluginNotFoundException {
         if (!PlayerUtil.isHTML5CompliantClient()) {
-            throw new PluginNotFoundException();
+            throw new PluginNotFoundException(Plugin.Native);
         }
 
         playerId = DOM.createUniqueId().replace("-", "");
@@ -118,6 +120,23 @@ public class NativePlayer extends AbstractMediaPlayerWithPlaylist {
                 }
             });
         }
+
+        loopManager = new LoopManager(!NativePlayerUtil.get.isLoopingSupported(),
+                new LoopManager.LoopCallback() {
+
+            public void onLoopFinished() {
+                fireDebug("Play finished");
+                firePlayStateEvent(PlayStateEvent.State.Finished, 0);
+            }
+
+            public void loopForever(boolean loop) {
+                impl.setLooping(loop);
+            }
+
+            public void playNextLoop() {
+                impl.play();
+            }
+        });
     }
 
     /**
@@ -132,7 +151,7 @@ public class NativePlayer extends AbstractMediaPlayerWithPlaylist {
      * @throws PluginNotFoundException if browser does not support the HTML 5 specification.
      */
     public NativePlayer(String mediaURL) throws LoadException, PluginNotFoundException {
-        this(mediaURL, true, NativePlayerUtil.get().getPlayerHeight(), "100%");
+        this(mediaURL, true, NativePlayerUtil.get.getPlayerHeight(), "100%");
     }
 
     /**
@@ -149,7 +168,7 @@ public class NativePlayer extends AbstractMediaPlayerWithPlaylist {
      */
     public NativePlayer(String mediaURL, boolean autoplay)
             throws LoadException, PluginNotFoundException {
-        this(mediaURL, autoplay, NativePlayerUtil.get().getPlayerHeight(), "100%");
+        this(mediaURL, autoplay, NativePlayerUtil.get.getPlayerHeight(), "100%");
     }
 
     // TODO: if player does not support URL throw LoadException...
@@ -207,7 +226,7 @@ public class NativePlayer extends AbstractMediaPlayerWithPlaylist {
     protected void onLoad() {
         playerWidget.setSize(_width, _height);
         setWidth(_width);
-        
+
         impl = NativePlayerImpl.getPlayer(playerId);
         impl.registerMediaStateHandlers(this);
         fireDebug("Browsers' Native Player");
@@ -281,7 +300,7 @@ public class NativePlayer extends AbstractMediaPlayerWithPlaylist {
     @Override
     public int getLoopCount() {
         checkAvailable();
-        return 0;
+        return loopManager.getLoopCount();
     }
 
     @Override
@@ -336,12 +355,12 @@ public class NativePlayer extends AbstractMediaPlayerWithPlaylist {
     @Override
     public void setLoopCount(final int loop) {
         if (isPlayerOnPage(playerId)) {
-            impl.setLooping(loop < 0);
+            loopManager.setLoopCount(loop);
         } else {
             addToPlayerReadyCommandQueue("loop", new Command() {
 
                 public void execute() {
-                    setLoopCount(loop);
+                    loopManager.setLoopCount(loop);
                 }
             });
         }
@@ -433,8 +452,8 @@ public class NativePlayer extends AbstractMediaPlayerWithPlaylist {
                 firePlayStateEvent(PlayStateEvent.State.Paused, 0);
                 break;
             case 3: // finished
-                fireDebug("Play finished");
-                firePlayStateEvent(PlayStateEvent.State.Finished, 0);
+                // notify loop manager, it handles play finished event ...
+                loopManager.notifyPlayFinished();
                 break;
             case 4: // buffering
                 fireDebug("Buffering started");

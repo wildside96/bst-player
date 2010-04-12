@@ -79,7 +79,7 @@ public class QuickTimePlayer extends AbstractMediaPlayerWithPlaylist implements 
         PluginVersion req = Plugin.QuickTimePlayer.getVersion();
         PluginVersion v = PlayerUtil.getQuickTimePluginVersion();
         if (v.compareTo(req) < 0) {
-            throw new PluginVersionException(req.toString(), v.toString());
+            throw new PluginVersionException(Plugin.QuickTimePlayer, req.toString(), v.toString());
         }
 
         playerId = DOM.createUniqueId().replace("-", "");
@@ -317,7 +317,7 @@ public class QuickTimePlayer extends AbstractMediaPlayerWithPlaylist implements 
     @Override
     public int getLoopCount() {
         checkAvailable();
-        return manager.getLoopCount(playerId);//impl.getLoopCount();
+        return manager.getLoopCount(playerId);
     }
 
     /**
@@ -329,12 +329,12 @@ public class QuickTimePlayer extends AbstractMediaPlayerWithPlaylist implements 
     @Override
     public void setLoopCount(final int loop) {
         if (isPlayerOnPage(playerId)) {
-            manager.setLoopCount(playerId, loop); //impl.setLoopCount(loop);
+            manager.setLoopCount(playerId, loop);
         } else {
             addToPlayerReadyCommandQueue("loopcount", new Command() {
 
                 public void execute() {
-                    setLoopCount(loop);
+                    manager.setLoopCount(playerId, loop);
                 }
             });
         }

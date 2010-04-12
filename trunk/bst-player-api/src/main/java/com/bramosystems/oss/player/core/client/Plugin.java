@@ -68,7 +68,7 @@ public enum Plugin {
      * Specifies the DivX Web Player plugin
      * @since 1.2
      */
-    DivXPlayer("http://go.divx.com/plugin/download", 2, 0, 0),
+    DivXPlayer("http://go.divx.com/plugin/download", 2, 0, 1),
 
     /**
      * Similar to {@linkplain #Auto}, specifies any media player plugin that supports

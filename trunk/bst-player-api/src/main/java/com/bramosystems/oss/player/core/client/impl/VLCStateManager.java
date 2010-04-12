@@ -26,22 +26,25 @@ import com.bramosystems.oss.player.core.event.client.MediaInfoEvent;
 import com.google.gwt.user.client.Timer;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Comparator;
 
 public class VLCStateManager {
 
     private Timer statePooler;
     private final int poolerPeriod = 200;
-    private int loopCount,  _loopCount,  previousState,  index,  metaDataWaitCount;
-    private boolean isBuffering,  stoppedByUser,  canDoMetadata;
-    private ArrayList<Integer> playlistIndexCache,  shuffledIndexCache;
+//    private int loopCount, _loopCount, index;
+    private int previousState, metaDataWaitCount, index;
+    private boolean isBuffering, stoppedByUser, canDoMetadata;
+    private ArrayList<Integer> playlistIndexCache, shuffledIndexCache;
     private PlayStateEvent.State currentState;
     private VLCPlayer player;
     private VLCPlayerImpl impl;
+    private LoopManager loopManager;
 
     public VLCStateManager() {
-        loopCount = 1;
-        _loopCount = 1;
+//        loopCount = 1;
+//        _loopCount = 1;
         previousState = -10;
         stoppedByUser = false;
         canDoMetadata = true;
@@ -58,6 +61,35 @@ public class VLCStateManager {
         index = -1;
         playlistIndexCache = new ArrayList<Integer>();
         currentState = PlayStateEvent.State.Finished;
+        loopManager = new LoopManager(true, new LoopManager.LoopCallback() {
+
+            public void onLoopFinished() {
+                PlayStateEvent.fire(player, PlayStateEvent.State.Finished, index);
+                DebugEvent.fire(player, DebugEvent.MessageType.Info, "Playback finished");
+            }
+
+            public void loopForever(boolean loop) {
+                try {
+                    if (player.getPlaylistSize() == 1) {
+                        canDoMetadata = false;
+                    }
+                    next(true);
+                } catch (PlayException ex) {
+                    DebugEvent.fire(player, DebugEvent.MessageType.Info, ex.getMessage());
+                }
+            }
+
+            public void playNextLoop() {
+                try {
+                    if (player.getPlaylistSize() == 1) {
+                        canDoMetadata = false;
+                    }
+                    next(true);
+                } catch (PlayException ex) {
+                    DebugEvent.fire(player, DebugEvent.MessageType.Info, ex.getMessage());
+                }
+            }
+        });
     }
 
     public void start(VLCPlayer _player, VLCPlayerImpl _impl) {
@@ -79,26 +111,29 @@ public class VLCStateManager {
         try {
             next(false);    // move to next item in list
         } catch (PlayException ex) {
+            loopManager.notifyPlayFinished();
+            /*
             try {
-                int _list = player.getPlaylistSize();
-                if (_loopCount > 1) {   // play over again ...
-                    _loopCount--;
-                    if (_list == 1) {
-                        canDoMetadata = false;
-                    }
-                    next(true);
-                } else if (_loopCount < 0) {    // loop forever ...
-                    if (_list == 1) {
-                        canDoMetadata = false;
-                    }
-                    next(true);
-                } else {
-                    PlayStateEvent.fire(player, PlayStateEvent.State.Finished, index);
-                    DebugEvent.fire(player, DebugEvent.MessageType.Info, "Media playback complete");
-                }
-            } catch (PlayException ex1) {
-                DebugEvent.fire(player, DebugEvent.MessageType.Info, ex1.getMessage());
+            int _list = player.getPlaylistSize();
+            if (_loopCount > 1) {   // play over again ...
+            _loopCount--;
+            if (_list == 1) {
+            canDoMetadata = false;
             }
+            next(true);
+            } else if (_loopCount < 0) {    // loop forever ...
+            if (_list == 1) {
+            canDoMetadata = false;
+            }
+            next(true);
+            } else {
+            PlayStateEvent.fire(player, PlayStateEvent.State.Finished, index);
+            DebugEvent.fire(player, DebugEvent.MessageType.Info, "Media playback complete");
+            }
+            } catch (PlayException ex1) {
+            DebugEvent.fire(player, DebugEvent.MessageType.Info, ex1.getMessage());
+            }
+             */
         }
     }
 
@@ -125,11 +160,11 @@ public class VLCStateManager {
                 break;
             case 6:    // finished
                 if (stoppedByUser) {
-                    DebugEvent.fire(player, DebugEvent.MessageType.Info, "Media playback stopped");
+                    DebugEvent.fire(player, DebugEvent.MessageType.Info, "Playback stopped");
                     firePlayStateEvent(PlayStateEvent.State.Stopped, index);
                 } else {
                     DebugEvent.fire(player, DebugEvent.MessageType.Info,
-                            "Finished playlist item playback #" + index);
+                            "Playback complete item #" + index);
                     checkFinished();
                 }
                 break;
@@ -155,13 +190,13 @@ public class VLCStateManager {
                 }
 
 //                    fireDebug("Current Track : " + getCurrentAudioTrack(id));
-                DebugEvent.fire(player, DebugEvent.MessageType.Info, "Media playback started");
+                DebugEvent.fire(player, DebugEvent.MessageType.Info, "Playback started");
                 stoppedByUser = false;
                 firePlayStateEvent(PlayStateEvent.State.Started, index);
                 //                    loadingComplete();
                 break;
             case 4:    // paused
-                DebugEvent.fire(player, DebugEvent.MessageType.Info, "Media playback paused");
+                DebugEvent.fire(player, DebugEvent.MessageType.Info, "Playback paused");
                 firePlayStateEvent(PlayStateEvent.State.Paused, index);
                 break;
             case 5:    // stopping
@@ -180,13 +215,11 @@ public class VLCStateManager {
     }
 
     public int getLoopCount() {
-        return loopCount;
+        return loopManager.getLoopCount();
     }
 
     public void setLoopCount(int loopCount) {
-        this.loopCount = loopCount;
-        _loopCount = loopCount;
-        fireDebug("Loop Count set : " + loopCount);
+        loopManager.setLoopCount(loopCount);
     }
 
     public void close() {
@@ -212,16 +245,13 @@ public class VLCStateManager {
                 return pos;
             }
         });
-        shuffledIndexCache = new ArrayList<Integer>();
-        for (Integer _index : shuffled) {
-            shuffledIndexCache.add(_index);
-        }
+        shuffledIndexCache = new ArrayList<Integer>(Arrays.asList(shuffled));
     }
 
     public void addToPlaylist(String mediaUrl, String options) {
         int _index = options == null ? impl.addToPlaylist(mediaUrl) : impl.addToPlaylist(mediaUrl, options);
-        fireDebug("Added '" + mediaUrl + "' to playlist @ #" + _index +
-                (options == null ? "" : " with options [" + options + "]"));
+        fireDebug("Added '" + mediaUrl + "' to playlist @ #" + _index
+                + (options == null ? "" : " with options [" + options + "]"));
         playlistIndexCache.add(_index);
         if (player.isShuffleEnabled()) {
             shuffle();
@@ -241,6 +271,12 @@ public class VLCStateManager {
         playlistIndexCache.clear();
     }
 
+    /**
+     * get next playlist index.  can repeat playlist if looping is allowed...
+     * @param loop
+     * @return
+     * @throws PlayException
+     */
     private int getNextPlayIndex(boolean loop) throws PlayException {
         if (index >= (playlistIndexCache.size() - 1)) {
             index = -1;
@@ -286,6 +322,11 @@ public class VLCStateManager {
         }
     }
 
+    /**
+     * play next item in list
+     * @param canLoop
+     * @throws PlayException
+     */
     public void next(boolean canLoop) throws PlayException {
         impl.playMediaAt(getNextPlayIndex(canLoop));
     }
@@ -311,4 +352,3 @@ public class VLCStateManager {
         PlayerStateEvent.fire(player, state);
     }
 }
-

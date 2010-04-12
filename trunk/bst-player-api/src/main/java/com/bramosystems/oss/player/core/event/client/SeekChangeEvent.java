@@ -33,11 +33,11 @@ public class SeekChangeEvent extends GwtEvent<SeekChangeHandler> {
     /**
      * Fires seek change event on all registered handlers
      *
-     * @param source the source of the event
+     * @param handler the handler of the event
      * @param seekPosition the new position of the seek bar
      */
-    public static void fire(HasSeekChangeHandlers source, double seekPosition) {
-        source.fireEvent(new SeekChangeEvent(seekPosition));
+    public static void fire(HasSeekChangeHandlers handler, double seekPosition) {
+        handler.fireEvent(new SeekChangeEvent(seekPosition));
     }
 
     /**

@@ -1,0 +1,215 @@
+#audio/1d-interleaved-parityfec
+#video/1d-interleaved-parityfec
+
+# RTP Payload formats ...
+#audio/DVI4
+#audio/G719
+#audio/G7221
+#audio/G7291
+#audio/iLBC
+#audio/mpa-robust
+#audio/G722
+#audio/G723
+#audio/G726-16
+#audio/G726-24
+#audio/G726-32
+#audio/G726-40
+#audio/G728
+#audio/G729
+#audio/G729D
+#audio/G729E
+#audio/GSM
+#audio/GSM-EFR
+#audio/L8
+#audio/L16      aiff,wav
+#audio/LPC
+#audio/MPA
+#audio/PCMA
+#audio/PCMU
+#audio/QCELP
+#audio/RED
+#audio/VDVI
+#audio/L20
+#audio/L24
+#audio/SMV
+#audio/SMV0
+#audio/mpeg4-generic
+#audio/t140c
+#audio/ulpfec
+#audio/VMR-WB
+#audio/32kadpcm
+#audio/ac3
+#audio/asc
+#audio/BV16
+#audio/BV32
+#audio/clearmode
+#audio/CN
+#audio/DAT12
+#audio/dsr-es201108
+#audio/dsr-es202050
+#audio/dsr-es202211
+#audio/dsr-es202212
+#audio/EVRC0
+#audio/EVRC1
+#audio/EVRCB0
+#audio/EVRCB1
+#audio/rtp-enc-aescm128
+#audio/rtp-midi
+#audio/speex
+#audio/t38
+#audio/telephone-event
+#audio/tone
+#audio/UEMCLIP
+#audio/vorbis
+#audio/vorbis-config
+#audio/parityfec
+#video/BT656
+#video/CelB
+#video/JPEG
+#video/H261
+#video/H264
+#video/H263
+#video/H263-1998
+#video/H263-2000
+#video/MPV
+#video/MP2T
+#video/MP1S
+#video/MP2P
+#video/BMPEG
+#video/nv
+#video/3gpp-tt
+#video/BMPEG
+#video/DV
+#video/mpeg4-generic
+#video/jpeg2000
+#video/raw
+#video/rtp-enc-aescm128
+#video/SMPTE292M
+#video/ulpfec
+#video/vc1
+
+
+audio/3gpp      3gp,3gpp
+audio/3gpp2
+audio/amr       amr
+audio/amr-wb    awb,amrw
+audio/amr-wb+
+audio/ATRAC-ADVANCED-LOSSLESS   aa1,aa3,omg
+audio/ATRAC-X   atx,aa3,omg
+audio/ATRAC3    at3,aa3,omg
+audio/basic             snd,au,ulw
+audio/dls
+audio/eac3
+audio/EVRC      evc
+audio/EVRCB     evb
+audio/EVRC-QCP  qcp
+audio/SMV-QCP   qcp
+audio/EVRCWB
+audio/EVRCWB0
+audio/EVRCWB1
+audio/mid               rmi,mid,smf,kar
+audio/x-midi               rmi,mid,smf,kar
+audio/mobile-xmf        mxmf
+audio/mp4               mp4,mpg4
+audio/MP4A-LATM
+audio/mpeg              mp1,mp2,mp3
+audio/ogg       oga,ogg,spx,ogga
+audio/prs.sid
+audio/rtx
+audio/sp-midi
+audio/x-aiff            aif,aifc,aiff
+audio/x-mpegurl         m3u
+audio/x-pn-realaudio    ra,ram
+audio/x-wav             wav,bwf
+audio/wav             wav,bwf
+
+
+
+
+video/3gpp      3gp,3gpp
+video/3gpp2
+video/mj2       mj2,mjp2
+video/mp4       mp4,mpg4
+video/MP4V-ES
+video/JPEG
+video/mpeg              mp2,mpa,mpe,mpeg,mpg,mpv2
+video/ogg       ogv,oggv
+video/parityfec
+video/pointer
+video/quicktime         qt,mov,mqv
+video/rtx
+video/x-sgi-movie   movie
+video/x-msvideo     avi
+video/x-la-asf      lsf,lsx
+video/x-ms-asf      asf,asr,asx
+
+
+video/x-ms-asf  asf,asx
+
+video/x-ms-wm   wm
+audio/x-ms-wma  wma
+audio/x-ms-wax  wax
+
+video/x-ms-wmv  wmv
+video/x-ms-wvx  wvx
+
+
+audio/aiff      aiff,aif,cdda
+audio/x-aiff    aiff,aif,cdda
+audio/x-aifc    aiff
+
+
+
+
+
+audio/x-gsm     gsm
+audio/AMR 	AMR
+audio/aac 	aac,adts
+audio/x-aac 	aac,adts
+audio/x-caf 	caf
+audio/ac3 	ac3
+audio/x-ac3 	ac3
+video/x-mpeg 	mpeg,mpg,m1s,m1v,m1a,m75,m15,mp2,mpm,mpv,mpa,mpe
+video/mpeg 	mpeg,mpg,m1s,m1v,m1a,m75,m15,mp2,mpm,mpv,mpa,mpe
+
+audio/mpeg 	mpeg,mpg,m1s,m1a,mp2,mpm,mpa,m2a,mp2,mp3,mpga,mpega
+audio/x-mpeg 	mpeg,mpg,m1s,m1a,mp2,mpm,mpa,m2a,mp2,mp3,mpga,mpega
+
+video/3gpp 	3gp,3gpp
+audio/3gpp 	3gp,3gpp
+
+video/3gpp2 	3g2,3gp2,3gpp2
+audio/3gpp2 	3g2,3gp2,3gpp2
+
+video/sd-video 	sdv
+video/mp4 	mp4,mpg4
+audio/mp4 	mp4,mpg4
+audio/x-m4a 	m4a
+audio/x-m4p 	m4p
+audio/x-m4b 	m4b
+
+video/x-m4v 	m4v
+video/divx 	divx,div
+
+video/mpeg-system 	mpg,mpeg,vob
+video/x-mpeg-system 	mpg,mpeg,vob
+
+video/x-msvideo 	avi
+video/x-ms-asf-plugin 	asf,asx
+video/x-ms-asf      asf,asx
+video/x-ms-wmv 	wmv
+video/flv 	flv
+video/x-flv 	flv
+video/x-matroska 	mkv
+audio/x-matroska 	mka
+audio/x-m4a 	m4a
+audio/x-mpegurl     m3u
+audio/x-ms-wma      wma
+
+
+video/x-ms-asf      asf,asx
+video/x-ms-wm       wm
+audio/x-ms-wma      wma
+audio/x-ms-wax      wax
+video/x-ms-wmv      wmv
+video/x-ms-wvx      wvx

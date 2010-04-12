@@ -15,6 +15,7 @@
  */
 package com.bramosystems.oss.player.core.client.impl;
 
+import com.bramosystems.oss.player.core.client.MimePool;
 import com.bramosystems.oss.player.core.client.PlayerUtil;
 import com.bramosystems.oss.player.core.client.PluginNotFoundException;
 import com.bramosystems.oss.player.core.client.PluginVersion;
@@ -187,7 +188,7 @@ public class PlayerUtilImpl {
         if (mt != null) {   // plugin present...
             try {
                 String desc = mt.getEnabledPlugin().getDescription();
-                if (mt.getEnabledPlugin().getName().toLowerCase().contains("divx")) {
+                if (mt.getEnabledPlugin().getName().toLowerCase().contains("divx")) { // who has it?
                     RegExp.RegexResult res = RegExp.getRegExp("(\\d+).(\\d+).(\\d+)", "").exec(desc);
                     version.setMajor(Integer.parseInt(res.getMatch(1)));
                     version.setMinor(Integer.parseInt(res.getMatch(2)));

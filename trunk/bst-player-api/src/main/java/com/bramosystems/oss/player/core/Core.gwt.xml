@@ -21,6 +21,7 @@
     <inherits name="com.bramosystems.oss.player.util.Util" />
     <stylesheet src="custom-control-styles.css" />
 
+    <!--when-property-is name="user.agent" value="ie6,ie8,gecko,gecko1_8,safari,opera"/-->
 	<!-- WMPStateManager mapping for IE6/7/8 -->
     <replace-with class="com.bramosystems.oss.player.core.client.impl.WMPStateManagerIE">
         <when-type-is class="com.bramosystems.oss.player.core.client.impl.WMPStateManager"/>
@@ -65,8 +66,27 @@
         </any>
     </replace-with>
 
-    <replace-with class="com.bramosystems.oss.player.core.client.impl.NativePlayerProperties.NativePlayerPropertiesSafari">
-        <when-type-is class="com.bramosystems.oss.player.core.client.impl.NativePlayerProperties"/>
+    <!-- NativePlayerUtil mapping -->
+    <replace-with class="com.bramosystems.oss.player.core.client.impl.NativePlayerUtil.NativePlayerUtilSafari">
+        <when-type-is class="com.bramosystems.oss.player.core.client.impl.NativePlayerUtil"/>
         <when-property-is name="user.agent" value="safari"/>
     </replace-with>
+    <replace-with class="com.bramosystems.oss.player.core.client.impl.NativePlayerUtil.NativePlayerUtilMozilla">
+        <when-type-is class="com.bramosystems.oss.player.core.client.impl.NativePlayerUtil"/>
+        <any>
+            <when-property-is name="user.agent" value="gecko1_8"/>
+            <when-property-is name="user.agent" value="gecko"/>
+        </any>
+    </replace-with>
+
+
+    <generate-with class="com.bramosystems.oss.player.core.rebind.MimePoolGenerator" >
+        <when-type-assignable class="com.bramosystems.oss.player.core.client.MimePool"/>
+    </generate-with>
+
+    <define-configuration-property name="bstplayer.media.mimeTypes" is-multi-valued="false" />
+    <define-configuration-property name="bstplayer.media.protocols" is-multi-valued="false" />
+    <!--set-configuration-property name="bstplayer.mimeTypes" value="some-fully-classified-property-file" /-->
+
+
 </module>
