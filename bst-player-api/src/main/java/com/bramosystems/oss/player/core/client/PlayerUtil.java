@@ -16,6 +16,7 @@
 package com.bramosystems.oss.player.core.client;
 
 import com.bramosystems.oss.player.core.client.impl.PlayerUtilImpl;
+import com.bramosystems.oss.player.core.client.ui.DivXPlayer;
 import com.bramosystems.oss.player.core.client.ui.FlashMediaPlayer;
 import com.bramosystems.oss.player.core.client.ui.NativePlayer;
 import com.bramosystems.oss.player.core.client.ui.QuickTimePlayer;
@@ -261,6 +262,8 @@ public class PlayerUtil {
                 player = new NativePlayer(mediaURL, autoplay, height, width);
                 break;
             case DivXPlayer:
+                player = new DivXPlayer(mediaURL, autoplay, height, width);
+                break;
             default:
                 throw new PluginNotFoundException();
         }
@@ -288,6 +291,8 @@ public class PlayerUtil {
                 player = new NativePlayer(mediaURL, autoplay);
                 break;
             case DivXPlayer:
+                player = new DivXPlayer(mediaURL, autoplay);
+                break;
             default:
                 throw new PluginNotFoundException();
         }

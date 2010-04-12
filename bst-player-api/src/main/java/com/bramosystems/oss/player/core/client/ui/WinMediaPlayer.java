@@ -99,7 +99,7 @@ public class WinMediaPlayer extends AbstractMediaPlayerWithPlaylist {
         PluginVersion req = Plugin.WinMediaPlayer.getVersion();
         PluginVersion v = PlayerUtil.getWindowsMediaPlayerPluginVersion();
         if (v.compareTo(req) < 0) {
-            throw new PluginVersionException(req.toString(), v.toString());
+            throw new PluginVersionException(Plugin.WinMediaPlayer, req.toString(), v.toString());
         }
 
         if (stateManager == null) {

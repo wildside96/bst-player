@@ -497,7 +497,7 @@ public abstract class AbstractMediaPlayer extends Composite implements HasMediaS
      * @since 1.1
      */
     public double getRate() {
-        return 0;
+        return 1;
     }
 
     /**

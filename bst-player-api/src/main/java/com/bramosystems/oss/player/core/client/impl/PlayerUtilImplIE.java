@@ -88,8 +88,8 @@ public class PlayerUtilImplIE extends PlayerUtilImpl {
     public native void getDivXPluginVersion(PluginVersion version) /*-{
     try {
     descRegex = new RegExp("\\d+.\\d+.\\d+", "");
-    ax = new ActiveXObject('VideoLAN.VLCPlugin');
-    ver = ax.VersionInfo;
+    ax = new ActiveXObject('npdivx.DivXBrowserPlugin');
+    ver = ax.GetVersion();
     verArray = (descRegex.exec(ver))[0].split(".");
     version.@com.bramosystems.oss.player.core.client.PluginVersion::setMajor(I)(parseInt(verArray[0]));
     version.@com.bramosystems.oss.player.core.client.PluginVersion::setMinor(I)(parseInt(verArray[1]));
@@ -97,6 +97,4 @@ public class PlayerUtilImplIE extends PlayerUtilImpl {
     ax.Quit();
     } catch (e) {}
     }-*/;
-
-
 }

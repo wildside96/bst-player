@@ -109,16 +109,30 @@ public class QTStateManager {
 
         protected HasMediaStateHandlers handlers;
         protected String id;
-        private int count;
-        protected int _count;
         private NumberFormat volFmt = NumberFormat.getPercentFormat();
         private boolean isBuffering;
         private QuickTimePlayerImpl impl;
+        private LoopManager loopManager;
 
         public EventHandler(String _id, HasMediaStateHandlers _handlers) {
             handlers = _handlers;
             id = _id;
             isBuffering = false;
+            loopManager = new LoopManager(false, new LoopManager.LoopCallback() {
+
+                public void onLoopFinished() {
+                    PlayStateEvent.fire(handlers, PlayStateEvent.State.Finished, 0);
+                    onDebug("Media playback complete");
+                }
+
+                public void loopForever(boolean loop) {
+                    impl.setLoopingImpl(loop);
+                }
+
+                public void playNextLoop() {
+                    impl.play();
+                }
+            });
         }
 
         // TODO: check for a way of generating stopped event...
@@ -142,14 +156,8 @@ public class QTStateManager {
                     PlayStateEvent.fire(handlers, PlayStateEvent.State.Started, 0);
                     onDebug("Playing media at " + impl.getMovieURL());
                     break;
-                case 4: // play finished ...
-                    if (_count > 1) {
-                        _count--;
-                        impl.play();
-                    } else {
-                        PlayStateEvent.fire(handlers, PlayStateEvent.State.Finished, 0);
-                        onDebug("Media playback complete");
-                    }
+                case 4: // play finished, notify loop manager ...
+                    loopManager.notifyPlayFinished();
                     break;
                 case 5: // player ready ...
                     onDebug("Plugin ready for media playback");
@@ -193,17 +201,11 @@ public class QTStateManager {
         }
 
         public void setLoopCount(int count) {
-            this.count = count;
-            _count = count;
-            impl.setLoopingImpl(count < 0);
+            loopManager.setLoopCount(count);
         }
 
         public int getLoopCount() {
-            if (impl.isLoopingImpl()) {
-                return -1;
-            } else {
-                return count;
-            }
+            return loopManager.getLoopCount();
         }
     }
 }

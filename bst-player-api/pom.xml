@@ -50,7 +50,7 @@
                 <executions>
                     <execution>
                         <id>copy-flex</id>
-                        <phase>process-classes</phase>
+                        <phase>process-resources</phase>
                         <goals>
                             <goal>copy-flex-applications</goal>
                         </goals>
@@ -114,13 +114,18 @@
                         <configuration>
                             <module>com.bramosystems.oss.player.dev.Dev</module>
                             <soyc>false</soyc>
-                            <noServer>false</noServer>
                             <runTarget>dev/index.html</runTarget>
+                            <hostedWebapp>${project.build.directory}/${project.build.finalName}</hostedWebapp>
                         </configuration>
                     </plugin>
-
                 </plugins>
             </build>
+            <dependencies>
+                <dependency>
+                    <groupId>com.google.gwt</groupId>
+                    <artifactId>gwt-dev</artifactId>
+                </dependency>
+            </dependencies>
         </profile>
     </profiles>
 </project>

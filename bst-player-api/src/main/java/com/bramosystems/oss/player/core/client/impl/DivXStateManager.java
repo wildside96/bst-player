@@ -22,10 +22,7 @@ import com.bramosystems.oss.player.core.client.MediaInfo;
  */
 public class DivXStateManager {
 
-    public DivXStateManager() {
-    }
-
-    public final void init(String playerId, StateCallback callback) {
+    public DivXStateManager(String playerId, StateCallback callback) {
         initCallbacks(playerId, callback);
     }
 
@@ -36,12 +33,30 @@ public class DivXStateManager {
     }
 
     private native void initCallbacks(String playerId, StateCallback callback) /*-{
-    $wnd['bstDivXStateChanged_' +  playerId] = function(eventId){
+    if($wnd.bstplayer == null){
+    $wnd.bstplayer = new Object();
+    }
+    if($wnd.bstplayer.handlers == null){
+    $wnd.bstplayer.handlers = new Object();
+    }
+    if($wnd.bstplayer.handlers.divx == null){
+    $wnd.bstplayer.handlers.divx = new Object();
+    }
+    $wnd.bstplayer.handlers.divx[playerId] = new Object();
+    $wnd.bstplayer.handlers.divx[playerId].stateChanged = function(eventId){
     callback.@com.bramosystems.oss.player.core.client.impl.DivXStateManager.StateCallback::onStatusChanged(I)(parseInt(eventId));
     }
-    $wnd['bstDivXDownloadState_' +  playerId] = function(current, total){
+    $wnd.bstplayer.handlers.divx[playerId].downloadState = function(current, total){
+     $wnd.alert("loading : curent = " + current + ", total = " + total);
     callback.@com.bramosystems.oss.player.core.client.impl.DivXStateManager.StateCallback::onLoadingChanged(DD)(parseFloat(current),parseFloat(total));
     }
+    $wnd.bstplayer.handlers.divx[playerId].timeState = function(time){
+    callback.@com.bramosystems.oss.player.core.client.impl.DivXStateManager.StateCallback::onPositionChanged(D)(parseFloat(time));
+    }
+    }-*/;
+
+    public native void clearCallbacks(String playerId) /*-{
+    delete $wnd.bstplayer.divxEvents[playerId];
     }-*/;
 
     private native void fillMediaInfoImpl(MediaInfo mData, double duration, double vWidth, double vHeight) /*-{
@@ -65,8 +80,23 @@ public class DivXStateManager {
 
     public static interface StateCallback {
 
+        /**
+         * Called to notify of current status
+         * @param statusId
+         */
         public void onStatusChanged(int statusId);
 
+        /**
+         * Called to notify on current progress
+         * @param current
+         * @param total
+         */
         public void onLoadingChanged(double current, double total);
+
+        /**
+         * Called every second to inform of current playback position
+         * @param time time in seconds
+         */
+        public void onPositionChanged(double time);
     }
 }

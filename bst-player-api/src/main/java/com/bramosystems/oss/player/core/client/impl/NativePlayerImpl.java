@@ -32,10 +32,6 @@ public class NativePlayerImpl extends JavaScriptObject {
     return $doc.getElementById(playerId);
     }-*/;
 
-    public final native String canPlayType(String mimeType) /*-{
-    return this.canPlayType(mimeType);
-    }-*/;
-
     protected NativePlayerImpl() {
     }
 

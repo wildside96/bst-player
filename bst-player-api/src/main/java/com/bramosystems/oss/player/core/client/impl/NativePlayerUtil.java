@@ -16,6 +16,7 @@
 package com.bramosystems.oss.player.core.client.impl;
 
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.core.client.JavaScriptObject;
 
 /**
  * Utility class to get properties specific to the NativePlayer widget. This is meant
@@ -26,13 +27,45 @@ import com.google.gwt.core.client.GWT;
  */
 public class NativePlayerUtil {
 
-    private static NativePlayerUtil instance;
+    public static NativePlayerUtil get = GWT.create(NativePlayerUtil.class);
 
-    public static NativePlayerUtil get() {
-        if (instance == null) {
-            instance = GWT.create(NativePlayerUtil.class);
+
+    public static native TestUtil getTestUtil() /*-{
+    return $doc.createElement('video');
+    }-*/;
+
+    public static class TestUtil extends JavaScriptObject {
+
+        protected TestUtil() {
         }
-        return instance;
+
+        public final TestResult canPlayType(String mimeType) {
+            try {
+                return TestResult.valueOf(canPlayTypeImpl(mimeType));
+            } catch (Exception e) {
+                return TestResult.no;
+            }
+        }
+
+        private native String canPlayTypeImpl(String mimeType) /*-{
+        return this.canPlayType(mimeType);
+        }-*/;
+    }
+
+    public static enum TestResult {
+        /**
+         * The browser cannot handle the specified media resource
+         */
+        no,
+
+        /**
+         * The browser can maybe (but not sure) handle the specified media resource
+         */
+        maybe,
+        /**
+         * The browser can confidently handle the specified media resource
+         */
+        probably
     }
 
     private NativePlayerUtil() {
@@ -42,29 +75,26 @@ public class NativePlayerUtil {
         return "20px";
     }
     
-    public native boolean canPlayAudio(String mime)/*-{
-    try {
-    var test = new Audio();
-    return test.canPlayType(mime);
-    } catch(e){
-    return false;
+    /**
+     * Checks if implementation supports the 'loop' property
+     * @return
+     * @since 1.2
+     */
+    public boolean isLoopingSupported() {
+        return true;
     }
-    }-*/;
 
-    public native boolean canPlayVideo(String mime)/*-{
-    try {
-    var test = new Video();
-    return test.canPlayType(mime);
-    } catch(e){
-    return false;
-    }
-    }-*/;
+    public static class NativePlayerUtilSafari extends NativePlayerUtil {
 
-    public static class NativePlayerPropertiesSafari extends NativePlayerUtil {
+        private boolean isChrome;
+
+        public NativePlayerUtilSafari() {
+            isChrome = isChrome();
+        }
 
         @Override
         public String getPlayerHeight() {
-            if (isChrome()) {
+            if (isChrome) {
                 return "25px";
             }
             return "16px";
@@ -73,9 +103,17 @@ public class NativePlayerUtil {
         private native boolean isChrome() /*-{
         try {
         return navigator.userAgent.toLowerCase().indexOf('chrome') > 0;
-        }catch(videoElement){
+        }catch(e){
         return false;
         }
         }-*/;
+    }
+
+    public static class NativePlayerUtilMozilla extends NativePlayerUtil {
+
+        @Override
+        public boolean isLoopingSupported() {
+            return false;
+        }
     }
 }
