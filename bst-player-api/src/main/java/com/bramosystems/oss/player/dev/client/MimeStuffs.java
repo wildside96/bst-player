@@ -27,8 +27,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.EnumMap;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Set;
 import java.util.TreeSet;
 
 /**
@@ -143,7 +143,7 @@ public class MimeStuffs extends FlexTable {
         MimePool pool = MimePool.get();
         int row = 0;
         for (Plugin plug : Plugin.values()) {
-            HashSet<String> suf = pool.getRegisteredExtensions(plug);
+            Set<String> suf = pool.getRegisteredExtensions(plug);
             setHTML(row, 0, plug.name());
             setHTML(row++, 1, suf != null ? suf.toString() : "-");
         }
@@ -189,6 +189,7 @@ public class MimeStuffs extends FlexTable {
             return plugins;
         }
 
+        @Override
         public int compareTo(MimeBean o) {
             return type.compareTo(o.type);
         }

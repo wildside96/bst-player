@@ -23,4 +23,7 @@
     <inherits name="com.bramosystems.oss.player.youtube.YouTube"/>
 
     <entry-point class="com.bramosystems.oss.player.dev.client.Dev" />
+
+    <set-configuration-property name="bstplayer.media.mimeTypes"
+            value="/com/bramosystems/oss/player/dev/mime-types.properties" />
 </module>

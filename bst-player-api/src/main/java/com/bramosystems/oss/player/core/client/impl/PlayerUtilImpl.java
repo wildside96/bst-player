@@ -24,7 +24,7 @@ import com.bramosystems.oss.player.util.client.BrowserPlugin;
 import com.bramosystems.oss.player.util.client.MimeType;
 import com.bramosystems.oss.player.util.client.RegExp;
 import com.bramosystems.oss.player.util.client.RegExp.RegexException;
-import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Native implementation of the PlayerUtil class. It is not recommended to
@@ -41,8 +41,8 @@ public class PlayerUtilImpl {
 
     public boolean canHandleMedia(Plugin plugin, String protocol, String ext) {
         PluginVersion pv = new PluginVersion();
-        HashSet<String> types = MimePool.get().getRegisteredExtensions(plugin);
-        HashSet<String> prots = MimePool.get().getRegisteredProtocols(plugin);
+        Set<String> types = MimePool.get().getRegisteredExtensions(plugin);
+        Set<String> prots = MimePool.get().getRegisteredProtocols(plugin);
 
         if (protocol == null) {
             protocol = "-";

@@ -131,7 +131,9 @@ public class PlayerWidgetFactory {
         Element videoElement = _doc.createElement("video");
         videoElement.setId(playerId);
         videoElement.setPropertyString("src", mediaURL);
-        videoElement.setPropertyBoolean("autoplay", autoplay);
+        if (autoplay) {
+            videoElement.setPropertyBoolean("autoplay", autoplay);
+        }
         videoElement.setPropertyBoolean("controls", true);
         return videoElement;
     }
@@ -139,7 +141,9 @@ public class PlayerWidgetFactory {
     protected Element getNativeElement(String playerId, ArrayList<String> sources, boolean autoplay) {
         Element videoElement = _doc.createElement("video");
         videoElement.setId(playerId);
-        videoElement.setPropertyBoolean("autoplay", autoplay);
+        if (autoplay) {
+            videoElement.setPropertyBoolean("autoplay", autoplay);
+        }
         videoElement.setPropertyBoolean("controls", true);
 
         for (String item : sources) {
@@ -161,7 +165,7 @@ public class PlayerWidgetFactory {
     }
     private static String wmpFFMimeType = "application/x-ms-wmp", wmpAppMimeType = "application/x-mplayer2";
 
-    protected Element getDivXElement(String playerId, String mediaURL, 
+    protected Element getDivXElement(String playerId, String mediaURL,
             boolean autoplay, HashMap<String, String> params) {
         XEmbed xo = new XEmbed(playerId);
         xo.addParam("type", "video/divx");

@@ -20,19 +20,21 @@ import com.google.gwt.core.client.GWT;
 import java.util.Arrays;
 import java.util.EnumMap;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Set;
+import java.util.TreeSet;
 
 /**
  * Utility class to get the file types associated with browser plugins
  *
  * @author Sikirulai Braheem <sbraheem at bramosystems dot com>
+ * TODO: verify version numbers...
  * @since 1.1.1
  */
 public abstract class MimePool {
 
-    private EnumMap<Plugin, HashSet<String>> pool;
-    private EnumMap<Plugin, HashSet<String>> protPool;
+    private EnumMap<Plugin, TreeSet<String>> pool;
+    private EnumMap<Plugin, TreeSet<String>> protPool;
     private HashMap<String, String> mimeTypes;
     private static MimePool instance;
 
@@ -50,8 +52,8 @@ public abstract class MimePool {
 
     @SuppressWarnings("OverridableMethodCallInConstructor")
     protected MimePool() {
-        pool = new EnumMap<Plugin, HashSet<String>>(Plugin.class);
-        protPool = new EnumMap<Plugin, HashSet<String>>(Plugin.class);
+        pool = new EnumMap<Plugin, TreeSet<String>>(Plugin.class);
+        protPool = new EnumMap<Plugin, TreeSet<String>>(Plugin.class);
         mimeTypes = new HashMap<String, String>();
 
         initMimeTypes(mimeTypes);
@@ -79,7 +81,7 @@ public abstract class MimePool {
      * @param plugin the desired plugin
      * @return the registered file extensions
      */
-    public final HashSet<String> getRegisteredExtensions(Plugin plugin) {
+    public final Set<String> getRegisteredExtensions(Plugin plugin) {
         return pool.get(plugin);
     }
 
@@ -89,7 +91,7 @@ public abstract class MimePool {
      * @param plugin the desired plugin
      * @return the registered streaming protocols
      */
-    public final HashSet<String> getRegisteredProtocols(Plugin plugin) {
+    public final Set<String> getRegisteredProtocols(Plugin plugin) {
         return protPool.get(plugin);
     }
 
@@ -107,7 +109,7 @@ public abstract class MimePool {
         }
 
         if (extensions.length() > 0) {
-            HashSet<String> suffx = new HashSet<String>();
+            TreeSet<String> suffx = new TreeSet<String>();
             if (pool.containsKey(plugin)) {
                 suffx = pool.get(plugin);
             } else {
@@ -133,7 +135,7 @@ public abstract class MimePool {
         }
 
         if (protocols.length() > 0) {
-            HashSet<String> suffx = new HashSet<String>();
+            TreeSet<String> suffx = new TreeSet<String>();
             if (protPool.containsKey(plugin)) {
                 suffx = protPool.get(plugin);
             } else {
