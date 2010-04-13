@@ -86,7 +86,4 @@
 
     <define-configuration-property name="bstplayer.media.mimeTypes" is-multi-valued="false" />
     <define-configuration-property name="bstplayer.media.protocols" is-multi-valued="false" />
-    <!--set-configuration-property name="bstplayer.mimeTypes" value="some-fully-classified-property-file" /-->
-
-
 </module>
