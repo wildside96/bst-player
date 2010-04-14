@@ -479,7 +479,7 @@ public class DivXPlayer extends AbstractMediaPlayer {
      * Specifies an image, text and text size to use as a preview for the video. 
      * 
      * <p>The image file which should be in PNG, JPEG or GIF format is used as a preview
-     * image and is displayed in place of the DivX “X” logo.  The <code>message</code> is
+     * image and is displayed in place of the DivX "X" logo.  The <code>message</code> is
      * displayed on top of the image at the size specified by <code>messageFontSize</code>.
      *
      * <p>Note: <code>autoplay</code> should be set to <code>false</code> for this method to
