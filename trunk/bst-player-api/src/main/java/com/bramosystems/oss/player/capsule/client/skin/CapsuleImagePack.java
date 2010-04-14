@@ -1,18 +1,13 @@
-package com.bramosystems.oss.player.core.client.skin;
+package com.bramosystems.oss.player.capsule.client.skin;
 
+import com.bramosystems.oss.player.core.client.skin.ImagePack;
+import com.google.gwt.resources.client.ClientBundle;
 import com.google.gwt.resources.client.ImageResource;
 
 /**
- * ImageBundle definition for the CustomPlayerControl class.
- * <p>
- * extend this class and {@link com.google.gwt.resources.client.ClientBundle} to
- * provide custom ImagePlayerControls.
- * <p>
- * Please note: when you extend this class, you need to copy all the defined
- * methods into your interface again, for the GWT compiler to pick up the
- * images.
+ * Simple Image Pack with flat blue images.
  */
-public interface ImagePack {
+public interface CapsuleImagePack extends ImagePack, ClientBundle {
     public ImageResource pause();
 
     public ImageResource pauseHover();

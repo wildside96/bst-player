@@ -15,8 +15,21 @@
  */
 package com.bramosystems.oss.player.capsule.client;
 
-import com.bramosystems.oss.player.core.client.*;
-import com.bramosystems.oss.player.core.client.skin.*;
+import java.util.ArrayList;
+
+import com.bramosystems.oss.player.capsule.client.skin.CapsuleImagePack;
+import com.bramosystems.oss.player.core.client.LoadException;
+import com.bramosystems.oss.player.core.client.MediaInfo;
+import com.bramosystems.oss.player.core.client.PlayException;
+import com.bramosystems.oss.player.core.client.PlayerUtil;
+import com.bramosystems.oss.player.core.client.Plugin;
+import com.bramosystems.oss.player.core.client.PluginNotFoundException;
+import com.bramosystems.oss.player.core.client.PluginVersionException;
+import com.bramosystems.oss.player.core.client.skin.CSSSeekBar;
+import com.bramosystems.oss.player.core.client.skin.CustomAudioPlayer;
+import com.bramosystems.oss.player.core.client.skin.ImagePack;
+import com.bramosystems.oss.player.core.client.skin.MediaSeekBar;
+import com.bramosystems.oss.player.core.client.skin.VolumeControl;
 import com.bramosystems.oss.player.core.event.client.DebugEvent;
 import com.bramosystems.oss.player.core.event.client.DebugHandler;
 import com.bramosystems.oss.player.core.event.client.LoadingProgressEvent;
@@ -35,8 +48,12 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.Timer;
-import com.google.gwt.user.client.ui.*;
-import java.util.ArrayList;
+import com.google.gwt.user.client.ui.Composite;
+import com.google.gwt.user.client.ui.DockPanel;
+import com.google.gwt.user.client.ui.Image;
+import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.PushButton;
+import com.google.gwt.user.client.ui.VerticalPanel;
 
 /**
  * Sample custom sound player.
@@ -70,7 +87,7 @@ import java.util.ArrayList;
  */
 public class Capsule extends CustomAudioPlayer {
 
-    private CapsuleImages imgPack = GWT.create(CapsuleImages.class);
+    private ImagePack imgPack;
     private ProgressBar progress;
     private PushButton play,  stop;
     private Timer playTimer,  infoTimer;
@@ -110,7 +127,6 @@ public class Capsule extends CustomAudioPlayer {
             PluginVersionException, LoadException {
         this(Plugin.Auto, mediaURL, autoplay);
     }
-
     /**
      * Constructs <code>Capsule</code> player to automatically playback the
      * media located at {@code mediaURL}, if {@code autoplay} is {@code true} using
@@ -128,7 +144,29 @@ public class Capsule extends CustomAudioPlayer {
      */
     public Capsule(Plugin plugin, String mediaURL, boolean autoplay) throws PluginNotFoundException,
             PluginVersionException, LoadException {
+        this(plugin,mediaURL,autoplay,(ImagePack) GWT.create(CapsuleImagePack.class));        
+    }
+    
+    /**
+     * Constructs <code>Capsule</code> player to automatically playback the
+     * media located at {@code mediaURL}, if {@code autoplay} is {@code true} using
+     * the specified {@code plugin}.
+     *
+     * @param plugin plugin to use for playback.
+     * @param mediaURL the URL of the media to playback
+     * @param autoplay {@code true} to start playing automatically, {@code false} otherwise
+     * @param imagePack an ImagePack to use.
+     *
+     * @throws LoadException if an error occurs while loading the media.
+     * @throws PluginVersionException if the required plugin version is not installed on the client.
+     * @throws PluginNotFoundException if the plugin is not installed on the client.
+     *
+     * @see Plugin
+     */
+    public Capsule(Plugin plugin, String mediaURL, boolean autoplay, ImagePack imagePack) throws PluginNotFoundException,
+            PluginVersionException, LoadException {
         super(plugin, mediaURL, autoplay, "64px", "100%");
+        this.imgPack = imagePack;
 
         playState = PlayState.Stop;
         mItems = new ArrayList<MediaInfo.MediaInfoKey>();
@@ -164,7 +202,7 @@ public class Capsule extends CustomAudioPlayer {
             }
         };
 
-        play = new PushButton(imgPack.play().createImage(), new ClickHandler() {
+        play = new PushButton(new Image(imgPack.play()), new ClickHandler() {
 
             public void onClick(ClickEvent event) {
                 switch (playState) {
@@ -183,20 +221,20 @@ public class Capsule extends CustomAudioPlayer {
             }
         });
 
-        play.getUpDisabledFace().setImage(imgPack.playDisabled().createImage());
+        play.getUpDisabledFace().setImage(new Image(imgPack.playDisabled()));
         play.setEnabled(false);
 
-        stop = new PushButton(imgPack.stop().createImage(), new ClickHandler() {
+        stop = new PushButton(new Image(imgPack.stop()), new ClickHandler() {
 
             public void onClick(ClickEvent event) {
                 stopMedia();
             }
         });
-        stop.getUpDisabledFace().setImage(imgPack.stopDisabled().createImage());
-        stop.getUpHoveringFace().setImage(imgPack.stopHover().createImage());
+        stop.getUpDisabledFace().setImage(new Image(imgPack.stopDisabled()));
+        stop.getUpHoveringFace().setImage(new Image(imgPack.stopHover()));
         stop.setEnabled(false);
 
-        vc = new VolumeControl(imgPack.spk().createImage(), 5);
+        vc = new VolumeControl(new Image(imgPack.spk()), 5);
         vc.addVolumeChangeHandler(new VolumeChangeHandler() {
 
             public void onVolumeChanged(VolumeChangeEvent event) {
@@ -273,10 +311,10 @@ public class Capsule extends CustomAudioPlayer {
         main.setVerticalAlignment(DockPanel.ALIGN_MIDDLE);
         main.setSize("100%", "64px");
 
-        main.add(imgPack.lEdge().createImage(), DockPanel.WEST);
+        main.add(new Image(imgPack.lEdge()), DockPanel.WEST);
         main.add(play, DockPanel.WEST);
         main.add(stop, DockPanel.WEST);
-        main.add(imgPack.rEdge().createImage(), DockPanel.EAST);
+        main.add(new Image(imgPack.rEdge()), DockPanel.EAST);
         main.add(vc, DockPanel.EAST);
         main.add(progress, DockPanel.CENTER);
         main.setCellWidth(progress, "100%");
@@ -303,8 +341,8 @@ public class Capsule extends CustomAudioPlayer {
                 playTimer.scheduleRepeating(1000);
                 infoTimer.scheduleRepeating(3000);
 
-                play.getUpFace().setImage(imgPack.pause().createImage());
-                play.getUpHoveringFace().setImage(imgPack.pauseHover().createImage());
+                play.getUpFace().setImage(new Image(imgPack.pause()));
+                play.getUpHoveringFace().setImage(new Image(imgPack.pauseHover()));
                 break;
             case Stop:
                 progress.setTime(0, getMediaDuration());
@@ -313,8 +351,8 @@ public class Capsule extends CustomAudioPlayer {
                 playTimer.cancel();
                 infoTimer.cancel();
             case Pause:
-                play.getUpFace().setImage(imgPack.play().createImage());
-                play.getUpHoveringFace().setImage(imgPack.playHover().createImage());
+                play.getUpFace().setImage(new Image(imgPack.play()));
+                play.getUpHoveringFace().setImage(new Image(imgPack.playHover()));
                 break;
         }
         playState = state;
