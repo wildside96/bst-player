@@ -30,6 +30,7 @@ import com.bramosystems.oss.player.core.client.PlayerUtil;
 import com.bramosystems.oss.player.core.client.PlayException;
 import com.bramosystems.oss.player.core.client.AbstractMediaPlayer;
 import com.bramosystems.oss.player.core.client.PlaylistSupport;
+import com.bramosystems.oss.player.core.client.skin.flat.FlatImagePack;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
@@ -70,7 +71,7 @@ public class CustomPlayerControl extends Composite {
      * @param player the player object to control
      */
     public CustomPlayerControl(AbstractMediaPlayer player) {
-        this(player, (ImagePack) GWT.create(ImagePack.class));
+        this(player, (ImagePack) GWT.create(FlatImagePack.class));
     }
 
     /**
@@ -144,7 +145,7 @@ public class CustomPlayerControl extends Composite {
             }
         };
 
-        play = new PushButton(imgPack.play().createImage(), new ClickHandler() {
+        play = new PushButton(new Image(imgPack.play()), new ClickHandler() {
 
             public void onClick(ClickEvent event) {
                 switch (playState) {
@@ -162,22 +163,22 @@ public class CustomPlayerControl extends Composite {
                 }
             }
         });
-        play.getUpDisabledFace().setImage(imgPack.playDisabled().createImage());
+        play.getUpDisabledFace().setImage(new Image(imgPack.playDisabled()));
         play.setStyleName("");
         play.setEnabled(false);
 
-        stop = new PushButton(imgPack.stop().createImage(), new ClickHandler() {
+        stop = new PushButton(new Image(imgPack.stop()), new ClickHandler() {
 
             public void onClick(ClickEvent event) {
                 player.stopMedia();
             }
         });
-        stop.getUpDisabledFace().setImage(imgPack.stopDisabled().createImage());
-        stop.getUpHoveringFace().setImage(imgPack.stopHover().createImage());
+        stop.getUpDisabledFace().setImage(new Image(imgPack.stopDisabled()));
+        stop.getUpHoveringFace().setImage(new Image(imgPack.stopHover()));
         stop.setStyleName("");
         stop.setEnabled(false);
 
-        prev = new PushButton(imgPack.prev().createImage(), new ClickHandler() {
+        prev = new PushButton(new Image(imgPack.prev()), new ClickHandler() {
 
             public void onClick(ClickEvent event) {
                 if (player instanceof PlaylistSupport) {
@@ -190,12 +191,12 @@ public class CustomPlayerControl extends Composite {
                 }
             }
         });
-        prev.getUpDisabledFace().setImage(imgPack.prevDisabled().createImage());
-        prev.getUpHoveringFace().setImage(imgPack.prevHover().createImage());
+        prev.getUpDisabledFace().setImage(new Image(imgPack.prevDisabled()));
+        prev.getUpHoveringFace().setImage(new Image(imgPack.prevHover()));
         prev.setStyleName("");
         prev.setEnabled(false);
 
-        next = new PushButton(imgPack.next().createImage(), new ClickHandler() {
+        next = new PushButton(new Image(imgPack.next()), new ClickHandler() {
 
             public void onClick(ClickEvent event) {
                 if (player instanceof PlaylistSupport) {
@@ -208,12 +209,12 @@ public class CustomPlayerControl extends Composite {
                 }
             }
         });
-        next.getUpDisabledFace().setImage(imgPack.nextDisabled().createImage());
-        next.getUpHoveringFace().setImage(imgPack.nextHover().createImage());
+        next.getUpDisabledFace().setImage(new Image(imgPack.nextDisabled()));
+        next.getUpHoveringFace().setImage(new Image(imgPack.nextHover()));
         next.setStyleName("");
         next.setEnabled(false);
 
-        vc = new VolumeControl(imgPack.spk().createImage(), 5);
+        vc = new VolumeControl(new Image(imgPack.spk()), 5);
         vc.setPopupStyleName(STYLE_NAME + "-volumeControl");
         vc.addVolumeChangeHandler(new VolumeChangeHandler() {
 
@@ -300,8 +301,8 @@ public class CustomPlayerControl extends Composite {
 
                 stop.setEnabled(true);
                 play.setEnabled(true);
-                play.getUpFace().setImage(imgPack.pause().createImage());
-                play.getUpHoveringFace().setImage(imgPack.pauseHover().createImage());
+                play.getUpFace().setImage(new Image(imgPack.pause()));
+                play.getUpHoveringFace().setImage(new Image(imgPack.pauseHover()));
                 break;
             case Stop:
                 stop.setEnabled(false);
@@ -311,8 +312,8 @@ public class CustomPlayerControl extends Composite {
                 next.setEnabled(false);
                 prev.setEnabled(false);
             case Pause:
-                play.getUpFace().setImage(imgPack.play().createImage());
-                play.getUpHoveringFace().setImage(imgPack.playHover().createImage());
+                play.getUpFace().setImage(new Image(imgPack.play()));
+                play.getUpHoveringFace().setImage(new Image(imgPack.playHover()));
                 play.setEnabled(true);
                 break;
         }
@@ -331,39 +332,4 @@ public class CustomPlayerControl extends Composite {
         Playing, Pause, Stop;
     }
 
-    /**
-     * ImageBundle definition for the CustomPlayerControl class
-     */
-    public interface ImagePack extends ImageBundle {
-
-        public AbstractImagePrototype pause();
-
-        public AbstractImagePrototype pauseHover();
-
-        public AbstractImagePrototype play();
-
-        public AbstractImagePrototype playHover();
-
-        public AbstractImagePrototype playDisabled();
-
-        public AbstractImagePrototype stop();
-
-        public AbstractImagePrototype stopDisabled();
-
-        public AbstractImagePrototype stopHover();
-
-        public AbstractImagePrototype spk();
-
-        public AbstractImagePrototype prev();
-
-        public AbstractImagePrototype prevDisabled();
-
-        public AbstractImagePrototype prevHover();
-
-        public AbstractImagePrototype next();
-
-        public AbstractImagePrototype nextDisabled();
-
-        public AbstractImagePrototype nextHover();
-    }
 }
