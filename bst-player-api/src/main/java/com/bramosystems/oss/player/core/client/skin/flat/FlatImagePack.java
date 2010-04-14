@@ -26,8 +26,6 @@ public interface FlatImagePack extends ImagePack, ClientBundle {
 
     public ImageResource spk();
 
-    public ImageResource spkHover();
-
     public ImageResource prev();
 
     public ImageResource prevDisabled();
@@ -39,4 +37,8 @@ public interface FlatImagePack extends ImagePack, ClientBundle {
     public ImageResource nextDisabled();
 
     public ImageResource nextHover();
+
+    public ImageResource lEdge();
+
+    public ImageResource rEdge();
 }
