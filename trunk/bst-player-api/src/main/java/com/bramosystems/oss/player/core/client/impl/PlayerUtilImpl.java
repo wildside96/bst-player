@@ -41,8 +41,8 @@ public class PlayerUtilImpl {
 
     public boolean canHandleMedia(Plugin plugin, String protocol, String ext) {
         PluginVersion pv = new PluginVersion();
-        Set<String> types = MimePool.get().getRegisteredExtensions(plugin);
-        Set<String> prots = MimePool.get().getRegisteredProtocols(plugin);
+        Set<String> types = MimePool.instance.getRegisteredExtensions(plugin);
+        Set<String> prots = MimePool.instance.getRegisteredProtocols(plugin);
 
         if (protocol == null) {
             protocol = "-";

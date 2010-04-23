@@ -78,7 +78,7 @@ public class DivXPlayerImpl extends JavaScriptObject {
     }
     }-*/;
 
-    public native final void setVolume(double volume) /*-{
+    public native final void setVolume(int volume) /*-{
     this.SetVolume(volume);
     }-*/;
 

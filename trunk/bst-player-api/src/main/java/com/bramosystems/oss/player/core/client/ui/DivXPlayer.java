@@ -19,7 +19,6 @@ package com.bramosystems.oss.player.core.client.ui;
 import com.bramosystems.oss.player.core.client.*;
 import com.bramosystems.oss.player.core.client.MediaInfo.MediaInfoKey;
 import com.bramosystems.oss.player.core.client.impl.*;
-import com.bramosystems.oss.player.core.client.ui.Logger;
 import com.bramosystems.oss.player.core.event.client.*;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.DOM;
@@ -27,6 +26,8 @@ import com.google.gwt.user.client.ui.FlowPanel;
 
 /**
  *
+ * TODO: verify version number ...
+ * @since 1.2
  * @author Sikiru Braheem
  */
 public class DivXPlayer extends AbstractMediaPlayer {
@@ -34,12 +35,13 @@ public class DivXPlayer extends AbstractMediaPlayer {
     private DivXStateManager manager;
     private DivXPlayerImpl impl;
     private PlayerWidget playerWidget;
-    private boolean resizeToVideoSize, isEmbedded;
     private String playerId, _height, _width;
     private Logger logger;
     private LoopManager loopManager;
-    private double currentPosition;
     private DisplayMode displayMode;
+    private boolean resizeToVideoSize, isEmbedded, seeking;
+    private double currentPosition;
+    private int _volume = 50;
 
     private DivXPlayer() throws PluginNotFoundException, PluginVersionException {
         PluginVersion req = Plugin.DivXPlayer.getVersion();
@@ -51,20 +53,24 @@ public class DivXPlayer extends AbstractMediaPlayer {
         playerId = DOM.createUniqueId().replace("-", "");
         loopManager = new LoopManager(false, new LoopManager.LoopCallback() {
 
+            @Override
             public void onLoopFinished() {
                 firePlayStateEvent(PlayStateEvent.State.Finished, 0);
             }
 
+            @Override
             public void loopForever(boolean loop) {
                 impl.setLoop(loop);
             }
 
+            @Override
             public void playNextLoop() {
                 impl.playMedia();
             }
         });
         manager = new DivXStateManager(playerId, new DivXStateManager.StateCallback() {
 
+            @Override
             public void onStatusChanged(int statusId) {
                 switch (statusId) {
                     case 1: // OPEN_DONE - media info available
@@ -77,8 +83,12 @@ public class DivXPlayer extends AbstractMediaPlayer {
                         loopManager.notifyPlayFinished();
                         break;
                     case 10: // STATUS_PLAYING
-                        fireDebug("Playback started");
-                        firePlayStateEvent(PlayStateEvent.State.Started, 0);
+                        if (!seeking) { // prevent event firing when seeking ...
+                            fireDebug("Playback started");
+                            firePlayStateEvent(PlayStateEvent.State.Started, 0);
+                        } else {
+                            seeking = false;
+                        }
                         break;
                     case 11: // STATUS_PAUSED
                         fireDebug("Playback paused");
@@ -95,6 +105,7 @@ public class DivXPlayer extends AbstractMediaPlayer {
                     case 16: // BUFFERING_STOP
                         fireDebug("Buffering stopped");
                         firePlayerStateEvent(PlayerStateEvent.State.BufferingFinished);
+                        fireLoadingProgress(1.0);
                         break;
                     case 17: // DOWNLOAD_START
                         fireDebug("Download started");
@@ -120,11 +131,13 @@ public class DivXPlayer extends AbstractMediaPlayer {
                 }
             }
 
+            @Override
             public void onLoadingChanged(double current, double total) {
                 fireDebug("loading : curent = " + current + ", total = " + total);
                 fireLoadingProgress(current / total);
             }
 
+            @Override
             public void onPositionChanged(double time) {
                 currentPosition = time * 1000;
             }
@@ -148,6 +161,7 @@ public class DivXPlayer extends AbstractMediaPlayer {
         playerWidget = new PlayerWidget(Plugin.DivXPlayer, playerId, mediaURL,
                 autoplay, new BeforeUnloadCallback() {
 
+            @Override
             public void onBeforeUnload() {
                 manager.clearCallbacks(playerId);
             }
@@ -155,6 +169,15 @@ public class DivXPlayer extends AbstractMediaPlayer {
         playerWidget.addParam("statusCallback", "bstplayer.handlers.divx." + playerId + ".stateChanged");
         playerWidget.addParam("downloadCallback", "bstplayer.handlers.divx." + playerId + ".downloadState");
         playerWidget.addParam("timeCallback", "bstplayer.handlers.divx." + playerId + ".timeState");
+
+        // TODO: remove when divx implements volume getter ...
+        addToPlayerReadyCommandQueue("volume", new Command() {
+
+            @Override
+            public void execute() {
+                impl.setVolume(_volume);
+            }
+        });
 
         FlowPanel panel = new FlowPanel();
         panel.add(playerWidget);
@@ -166,12 +189,14 @@ public class DivXPlayer extends AbstractMediaPlayer {
 
             addDebugHandler(new DebugHandler() {
 
+                @Override
                 public void onDebug(DebugEvent event) {
                     logger.log(event.getMessage(), false);
                 }
             });
             addMediaInfoHandler(new MediaInfoHandler() {
 
+                @Override
                 public void onMediaInfoAvailable(MediaInfoEvent event) {
                     logger.log(event.getMediaInfo().asHTMLString(), true);
                     MediaInfo info = event.getMediaInfo();
@@ -233,21 +258,25 @@ public class DivXPlayer extends AbstractMediaPlayer {
         firePlayerStateEvent(PlayerStateEvent.State.Ready);
     }
 
+    @Override
     public void loadMedia(String mediaURL) throws LoadException {
         checkAvailable();
         impl.loadMedia(mediaURL);
     }
 
+    @Override
     public void playMedia() throws PlayException {
         checkAvailable();
         impl.playMedia();
     }
 
+    @Override
     public void stopMedia() {
         checkAvailable();
         impl.stopMedia();
     }
 
+    @Override
     public void pauseMedia() {
         checkAvailable();
         impl.pauseMedia();
@@ -258,41 +287,43 @@ public class DivXPlayer extends AbstractMediaPlayer {
      */
     @Override
     public void close() {
-//        stateManager.close(playerId);
-//        impl.close();
     }
 
+    @Override
     public long getMediaDuration() {
         checkAvailable();
         return (long) impl.getMediaDuration();
     }
 
+    @Override
     public double getPlayPosition() {
         checkAvailable();
         return currentPosition;
     }
 
-    // TODO: check up
+    @Override
     public void setPlayPosition(double position) {
         checkAvailable();
-        double _pos = Math.abs((position - currentPosition) * 100 / currentPosition);
-        fireDebug("play position : " + position + ", _pos : " + _pos);
-        impl.seek(SeekMethod.DOWN.name(), _pos);
-//        impl.playMedia();
+        seeking = true;
+        impl.seek(SeekMethod.DOWN.name(), Math.round(position / impl.getMediaDuration() * 100));
+        impl.playMedia();
     }
 
-    // TODO: check up
+    @Override
     public double getVolume() {
         checkAvailable();
-//        return 0; //impl.getVolume() / (double) 100;
-        return impl.getVolume();// / (double) 100;
+
+        //TODO: update when divx implements getVolume ...
+        // return impl.getVolume() / 100;
+        return _volume / 100.0;
     }
 
+    @Override
     public void setVolume(double volume) {
         checkAvailable();
-        volume *= 100;
-        impl.setVolume((int) volume);
-        fireDebug("Volume set to " + ((int) volume) + "%");
+        _volume = (int)(volume * 100);
+        impl.setVolume(_volume);
+        fireDebug("Volume set to " + _volume + "%");
     }
 
     @Override
@@ -310,11 +341,11 @@ public class DivXPlayer extends AbstractMediaPlayer {
      */
     @Override
     public void setControllerVisible(boolean show) {
-        if(show && displayMode.equals(DisplayMode.NULL))
+        if (show && displayMode.equals(DisplayMode.NULL)) {
             setDisplayMode(DisplayMode.MINI);
-        else
-            
-        setDisplayMode(show ? displayMode : DisplayMode.NULL);
+        } else {
+            setDisplayMode(show ? displayMode : DisplayMode.NULL);
+        }
     }
 
     /**
@@ -348,6 +379,7 @@ public class DivXPlayer extends AbstractMediaPlayer {
         } else {
             addToPlayerReadyCommandQueue("loopcount", new Command() {
 
+                @Override
                 public void execute() {
                     loopManager.setLoopCount(loop);
                 }
@@ -397,6 +429,7 @@ public class DivXPlayer extends AbstractMediaPlayer {
         } else {
             addToPlayerReadyCommandQueue("banner", new Command() {
 
+                @Override
                 public void execute() {
                     impl.setBannerEnabled(enable);
                 }
@@ -419,6 +452,7 @@ public class DivXPlayer extends AbstractMediaPlayer {
         } else {
             addToPlayerReadyCommandQueue("context", new Command() {
 
+                @Override
                 public void execute() {
                     impl.setAllowContextMenu(allow);
                 }
@@ -441,6 +475,7 @@ public class DivXPlayer extends AbstractMediaPlayer {
         } else {
             addToPlayerReadyCommandQueue("buffering", new Command() {
 
+                @Override
                 public void execute() {
                     impl.setBufferingMode(mode.name().toLowerCase());
                 }
@@ -463,15 +498,6 @@ public class DivXPlayer extends AbstractMediaPlayer {
         } else {
             playerWidget.addParam("mode", mode.name().toLowerCase());
             displayMode = mode;
-            /*
-            addToPlayerReadyCommandQueue("displayMode", new Command() {
-
-                public void execute() {
-                    impl.setMode(mode.name().toLowerCase());
-                    displayMode = mode;
-                }
-            });
-            */
         }
     }
 
@@ -500,6 +526,7 @@ public class DivXPlayer extends AbstractMediaPlayer {
         } else {
             addToPlayerReadyCommandQueue("preview", new Command() {
 
+                @Override
                 public void execute() {
                     impl.setPreviewImage(imageURL);
                     impl.setPreviewMessage(message);
@@ -509,7 +536,7 @@ public class DivXPlayer extends AbstractMediaPlayer {
         }
     }
 
-    public static enum SeekMethod {
+    private static enum SeekMethod {
 
         DOWN, UP, DRAG
     }
