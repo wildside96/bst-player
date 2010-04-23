@@ -140,7 +140,7 @@ public class MimeStuffs extends FlexTable {
         setHTML(0, 0, "Plugin");
         setHTML(0, 1, "Suffixes");
 
-        MimePool pool = MimePool.get();
+        MimePool pool = MimePool.instance;
         int row = 0;
         for (Plugin plug : Plugin.values()) {
             Set<String> suf = pool.getRegisteredExtensions(plug);

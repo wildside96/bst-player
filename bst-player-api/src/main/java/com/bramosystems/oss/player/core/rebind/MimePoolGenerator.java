@@ -175,7 +175,7 @@ public class MimePoolGenerator extends Generator {
 
         // init composer, set class properties, create source writer
         ClassSourceFileComposerFactory composer = new ClassSourceFileComposerFactory(packageName, className);
-        composer.setSuperclass("com.bramosystems.oss.player.core.client.MimePool");
+        composer.setSuperclass("com.bramosystems.oss.player.core.client.impl.MimePoolBase");
         composer.addImport("com.bramosystems.oss.player.core.client.Plugin");
         composer.addImport("java.util.HashMap");
         composer.addImport("java.util.Iterator");

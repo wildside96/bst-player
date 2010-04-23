@@ -45,13 +45,13 @@ public class Dev extends VerticalPanel implements EntryPoint {
     public void onModuleLoad() {
 //        RootPanel.get().add(new ScrollPanel(this));
         RootPanel.get().add(this);
-//        addPlayer(Plugin.DivXPlayer);
+        addPlayer(Plugin.DivXPlayer);
 //        addPlayer(Plugin.FlashPlayer);
 //        addPlayer(Plugin.QuickTimePlayer);
 //        addPlayer(Plugin.Native);
 //        addPlayer(Plugin.VLCPlayer);
 
-        add(new MimeStuffs());
+//        add(new MimeStuffs());
         
     }
 
