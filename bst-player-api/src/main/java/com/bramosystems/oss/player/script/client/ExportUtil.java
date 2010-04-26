@@ -358,14 +358,6 @@ public class ExportUtil {
         }
 
         @Override
-        public void close() {
-            if (player == null) {
-                return;
-            }
-            player.close();
-        }
-
-        @Override
         public long getMediaDuration() {
             if (player == null) {
                 return 0;

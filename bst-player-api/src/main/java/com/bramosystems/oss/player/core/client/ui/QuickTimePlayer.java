@@ -120,6 +120,7 @@ public class QuickTimePlayer extends AbstractMediaPlayerWithPlaylist implements 
         playerWidget = new PlayerWidget(Plugin.QuickTimePlayer, playerId,
                 mediaURL, autoplay, new BeforeUnloadCallback() {
 
+            @Override
             public void onBeforeUnload() {
                 manager.close(playerId);
             }
@@ -136,12 +137,14 @@ public class QuickTimePlayer extends AbstractMediaPlayerWithPlaylist implements 
 
             addDebugHandler(new DebugHandler() {
 
+                @Override
                 public void onDebug(DebugEvent event) {
                     logger.log(event.getMessage(), false);
                 }
             });
             addMediaInfoHandler(new MediaInfoHandler() {
 
+                @Override
                 public void onMediaInfoAvailable(MediaInfoEvent event) {
                     MediaInfo info = event.getMediaInfo();
                     if (info.getAvailableItems().contains(MediaInfoKey.VideoHeight)
@@ -217,54 +220,55 @@ public class QuickTimePlayer extends AbstractMediaPlayerWithPlaylist implements 
         tt.scheduleRepeating(200);  // IE workarround ...
     }
 
+    @Override
     public void loadMedia(String mediaURL) throws LoadException {
         checkAvailable();
         impl.load(mediaURL);
     }
 
+    @Override
     public void playMedia() throws PlayException {
         checkAvailable();
         impl.play();
     }
 
+    @Override
     public void stopMedia() {
         checkAvailable();
         impl.stop();
     }
 
+    @Override
     public void pauseMedia() {
         checkAvailable();
         impl.pause();
     }
 
-    /**
-     * @deprecated As of version 1.1. Remove widget from panel instead.
-     */
     @Override
-    public void close() {
-        manager.close(playerId);
-    }
-
     public long getMediaDuration() {
         checkAvailable();
         return (long) impl.getDuration();
     }
 
+    @Override
     public double getPlayPosition() {
         checkAvailable();
         return impl.getTime();
     }
 
+    @Override
     public void setPlayPosition(double position) {
         checkAvailable();
         impl.setTime(position);
     }
 
+    @Override
     public double getVolume() {
         checkAvailable();
         return impl.getVolume();
     }
 
+    @Override
     public void setVolume(double volume) {
         checkAvailable();
         impl.setVolume(volume);
@@ -298,6 +302,7 @@ public class QuickTimePlayer extends AbstractMediaPlayerWithPlaylist implements 
         } else {
             addToPlayerReadyCommandQueue("controller", new Command() {
 
+                @Override
                 public void execute() {
                     impl.setControllerVisible(show);
                 }
@@ -333,6 +338,7 @@ public class QuickTimePlayer extends AbstractMediaPlayerWithPlaylist implements 
         } else {
             addToPlayerReadyCommandQueue("loopcount", new Command() {
 
+                @Override
                 public void execute() {
                     manager.setLoopCount(playerId, loop);
                 }
@@ -361,6 +367,7 @@ public class QuickTimePlayer extends AbstractMediaPlayerWithPlaylist implements 
         } else {
             addToPlayerReadyCommandQueue("matrix", new Command() {
 
+                @Override
                 public void execute() {
                     setTransformationMatrix(matrix);
                 }
@@ -479,6 +486,7 @@ public class QuickTimePlayer extends AbstractMediaPlayerWithPlaylist implements 
      * <p>If this player is not attached to a panel, this method call is added to
      * the command-queue for later execution.
      */
+    @Override
     public void setMatrix(final com.bramosystems.oss.player.core.client.geom.TransformationMatrix matrix) {
         if (isPlayerOnPage(playerId)) {
             String mx = mxNf.format(matrix.getMatrix().getVx().getX()) + ", "
@@ -497,6 +505,7 @@ public class QuickTimePlayer extends AbstractMediaPlayerWithPlaylist implements 
         } else {
             addToPlayerReadyCommandQueue("matrix", new Command() {
 
+                @Override
                 public void execute() {
                     setMatrix(matrix);
                 }
@@ -504,6 +513,7 @@ public class QuickTimePlayer extends AbstractMediaPlayerWithPlaylist implements 
         }
     }
 
+    @Override
     public com.bramosystems.oss.player.core.client.geom.TransformationMatrix getMatrix() {
         checkAvailable();
         String[] elements = impl.getMatrix().split("\\s*,\\s*");
@@ -550,6 +560,7 @@ public class QuickTimePlayer extends AbstractMediaPlayerWithPlaylist implements 
         } else {
             addToPlayerReadyCommandQueue("rate", new Command() {
 
+                @Override
                 public void execute() {
                     impl.setRate(rate);
                 }

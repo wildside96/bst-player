@@ -39,7 +39,7 @@ public class DivXPlayer extends AbstractMediaPlayer {
     private Logger logger;
     private LoopManager loopManager;
     private DisplayMode displayMode;
-    private boolean resizeToVideoSize, isEmbedded, seeking;
+    private boolean resizeToVideoSize, isEmbedded, playing, firePlayStated = true;
     private double currentPosition;
     private int _volume = 50;
 
@@ -83,12 +83,11 @@ public class DivXPlayer extends AbstractMediaPlayer {
                         loopManager.notifyPlayFinished();
                         break;
                     case 10: // STATUS_PLAYING
-                        if (!seeking) { // prevent event firing when seeking ...
-                            fireDebug("Playback started");
-                            firePlayStateEvent(PlayStateEvent.State.Started, 0);
-                        } else {
-                            seeking = false;
+                        if(firePlayStated) {
+                        fireDebug("Playback started");
+                        firePlayStateEvent(PlayStateEvent.State.Started, 0);
                         }
+                        firePlayStated = true;
                         break;
                     case 11: // STATUS_PAUSED
                         fireDebug("Playback paused");
@@ -143,6 +142,15 @@ public class DivXPlayer extends AbstractMediaPlayer {
             }
         });
         displayMode = DisplayMode.MINI;
+
+        // add play state monitoring to enhance setPlayPosition method..
+        addPlayStateHandler(new PlayStateHandler() {
+
+            @Override
+            public void onPlayStateChanged(PlayStateEvent event) {
+                playing = event.getPlayState().equals(PlayStateEvent.State.Started);
+            }
+        });
     }
 
     public DivXPlayer(String mediaURL, boolean autoplay, String height, String width)
@@ -282,13 +290,6 @@ public class DivXPlayer extends AbstractMediaPlayer {
         impl.pauseMedia();
     }
 
-    /**
-     * @deprecated As of version 1.1, remove player from panel instead
-     */
-    @Override
-    public void close() {
-    }
-
     @Override
     public long getMediaDuration() {
         checkAvailable();
@@ -304,9 +305,11 @@ public class DivXPlayer extends AbstractMediaPlayer {
     @Override
     public void setPlayPosition(double position) {
         checkAvailable();
-        seeking = true;
         impl.seek(SeekMethod.DOWN.name(), Math.round(position / impl.getMediaDuration() * 100));
-        impl.playMedia();
+        if (playing) {  // seek mthd pauses playback, so start playback if playing b4 but suppress event ...
+            firePlayStated = false;
+            impl.playMedia();
+        }
     }
 
     @Override
@@ -321,7 +324,7 @@ public class DivXPlayer extends AbstractMediaPlayer {
     @Override
     public void setVolume(double volume) {
         checkAvailable();
-        _volume = (int)(volume * 100);
+        _volume = (int) (volume * 100);
         impl.setVolume(_volume);
         fireDebug("Volume set to " + _volume + "%");
     }

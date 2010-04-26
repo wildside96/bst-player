@@ -114,18 +114,6 @@ public abstract class AbstractMediaPlayer extends Composite implements HasMediaS
     public abstract void pauseMedia();
 
     /**
-     * Closes the player and releases all associated resources (such as removing the media player
-     * plugin from the page).
-     *
-     * Note: The player will remain unavailable after this method returns.  A new
-     * instance will have to created.
-     * 
-     * @deprecated As of version 1.1. Remove widget from panel instead. Will be removed from a future version.
-     */
-    public void close() {
-    }
-
-    /**
      * Returns the duration of the loaded media in milliseconds. An IllegalStateException is
      * thrown is the player is not available
      *

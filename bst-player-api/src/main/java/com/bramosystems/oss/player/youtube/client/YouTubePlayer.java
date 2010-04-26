@@ -24,6 +24,7 @@ import com.bramosystems.oss.player.core.client.Plugin;
 import com.bramosystems.oss.player.core.client.PluginNotFoundException;
 import com.bramosystems.oss.player.core.client.PluginVersionException;
 import com.bramosystems.oss.player.core.client.TransparencyMode;
+import com.bramosystems.oss.player.core.client.impl.BeforeUnloadCallback;
 import com.bramosystems.oss.player.core.client.impl.PlayerWidget;
 import com.bramosystems.oss.player.core.client.ui.Logger;
 import com.bramosystems.oss.player.core.event.client.DebugEvent;
@@ -132,8 +133,17 @@ public class YouTubePlayer extends AbstractMediaPlayer {
 
         playerId = DOM.createUniqueId().replace("-", "");
         swf = new PlayerWidget(Plugin.FlashPlayer, playerId,
-                getNormalizedVideoAppURL(videoURL, playerParameters),
-                false, null);
+                getNormalizedVideoAppURL(videoURL, playerParameters), false,
+                new BeforeUnloadCallback() {
+
+            @Override
+            public void onBeforeUnload() {
+                if (impl != null) {
+                    impl.stop();
+                    impl.clear();
+                }
+            }
+        });
         swf.addParam("allowScriptAccess", "always");
         swf.addParam("bgcolor", "#000000");
         if (playerParameters.isFullScreenEnabled()) {
@@ -393,17 +403,6 @@ public class YouTubePlayer extends AbstractMediaPlayer {
         }
     }
 
-    /**
-     * @deprecated As of version 1.1. Remove widget from panel instead.
-     */
-    @Override
-    public void close() {
-        if (impl != null) {
-            impl.stop();
-            impl.clear();
-        }
-    }
-
     @Override
     public long getMediaDuration() {
         if (impl != null) {
@@ -482,7 +481,7 @@ public class YouTubePlayer extends AbstractMediaPlayer {
      * @param suggestedQuality the suggested video quality for the current video
      */
     public void setPlaybackQuality(PlaybackQuality suggestedQuality) {
-        if(impl != null) {
+        if (impl != null) {
             impl.setPlaybackQuality(suggestedQuality.name().toLowerCase());
         }
     }
@@ -497,7 +496,7 @@ public class YouTubePlayer extends AbstractMediaPlayer {
     public PlaybackQuality getPlaybackQuality() throws IllegalStateException {
         if (impl != null) {
             String qua = impl.getPlaybackQuality();
-            if(qua.equals("undefined")) {
+            if (qua.equals("undefined")) {
                 throw new IllegalStateException("Player not loaded!");
             }
             return PlaybackQuality.valueOf(qua);
@@ -516,7 +515,7 @@ public class YouTubePlayer extends AbstractMediaPlayer {
         ArrayList<PlaybackQuality> pqs = new ArrayList<PlaybackQuality>();
         if (impl != null) {
             JsArrayString qua = impl.getAvailableQualityLevels();
-            for(int i = 0; i < qua.length(); i++) {
+            for (int i = 0; i < qua.length(); i++) {
                 pqs.add(PlaybackQuality.valueOf(qua.get(i)));
             }
         }
