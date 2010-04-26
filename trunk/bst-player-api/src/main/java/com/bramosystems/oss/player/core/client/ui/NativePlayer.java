@@ -103,12 +103,14 @@ public class NativePlayer extends AbstractMediaPlayerWithPlaylist {
 
             addDebugHandler(new DebugHandler() {
 
+                @Override
                 public void onDebug(DebugEvent event) {
                     logger.log(event.getMessage(), false);
                 }
             });
             addMediaInfoHandler(new MediaInfoHandler() {
 
+                @Override
                 public void onMediaInfoAvailable(MediaInfoEvent event) {
                     MediaInfo info = event.getMediaInfo();
                     if (info.getAvailableItems().contains(MediaInfoKey.VideoHeight)
@@ -124,15 +126,18 @@ public class NativePlayer extends AbstractMediaPlayerWithPlaylist {
         loopManager = new LoopManager(!NativePlayerUtil.get.isLoopingSupported(),
                 new LoopManager.LoopCallback() {
 
+            @Override
             public void onLoopFinished() {
                 fireDebug("Play finished");
                 firePlayStateEvent(PlayStateEvent.State.Finished, 0);
             }
 
+            @Override
             public void loopForever(boolean loop) {
                 impl.setLooping(loop);
             }
 
+            @Override
             public void playNextLoop() {
                 impl.play();
             }
@@ -260,13 +265,6 @@ public class NativePlayer extends AbstractMediaPlayerWithPlaylist {
         impl.pause();
     }
 
-    /**
-     * @deprecated As of version 1.1. Remove widget from panel instead.
-     */
-    @Override
-    public void close() {
-    }
-
     @Override
     public long getMediaDuration() {
         checkAvailable();
@@ -339,6 +337,7 @@ public class NativePlayer extends AbstractMediaPlayerWithPlaylist {
         } else {
             addToPlayerReadyCommandQueue("controller", new Command() {
 
+                @Override
                 public void execute() {
                     impl.setControlsVisible(show);
                 }
@@ -359,6 +358,7 @@ public class NativePlayer extends AbstractMediaPlayerWithPlaylist {
         } else {
             addToPlayerReadyCommandQueue("loop", new Command() {
 
+                @Override
                 public void execute() {
                     loopManager.setLoopCount(loop);
                 }
@@ -409,6 +409,7 @@ public class NativePlayer extends AbstractMediaPlayerWithPlaylist {
         } else {
             addToPlayerReadyCommandQueue("rate", new Command() {
 
+                @Override
                 public void execute() {
                     impl.setRate(rate);
                 }

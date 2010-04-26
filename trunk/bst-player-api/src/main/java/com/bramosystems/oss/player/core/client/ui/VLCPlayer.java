@@ -262,14 +262,6 @@ public class VLCPlayer extends AbstractMediaPlayer implements PlaylistSupport {
         impl.togglePause();
     }
 
-    /**
-     * @deprecated As of version 1.1. Remove widget from panel instead.
-     */
-    @Override
-    public void close() {
-        stateHandler.close();
-    }
-
     public long getMediaDuration() {
         checkAvailable();
         return (long) impl.getDuration();

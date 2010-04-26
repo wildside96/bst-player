@@ -147,10 +147,6 @@ public abstract class CustomVideoPlayer extends AbstractMediaPlayer implements P
         container.setWidget(widget);
     }
 
-    public void close() {
-        engine.close();
-    }
-
     public long getMediaDuration() {
         return engine.getMediaDuration();
     }

@@ -311,15 +311,6 @@ public class WinMediaPlayer extends AbstractMediaPlayerWithPlaylist {
         impl.pause();
     }
 
-    /**
-     * @deprecated As of version 1.1, remove player from panel instead
-     */
-    @Override
-    public void close() {
-        stateManager.close(playerId);
-        impl.close();
-    }
-
     public long getMediaDuration() {
         checkAvailable();
         return (long) impl.getDuration();
@@ -664,8 +655,6 @@ public class WinMediaPlayer extends AbstractMediaPlayerWithPlaylist {
          * The widget is used to embed Windows Media Player&trade; without any programmatic access.
          *
          * <p>In this mode, all method calls are ignored
-         *
-         * TODO: verify applicable methods...
          */
         EMBED_ONLY,
 
