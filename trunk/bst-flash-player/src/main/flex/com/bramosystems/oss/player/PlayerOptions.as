@@ -1,5 +1,5 @@
 /*
- * Copyright 2009 Sikirulai Braheem
+ * Copyright 2010 Sikirulai Braheem
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,19 +14,21 @@
  * the License.
  */
 
-package com.bramosystems.oss.player.external {
-    import flash.external.*;
-    import com.bramosystems.oss.player.PlayerOptions;
+package com.bramosystems.oss.player {
+    import mx.core.Application;
 
-    public class Log {
-        private static var playerId:String = PlayerOptions.playerId;
+    public class PlayerOptions {
 
-        public static function info(message:String):void {
-            ExternalInterface.call("bstSwfMdaMessage", playerId, 0, message);
+        public static function get playerId():String {
+            return Application.application.parameters.playerId;
         }
 
-        public static function error(message:String):void {
-            ExternalInterface.call("bstSwfMdaMessage", playerId, 1, message);
+        public static function get autoplay():Boolean {
+            return Application.application.parameters.autoplay;
+        }
+
+        public static function get mediaURL():String {
+            return Application.application.parameters.mediaURL;
         }
     }
 }

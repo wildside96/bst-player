@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <artifactId>bst-player</artifactId>
+        <groupId>com.bramosystems.oss.player</groupId>
+        <version>1.1.1-SNAPSHOT</version>
+    </parent>
+    <artifactId>bst-flash-player</artifactId>
+    <packaging>swf</packaging>
+    <name>BST Flash Player</name>
+
+    <description>
+        This project is component part of the BST Player API.
+        It implements the FlashPlayer SWF application.
+    </description>
+
+    <build>
+        <sourceDirectory>src/main/flex</sourceDirectory>
+        <testSourceDirectory>src/test/flex</testSourceDirectory>
+        <plugins>
+            <plugin>
+                <groupId>org.sonatype.flexmojos</groupId>
+                <artifactId>flexmojos-maven-plugin</artifactId>
+                <extensions>true</extensions>
+                <executions>
+                    <execution>
+                        <id>local-only</id>
+                        <goals>
+                            <goal>compile-swf</goal>
+                        </goals>
+                        <configuration>
+                            <moduleFiles>
+                                <module>Main.mxml</module>
+                            </moduleFiles>
+                            <incremental>false</incremental>
+                            <useNetwork>false</useNetwork>
+                            <output>${project.build.finalNam}</output>
+                        </configuration>
+                    </execution>
+                    <!--execution>
+                        <id>with-network</id>
+                        <goals>
+                            <goal>compile-swf</goal>
+                        </goals>
+                        <configuration>
+                            <incremental>false</incremental>
+                            <useNetwork>true</useNetwork>
+                        </configuration>
+                    </execution-->
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.adobe.flex.framework</groupId>
+            <artifactId>flex-framework</artifactId>
+            <version>3.2.0.3958</version>
+            <type>pom</type>
+            <optional>true</optional>
+        </dependency>
+
+        <!--dependency>
+            <groupId>org.sonatype.flexmojos</groupId>
+            <artifactId>flexmojos-unittest-support</artifactId>
+            <version>3.2.0</version>
+            <type>swc</type>
+            <scope>test</scope>
+        </dependency-->
+    </dependencies>
+
+    <repositories>
+        <repository>
+            <id>flex-mojos-repository</id>
+            <url>http://repository.sonatype.org/content/groups/flexgroup</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled> 
+            </snapshots>
+        </repository>
+    </repositories>
+    <pluginRepositories>
+        <pluginRepository>
+            <id>local</id>
+            <url>http://repository.sonatype.org/content/groups/flexgroup</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </pluginRepository>
+    </pluginRepositories>
+</project>

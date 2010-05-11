@@ -21,18 +21,33 @@ package com.bramosystems.oss.player.external {
     import flash.media.ID3Info;
     import mx.core.Application;
 
+    import com.bramosystems.oss.player.control.Controller;
+    import com.bramosystems.oss.player.PlayerOptions;
+
     public class EventUtil {
-        public static var playerId:String = "";
+        private static var playerId:String = PlayerOptions.playerId;
+        public static var controller:Controller;
 
         public static function fireApplicationInitialized():void {
             ExternalInterface.call("bstSwfMdaInit", playerId);
         }
 
-        public static function fireMediaStateChanged(state:int, playlistIndex:int = -1):void {
+        /**
+         * state IDs:
+         *  1: loading started...
+         *  2: play started...
+         *  3: play stopped...
+         *  4: play paused...
+         *  9: play finished...
+         * 10: loading complete ...
+         */
+        public static function fireMediaStateChanged(state:int, playlistIndex:int = 0):void {
+            controller.onMediaStateChanged(state, playlistIndex);
             ExternalInterface.call("bstSwfMdaMediaStateChanged", playerId, state, playlistIndex);
         }
 
         public static function fireLoadingProgress(progress:Number):void {
+            controller.onLoadingProgress(progress);
             ExternalInterface.call("bstSwfMdaLoadingProgress", playerId, progress);
         }
 
