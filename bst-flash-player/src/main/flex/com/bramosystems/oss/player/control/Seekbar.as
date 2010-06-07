@@ -21,14 +21,17 @@ package com.bramosystems.oss.player.control {
 
     import flash.display.*;
     import flash.events.*;
+
     import mx.core.*;
     import mx.containers.*;
     import mx.controls.*;
-    import mx.events.ResizeEvent;
+    import mx.events.*;
+    import mx.managers.ToolTipManager;
 
     public class Seekbar extends Canvas {
-        private const HEIGHT:uint = 10;
+        private const HEIGHT:uint = 8;
         private var loading:Canvas, playing:Canvas;
+        private var tip:ToolTip;
 
         public function Seekbar() {
             x = 0;
@@ -52,6 +55,9 @@ package com.bramosystems.oss.player.control {
             loading.percentWidth = progress * 100;
         }
 
+        public function updatePlayingProgress(progress:Number, duration:Number):void {
+            playing.percentWidth = progress / duration * 100;
+        }
         /**************** BUTTON CLICK EVENTS ****************************/
         private function onPrev(event:MouseEvent):void {
         }
@@ -64,9 +70,25 @@ package com.bramosystems.oss.player.control {
             bar.buttonMode = true;
             bar.setStyle("backgroundColor", playing ? "0xffaa00" : "0xaa00ff");
 //            bar.addEventListener(MouseEvent.CLICK, togglePlay);
-            bar.toolTip = "Testing tip";
+            bar.addEventListener(MouseEvent.MOUSE_OVER, updateTip);
+            bar.addEventListener(MouseEvent.MOUSE_OUT, clearTip);
+            bar.addEventListener(MouseEvent.MOUSE_MOVE, updateTip);
         }
 
-        /******************** RENDERING METHODS ****************************/
+        /******************** TOOL TIP METHODS ****************************/
+        private function updateTip(event:MouseEvent):void {
+            if(tip) {
+                clearTip(null);
+            }
+            var pt:uint = event.localX / width * 100;
+            tip = ToolTipManager.createToolTip("" + pt, event.stageX - 20,
+                            parent.y - parent.height) as ToolTip;
+            
+        }
+
+        private function clearTip(event:MouseEvent):void {
+            ToolTipManager.destroyToolTip(tip);
+            tip = null;
+        }
     }
 }

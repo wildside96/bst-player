@@ -51,6 +51,11 @@ package com.bramosystems.oss.player.external {
             ExternalInterface.call("bstSwfMdaLoadingProgress", playerId, progress);
         }
 
+        public static function firePlayingProgress(progress:Number):void {
+            controller.onPlayingProgress(progress);
+            ExternalInterface.call("bstSwfMdaPlayingProgress", playerId, progress);
+        }
+
         public static function fireID3Metadata(info:ID3Info):void {
             // parse into CSV like values ...
             // year[$]albumTitle[$]artists[$]comment[$]genre[$]title[$]
