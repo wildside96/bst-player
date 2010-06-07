@@ -26,7 +26,7 @@ package com.bramosystems.oss.player {
     import flash.geom.*;
     import flash.media.*;
     import flash.net.*;
-    import flash.utils.ByteArray;
+    import flash.utils.*;
 
     import mx.core.*;
     import mx.events.*;
@@ -43,6 +43,7 @@ package com.bramosystems.oss.player {
         private var player:Engine, mp3:MP3Engine, vdu:VideoEngine;
         private var playlist:Playlist;
         private var listManager:PlaylistManager;
+        private var playTimer:Timer;
 
         public function Player(setting:Setting, _playlist:Playlist) {
             x = 0;
@@ -73,6 +74,12 @@ package com.bramosystems.oss.player {
 
             playlist = _playlist;
             listManager = new PlaylistManager(playlist, setting);
+
+            // add position timer ...
+            playTimer = new Timer(1000);
+            playTimer.addEventListener(TimerEvent.TIMER, function(event:TimerEvent):void {
+                EventUtil.firePlayingProgress(player.getPlayPosition());
+            });
         }
 
         public function setDebugEnabled(enabled:Boolean):void {
@@ -197,6 +204,7 @@ package com.bramosystems.oss.player {
         private function playFinished(event:PlayStateEvent):void {
             EventUtil.fireMediaStateChanged(9, listManager.getListIndex());
             if(!playNext()) {
+                playTimer.stop();
                 Log.info("Media playback finished");
                 EventUtil.fireMediaStateChanged(9);
                 state = FINISHED;
@@ -205,12 +213,14 @@ package com.bramosystems.oss.player {
 
         private function playStopped(event:PlayStateEvent):void {
             state = STOPPED;
+            playTimer.stop();
             Log.info("Playback stopped");
             EventUtil.fireMediaStateChanged(3, listManager.getListIndex());
         }
 
         private function playPaused(event:PlayStateEvent):void {
             state = PAUSED;
+            playTimer.stop();
             Log.info("Playback paused");
             EventUtil.fireMediaStateChanged(4, listManager.getListIndex());
         }
@@ -223,6 +233,7 @@ package com.bramosystems.oss.player {
                 default:
                     Log.info("Playlist item " + listManager.getListIndex() + " : playback started");
             }
+            playTimer.start();
             state = PLAYING;
             EventUtil.fireMediaStateChanged(2, listManager.getListIndex());
         }
@@ -270,6 +281,7 @@ package com.bramosystems.oss.player {
             }
         }
 
+// TODO: verify behaviour with fullscreen in/out
         public function updateVDUSize():void {
             var _vduHeight:int = vdu.metadata ? vdu.metadata.height : vdu.height;
             var _vduWidth:int = vdu.metadata ? vdu.metadata.width : vdu.width;
@@ -279,8 +291,8 @@ package com.bramosystems.oss.player {
                 vdu.percentWidth = 100;
             } else {
                 if(vdu.metadata) {
-                    vdu.height = vdu.metadata.height;
-                    vdu.width = vdu.metadata.width;
+//                    vdu.height = vdu.metadata.height;
+//                    vdu.width = vdu.metadata.width;
                 }
             }
         }
