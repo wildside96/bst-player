@@ -48,6 +48,7 @@ public abstract class AbstractMediaPlayer extends Composite implements HasMediaS
 
         addPlayerStateHandler(new PlayerStateHandler() {
 
+            @Override
             public void onPlayerStateChanged(final PlayerStateEvent event) {
                 Timer t = new Timer() {
 
@@ -328,6 +329,7 @@ public abstract class AbstractMediaPlayer extends Composite implements HasMediaS
      * @since 1.0
      * @see LoadingProgressHandler
      */
+    @Override
     public final HandlerRegistration addLoadingProgressHandler(LoadingProgressHandler handler) {
         return addHandler(handler, LoadingProgressEvent.TYPE);
     }
@@ -340,6 +342,7 @@ public abstract class AbstractMediaPlayer extends Composite implements HasMediaS
      * @since 1.0
      * @see MediaInfoHandler
      */
+    @Override
     public final HandlerRegistration addMediaInfoHandler(MediaInfoHandler handler) {
         return addHandler(handler, MediaInfoEvent.TYPE);
     }
@@ -352,6 +355,7 @@ public abstract class AbstractMediaPlayer extends Composite implements HasMediaS
      * @see PlayStateHandler
      * @since 1.0
      */
+    @Override
     public final HandlerRegistration addPlayStateHandler(PlayStateHandler handler) {
         return addHandler(handler, PlayStateEvent.TYPE);
     }
@@ -364,6 +368,7 @@ public abstract class AbstractMediaPlayer extends Composite implements HasMediaS
      * @since 1.0
      * @see PlayerStateHandler
      */
+    @Override
     public final HandlerRegistration addPlayerStateHandler(PlayerStateHandler handler) {
         return addHandler(handler, PlayerStateEvent.TYPE);
     }
@@ -376,6 +381,7 @@ public abstract class AbstractMediaPlayer extends Composite implements HasMediaS
      * @see DebugHandler
      * @since 1.0
      */
+    @Override
     public final HandlerRegistration addDebugHandler(DebugHandler handler) {
         return addHandler(handler, DebugEvent.TYPE);
     }
@@ -458,9 +464,9 @@ public abstract class AbstractMediaPlayer extends Composite implements HasMediaS
      * @since 1.1
      */
     public <T extends ConfigValue> void setConfigParameter(ConfigParameter param, T value) {
-        if((value != null) && (value.getClass() != param.getValueType())) {
-            throw new IllegalArgumentException("Found ConfigParameter type " +
-                    value.getClass() + ", Requires " + param.getValueType() + " for value!");
+        if ((value != null) && (value.getClass() != param.getValueType())) {
+            throw new IllegalArgumentException("Found ConfigParameter type "
+                    + value.getClass() + ", Requires " + param.getValueType() + " for value!");
         }
     }
 
@@ -495,6 +501,7 @@ public abstract class AbstractMediaPlayer extends Composite implements HasMediaS
      * @return the HandlerRegistration used to remove the handler
      * @since 1.1
      */
+    @Override
     public HandlerRegistration addMouseMoveHandler(MouseMoveHandler handler) {
         return addDomHandler(handler, MouseMoveEvent.getType());
     }
@@ -506,6 +513,7 @@ public abstract class AbstractMediaPlayer extends Composite implements HasMediaS
      * @return the HandlerRegistration used to remove the handler
      * @since 1.1
      */
+    @Override
     public HandlerRegistration addMouseDownHandler(MouseDownHandler handler) {
         return addDomHandler(handler, MouseDownEvent.getType());
     }
@@ -517,6 +525,7 @@ public abstract class AbstractMediaPlayer extends Composite implements HasMediaS
      * @return the HandlerRegistration used to remove the handler
      * @since 1.1
      */
+    @Override
     public HandlerRegistration addMouseUpHandler(MouseUpHandler handler) {
         return addDomHandler(handler, MouseUpEvent.getType());
     }
@@ -528,6 +537,7 @@ public abstract class AbstractMediaPlayer extends Composite implements HasMediaS
      * @return the HandlerRegistration used to remove the handler
      * @since 1.1
      */
+    @Override
     public HandlerRegistration addKeyDownHandler(KeyDownHandler handler) {
         return addDomHandler(handler, KeyDownEvent.getType());
     }
@@ -539,6 +549,7 @@ public abstract class AbstractMediaPlayer extends Composite implements HasMediaS
      * @return the HandlerRegistration used to remove the handler
      * @since 1.1
      */
+    @Override
     public HandlerRegistration addKeyUpHandler(KeyUpHandler handler) {
         return addDomHandler(handler, KeyUpEvent.getType());
     }
@@ -550,6 +561,7 @@ public abstract class AbstractMediaPlayer extends Composite implements HasMediaS
      * @return the HandlerRegistration used to remove the handler
      * @since 1.1
      */
+    @Override
     public HandlerRegistration addKeyPressHandler(KeyPressHandler handler) {
         return addDomHandler(handler, KeyPressEvent.getType());
     }

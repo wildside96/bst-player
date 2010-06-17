@@ -42,6 +42,11 @@ public class WMPStateManagerIE extends WMPStateManager {
         registerMediaStateHandlerImpl(this, player);
     }
 
+    @Override
+    public boolean isSetModeSupported() {
+        return true;
+    }
+
     private native void registerMediaStateHandlerImpl(WMPStateManagerIE impl, WinMediaPlayerImpl player) /*-{
     player.attachEvent('playStateChange', function(NewState) {
     impl.@com.bramosystems.oss.player.core.client.impl.WMPStateManagerIE::firePlayStateChanged(Ljava/lang/String;I)(player.id, NewState);

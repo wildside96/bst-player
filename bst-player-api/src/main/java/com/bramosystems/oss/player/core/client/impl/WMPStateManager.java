@@ -27,6 +27,7 @@ import com.google.gwt.dom.client.Element;
 import com.google.gwt.dom.client.NativeEvent;
 import com.google.gwt.event.dom.client.DomEvent;
 import com.google.gwt.user.client.Timer;
+import com.google.gwt.user.client.Window;
 import java.util.HashMap;
 import java.util.Iterator;
 
@@ -40,6 +41,7 @@ public class WMPStateManager {
 
     protected HashMap<String, StateManager> cache;
 
+    @SuppressWarnings("OverridableMethodCallInConstructor")
     WMPStateManager() {
         cache = new HashMap<String, StateManager>();
         initGlobalEventListeners(this);
@@ -47,7 +49,10 @@ public class WMPStateManager {
 
     public void init(WinMediaPlayerImpl player, HasMediaStateHandlers handler, boolean resizing) {
         StateManager sm = new StateManager(player, handler, resizing);
-        cache.put(player.getPlayerId(), sm);
+        StateManager _sm = cache.put(player.getPlayerId(), sm);
+        if (_sm != null) {
+            _sm = null;
+        }
         sm.checkPlayState();
     }
 
@@ -71,6 +76,10 @@ public class WMPStateManager {
 
     public void stop(String playerId) {
         // do nothing, workaround for webkit implementation...
+    }
+
+    public boolean isSetModeSupported() {
+        return false;
     }
 
     @SuppressWarnings("unused")
@@ -153,17 +162,17 @@ public class WMPStateManager {
     protected class StateManager {
 
         protected HasMediaStateHandlers handlers;
-        protected boolean canDoMetadata,  playerInitd,  resizing;
+//        protected boolean canDoMetadata, resizing;
         private Timer downloadProgressTimer;
         protected WinMediaPlayerImpl player;
+        private String _mURL, _oURL = "";
 
         public StateManager(final WinMediaPlayerImpl _player,
                 HasMediaStateHandlers _handlers, boolean _resizing) {
             this.handlers = _handlers;
             this.player = _player;
-            this.resizing = _resizing;
-            canDoMetadata = false;
-            playerInitd = false;
+            //          this.resizing = _resizing;
+//            canDoMetadata = false;
             downloadProgressTimer = new Timer() {
 
                 @Override
@@ -216,31 +225,25 @@ public class WMPStateManager {
                     break;
                 case 3:    // playing..
                     PlayStateEvent.fire(handlers, PlayStateEvent.State.Started, 0);
-                    doMetadata();        // do metadata ...
+                    if (!_oURL.equals(_mURL)) { // new media ...
+                        doMetadata();        // do metadata ...
+                    } else {
+                        _oURL = _mURL;
+                    }
                     break;
                 case 8:    // media ended...
                     PlayStateEvent.fire(handlers, PlayStateEvent.State.Finished, 0);
-                    debug("Media playback finished");
-
-                    // TODO: disable subsequent metadata (for playlist) until better resizing method
-                    // is found for firefox brothers...
-                    // resizing = false;
-                    break;
-                case 10:    // player ready...
-                    PlayerStateEvent.fire(handlers, PlayerStateEvent.State.Ready);
-                    if (!playerInitd && !resizing) {
-                        debug("Windows Media Player plugin");
-                        debug("Version : " + player.getPlayerVersion());
-                        playerInitd = true;
-                    }
+//                    debug("Media playback finished");
                     break;
                 case 6:    // buffering ...
                     debug("Buffering...");
                     break;
+                case 10:    // player ready, ...
                 case 11:    // reconnecting to stream  ...
                     break;
                 case 9:     // preparing new item ...
-                    canDoMetadata = true;
+                    _mURL = player.getCurrentMedia().getSourceURL();
+//                    canDoMetadata = true;
             }
         }
 
@@ -249,21 +252,21 @@ public class WMPStateManager {
         }
 
         protected void doMetadata() {
-            if (resizing) {      // don't raise metadata event again, we've gotten it before;
-                return;         // we're just resizing...
-            }
+//            if (resizing) {      // don't raise metadata event again, we've gotten it before;
+//                return;         // we're just resizing...
+//            }
 
-            if (!canDoMetadata) {
-                debug("Media playback resumed");
-                return;
-            }
-            debug("Playing media at " + player.getURL());
+//            if (!canDoMetadata) {
+//                debug("Media playback resumed");
+//                return;
+//            }
+            debug("Playing media at " + _mURL);
 
             MediaInfo info = new MediaInfo();
             String err = "";
             player.fillMetadata(info, err);
             if (err.length() == 0) {
-                canDoMetadata = false;
+//                canDoMetadata = false;
                 MediaInfoEvent.fire(handlers, info);
             } else {
                 onError(err);

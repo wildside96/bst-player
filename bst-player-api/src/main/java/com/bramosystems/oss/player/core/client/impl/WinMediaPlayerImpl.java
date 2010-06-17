@@ -47,28 +47,10 @@ public class WinMediaPlayerImpl extends JavaScriptObject {
     } catch(e) {return null;}
     }-*/;
 
-    public final native void play() /*-{
-    try {
-    this.controls.play();
-    } catch(e) {}
-    }-*/;
-
-    public final native void stop() /*-{
-    try {
-    this.controls.stop();
-    } catch(e) {}
-    }-*/;
-
-    public final native void pause() /*-{
-    try {
-    this.controls.pause();
-    } catch(e) {}
-    }-*/;
-
     public final native void close() /*-{
-     try {
-     this.close();
-     } catch(e){} // suppress exp...
+    try {
+    this.close();
+    } catch(e){} // suppress exp...
     }-*/;
 
     public final native double getDuration() /*-{
@@ -77,33 +59,9 @@ public class WinMediaPlayerImpl extends JavaScriptObject {
     } catch(e) {return -1;}
     }-*/;
 
-    public final native double getCurrentPosition() /*-{
-    try {
-    return this.controls.currentPosition * 1000;
-    } catch(e) {return -1;}
-    }-*/;
-
-    public final native void setCurrentPosition(double position) /*-{
-    try {
-    this.controls.currentPosition = position / 1000;
-    } catch(e) {}
-    }-*/;
-
-    public final native int getVolume() /*-{
-    try {
-    return this.settings.volume;
-    } catch(e) {return -1;}
-    }-*/;
-
-    public final native void setVolume(int volume) /*-{
-    try {
-    this.settings.volume = volume;
-    } catch(e) {}
-    }-*/;
-
     public final native void setUIMode(String mode) /*-{
     try {
-     this.uiMode = mode;
+    this.uiMode = mode;
     } catch(e) {}
     }-*/;
 
@@ -113,36 +71,16 @@ public class WinMediaPlayerImpl extends JavaScriptObject {
     } catch(e) {return null;}
     }-*/;
 
-    public final native void setLoopCount(int count) /*-{
-    try {
-    this.settings.playCount = count;
-    } catch(e) {}
+    public final native Controls getControls() /*-{
+    return this.controls;
     }-*/;
 
-    public final native int getLoopCount() /*-{
-    try {
-    if(this.settings.getMode("loop")){
-    return -1;
-    }else {
-    return this.settings.playCount;
-    }
-    } catch(e) {
-    return 0;
-    }
+    public final native Settings getSettings() /*-{
+    return this.settings;
     }-*/;
 
-    public final native void setRate(double rate) /*-{
-    try {
-    this.settings.rate = rate;
-    } catch(e) {}
-    }-*/;
-
-    public final native double getRate() /*-{
-    try {
-    return this.settings.rate;
-    } catch(e) {
-    return 0;
-    }
+    public final native CurrentMedia getCurrentMedia() /*-{
+    return this.currentMedia;
     }-*/;
 
     public final native String getPlayerVersion() /*-{
@@ -175,9 +113,7 @@ public class WinMediaPlayerImpl extends JavaScriptObject {
     info.@com.bramosystems.oss.player.core.client.MediaInfo::hardwareSoftwareRequirements = plyrMedia.getItemInfo('WM/EncodingSettings');
     info.@com.bramosystems.oss.player.core.client.MediaInfo::videoWidth = String(plyrMedia.imageSourceWidth);
     info.@com.bramosystems.oss.player.core.client.MediaInfo::videoHeight = String(plyrMedia.imageSourceHeight);
-    } catch(e) {
-    errorMsg = e;
-    }
+    } catch(e) {errorMsg = e;}
     }-*/;
 
     public final native String getErrorDiscription() /*-{
@@ -194,9 +130,7 @@ public class WinMediaPlayerImpl extends JavaScriptObject {
     try {
     if(this.network) {
     return this.network.downloadProgress / 100;
-    } else {
-    return -1;
-    }
+    } else {return -1;}
     } catch(e) {return -1;}
     }-*/;
 
@@ -204,26 +138,8 @@ public class WinMediaPlayerImpl extends JavaScriptObject {
     try {
     if(this.network) {
     return this.network.bufferingProgress / 100;
-    } else {
-    return -1;
-    }
+    } else {return -1;}
     } catch(e) {return -1;}
-    }-*/;
-
-    public final native int getVideoHeight() /*-{
-    try {
-    return this.currentMedia.imageSourceHeight;
-    } catch(e) {
-    return 0;
-    }
-    }-*/;
-
-    public final native int getVideoWidth() /*-{
-    try {
-    return this.currentMedia.imageSourceWidth;
-    } catch(e) {
-    return 0;
-    }
     }-*/;
 
     public final native void setStretchToFit(boolean stretch) /*-{
@@ -240,7 +156,7 @@ public class WinMediaPlayerImpl extends JavaScriptObject {
 
     public final native void setWindowlessVideo(boolean windowless) /*-{
     try {
-     this.windowlessVideo = windowless;
+    this.windowlessVideo = windowless;
     } catch(e) {}
     }-*/;
 
@@ -253,28 +169,145 @@ public class WinMediaPlayerImpl extends JavaScriptObject {
     public final native String getAspectRatio() /*-{
     try {
     return this.getItemInfo('PixelAspectRatioX')+':'+this.getItemInfo('PixelAspectRatioY');
-    } catch(e) {
-    return 0;
-    }
-    }-*/;
-
-    public final native boolean requestMediaAccessRight(String accessLevel) /*-{
-    try {
-    return this.settings.requestMediaAccessRights(accessLevel);
-    } catch(e) {
-     return false;
-     }
-    }-*/;
-
-    public final native String getMediaAccessRight() /*-{
-    try {
-    return this.settings.mediaAccessRights;
-    } catch(e) {
-     return null;
-     }
+    } catch(e) {return 0;}
     }-*/;
 
     public final native String getPlayerId() /*-{
     return this.id;
     }-*/;
+
+    public static class CurrentMedia extends JavaScriptObject {
+
+        protected CurrentMedia() {
+        }
+
+        public final native int getVideoHeight() /*-{
+        try {
+        return this.imageSourceHeight;
+        } catch(e) {return 0;}
+        }-*/;
+
+        public final native int getVideoWidth() /*-{
+        try {
+        return this.imageSourceWidth;
+        } catch(e) {return 0;}
+        }-*/;
+
+        public final native String getSourceURL() /*-{
+        try {
+        return this.sourceURL;
+        } catch(e) {return '';}
+        }-*/;
+    }
+
+    public static class Controls extends JavaScriptObject {
+
+        protected Controls() {
+        }
+
+        public final native void play() /*-{
+        try {
+        this.play();
+        } catch(e) {}
+        }-*/;
+
+        public final native void stop() /*-{
+        try {
+        this.stop();
+        } catch(e) {}
+        }-*/;
+
+        public final native void pause() /*-{
+        try {
+        this.pause();
+        } catch(e) {}
+        }-*/;
+
+        public final native double getCurrentPosition() /*-{
+        try {
+        return this.currentPosition * 1000;
+        } catch(e) {return -1;}
+        }-*/;
+
+        public final native void setCurrentPosition(double position) /*-{
+        try {
+        this.currentPosition = position / 1000;
+        } catch(e) {}
+        }-*/;
+    }
+
+    public static class Settings extends JavaScriptObject {
+
+        protected Settings() {
+        }
+
+        public final native int getVolume() /*-{
+        try {
+        return this.volume;
+        } catch(e) {return -1;}
+        }-*/;
+
+        public final native void setVolume(int volume) /*-{
+        try {
+        this.volume = volume;
+        } catch(e) {}
+        }-*/;
+
+        public final native void setPlayCount(double _count) /*-{
+        try {
+        this.playCount = _count;
+        } catch(e) {}
+        }-*/;
+
+        public final native int getPlayCount() /*-{
+        try {
+        return this.playCount || 1;
+        } catch(e) {return 0;}
+        }-*/;
+
+        public final native boolean isModeEnabled(String mode) /*-{
+        try {
+        return this.getMode(mode) || false;
+        } catch(e) {return false;}
+        }-*/;
+
+        /**
+         * Not supported in non-IE browsers
+         * @param _mode
+         * @param _enable
+         */
+        public final native void enableMode(String _mode, boolean _enable) /*-{
+        this.setMode(_mode, _enable);
+        }-*/;
+
+        public final native void setRate(double rate) /*-{
+        try {
+        this.rate = rate;
+        } catch(e) {}
+        }-*/;
+
+        public final native double getRate() /*-{
+        try {
+        return this.rate;
+        } catch(e) {
+        return 0;
+        }
+        }-*/;
+
+        public final native boolean requestMediaAccessRight(String accessLevel) /*-{
+        try {
+        return this.requestMediaAccessRights(accessLevel);
+        } catch(e) {
+        return false;
+        }
+        }-*/;
+
+        public final native String getMediaAccessRight() /*-{
+        try {
+        return this.mediaAccessRights;
+        } catch(e) {
+        return null;
+        }
+        }-*/;
+    }
 }

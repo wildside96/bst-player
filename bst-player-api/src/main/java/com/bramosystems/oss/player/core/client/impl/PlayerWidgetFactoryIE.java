@@ -98,4 +98,9 @@ public class PlayerWidgetFactoryIE extends PlayerWidgetFactory {
         }
         return xo.getElement();
     }
+
+    @Override
+    public boolean isWMPProgrammableEmbedModeSupported() {
+        return true;
+    }
 }
