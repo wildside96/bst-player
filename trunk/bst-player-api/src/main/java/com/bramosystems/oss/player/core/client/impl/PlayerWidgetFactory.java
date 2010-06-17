@@ -29,6 +29,7 @@ public class PlayerWidgetFactory {
 
     private static PlayerWidgetFactory factory = GWT.create(PlayerWidgetFactory.class);
     private Document _doc = Document.get();
+    private String wmpFFMimeType = "application/x-ms-wmp", wmpAppMimeType = "application/x-mplayer2";
 
     protected class XObject {
 
@@ -70,7 +71,7 @@ public class PlayerWidgetFactory {
     PlayerWidgetFactory() {
     }
 
-    protected static final PlayerWidgetFactory get() {
+    public static PlayerWidgetFactory get() {
         return factory;
     }
 
@@ -154,7 +155,7 @@ public class PlayerWidgetFactory {
         return videoElement;
     }
 
-    public static boolean hasWMPFFPlugin() {
+    private boolean hasWMPFFPlugin() {
         // check for firefox plugin mime type...
         MimeType mt = MimeType.getMimeType(wmpFFMimeType);
         if (mt != null) {
@@ -163,7 +164,6 @@ public class PlayerWidgetFactory {
             return false;
         }
     }
-    private static String wmpFFMimeType = "application/x-ms-wmp", wmpAppMimeType = "application/x-mplayer2";
 
     protected Element getDivXElement(String playerId, String mediaURL,
             boolean autoplay, HashMap<String, String> params) {
@@ -178,5 +178,9 @@ public class PlayerWidgetFactory {
             xo.addParam(name, params.get(name));
         }
         return xo.getElement();
+    }
+
+    public boolean isWMPProgrammableEmbedModeSupported() {
+        return hasWMPFFPlugin();
     }
 }

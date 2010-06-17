@@ -32,13 +32,15 @@ public class PlayerWidget extends Widget {
     private BeforeUnloadCallback callback;
     private HashMap<String, String> params;
     private Plugin plugin;
-    private String playerId, mediaURL;
+    private String playerId, mediaURL, _height, _width;
     private ArrayList<String> mediaURLs;
     private boolean autoplay, isMultiSource;
 
     private PlayerWidget() {
         setElement(DOM.createDiv());
         params = new HashMap<String, String>();
+        _width = "100%";
+        _height = "10px";
     }
 
     public PlayerWidget(Plugin plugin, String playerId, String mediaURL,
@@ -88,22 +90,24 @@ public class PlayerWidget extends Widget {
 
     @Override
     public void setHeight(String height) {
-        Element _e = getElement().getFirstChildElement();
-        if (_e != null) {
-            _e.setAttribute("height", height);
-            _e.getStyle().setProperty("height", height);
-        }
         super.setHeight(height);
+        if (getElement().hasChildNodes()) {
+            getElement().getFirstChildElement().setAttribute("height", height);
+            getElement().getFirstChildElement().getStyle().setProperty("height", height);
+        } else {
+            _height = height;
+        }
     }
 
     @Override
     public void setWidth(String width) {
-        Element _e = getElement().getFirstChildElement();
-        if (_e != null) {
-            _e.setAttribute("width", width);
-            _e.getStyle().setProperty("width", width);
-        }
         super.setWidth(width);
+        if (getElement().hasChildNodes()) {
+            getElement().getFirstChildElement().setAttribute("width", width);
+            getElement().getFirstChildElement().getStyle().setProperty("width", width);
+        } else {
+            _width = width;
+        }
     }
 
     public void replace(Plugin plugin, String playerId, String mediaURL, boolean autoplay) {
@@ -145,12 +149,16 @@ public class PlayerWidget extends Widget {
                 break;
             case WinMediaPlayer:
                 e = pf.getWMPElement(playerId, mediaURL, autoplay, params);
+                e.setAttribute("height", _height);
+                e.getStyle().setProperty("height", _height);
+                e.setAttribute("width", _width);
+                e.getStyle().setProperty("width", _width);
                 break;
             case DivXPlayer:
                 e = pf.getDivXElement(playerId, mediaURL, autoplay, params);
                 break;
         }
-        if(updateDimension) {
+        if (updateDimension) {
             String curHeight = getElement().getFirstChildElement().getAttribute("height");
             String curWidth = getElement().getFirstChildElement().getAttribute("width");
             e.setAttribute("height", curHeight);

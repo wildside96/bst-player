@@ -36,6 +36,7 @@ import com.bramosystems.oss.player.core.event.client.DebugEvent;
 import com.bramosystems.oss.player.core.event.client.DebugHandler;
 import com.bramosystems.oss.player.core.event.client.MediaInfoEvent;
 import com.bramosystems.oss.player.core.event.client.MediaInfoHandler;
+import com.bramosystems.oss.player.core.event.client.PlayerStateEvent;
 import com.bramosystems.oss.player.core.event.client.PlayerStateEvent.State;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.Command;
@@ -89,10 +90,11 @@ public class WinMediaPlayer extends AbstractMediaPlayerWithPlaylist {
     private boolean isEmbedded, resizeToVideoSize;
     private UIMode uiMode;
     private BeforeUnloadCallback unloadCallback;
-    private EmbedMode embedMode;
+    private Command autoplayCommand;
 
     private WinMediaPlayer(EmbedMode embedMode) throws PluginNotFoundException, PluginVersionException {
-        if (embedMode.equals(EmbedMode.PROGRAMMABLE) && !PlayerWidgetFactory.hasWMPFFPlugin()) {
+        if (embedMode.equals(EmbedMode.PROGRAMMABLE)
+                && !PlayerWidgetFactory.get().isWMPProgrammableEmbedModeSupported()) {
             throw new PluginNotFoundException("'Media Player plugin for Firefox' is required");
         }
 
@@ -106,9 +108,9 @@ public class WinMediaPlayer extends AbstractMediaPlayerWithPlaylist {
             stateManager = GWT.create(WMPStateManager.class);
         }
 
-        this.embedMode = embedMode;
         unloadCallback = new BeforeUnloadCallback() {
 
+            @Override
             public void onBeforeUnload() {
                 stateManager.close(playerId);
                 impl.close();
@@ -144,12 +146,11 @@ public class WinMediaPlayer extends AbstractMediaPlayerWithPlaylist {
      * @throws PluginVersionException if the required Windows Media Player plugin version is not installed on the client.
      * @throws PluginNotFoundException if the Windows Media Player plugin is not installed on the client.
      *
-     * @since 1.1.1
+     * @since 1.2
      * @see EmbedMode
-     * 
-     * TODO: verify version number ....
      */
-    public WinMediaPlayer(String mediaURL, boolean autoplay, String height, String width,
+    @SuppressWarnings("OverridableMethodCallInConstructor")
+    public WinMediaPlayer(String mediaURL, final boolean autoplay, String height, String width,
             EmbedMode embedMode)
             throws LoadException, PluginNotFoundException, PluginVersionException {
         this(embedMode);
@@ -161,9 +162,20 @@ public class WinMediaPlayer extends AbstractMediaPlayerWithPlaylist {
         FlowPanel panel = new FlowPanel();
         initWidget(panel);
 
-        playerWidget = new PlayerWidget(Plugin.WinMediaPlayer, playerId, mediaURL, autoplay, unloadCallback);
+        playerWidget = new PlayerWidget(Plugin.WinMediaPlayer, playerId, mediaURL, false, unloadCallback);
         panel.add(playerWidget);
 
+        autoplayCommand = new Command() {
+
+            @Override
+            public void execute() {
+                if (autoplay) {
+                    impl.getControls().play();
+                }
+            }
+        };
+
+        isEmbedded = (height == null) || (width == null);
         if (!isEmbedded) {
             logger = new Logger();
             logger.setVisible(false);
@@ -171,12 +183,14 @@ public class WinMediaPlayer extends AbstractMediaPlayerWithPlaylist {
 
             addDebugHandler(new DebugHandler() {
 
+                @Override
                 public void onDebug(DebugEvent event) {
                     logger.log(event.getMessage(), false);
                 }
             });
             addMediaInfoHandler(new MediaInfoHandler() {
 
+                @Override
                 public void onMediaInfoAvailable(MediaInfoEvent event) {
                     logger.log(event.getMediaInfo().asHTMLString(), true);
                     MediaInfo info = event.getMediaInfo();
@@ -193,6 +207,8 @@ public class WinMediaPlayer extends AbstractMediaPlayerWithPlaylist {
             _height = "1px";
             setConfigParameter(ConfigParameter.WMPUIMode, UIMode.INVISIBLE);
         }
+        playerWidget.setSize(_width, _height);
+        setWidth(_width);
     }
 
     /**
@@ -267,7 +283,7 @@ public class WinMediaPlayer extends AbstractMediaPlayerWithPlaylist {
      */
     private void setupPlayer(final boolean isResizing) {
         if (isResizing) {
-            playerWidget.replace(Plugin.WinMediaPlayer, playerId, mediaURL, true);
+            playerWidget.replace(Plugin.WinMediaPlayer, playerId, mediaURL, false);
         }
 
         impl = WinMediaPlayerImpl.getPlayer(playerId);
@@ -283,58 +299,69 @@ public class WinMediaPlayer extends AbstractMediaPlayerWithPlaylist {
      */
     @Override
     protected final void onLoad() {
-        playerWidget.setVisible(false);
-        playerWidget.setSize(_width, _height);
-        playerWidget.setVisible(true);
-        setWidth(_width);
         setupPlayer(false);
+
+        fireDebug("Windows Media Player plugin");
+        fireDebug("Version : " + impl.getPlayerVersion());
+        firePlayerStateEvent(PlayerStateEvent.State.Ready);
+
+        autoplayCommand.execute();
     }
 
+    @Override
     public void loadMedia(String mediaURL) throws LoadException {
         checkAvailable();
         impl.setURL(mediaURL);
     }
 
+    @Override
     public void playMedia() throws PlayException {
         checkAvailable();
-        impl.play();
+        impl.getControls().play();
     }
 
+    @Override
     public void stopMedia() {
         checkAvailable();
         stateManager.stop(playerId);
-        impl.stop();
+        impl.getControls().stop();
     }
 
+    @Override
     public void pauseMedia() {
         checkAvailable();
-        impl.pause();
+        impl.getControls().pause();
     }
 
+    @Override
     public long getMediaDuration() {
         checkAvailable();
         return (long) impl.getDuration();
     }
 
+    @Override
     public double getPlayPosition() {
         checkAvailable();
-        return impl.getCurrentPosition();
+        return impl.getControls().getCurrentPosition();
     }
 
+    @Override
     public void setPlayPosition(double position) {
         checkAvailable();
-        impl.setCurrentPosition(position);
+        impl.getControls().setCurrentPosition(position);
     }
 
+    @Override
     public double getVolume() {
         checkAvailable();
-        return impl.getVolume() / (double) 100;
+        return impl.getSettings().getVolume() / (double) 100;
     }
 
+    @Override
     public void setVolume(double volume) {
         checkAvailable();
         volume *= 100;
-        impl.setVolume((int) volume);
+        impl.getSettings().setVolume((int) volume);
         fireDebug("Volume set to " + ((int) volume) + "%");
     }
 
@@ -386,7 +413,11 @@ public class WinMediaPlayer extends AbstractMediaPlayerWithPlaylist {
     @Override
     public int getLoopCount() {
         checkAvailable();
-        return impl.getLoopCount();
+        if (impl.getSettings().isModeEnabled(PlayerMode.loop.name())) {
+            return -1;
+        } else {
+            return impl.getSettings().getPlayCount();
+        }
     }
 
     /**
@@ -394,31 +425,50 @@ public class WinMediaPlayer extends AbstractMediaPlayerWithPlaylist {
      *
      * <p>As of version 1.0, if this player is not available on the panel, this method
      * call is added to the command-queue for later execution.
+     *
+     * <p><b>Note:</b> Setting <code>loop</code> to a negative value sets <code>loopCount</code>
+     * to <code>Short.MAX_VALUE</code> in non-IE browsers
      */
     @Override
     public void setLoopCount(final int loop) {
         if (isAvailable()) {
-            impl.setLoopCount(loop);
+            setLoopCountImpl(loop);
         } else {
             addToPlayerReadyCommandQueue("loopcount", new Command() {
 
+                @Override
                 public void execute() {
-                    impl.setLoopCount(loop);
+                    setLoopCountImpl(loop);
                 }
             });
+        }
+    }
+
+    private void setLoopCountImpl(int loop) {
+        if (loop < 0) { // loop forever ...
+            if (stateManager.isSetModeSupported()) {
+                impl.getSettings().enableMode(PlayerMode.loop.name(), true);
+//                impl.getSettings().setPlayCount(0);
+            } else { // set play count to a high value ;-)
+                impl.getSettings().setPlayCount(Short.MAX_VALUE);
+                // TODO: find workaround for totem plugin, this does no work
+            }
+        } else {
+            impl.getSettings().enableMode(PlayerMode.loop.name(), false);
+            impl.getSettings().setPlayCount(loop);
         }
     }
 
     @Override
     public int getVideoHeight() {
         checkAvailable();
-        return impl.getVideoHeight();
+        return impl.getCurrentMedia().getVideoHeight();
     }
 
     @Override
     public int getVideoWidth() {
         checkAvailable();
-        return impl.getVideoWidth();
+        return impl.getCurrentMedia().getVideoWidth();
     }
 
     @Override
@@ -452,7 +502,16 @@ public class WinMediaPlayer extends AbstractMediaPlayerWithPlaylist {
 
         if (!_height.equals(_h) && !_width.equals(_w)) {
             if (stateManager.shouldRunResizeQuickFix()) {
-                setupPlayer(true);
+                // get important parameters ...
+                int playCount = impl.getSettings().getPlayCount();
+                boolean isLooping = impl.getSettings().isModeEnabled(PlayerMode.loop.name());
+                
+                setupPlayer(true); // replace player ...
+
+                // apply previous parameters ...
+                impl.getSettings().setPlayCount(playCount);
+                impl.getSettings().enableMode(PlayerMode.loop.name(), isLooping);
+                impl.getControls().play();  // continue playback ...
             }
             firePlayerStateEvent(State.DimensionChangedOnVideo);
         }
@@ -466,7 +525,7 @@ public class WinMediaPlayer extends AbstractMediaPlayerWithPlaylist {
      */
     public MediaAccessRights getMediaAccessRights() {
         checkAvailable();
-        return MediaAccessRights.valueOf(impl.getMediaAccessRight().toLowerCase());
+        return MediaAccessRights.valueOf(impl.getSettings().getMediaAccessRight().toLowerCase());
     }
 
     /**
@@ -484,12 +543,13 @@ public class WinMediaPlayer extends AbstractMediaPlayerWithPlaylist {
      */
     public void setMediaAccessRights(final MediaAccessRights accessRights) {
         if (isAvailable()) {
-            impl.requestMediaAccessRight(accessRights.name().toLowerCase());
+            impl.getSettings().requestMediaAccessRight(accessRights.name().toLowerCase());
         } else {
             addToPlayerReadyCommandQueue("accessright", new Command() {
 
+                @Override
                 public void execute() {
-                    impl.requestMediaAccessRight(accessRights.name().toLowerCase());
+                    impl.getSettings().requestMediaAccessRight(accessRights.name().toLowerCase());
                 }
             });
         }
@@ -514,6 +574,7 @@ public class WinMediaPlayer extends AbstractMediaPlayerWithPlaylist {
         } else {
             addToPlayerReadyCommandQueue("uimode", new Command() {
 
+                @Override
                 public void execute() {
                     impl.setUIMode(uiMode.name().toLowerCase());
                 }
@@ -565,12 +626,13 @@ public class WinMediaPlayer extends AbstractMediaPlayerWithPlaylist {
     @Override
     public void setRate(final double rate) {
         if (isPlayerOnPage(playerId)) {
-            impl.setRate(rate);
+            impl.getSettings().setRate(rate);
         } else {
             addToPlayerReadyCommandQueue("rate", new Command() {
 
+                @Override
                 public void execute() {
-                    impl.setRate(rate);
+                    impl.getSettings().setRate(rate);
                 }
             });
         }
@@ -579,7 +641,7 @@ public class WinMediaPlayer extends AbstractMediaPlayerWithPlaylist {
     @Override
     public double getRate() {
         checkAvailable();
-        return impl.getRate();
+        return impl.getSettings().getRate();
     }
 
     /**
@@ -646,8 +708,7 @@ public class WinMediaPlayer extends AbstractMediaPlayerWithPlaylist {
      * access.
      *
      * @author Sikirulai Braheem
-     * @since 1.1.1
-     * TODO: verify version number before release....
+     * @since 1.2
      */
     public static enum EmbedMode {
 
@@ -657,11 +718,31 @@ public class WinMediaPlayer extends AbstractMediaPlayerWithPlaylist {
          * <p>In this mode, all method calls are ignored
          */
         EMBED_ONLY,
-
         /**
          * The widget is used to embed Windows Media Player&trade; with full programmatic access. This mode
          * requires the Windows Media Player plugin for Firefox in non-IE browsers.
          */
         PROGRAMMABLE
+    }
+
+    private enum PlayerMode {
+
+        /**
+         * Restart playlist at the beginning after playing to the end
+         */
+        autoRewind,
+        /**
+         * Repeat playlist
+         */
+        loop,
+        /**
+         * Display the nearest key frame at the current position when
+         * not playing.  This mode is not applicable to audio media.
+         */
+        //        showFrame,
+        /**
+         * Play tracks in random order
+         */
+        shuffle
     }
 }

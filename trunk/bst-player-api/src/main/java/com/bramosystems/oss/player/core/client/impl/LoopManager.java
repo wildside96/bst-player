@@ -30,7 +30,8 @@ public class LoopManager {
 
     /**
      *
-     * @param handleLooping true if manager should handle continous looping or player has support for it
+     * @param handleLooping true if manager should handle continous looping or false
+     * if player has support for it
      * @param callback the callback
      */
     public LoopManager(boolean handleLooping, LoopCallback callback) {
