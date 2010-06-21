@@ -16,6 +16,8 @@
 package com.bramosystems.oss.player.core.client.ui;
 
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.resources.client.ClientBundle;
+import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.ui.*;
 
@@ -27,29 +29,21 @@ import com.google.gwt.user.client.ui.*;
  */
 public class Logger extends Composite {
 
-    private ImgPack imgpack = GWT.create(ImgPack.class);
-//    private VerticalPanel console;
-    private FlowPanel console;
-    private ScrollPanel sp;
+        private ImgPack imgpack = GWT.create(ImgPack.class);
+        private LoggerConsoleImpl impl;
 
     /**
      * Constructs a Logger object
      */
     public Logger() {
-        console = new FlowPanel();
-
-        sp = new ScrollPanel(console);
-        DOM.setStyleAttribute(sp.getElement(), "background", "white");
-        DOM.setStyleAttribute(sp.getElement(), "border", "1px solid #ccc");
-        DOM.setStyleAttribute(sp.getElement(), "fontSize", "10pt");
-        DOM.setStyleAttribute(sp.getElement(), "padding", "5px");
-        sp.setHeight("200px");
+        impl = GWT.create(LoggerConsoleImpl.class);
 
         // build the indicator...
-        DisclosurePanel dp = new DisclosurePanel(imgpack, "", false);
+        DisclosurePanel dp = new DisclosurePanel(imgpack.disclosurePanelOpen(),
+                imgpack.disclosurePanelClosed(), "");
         dp.setAnimationEnabled(true);
         dp.setStyleName("");
-        dp.add(sp);
+        dp.add(impl.getConsole());
         initWidget(dp);
         setWidth("100%");
     }
@@ -62,20 +56,56 @@ public class Logger extends Composite {
      * HTML, <code>false</code> otherwise.
      */
     public void log(String message, boolean asHTML) {
-        if (asHTML) {
-            console.add(new HTML("- " + message));
-        } else {
-            console.add(new Label("- " + message));
-        }
-        sp.scrollToBottom();
+        impl.log(message, asHTML);
     }
 
-    interface ImgPack extends DisclosurePanelImages {
+    interface ImgPack extends ClientBundle {
 
-        @Resource("expandLogger.png")
-        AbstractImagePrototype disclosurePanelClosed();
+        @Source("expandLogger.png")
+        ImageResource disclosurePanelClosed();
 
-        @Resource("collapseLogger.png")
-        AbstractImagePrototype disclosurePanelOpen();
+        @Source("collapseLogger.png")
+        ImageResource disclosurePanelOpen();
+    }
+
+    static class LoggerConsoleImpl {
+
+        private FlowPanel console;
+        private ScrollPanel sp;
+
+        public LoggerConsoleImpl() {}
+
+        public Widget getConsole() {
+            console = new FlowPanel();
+            sp = new ScrollPanel(console);
+            DOM.setStyleAttribute(sp.getElement(), "background", "white");
+            DOM.setStyleAttribute(sp.getElement(), "border", "1px solid #ccc");
+            DOM.setStyleAttribute(sp.getElement(), "fontSize", "10pt");
+            DOM.setStyleAttribute(sp.getElement(), "padding", "5px");
+            sp.setHeight("200px");
+            return sp;
+        }
+
+        public void log(String message, boolean asHTML) {
+            if (asHTML) {
+                console.add(new HTML("- " + message));
+            } else {
+                console.add(new Label("- " + message));
+            }
+            sp.scrollToBottom();
+        }
+    }
+
+    static class NullLoggerConsoleImpl extends LoggerConsoleImpl {
+
+        public NullLoggerConsoleImpl() {}
+
+        @Override
+        public Widget getConsole() {
+            return new SimplePanel();
+        }
+
+        @Override
+        public void log(String message, boolean asHTML) {}
     }
 }

@@ -32,6 +32,11 @@ public class WMPStateManagerIE extends WMPStateManager {
     }
 
     @Override
+    public boolean isSetModeSupported() {
+        return true;
+    }
+
+    @Override
     protected void initGlobalEventListeners(WMPStateManager impl) {
         // override this and do nothing to avoid IE errors. Method is just a
         // workaround for non IE browsers.
@@ -40,11 +45,6 @@ public class WMPStateManagerIE extends WMPStateManager {
     @Override
     public void registerMediaStateHandlers(WinMediaPlayerImpl player) {
         registerMediaStateHandlerImpl(this, player);
-    }
-
-    @Override
-    public boolean isSetModeSupported() {
-        return true;
     }
 
     private native void registerMediaStateHandlerImpl(WMPStateManagerIE impl, WinMediaPlayerImpl player) /*-{

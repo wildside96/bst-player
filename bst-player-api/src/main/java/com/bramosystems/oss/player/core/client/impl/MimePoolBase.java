@@ -27,8 +27,7 @@ import java.util.TreeSet;
  * Utility class to get the file types associated with browser plugins
  *
  * @author Sikirulai Braheem <sbraheem at bramosystems dot com>
- * TODO: verify version numbers...
- * @since 1.1.1
+ * @since 1.2
  */
 public abstract class MimePoolBase implements MimePool {
 

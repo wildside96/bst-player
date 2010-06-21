@@ -61,7 +61,7 @@ public class WMPStateManagerWebkit extends WMPStateManager {
      * Override generic implementation to pool for WMP play state instead,
      * player not generating events as expected.
      */
-    protected class PoolingStateManager extends StateManager {
+    protected class PoolingStateManager extends EventProcessor {
 
         private Timer playStateTimer;
         private int previousState,  stateTimerPeriod = 200;
@@ -71,7 +71,7 @@ public class WMPStateManagerWebkit extends WMPStateManager {
 
         public PoolingStateManager(final WinMediaPlayerImpl _player,
                 HasMediaStateHandlers _handlers, boolean _resizing) {
-            super(_player, _handlers, _resizing);
+            super(_handlers);
             previousState = -9;
             stoppedByUser = false;
             downloadProgressTimer = new Timer() {

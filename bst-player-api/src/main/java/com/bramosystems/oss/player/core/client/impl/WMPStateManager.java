@@ -27,7 +27,6 @@ import com.google.gwt.dom.client.Element;
 import com.google.gwt.dom.client.NativeEvent;
 import com.google.gwt.event.dom.client.DomEvent;
 import com.google.gwt.user.client.Timer;
-import com.google.gwt.user.client.Window;
 import java.util.HashMap;
 import java.util.Iterator;
 
@@ -39,21 +38,18 @@ import java.util.Iterator;
  */
 public class WMPStateManager {
 
-    protected HashMap<String, StateManager> cache;
+    protected HashMap<String, EventProcessor> cache;
 
-    @SuppressWarnings("OverridableMethodCallInConstructor")
+    @SuppressWarnings({"OverridableMethodCallInConstructor", "LeakingThisInConstructor"})
     WMPStateManager() {
-        cache = new HashMap<String, StateManager>();
+        cache = new HashMap<String, EventProcessor>();
         initGlobalEventListeners(this);
     }
 
-    public void init(WinMediaPlayerImpl player, HasMediaStateHandlers handler, boolean resizing) {
-        StateManager sm = new StateManager(player, handler, resizing);
-        StateManager _sm = cache.put(player.getPlayerId(), sm);
-        if (_sm != null) {
-            _sm = null;
-        }
-        sm.checkPlayState();
+    public EventProcessor init(String playerId, HasMediaStateHandlers handler) {
+        EventProcessor sm = new EventProcessor(handler);
+        cache.put(playerId, sm);
+        return sm;
     }
 
     /**
@@ -157,22 +153,35 @@ public class WMPStateManager {
 
     public void registerMediaStateHandlers(WinMediaPlayerImpl player) {
         // do nothing, provided for DOM event registration in IE.
+//        registerMediaStateHandlerImpl(this, player);
     }
 
-    protected class StateManager {
+    private native void registerMediaStateHandlerImpl(WMPStateManager impl, WinMediaPlayerImpl player) /*-{
+        $wnd.alert('attaching handlers : ');
+    player.addEventListener('OnDSPlayStateChangeEvt', function(NewState) {
+        $wnd.alert('state : ' + NewState);
+     //    impl.@com.bramosystems.oss.player.core.client.impl.WMPStateManagerIE::firePlayStateChanged(Ljava/lang/String;I)(player.id, NewState);
+    }, false);
+    player.addEventListener('buffering', function(Start) {
+//    impl.@com.bramosystems.oss.player.core.client.impl.WMPStateManagerIE::fireBuffering(Ljava/lang/String;Z)(player.id, Start);
+    }, false);
+    player.addEventListener('error', function() {
+//    impl.@com.bramosystems.oss.player.core.client.impl.WMPStateManagerIE::fireError(Ljava/lang/String;)(player.id);
+    }, false);
+//    impl.@com.bramosystems.oss.player.core.client.impl.WMPStateManagerIE::firePlayStateChanged(Ljava/lang/String;I)(player.id, player.playState);
+    }-*/;
+
+    public class EventProcessor {
 
         protected HasMediaStateHandlers handlers;
-//        protected boolean canDoMetadata, resizing;
+        private boolean enabled;
         private Timer downloadProgressTimer;
         protected WinMediaPlayerImpl player;
-        private String _mURL, _oURL = "";
+        private String _mURL = "-", _oURL = "";
 
-        public StateManager(final WinMediaPlayerImpl _player,
-                HasMediaStateHandlers _handlers, boolean _resizing) {
+        public EventProcessor(HasMediaStateHandlers _handlers) {
             this.handlers = _handlers;
-            this.player = _player;
-            //          this.resizing = _resizing;
-//            canDoMetadata = false;
+            enabled = false;
             downloadProgressTimer = new Timer() {
 
                 @Override
@@ -182,7 +191,19 @@ public class WMPStateManager {
             };
         }
 
+        public void setPlayerImpl(WinMediaPlayerImpl player) {
+            this.player = player;
+        }
+
+        public void setEnabled(boolean enabled) {
+            this.enabled = enabled;
+        }
+
         public void checkPlayState() {
+            if (!enabled) {
+                return;
+            }
+
             int state = player.getPlayState();
             if (state < 0) {
                 return;
@@ -213,7 +234,7 @@ public class WMPStateManager {
             }
         }
 
-        public void processPlayState(int state) {
+        protected void processPlayState(int state) {
             switch (state) {
                 case 1:    // stopped..
                     debug("Media playback stopped");
@@ -225,48 +246,39 @@ public class WMPStateManager {
                     break;
                 case 3:    // playing..
                     PlayStateEvent.fire(handlers, PlayStateEvent.State.Started, 0);
+                    _mURL = player.getCurrentMediaURL();
                     if (!_oURL.equals(_mURL)) { // new media ...
                         doMetadata();        // do metadata ...
-                    } else {
-                        _oURL = _mURL;
                     }
+                    _oURL = _mURL;
                     break;
                 case 8:    // media ended...
                     PlayStateEvent.fire(handlers, PlayStateEvent.State.Finished, 0);
-//                    debug("Media playback finished");
+                    debug("Media playback finished");
                     break;
                 case 6:    // buffering ...
                     debug("Buffering...");
                     break;
+                case 9:     // preparing new item ...
                 case 10:    // player ready, ...
                 case 11:    // reconnecting to stream  ...
                     break;
-                case 9:     // preparing new item ...
-                    _mURL = player.getCurrentMedia().getSourceURL();
-//                    canDoMetadata = true;
             }
         }
 
         public void checkError() {
-            onError(player.getErrorDiscription());
+            if (enabled) {
+                onError(player.getErrorDiscription());
+            }
         }
 
         protected void doMetadata() {
-//            if (resizing) {      // don't raise metadata event again, we've gotten it before;
-//                return;         // we're just resizing...
-//            }
-
-//            if (!canDoMetadata) {
-//                debug("Media playback resumed");
-//                return;
-//            }
             debug("Playing media at " + _mURL);
 
             MediaInfo info = new MediaInfo();
             String err = "";
             player.fillMetadata(info, err);
             if (err.length() == 0) {
-//                canDoMetadata = false;
                 MediaInfoEvent.fire(handlers, info);
             } else {
                 onError(err);
@@ -274,6 +286,9 @@ public class WMPStateManager {
         }
 
         public void doClickMouseEvents(int type, int button, int shiftState, double fX, double fY) {
+            if (!enabled) {
+                return;
+            }
             boolean shift = (shiftState & 1) == 1;
             boolean alt = (shiftState & 2) == 2;
             boolean ctrl = (shiftState & 4) == 4;
