@@ -15,6 +15,7 @@
  */
 package com.bramosystems.oss.player.dev.client;
 
+import com.bramosystems.oss.player.core.client.AbstractMediaPlayer;
 import com.bramosystems.oss.player.core.client.LoadException;
 import com.bramosystems.oss.player.core.client.PlayerUtil;
 import com.bramosystems.oss.player.core.client.Plugin;
@@ -23,8 +24,11 @@ import com.bramosystems.oss.player.core.client.PluginVersionException;
 import com.bramosystems.oss.player.core.client.ui.*;
 import com.bramosystems.oss.player.flat.client.FlatVideoPlayer;
 import com.google.gwt.core.client.EntryPoint;
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.user.client.Window;
+import com.google.gwt.user.client.Window.Location;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.RootPanel;
@@ -36,117 +40,97 @@ import com.google.gwt.user.client.ui.VerticalPanel;
  */
 public class Dev extends VerticalPanel implements EntryPoint {
 
+    private AbstractMediaPlayer mmp;
+
     public Dev() {
         setSpacing(20);
         setWidth("80%");
+
+        GWT.setUncaughtExceptionHandler(new GWT.UncaughtExceptionHandler() {
+
+            @Override
+            public void onUncaughtException(Throwable e) {
+                Window.alert("Uncaught : " + e.getMessage());
+            }
+        });
     }
 
     @Override
     public void onModuleLoad() {
 //        RootPanel.get().add(new ScrollPanel(this));
         RootPanel.get().add(this);
-        addPlayer(Plugin.DivXPlayer);
+        addPlayer(Plugin.WinMediaPlayer);
+//        addPlayer(Plugin.DivXPlayer);
 //        addPlayer(Plugin.FlashPlayer);
 //        addPlayer(Plugin.QuickTimePlayer);
 //        addPlayer(Plugin.Native);
 //        addPlayer(Plugin.VLCPlayer);
 
 //        add(new MimeStuffs());
-        
+
     }
 
     private void addPlayer(Plugin plugin) {
-        switch (plugin) {
-            case DivXPlayer:
-                add(new Label("Testing DivX Web Player"));
-                try {
-                    final FlatVideoPlayer divx = new FlatVideoPlayer(Plugin.DivXPlayer,
-//                    DivXPlayer divx = new DivXPlayer(//mediaURL,
-                            "http://localhost:8080/local-video/gi-joe-trailer.mkv",
+        try {
+            switch (plugin) {
+                case DivXPlayer:
+                    add(new Label("Testing DivX Web Player"));
+                    mmp = new FlatVideoPlayer(Plugin.DivXPlayer,
+                            //                    DivXPlayer divx = new DivXPlayer(//mediaURL,
+                            getURL("/local-video/gi-joe-trailer.mkv"),
                             false, "350px", "100%");
-                    divx.showLogger(true);
-                    divx.setLoopCount(3);
 //                    divx.setResizeToVideoSize(true);
 //                    divx.setBannerEnabled(false);
 //                    divx.setDisplayMode(DivXPlayer.DisplayMode.LARGE);
 //                    divx.setAllowContextMenu(false);
-                    add(divx);
                     add(new Button("Show", new ClickHandler() {
 
-                public void onClick(ClickEvent event) {
-                    divx.setControllerVisible(!divx.isControllerVisible());
-                }
-            }));
-                } catch (LoadException ex) {
-                    add(new Label("Load Exception"));
-                } catch (PluginNotFoundException ex) {
-                    add(PlayerUtil.getMissingPluginNotice(ex.getPlugin()));
-                } catch (PluginVersionException ex) {
-                    add(PlayerUtil.getMissingPluginNotice(ex.getPlugin(), ex.getRequiredVersion()));
-                }
-                break;
-            case FlashPlayer:
-                try {
-                    FlashMediaPlayer mmp = new FlashMediaPlayer(
-                            "http://localhost:8080/bst-media-server/stream?" +
-                            "position=0&file=brandy-everything.mp3",
-                            false);
-                    mmp.showLogger(true);
-//                    mmp.setControllerVisible(false);
-                    add(mmp);
-                } catch (LoadException ex) {
-                    add(new Label("Load Exception"));
-                } catch (PluginNotFoundException ex) {
-                    add(PlayerUtil.getMissingPluginNotice(ex.getPlugin()));
-                } catch (PluginVersionException ex) {
-                    add(PlayerUtil.getMissingPluginNotice(ex.getPlugin(), ex.getRequiredVersion()));
-                }
-                break;
-            case QuickTimePlayer:
-                try {
-                    QuickTimePlayer mmp = new QuickTimePlayer(
-                            "http://localhost:8080/local-video/01_Al_Fatihah.m4a", false);
-                    mmp.showLogger(true);
-                    mmp.setLoopCount(2);
-//                    mmp.setControllerVisible(false);
-                    add(mmp);
-                } catch (LoadException ex) {
-                    add(new Label("Load Exception"));
-                } catch (PluginNotFoundException ex) {
-                    add(PlayerUtil.getMissingPluginNotice(ex.getPlugin()));
-                } catch (PluginVersionException ex) {
-                    add(PlayerUtil.getMissingPluginNotice(ex.getPlugin(), ex.getRequiredVersion()));
-                }
-                break;
-            case VLCPlayer:
-                try {
-                    VLCPlayer mmp = new VLCPlayer(
-                            "http://localhost:8080/local-video/01_Al_Fatihah.m4a", false);
-                    mmp.showLogger(true);
-                    mmp.setLoopCount(-2);
-//                    mmp.setControllerVisible(false);
-                    add(mmp);
-                } catch (LoadException ex) {
-                    add(new Label("Load Exception"));
-                } catch (PluginNotFoundException ex) {
-                    add(PlayerUtil.getMissingPluginNotice(ex.getPlugin()));
-                } catch (PluginVersionException ex) {
-                    add(PlayerUtil.getMissingPluginNotice(ex.getPlugin(), ex.getRequiredVersion()));
-                }
-                break;
-            case Native:
-                try {
-                    NativePlayer mmp = new NativePlayer(
-                            "http://localhost:8080/local-video/big-buck-bunny.ogv", false, "450px", "100%");
-                    mmp.showLogger(true);
-//                    mmp.setControllerVisible(false);
-                    add(mmp);
-                } catch (LoadException ex) {
-                    add(new Label("Load Exception"));
-                } catch (PluginNotFoundException ex) {
-                    add(PlayerUtil.getMissingPluginNotice(ex.getPlugin()));
-                }
-
+                        @Override
+                        public void onClick(ClickEvent event) {
+                            mmp.setControllerVisible(!mmp.isControllerVisible());
+                        }
+                    }));
+                    break;
+                case FlashPlayer:
+                    mmp = new FlashMediaPlayer(getURL("/local-video/playlist.m3u"),
+                            //                            "http://localhost:8080/bst-media-server/stream?" +
+                            //                            "file=brandy-everything.mp3",
+                            false, "350px", "100%");
+                    break;
+                case QuickTimePlayer:
+                    mmp = new QuickTimePlayer(getURL("/local-video/01_Al_Fatihah.m4a"), false);
+                    break;
+                case VLCPlayer:
+                    mmp = new VLCPlayer(getURL("/local-video/01_Al_Fatihah.m4a"), false);
+                    break;
+                case WinMediaPlayer:
+                    mmp = new WinMediaPlayer(
+//                    mmp = new FlatVideoPlayer(Plugin.WinMediaPlayer,
+                            getURL("/local-video/home-video.wmv"), true, "200px", "100%");
+//                    mmp = new WinMediaPlayer(getURL("/local-video/applause.mp3"), true);
+//                    mmp = new WinMediaPlayer(getURL("/local-video/playlist.m3u"), true);
+//                    mmp = new WinMediaPlayer(getURL("/local-video/home-video.wmv"), true, "200px", "100%");
+ //                   mmp.setResizeToVideoSize(true);
+                    break;
+                case Native:
+                    mmp = new NativePlayer(getURL("/local-video/big-buck-bunny.ogv"),
+                            false, "450px", "100%");
+            }
+            mmp.showLogger(true);
+            mmp.setLoopCount(-1);
+//            mmp.setControllerVisible(true);
+            add(mmp);
+        } catch (LoadException ex) {
+            add(new Label("Load Exception"));
+        } catch (PluginNotFoundException ex) {
+            add(PlayerUtil.getMissingPluginNotice(ex.getPlugin()));
+        } catch (PluginVersionException ex) {
+            add(PlayerUtil.getMissingPluginNotice(ex.getPlugin(), ex.getRequiredVersion()));
         }
+    }
+
+    private String getURL(String path) {
+        return Location.createUrlBuilder().setPort(8080).setPath(path).buildString();
+
     }
 }

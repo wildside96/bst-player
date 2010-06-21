@@ -21,6 +21,11 @@
     <inherits name="com.bramosystems.oss.player.util.Util" />
     <stylesheet src="custom-control-styles.css" />
 
+    <!-- define configuration properties -->
+    <define-property name="bstplayer.enableLogger" values="true, false"/>
+    <define-configuration-property name="bstplayer.media.mimeTypes" is-multi-valued="false" />
+    <define-configuration-property name="bstplayer.media.protocols" is-multi-valued="false" />
+
     <!--when-property-is name="user.agent" value="ie6,ie8,gecko,gecko1_8,safari,opera"/-->
 	<!-- WMPStateManager mapping for IE6/7/8 -->
     <replace-with class="com.bramosystems.oss.player.core.client.impl.WMPStateManagerIE">
@@ -79,11 +84,17 @@
         </any>
     </replace-with>
 
-
+    <!-- MimePoolGenerator mapping -->
     <generate-with class="com.bramosystems.oss.player.core.rebind.MimePoolGenerator" >
         <when-type-assignable class="com.bramosystems.oss.player.core.client.MimePool"/>
     </generate-with>
 
-    <define-configuration-property name="bstplayer.media.mimeTypes" is-multi-valued="false" />
-    <define-configuration-property name="bstplayer.media.protocols" is-multi-valued="false" />
+    <!-- Logger mapping -->
+    <replace-with class="com.bramosystems.oss.player.core.client.ui.Logger.NullLoggerConsoleImpl">
+        <when-type-is class="com.bramosystems.oss.player.core.client.ui.Logger.LoggerConsoleImpl"/>
+        <when-property-is name="bstplayer.enableLogger" value="false"/>
+    </replace-with>
+
+    <!-- Enable Logger by default -->
+    <set-property name="bstplayer.enableLogger" value="true"/>
 </module>

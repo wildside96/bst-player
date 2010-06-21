@@ -26,8 +26,7 @@ import java.util.Set;
  * <code>instance</code> property
  *
  * @author Sikirulai Braheem <sbraheem at bramosystems dot com>
- * TODO: verify version numbers...
- * @since 1.1.1
+ * @since 1.2
  */
 public interface MimePool {
 

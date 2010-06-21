@@ -71,18 +71,6 @@ public class WinMediaPlayerImpl extends JavaScriptObject {
     } catch(e) {return null;}
     }-*/;
 
-    public final native Controls getControls() /*-{
-    return this.controls;
-    }-*/;
-
-    public final native Settings getSettings() /*-{
-    return this.settings;
-    }-*/;
-
-    public final native CurrentMedia getCurrentMedia() /*-{
-    return this.currentMedia;
-    }-*/;
-
     public final native String getPlayerVersion() /*-{
     try {
     return this.versionInfo;
@@ -119,9 +107,7 @@ public class WinMediaPlayerImpl extends JavaScriptObject {
     public final native String getErrorDiscription() /*-{
     try {
     var err = this.error;
-    if(err == undefined)
-    return '';
-
+    if(err == undefined) return '';
     return err.item(0).errorDescription;
     } catch(e) {return null;}
     }-*/;
@@ -176,138 +162,119 @@ public class WinMediaPlayerImpl extends JavaScriptObject {
     return this.id;
     }-*/;
 
-    public static class CurrentMedia extends JavaScriptObject {
+    // CurrentMedia object ..
+    public final native String getCurrentMediaURL() /*-{
+    try {
+    return this.currentMedia.sourceURL;
+    } catch(e) {return '';}
+    }-*/;
 
-        protected CurrentMedia() {
-        }
+    public final native int getVideoHeight() /*-{
+    try {
+    return this.currentMedia.imageSourceHeight;
+    } catch(e) {return 0;}
+    }-*/;
 
-        public final native int getVideoHeight() /*-{
-        try {
-        return this.imageSourceHeight;
-        } catch(e) {return 0;}
-        }-*/;
+    public final native int getVideoWidth() /*-{
+    try {
+    return this.currentMedia.imageSourceWidth;
+    } catch(e) {return 0;}
+    }-*/;
 
-        public final native int getVideoWidth() /*-{
-        try {
-        return this.imageSourceWidth;
-        } catch(e) {return 0;}
-        }-*/;
+    // Controls object ...
+    public final native void play() /*-{
+    try {
+    this.controls.play();
+    } catch(e) {}
+    }-*/;
 
-        public final native String getSourceURL() /*-{
-        try {
-        return this.sourceURL;
-        } catch(e) {return '';}
-        }-*/;
-    }
+    public final native void stop() /*-{
+    try {
+    this.controls.stop();
+    } catch(e) {}
+    }-*/;
 
-    public static class Controls extends JavaScriptObject {
+    public final native void pause() /*-{
+    try {
+    this.controls.pause();
+    } catch(e) {}
+    }-*/;
 
-        protected Controls() {
-        }
+    public final native double getCurrentPosition() /*-{
+    try {
+    return this.controls.currentPosition * 1000;
+    } catch(e) {return -1;}
+    }-*/;
 
-        public final native void play() /*-{
-        try {
-        this.play();
-        } catch(e) {}
-        }-*/;
+    public final native void setCurrentPosition(double position) /*-{
+    try {
+    this.controls.currentPosition = position / 1000;
+    } catch(e) {}
+    }-*/;
 
-        public final native void stop() /*-{
-        try {
-        this.stop();
-        } catch(e) {}
-        }-*/;
+    // Settings object ...
+    public final native void setPlayCount(double _count) /*-{
+    try {
+    this.settings.playCount = _count;
+    } catch(e) {}
+    }-*/;
 
-        public final native void pause() /*-{
-        try {
-        this.pause();
-        } catch(e) {}
-        }-*/;
+    public final native int getPlayCount() /*-{
+    try {
+    return this.settings.playCount || 1;
+    } catch(e) {return 0;}
+    }-*/;
 
-        public final native double getCurrentPosition() /*-{
-        try {
-        return this.currentPosition * 1000;
-        } catch(e) {return -1;}
-        }-*/;
+    public final native int getVolume() /*-{
+    try {
+    return this.settings.volume;
+    } catch(e) {return -1;}
+    }-*/;
 
-        public final native void setCurrentPosition(double position) /*-{
-        try {
-        this.currentPosition = position / 1000;
-        } catch(e) {}
-        }-*/;
-    }
+    public final native void setVolume(int volume) /*-{
+    try {
+    this.settings.volume = volume;
+    } catch(e) {}
+    }-*/;
 
-    public static class Settings extends JavaScriptObject {
+    public final native boolean isModeEnabled(String mode) /*-{
+    try {
+    return this.settings.getMode(mode) || false;
+    } catch(e) {return false;}
+    }-*/;
 
-        protected Settings() {
-        }
+    /**
+     * Not supported in non-IE browsers
+     * @param _mode
+     * @param _enable
+     */
+    public final native void enableMode(String _mode, boolean _enable) /*-{
+    try {
+    this.settings.setMode(_mode, _enable);
+    } catch(e) {}
+    }-*/;
 
-        public final native int getVolume() /*-{
-        try {
-        return this.volume;
-        } catch(e) {return -1;}
-        }-*/;
+    public final native void setRate(double rate) /*-{
+    try {
+    this.settings.rate = rate;
+    } catch(e) {}
+    }-*/;
 
-        public final native void setVolume(int volume) /*-{
-        try {
-        this.volume = volume;
-        } catch(e) {}
-        }-*/;
+    public final native double getRate() /*-{
+    try {
+    return this.settings.rate;
+    } catch(e) {return 0;}
+    }-*/;
 
-        public final native void setPlayCount(double _count) /*-{
-        try {
-        this.playCount = _count;
-        } catch(e) {}
-        }-*/;
+    public final native boolean requestMediaAccessRight(String accessLevel) /*-{
+    try {
+    return this.settings.requestMediaAccessRights(accessLevel);
+    } catch(e) {return false;}
+    }-*/;
 
-        public final native int getPlayCount() /*-{
-        try {
-        return this.playCount || 1;
-        } catch(e) {return 0;}
-        }-*/;
-
-        public final native boolean isModeEnabled(String mode) /*-{
-        try {
-        return this.getMode(mode) || false;
-        } catch(e) {return false;}
-        }-*/;
-
-        /**
-         * Not supported in non-IE browsers
-         * @param _mode
-         * @param _enable
-         */
-        public final native void enableMode(String _mode, boolean _enable) /*-{
-        this.setMode(_mode, _enable);
-        }-*/;
-
-        public final native void setRate(double rate) /*-{
-        try {
-        this.rate = rate;
-        } catch(e) {}
-        }-*/;
-
-        public final native double getRate() /*-{
-        try {
-        return this.rate;
-        } catch(e) {
-        return 0;
-        }
-        }-*/;
-
-        public final native boolean requestMediaAccessRight(String accessLevel) /*-{
-        try {
-        return this.requestMediaAccessRights(accessLevel);
-        } catch(e) {
-        return false;
-        }
-        }-*/;
-
-        public final native String getMediaAccessRight() /*-{
-        try {
-        return this.mediaAccessRights;
-        } catch(e) {
-        return null;
-        }
-        }-*/;
-    }
+    public final native String getMediaAccessRight() /*-{
+    try {
+    return this.settings.mediaAccessRights;
+    } catch(e) {return null;}
+    }-*/;
 }
