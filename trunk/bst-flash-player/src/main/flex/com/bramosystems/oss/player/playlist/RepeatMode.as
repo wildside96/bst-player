@@ -20,5 +20,6 @@ package com.bramosystems.oss.player.playlist {
         public static const NO_REPEAT:RepeatMode = new RepeatMode();
         public static const REPEAT_ALL:RepeatMode = new RepeatMode();
         public static const REPEAT_ONE:RepeatMode = new RepeatMode();
+        public static const CUSTOM_REPEAT:RepeatMode = new RepeatMode();
     }
 }

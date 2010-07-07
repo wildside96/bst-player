@@ -38,10 +38,8 @@ package com.bramosystems.oss.player {
             private var propagateMeta:Boolean = false;
 
             public function _load(url:String):void {
-                if((url != null) && (url != mediaURL)) {
-
-                    visible = false;
-                    autoPlay = false;
+                autoPlay = false;
+                if(url != source) {
                     this.mediaURL = url;
                     propagateMeta = true;
                     source = url;
@@ -103,22 +101,17 @@ package com.bramosystems.oss.player {
                     switch(meta.info.videocodecid) {
                         case 2:
                             hdwr += "Sorenson H.263";
-                            visible = true;
                             break;
                         case 3:
                             hdwr += "Screen video";
-                            visible = true;
                             break;
                         case 4:
                             hdwr += "VP6 video";
-                            visible = true;
                             break;
                         case 5:
                             hdwr += "VP6 video with alpha channel";
-                            visible = true;
                             break;
                         default:
-                            visible = true;
                             hdwr += "Unknown";
                     }
                     hdwr += ", Video data rate: " + meta.info.videodatarate;
@@ -132,7 +125,13 @@ package com.bramosystems.oss.player {
 
             private function stateHandler(event:VideoEvent):void {
                 switch(event.state) {
-                    case VideoEvent.COMPLETE:
+                    case VideoEvent.DISCONNECTED: // The video stream has timed out or is idle.
+                    case VideoEvent.BUFFERING:
+                    case VideoEvent.LOADING:
+                    case VideoEvent.RESIZING:  // The control is resizing.
+                    case VideoEvent.SEEKING: // a seek occurring due to the playHeadTime property being set.
+                        break;
+                    case VideoEvent.REWINDING: // The autorewind triggered when play stops.
                         dispatchEvent(new PlayStateEvent(PlayStateEvent.PLAY_FINISHED));
                         break;
                     case VideoEvent.PLAYING:

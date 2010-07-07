@@ -19,10 +19,9 @@ package com.bramosystems.oss.player {
     import com.bramosystems.oss.player.external.*;
     import com.bramosystems.oss.player.events.*;
 
-    import flash.display.Graphics;
+    import flash.display.*;
     import flash.errors.*;
     import flash.events.*;
-    import flash.external.*;
     import flash.geom.*;
     import flash.media.*;
     import flash.net.*;
@@ -42,18 +41,14 @@ package com.bramosystems.oss.player {
         private var state:int = STOPPED;
         private var player:Engine, mp3:MP3Engine, vdu:VideoEngine;
         private var playlist:Playlist;
-        private var listManager:PlaylistManager;
         private var playTimer:Timer;
 
         public function Player(setting:Setting, _playlist:Playlist) {
             x = 0;
             percentWidth = 100;
             percentHeight = 100;
-            setStyle("top", "0");
-            setStyle("bottom", "20");
             setStyle("horizontalAlign", "center");
             setStyle("verticalAlign", "middle");
-            setStyle("backgroundColor", "0x000000");
 
             // init engines ...
             mp3 = new MP3Engine();
@@ -73,7 +68,6 @@ package com.bramosystems.oss.player {
             updateVolume(setting.getVolume());
 
             playlist = _playlist;
-            listManager = new PlaylistManager(playlist, setting);
 
             // add position timer ...
             playTimer = new Timer(1000);
@@ -93,9 +87,9 @@ package com.bramosystems.oss.player {
             playlist.add(mediaURL);
         }
 
-        public function playlistAddComplete(event:PlaylistEvent):void {
+        private function playlistAddComplete(event:PlaylistEvent):void {
             playlist.removeEventListener(PlaylistEvent.ADDED, playlistAddComplete);
-            var url:String = listManager.getNextURLEntry();
+            var url:String = playlist.getNextURLEntry();
             _load(url);
         }
 
@@ -113,9 +107,8 @@ package com.bramosystems.oss.player {
         }
 
         public function playNext():Boolean {
-            var url:String = listManager.getNextURLEntry();
-            if(url != null) {
-                _load(url);
+            if(playlist.hasNext()) {
+                _load(playlist.getNextURLEntry());
                 player.play();
                 return true;
             } else {
@@ -125,9 +118,8 @@ package com.bramosystems.oss.player {
         }
 
         public function playPrev():Boolean {
-            var url:String = listManager.getPrevURLEntry();
-            if(url != null) {
-                _load(url);
+            if(playlist.hasPrev()) {
+                _load(playlist.getPrevURLEntry());
                 player.play();
                 return true;
             } else {
@@ -137,7 +129,7 @@ package com.bramosystems.oss.player {
         }
 
         public function playIndex(index:int):Boolean {
-            var url:String = listManager.getURLEntry(index);
+            var url:String = playlist.getEntry(index).getFileName();
             if(url != null) {
                 _load(url);
                 player.play();
@@ -202,7 +194,8 @@ package com.bramosystems.oss.player {
 
         /*************************** PLAY STATE HANDLERS *********************/
         private function playFinished(event:PlayStateEvent):void {
-            EventUtil.fireMediaStateChanged(9, listManager.getListIndex());
+                Log.info("Media playback finished");
+            EventUtil.fireMediaStateChanged(9, playlist.getIndex());
             if(!playNext()) {
                 playTimer.stop();
                 Log.info("Media playback finished");
@@ -215,14 +208,14 @@ package com.bramosystems.oss.player {
             state = STOPPED;
             playTimer.stop();
             Log.info("Playback stopped");
-            EventUtil.fireMediaStateChanged(3, listManager.getListIndex());
+            EventUtil.fireMediaStateChanged(3, playlist.getIndex());
         }
 
         private function playPaused(event:PlayStateEvent):void {
             state = PAUSED;
             playTimer.stop();
             Log.info("Playback paused");
-            EventUtil.fireMediaStateChanged(4, listManager.getListIndex());
+            EventUtil.fireMediaStateChanged(4, playlist.getIndex());
         }
 
         private function playStarted(event:PlayStateEvent):void {
@@ -231,11 +224,11 @@ package com.bramosystems.oss.player {
                     Log.info("Playback resumed");
                     break;
                 default:
-                    Log.info("Playlist item " + listManager.getListIndex() + " : playback started");
+                    Log.info("Playlist item " + playlist.getIndex() + " : playback started");
             }
             playTimer.start();
             state = PLAYING;
-            EventUtil.fireMediaStateChanged(2, listManager.getListIndex());
+            EventUtil.fireMediaStateChanged(2, playlist.getIndex());
         }
 
         /************************** HELPER FUNCTIONS *****************************/
@@ -281,19 +274,21 @@ package com.bramosystems.oss.player {
             }
         }
 
-// TODO: verify behaviour with fullscreen in/out
         public function updateVDUSize():void {
             var _vduHeight:int = vdu.metadata ? vdu.metadata.height : vdu.height;
             var _vduWidth:int = vdu.metadata ? vdu.metadata.width : vdu.width;
+            var _aHeight:int = Application.application.height;
+            var _aWidth:int = Application.application.width;
 
-            if((height < _vduHeight) || (width < _vduWidth)) {
+            if((_aHeight < _vduHeight) || (_aWidth < _vduWidth)) {  // avoid cropping
                 vdu.percentHeight = 100;
                 vdu.percentWidth = 100;
-            } else {
-                if(vdu.metadata) {
-//                    vdu.height = vdu.metadata.height;
-//                    vdu.width = vdu.metadata.width;
-                }
+            } else if((_aHeight > _vduHeight) || (_aWidth > _vduWidth)) {  // avoid steching
+                    vdu.height = _vduHeight;
+                    vdu.width = _vduWidth;
+            } else if((_aHeight > _vduHeight) && (_aWidth > _vduWidth)) {  // fit to window
+                vdu.percentHeight = 100;
+                vdu.percentWidth = 100;
             }
         }
     }

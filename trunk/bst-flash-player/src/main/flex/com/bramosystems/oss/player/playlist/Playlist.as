@@ -24,34 +24,46 @@ package com.bramosystems.oss.player.playlist {
 
     public class Playlist extends EventDispatcher {
 
+        private var setting:Setting;
         private var playlist:Array;
-        private var _size:uint = 0;
+        private var _index:int;
+        private var repeatMode:RepeatMode;
+        private var shuffleOn:Boolean;
+        private var loopCount:int;
 
-        public function Playlist() {
+        public function Playlist(setting:Setting) {
             playlist = new Array();
+            _index = -1;
+            repeatMode = RepeatMode.NO_REPEAT;
+
+            shuffleOn = setting.isShuffleEnabled();
+            loopCount = setting.getLoopCount();
+            setting.addEventListener(SettingChangedEvent.SHUFFLE_CHANGED, updateShuffle);
+            setting.addEventListener(SettingChangedEvent.LOOP_COUNT_CHANGED, updateLoopCount);
         }
 
         public function size():uint {
-            return _size;
+            return playlist.length;
         }
 
         public function clear():void {
             playlist.splice(0);
-            _size = 0;
             Log.info("Playlist cleared");
             dispatchEvent(new PlaylistEvent(PlaylistEvent.CLEARED));
         }
 
         public function remove(index:int):void {
             Log.info("'" + playlist.splice(index, 1) + "' removed from playlist!");
-//            playlist.splice(index, 1);
-            _size = playlist.length;
             dispatchEvent(new PlaylistEvent(PlaylistEvent.REMOVED));
-            Log.info(_size + " entries left in playlist");
+            Log.info(playlist.length + " entries left in playlist");
         }
 
         public function getEntry(index:int):PlaylistEntry {
             return playlist[index];
+        }
+
+        public function getIndex():int {
+            return _index;
         }
 
         public function add(mediaUrl:String):void {
@@ -60,10 +72,153 @@ package com.bramosystems.oss.player.playlist {
                 loadM3U(mediaUrl, true);
             } else {    // add single file...
                 Log.info("Adding '" + mediaUrl + "' to playlist");
-                _size = playlist.push(new PlaylistEntry(0, mediaUrl, mediaUrl));
+                var _size:uint = playlist.push(new PlaylistEntry(0, mediaUrl, mediaUrl));
                 Log.info(_size + (_size > 1 ? " entries in playlist!" : " entry in playlist!"));
                 dispatchEvent(new PlaylistEvent(PlaylistEvent.ADDED));
              }
+        }
+
+        /************************ REPEAT SUPPORT *******************************/
+        public function setRepeat(mode:RepeatMode):void {
+            repeatMode = mode;
+        }
+
+        /************************ NEXT/PREV SUPPORT *******************************/
+        public function getNext():PlaylistEntry {
+            if(!computeIndex(true)) {
+                return playlist[_index];
+            } else {
+                return null;
+            }
+        }
+
+        public function getNextURLEntry():String {
+            var entry:PlaylistEntry = getNext();
+            if(entry != null) {
+                return entry.getFileName();
+            } else {
+                return null;
+            }
+        }
+
+        public function getPrev():PlaylistEntry {
+            if(!computeIndex(false)) {
+                return playlist[_index];
+            } else {
+                return null;
+            }
+        }
+
+        public function getPrevURLEntry():String {
+            var entry:PlaylistEntry = getPrev();
+            if(entry != null) {
+                return entry.getFileName();
+            } else {
+                return null;
+            }
+        }
+
+        public function hasNext():Boolean {
+            var has:Boolean = true;
+            switch(repeatMode) {
+                case RepeatMode.NO_REPEAT:
+                case RepeatMode.CUSTOM_REPEAT:
+                    has = hasPlaylistNext();
+                    break;
+                case RepeatMode.REPEAT_ONE:
+                case RepeatMode.REPEAT_ALL:
+                    has = true;
+            }
+            return has;
+        }
+
+        public function hasPrev():Boolean {
+            var has:Boolean = true;
+            switch(repeatMode) {
+                case RepeatMode.NO_REPEAT:
+                case RepeatMode.CUSTOM_REPEAT:
+                    has = hasPlaylistPrev();
+                    break;
+                case RepeatMode.REPEAT_ONE:
+                case RepeatMode.REPEAT_ALL:
+                    has = true;
+            }
+            return has;
+        }
+
+        private function computeIndex(up:Boolean):Boolean {
+            var endOfList:Boolean = false;
+            var checkLoopCount:Boolean = false;
+            switch(repeatMode) {
+                case RepeatMode.CUSTOM_REPEAT:
+                    checkLoopCount = true;
+                case RepeatMode.NO_REPEAT:
+                    if(up && hasNext()) {
+                        _index++;
+                    } else if(!up && hasPrev()) {
+                        _index--;
+                    } else {
+                        _index = 0;
+                        if(checkLoopCount && (loopCount > 1)) {
+                            loopCount--;
+                        } else {
+                            endOfList = true;
+                        }
+//                            if(shuffleOn) {
+//                                shuffleList();
+//                            }
+                    }
+                    break;
+                case RepeatMode.REPEAT_ONE:
+                    break;
+                case RepeatMode.REPEAT_ALL:
+                    if(up) {
+                        _index++;
+                        if(_index >= size()) {
+                            _index = 0;
+                        }
+                    } else {
+                        _index--;
+                        if(_index < 0) {
+                            _index = size() - 1;
+                        }
+                    }
+                    break;
+            }
+            return endOfList;
+        }
+
+        public function hasPlaylistNext():Boolean {
+            return _index < (size() - 1);
+        }
+
+        public function hasPlaylistPrev():Boolean {
+            return _index > 0;
+        }
+
+        /************************* EVENT HANDLERS ********************************/
+        private function updateShuffle(event:SettingChangedEvent):void {
+            shuffleOn = Boolean(event.newValue);
+            if(shuffleOn) {
+//                shuffleList();
+            }
+        }
+
+        private function updatePlaylist(event:PlaylistEvent):void {
+            if(shuffleOn) {
+//                shuffleList();
+            }
+        }
+
+        private function updateLoopCount(event:SettingChangedEvent):void {
+            loopCount = parseInt(event.newValue);
+            if(loopCount < 0) {
+                repeatMode = RepeatMode.REPEAT_ALL;
+            } else if(loopCount == 1){
+                repeatMode = RepeatMode.NO_REPEAT;
+            } else {
+                repeatMode = RepeatMode.CUSTOM_REPEAT;
+            }
         }
 
         /************************* PLAYLIST SHUFFLING *****************************/
@@ -113,10 +268,10 @@ package com.bramosystems.oss.player.playlist {
             var mp3s:Array = m3uParser.parse(loader.data);
 
             for(var i:uint = 0; i < mp3s.length; i++) {
-                _size = playlist.push(mp3s[i]);
+                playlist.push(mp3s[i]);
             }
+            Log.info("Playlist Entries : " + playlist.length);
             dispatchEvent(new PlaylistEvent(PlaylistEvent.ADDED));
-            Log.info("Playlist Entries : " + _size);
         }
 
         private function loadingErrorHandler(event:IOErrorEvent):void {

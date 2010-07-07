@@ -33,7 +33,7 @@ package com.bramosystems.oss.player.control {
         private var b100:UIComponent;
         private var setting:Setting;
 
-        private const BAR_WIDTH:uint = 2;
+        private const BAR_WIDTH:uint = 1;
 
         public function VolumeControl(_setting:Setting) {
             setting = _setting;
@@ -83,7 +83,8 @@ package com.bramosystems.oss.player.control {
         /********************** UI Stuff *******************************/
         private function renderBar(comp:UIComponent, level:uint):void {
             var _barHeight:uint = comp.height * level / 100;
-            var _color:uint = setting.getVolume() >= (level / 100.0) ? 0xffaaff : 0xcccccc;
+            var _color:uint = setting.getVolume() >= (level / 100.0) ? Controller.ACTIVE_COLOR :
+                    Controller.INACTIVE_COLOR;
 
             comp.graphics.lineStyle(1, _color);
             comp.graphics.beginFill(_color);
