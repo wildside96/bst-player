@@ -35,108 +35,116 @@ public class FlashMediaPlayerImpl extends JavaScriptObject {
     }-*/;
 
     public native final String getPluginVersion() /*-{
-    return this.getMdaPlayerVer();
+    return this.getPlayerVersion();
     }-*/;
 
     public native final void loadMedia(String url) /*-{
-    this.loadMda(url);
+    this.load(url);
     }-*/;
 
     public native final void playMedia() /*-{
-    this.playMda();
+    this.play();
     }-*/;
 
     public native final boolean playMedia(int index) /*-{
-    return this.playMdaIndex(index);
+    return this.playIndex(index);
     }-*/;
 
     public native final boolean playNext() /*-{
-    return this.playNextMda();
+    return this.playNext();
     }-*/;
 
     public native final boolean playPrevious() /*-{
-    return this.playPrevMda();
+    return this.playPrev();
     }-*/;
 
     public native final void stopMedia() /*-{
-    this.stopMda(true);
+    this.stop(true);
     }-*/;
 
     public native final void pauseMedia() /*-{
-    this.stopMda(false);
+    this.stop(false);
     }-*/;
 
     public native final void closeMedia() /*-{
     try {
-    this.closeMda();
+    this.close();
     }catch(err){}
     }-*/;
 
     public native final double getPlayPosition() /*-{
-    return this.getMdaPlayPosition();
+    return this.getPlayPosition();
     }-*/;
 
     public native final void setPlayPosition(double position) /*-{
-    this.setMdaPlayPosition(position);
+    this.setPlayPosition(position);
     }-*/;
 
     public native final double getMediaDuration() /*-{
-    return this.getMdaDuration();
+    return this.getDuration();
     }-*/;
 
     public native final void addToPlaylist(String mediaURL) /*-{
-    this.addToMdaPlaylist(mediaURL);
+    this.addToPlaylist(mediaURL);
     }-*/;
 
     public native final void removeFromPlaylist(int index) /*-{
-    this.removeFromMdaPlaylist(index);
+    this.removeFromPlaylist(index);
     }-*/;
 
     public native final void clearPlaylist() /*-{
-    this.clearMdaPlaylist();
+    this.clearPlaylist();
     }-*/;
 
     public native final int getPlaylistCount() /*-{
-    return this.getMdaPlaylistSize();
+    return this.getPlaylistSize();
     }-*/;
 
     public native final double getVolume() /*-{
-    return this.getMdaVolume();
+    return this.getVolume();
     }-*/;
 
     public native final void setVolume(double volume) /*-{
-    this.setMdaVolume(volume);
+    this.setVolume(volume);
     }-*/;
 
     public native final void setLoopCount(int count) /*-{
-    this.setMdaLoopCount(count);
+    this.setLoopCount(count);
     }-*/;
 
     public native final int getLoopCount() /*-{
-    this.getMdaLoopCount();
+    this.getLoopCount();
     }-*/;
 
     public native final boolean isShuffleEnabled() /*-{
-    return this.isMdaShuffleEnabled();
+    return this.isShuffleEnabled();
     }-*/;
 
     public native final void setShuffleEnabled(boolean enable) /*-{
-    this.setMdaShuffleEnabled(enable);
+    this.setShuffleEnabled(enable);
     }-*/;
 
     public native final int getVideoHeight() /*-{
-    return this.getMdaVideoHeight();
+    return this.getVideoHeight();
     }-*/;
 
     public native final int getVideoWidth() /*-{
-    return this.getMdaVideoWidth();
+    return this.getVideoWidth();
     }-*/;
 
     public native final String getMatrix() /*-{
-    return this.getMdaMatrix();
+    return this.getMatrix();
     }-*/;
 
     public native final void setMatrix(double a, double b, double c, double d, double tx, double ty) /*-{
-    this.setMdaMatrix(a, b, c, d, tx, ty);
+    this.setMatrix(a, b, c, d, tx, ty);
+    }-*/;
+
+    public native final boolean isControllerVisible() /*-{
+    return this.isControllerVisible();
+    }-*/;
+
+    public native final void setControllerVisible(boolean visible) /*-{
+    this.setControllerVisible(visible);
     }-*/;
 }
