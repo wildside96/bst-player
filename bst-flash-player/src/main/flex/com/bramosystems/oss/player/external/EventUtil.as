@@ -29,7 +29,7 @@ package com.bramosystems.oss.player.external {
         public static var controller:Controller;
 
         public static function fireApplicationInitialized():void {
-            ExternalInterface.call("bstSwfMdaInit", playerId);
+            ExternalInterface.call("bstplayer.handlers.swf." + playerId + ".onInit");
         }
 
         /**
@@ -43,17 +43,17 @@ package com.bramosystems.oss.player.external {
          */
         public static function fireMediaStateChanged(state:int, playlistIndex:int = 0):void {
             controller.onMediaStateChanged(state, playlistIndex);
-            ExternalInterface.call("bstSwfMdaMediaStateChanged", playerId, state, playlistIndex);
+            ExternalInterface.call("bstplayer.handlers.swf." + playerId + ".onStateChanged", state, playlistIndex);
         }
 
         public static function fireLoadingProgress(progress:Number):void {
             controller.onLoadingProgress(progress);
-            ExternalInterface.call("bstSwfMdaLoadingProgress", playerId, progress);
+            ExternalInterface.call("bstplayer.handlers.swf." + playerId + ".onLoadingProgress", progress);
         }
 
         public static function firePlayingProgress(progress:Number):void {
             controller.onPlayingProgress(progress);
-            ExternalInterface.call("bstSwfMdaPlayingProgress", playerId, progress);
+            ExternalInterface.call("bstplayer.handlers.swf." + playerId + ".onPlayingProgress", progress);
         }
 
         public static function fireID3Metadata(info:ID3Info):void {
@@ -67,7 +67,8 @@ package com.bramosystems.oss.player.external {
                                 info.TOLY + "[$]" + info.TOWN + "[$]" + info.TLEN + "[$]" +
                                 info.TSSE + "[$]" + info.TPUB + "[$]" + info.TRSO + "[$]" +
                                 info.TRSN + "[$]0[$]0";
-            ExternalInterface.call("bstSwfMdaMetadata", playerId, id3);
+            controller.onMetadata();
+            ExternalInterface.call("bstplayer.handlers.swf." + playerId + ".onMetadata", id3);
         }
 
         public static function fireVideoMetadata(duration:Number, info:String, width:Number, height:Number):void {
@@ -79,45 +80,46 @@ package com.bramosystems.oss.player.external {
             var id3:String = "0[$] [$] [$] [$] [$] [$] [$] [$]" + (duration * 1000) +
                              "[$]" + info + "[$] [$] [$] [$]" + (isNaN(width) ? 0 : width) + "[$]" +
                             (isNaN(height) ? 0 : height);
-            ExternalInterface.call("bstSwfMdaMetadata", playerId, id3);
+            controller.onMetadata();
+            ExternalInterface.call("bstplayer.handlers.swf." + playerId + ".onMetadata", id3);
         }
 
         public static function fireMouseDownEvent(event:MouseEvent):void {
-            ExternalInterface.call("bstSwfMdaEvent", playerId, 1, event.buttonDown,
+            ExternalInterface.call("bstplayer.handlers.swf." + playerId + ".onEvent", 1, event.buttonDown,
                 event.altKey, event.ctrlKey, event.shiftKey, false, //event.commandKey,
                 event.stageX, event.stageY);
         }
         public static function fireMouseUpEvent(event:MouseEvent):void {
-            ExternalInterface.call("bstSwfMdaEvent", playerId, 2, event.buttonDown,
+            ExternalInterface.call("bstplayer.handlers.swf." + playerId + ".onEvent", 2, event.buttonDown,
                 event.altKey, event.ctrlKey, event.shiftKey, false, //event.commandKey,
                 event.stageX, event.stageY);
         }
         public static function fireMouseMoveEvent(event:MouseEvent):void {
-            ExternalInterface.call("bstSwfMdaEvent", playerId, 3, event.buttonDown,
+            ExternalInterface.call("bstplayer.handlers.swf." + playerId + ".onEvent", 3, event.buttonDown,
                 event.altKey, event.ctrlKey, event.shiftKey, false, //event.commandKey,
                 event.stageX, event.stageY);
         }
         public static function fireClickEvent(event:MouseEvent):void {
-            ExternalInterface.call("bstSwfMdaEvent", playerId, 10, event.buttonDown,
+            ExternalInterface.call("bstplayer.handlers.swf." + playerId + ".onEvent", 10, event.buttonDown,
                 event.altKey, event.ctrlKey, event.shiftKey, false, //event.commandKey,
                 event.stageX, event.stageY);
         }
         public static function fireDoubleClickEvent(event:MouseEvent):void {
-            ExternalInterface.call("bstSwfMdaEvent", playerId, 11, event.buttonDown,
+            ExternalInterface.call("bstplayer.handlers.swf." + playerId + ".onEvent", 11, event.buttonDown,
                 event.altKey, event.ctrlKey, event.shiftKey, false, //event.commandKey,
                 event.stageX, event.stageY);
         }
         public static function fireKeyDownEvent(event:KeyboardEvent):void {
             Log.info("Firing KeyDown Event : " + event.charCode);
-            ExternalInterface.call("bstSwfMdaEvent", playerId, 20, false, //event.buttonDown,
+            ExternalInterface.call("bstplayer.handlers.swf." + playerId + ".onEvent", 20, false, //event.buttonDown,
                 event.altKey, event.ctrlKey, event.shiftKey, false, //event.commandKey,
                 event.keyCode, event.charCode);
-            ExternalInterface.call("bstSwfMdaEvent", playerId, 21, false, //event.buttonDown,
+            ExternalInterface.call("bstplayer.handlers.swf." + playerId + ".onEvent", 21, false, //event.buttonDown,
                 event.altKey, event.ctrlKey, event.shiftKey, false, //event.commandKey,
                 event.keyCode, event.charCode);
         }
         public static function fireKeyUpEvent(event:KeyboardEvent):void {
-            ExternalInterface.call("bstSwfMdaEvent", playerId, 22, false, //event.buttonDown,
+            ExternalInterface.call("bstplayer.handlers.swf." + playerId + ".onEvent", 22, false, //event.buttonDown,
                 event.altKey, event.ctrlKey, event.shiftKey, false, //event.commandKey,
                 event.keyCode, event.charCode);
         }

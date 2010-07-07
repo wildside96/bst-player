@@ -24,7 +24,7 @@ package com.bramosystems.oss.player {
         }
 
         public static function get autoplay():Boolean {
-            return Application.application.parameters.autoplay;
+            return Application.application.parameters.autoplay != "false";
         }
 
         public static function get mediaURL():String {

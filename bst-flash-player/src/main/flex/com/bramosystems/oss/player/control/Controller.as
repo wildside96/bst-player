@@ -17,6 +17,7 @@
 package com.bramosystems.oss.player.control {
 
     import com.bramosystems.oss.player.*;
+    import com.bramosystems.oss.player.events.SeekChangedEvent;
     import com.bramosystems.oss.player.playlist.Playlist;
 
     import flash.display.*;
@@ -25,54 +26,53 @@ package com.bramosystems.oss.player.control {
     import mx.containers.*;
     import mx.controls.*;
     import mx.events.ResizeEvent;
+    import mx.effects.*;
 
-    public class Controller extends HBox { //UIComponent {
+    public class Controller extends HBox {
+        public static const ACTIVE_COLOR:uint = 0x1144ff;
+        public static const INACTIVE_COLOR:uint = 0xbcbcbc;
+
         private var play:UIComponent, next:UIComponent;
         private var prev:UIComponent, toggler:UIComponent;
-        private var timeLabel:Label;
         private var playButtonShowPlay:Boolean = true;
-        private var isFullScreen:Boolean = false;
 
         private var player:Player;
         private var playlist:Playlist;
         private var seekbar:Seekbar;
+        private var timeInfo:TimeInfo;
 
         private const _size:int = 18;
         private const _margin:int = 2;
-        private const _activeColor:uint = 0xffaaff;
-        private const _inactiveColor:uint = 0xcccccc;
 
         public function Controller(_player:Player, _setting:Setting, _playlist:Playlist) {
             player = _player;
             playlist = _playlist;
 
             x = 0;
+            percentWidth = 100;
+
             setStyle("verticalAlign", "middle");
             setStyle("horizontalGap", 4);
-
-            percentWidth = 100;
-//            addEventListener(Event.ADDED, onAdded);
+            setStyle("borderColor", 0xffffff);
+            setStyle("borderSides", "top");
+            setStyle("borderStyle", "solid");
+            setStyle("borderThickness", 1.5);
 
             seekbar = new Seekbar();
+            seekbar.addEventListener(SeekChangedEvent.SEEK_CHANGED, onSeekChanged);
+
+            timeInfo = new TimeInfo();
 
             addChild(getPlay());
             addChild(getPrev());
             addChild(getNext());
             addChild(seekbar);
-            addChild(getTimeLabel());
+            addChild(timeInfo);
             addChild(new VolumeControl(_setting));
             addChild(getScreenToggler());
 
             Application.application.stage.addEventListener(FullScreenEvent.FULL_SCREEN, onFullScreen);
             updateDisplay(false);
-        }
-
-        public function updateSize(event:ResizeEvent): void {
-//            drawControls();
-        }
-
-        private function onAdded(event:Event):void {
-//            drawControls();
         }
 
         private function enableButton(button:UIComponent, enable:Boolean):void {
@@ -81,7 +81,7 @@ package com.bramosystems.oss.player.control {
         }
 
         private function updateDisplay(fullScreen:Boolean):void {
-//            setStyle("paddingTop", fullScreen ? 5 : );
+            setStyle("paddingTop", fullScreen ? 5 : 2);
             setStyle("paddingBottom", fullScreen ? 5 : 2);
             setStyle("paddingLeft", fullScreen ? 5 : 2);
             setStyle("paddingRight", fullScreen ? 5 : 2);
@@ -89,9 +89,23 @@ package com.bramosystems.oss.player.control {
             renderPlay();
             renderNext();
             renderPrev();
-
             renderToggler(fullScreen);
-            renderToggler(!fullScreen);
+        }
+/*
+        public function toggleScreen():void {
+            toggler.dispatchEvent();
+        }
+
+        public function isFullScreenState():Boolean {
+            return Application.application.stage.displayState == StageDisplayState.FULL_SCREEN;
+        }
+*/
+        public function isControllerVisible():Boolean {
+            return visible;
+        }
+
+        public function setControllerVisible(_visible:Boolean):void {
+            visible = _visible;
         }
 
         /********************** Events Callback Hooks *************************/
@@ -119,16 +133,16 @@ package com.bramosystems.oss.player.control {
                     playButtonShowPlay = true;
                     break;
                 case 9:
-                    playButtonShowPlay = false;
-                    onPlayingProgress(0.0);
+                    playButtonShowPlay = true;
+                    onPlayingProgress(0);
                     break;
                 case 10:
                     onLoadingProgress(1.0);
                     break;
             }
 
-            enableButton(next, (listIndex + 1) < playlist.size());
-            enableButton(prev, listIndex > 0);
+            enableButton(next, playlist.hasPlaylistNext());
+            enableButton(prev, playlist.hasPlaylistPrev());
 
             renderPlay();
             renderPrev();
@@ -141,7 +155,13 @@ package com.bramosystems.oss.player.control {
 
         public function onPlayingProgress(progress:Number):void {
             seekbar.updatePlayingProgress(progress, player.getDuration());
+            timeInfo.updateTime(progress, player.getDuration());
         }
+
+        public function onMetadata():void {
+            timeInfo.updateTime(0, player.getDuration());
+        }
+
         /**************** BUTTON CLICK EVENTS ****************************/
         private function togglePlay(event:MouseEvent):void {
             playButtonShowPlay = !playButtonShowPlay;
@@ -173,7 +193,11 @@ package com.bramosystems.oss.player.control {
         }
 
         private function onFullScreen(event:FullScreenEvent):void {
-//            updateDisplay(event.fullScreen);
+            updateDisplay(event.fullScreen);
+        }
+
+        private function onSeekChanged(event:SeekChangedEvent):void {
+            player.setPlayPosition(event.newValue);;
         }
 
         /********************** UI Stuffs *******************************/
@@ -184,12 +208,6 @@ package com.bramosystems.oss.player.control {
             play.width = _size * 3/4;
             play.height = _size;
             return play;
-        }
-
-        private function getTimeLabel():Label {
-            timeLabel = new Label();
-            timeLabel.text = "00:00";
-            return timeLabel;
         }
 
         private function getScreenToggler():UIComponent {
@@ -221,7 +239,7 @@ package com.bramosystems.oss.player.control {
 
         /******************** RENDERING METHODS ****************************/
         private function renderPlay():void {
-            var _color:uint = play.enabled ? _activeColor : _inactiveColor;
+            var _color:uint = play.enabled ? ACTIVE_COLOR : INACTIVE_COLOR;
 
             play.graphics.clear();
             play.graphics.beginFill(_color);
@@ -242,7 +260,7 @@ package com.bramosystems.oss.player.control {
         }
 
         private function renderNext():void {
-            var _color:uint = next.enabled ? _activeColor : _inactiveColor;
+            var _color:uint = next.enabled ? ACTIVE_COLOR : INACTIVE_COLOR;
 
             next.graphics.lineStyle(1, _color);
             next.graphics.beginFill(_color);
@@ -257,7 +275,7 @@ package com.bramosystems.oss.player.control {
         }
 
         private function renderPrev():void {
-            var _color:uint = prev.enabled ? _activeColor : _inactiveColor;
+            var _color:uint = prev.enabled ? ACTIVE_COLOR : INACTIVE_COLOR;
 
             prev.graphics.lineStyle(1, _color);
             prev.graphics.beginFill(_color);
@@ -271,14 +289,16 @@ package com.bramosystems.oss.player.control {
             prev.graphics.endFill();
         }
 
-        private function renderToggler(front:Boolean):void {
-            toggler.graphics.lineStyle(1, front ? _activeColor : _inactiveColor);
-            toggler.graphics.beginFill(front ? _activeColor : _inactiveColor);
-            if(front) {
-                toggler.graphics.drawRoundRect(6, 6, 14, 14, 1);
-            } else {
-                toggler.graphics.drawRoundRect(2, 2, 14, 14, 1);
-            }
+        private function renderToggler(fullScreen:Boolean):void {
+            toggler.graphics.lineStyle(1, 0xffffff);
+            toggler.graphics.beginFill(fullScreen ? INACTIVE_COLOR : ACTIVE_COLOR);
+            toggler.graphics.drawRoundRect(_margin, _margin, toggler.height - (2 * _margin),
+                        toggler.width - (2 * _margin), 1);
+
+            toggler.graphics.beginFill(ACTIVE_COLOR);
+            toggler.graphics.drawRoundRect(_margin, _margin,
+                        (toggler.height - (2 * _margin)) * 2 / 3,
+                        (toggler.width - (2 * _margin)) * 2 / 3, 1);
             toggler.graphics.endFill();
         }
     }

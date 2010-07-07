@@ -20,16 +20,29 @@
     <head>
         <title></title>
         <meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
+        <script type="text/javascript">
+            var bstplayer = new Object();
+            bstplayer.handlers = new Object();
+            bstplayer.handlers.swf = new Object();
+            bstplayer.handlers.swf.gwtuid1 = new Object();
+            bstplayer.handlers.swf.gwtuid1.onMessage = function(type, message) {
+                document.getElementById("traceDiv").innerHTML += type + "- " + message + "<br/>";
+            }
+        </script>
     </head>
     <body>
-            <div style="width: 50%; height: 350px;">
-                <embed height="350px" width="100%" id="gwtuid1"
-                type="application/x-shockwave-flash"
-                src="target/bst-flash-player-1.1.1-SNAPSHOT.swf"
-                bgccolor="#ffffaa" name="gwtuid1"
-                flashvars="playerId=gwtuid1&autoplay=false&mediaURL=http://localhost:8080/local-video/fireflies.flv"
-                allowscriptaccess="always" allowFullScreen="true"
-                style="width: 100%; height: 350px;"/>
-            </div>
+        <button type="button"
+                onclick="gwtuid1.setControllerVisible(!gwtuid1.isControllerVisible())">Toggle Controller</button>
+        
+        <div style="width: 50%; height: 350px;">
+            <embed id="gwtuid1"  type="application/x-shockwave-flash"
+                   src="target/bst-flash-player-1.1.1-SNAPSHOT.swf"  name="gwtuid1"
+                   flashvars="playerId=gwtuid1&autoplay=false&mediaURL=http://localhost:8080/local-video/big-buck-bunny.mp4"
+                   allowscriptaccess="always" allowfullscreen="true" style="width: 100%; height: 350px;"
+                   wmode="opaque"/>
+        </div>
+        
+        <div id="traceDiv" style="overflow: scroll;width: 50%;height: 150px">
+        </div>
     </body>
 </html>

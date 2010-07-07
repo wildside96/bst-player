@@ -19,7 +19,7 @@
 
 <mx:Application xmlns:mx="http://www.adobe.com/2006/mxml" xmlns="*" applicationComplete="initApp()"
         horizontalAlign="center" verticalAlign="middle" backgroundAlpha="0.0"
-        horizontalScrollPolicy="off" verticalScrollPolicy="off"
+        horizontalScrollPolicy="off" verticalScrollPolicy="off" backgroundColor="0x000000"
         paddingLeft="0" paddingTop="0" paddingBottom="0" paddingRight="0">
 
     <mx:Script>
@@ -55,7 +55,7 @@
                         application.addEventListener(KeyboardEvent.KEY_DOWN, EventUtil.fireKeyDownEvent);
 
                         var setting:Setting = new Setting();
-                        var playlist:Playlist = new Playlist();
+                        var playlist:Playlist = new Playlist(setting);
 
                         // init player ...
                         player = new Player(setting, playlist);
@@ -63,7 +63,6 @@
 
                         // init controller ...
                         controller = new Controller(player, setting, playlist);
-                        addEventListener(ResizeEvent.RESIZE, controller.updateSize);
                         EventUtil.controller = controller;
 
                         addChild(player);
@@ -104,7 +103,14 @@
                         ExternalInterface.addCallback("getMatrix", player.getMatrix);
                         ExternalInterface.addCallback("setMatrix", player.setMatrix);
 
+                        // fullscreen support ... [since 1.2]
+//                        ExternalInterface.addCallback("toggleFullScreen", controller.toggleScreen);
+//                        ExternalInterface.addCallback("isFullScreen", controller.isFullScreenState);
+                        ExternalInterface.addCallback("isControllerVisible", controller.isControllerVisible);
+                        ExternalInterface.addCallback("setControllerVisible", controller.setControllerVisible);
+
                         /******************* FINISH INIT ***********************************/
+                        contextMenu = new PlayerMenu().getMenu();
                         EventUtil.fireApplicationInitialized();
 
                         player.updateVDUSize();
