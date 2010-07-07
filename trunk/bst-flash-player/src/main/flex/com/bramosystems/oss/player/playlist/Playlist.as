@@ -50,6 +50,7 @@ package com.bramosystems.oss.player.playlist {
             playlist.splice(0);
             Log.info("Playlist cleared");
             dispatchEvent(new PlaylistEvent(PlaylistEvent.CLEARED));
+            _index = -1;
         }
 
         public function remove(index:int):void {
