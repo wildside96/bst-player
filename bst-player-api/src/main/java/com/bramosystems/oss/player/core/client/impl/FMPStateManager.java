@@ -15,17 +15,9 @@
  */
 package com.bramosystems.oss.player.core.client.impl;
 
-import com.bramosystems.oss.player.core.event.client.PlayStateEvent;
-import com.bramosystems.oss.player.core.event.client.MediaInfoEvent;
-import com.bramosystems.oss.player.core.event.client.LoadingProgressEvent;
-import com.bramosystems.oss.player.core.event.client.DebugEvent;
 import com.bramosystems.oss.player.core.client.MediaInfo;
 import com.bramosystems.oss.player.core.client.ui.FlashMediaPlayer;
-import com.google.gwt.dom.client.Document;
-import com.google.gwt.dom.client.NativeEvent;
-import com.google.gwt.event.dom.client.DomEvent;
-import com.google.gwt.user.client.Command;
-import java.util.HashMap;
+import com.google.gwt.core.client.JavaScriptObject;
 
 /**
  * Native implementation of the FlashMediaPlayer class. It is not recommended to
@@ -36,84 +28,41 @@ import java.util.HashMap;
  */
 public class FMPStateManager {
 
-    private HashMap<String, EventHandler> cache;
-
-    public FMPStateManager() {
-        cache = new HashMap<String, EventHandler>();
-        initGlobalCallbacks(this);
+    public FMPStateManager(String playerId, FMPStateCallback callback) {
+        initCallbackImpl(CallbackUtility.getSWFCallbackHandlers(), playerId, callback);
     }
 
-    public static interface FMPStateCallback {
-        public void onInit();
-        public void onMessage(int type, String message);
-        public void onProgress(double progress);
-        public void onMediaInfo(String info);
-        public void onEvent(int type, boolean buttonDown, boolean alt, boolean ctrl,
-            boolean shift, boolean cmd, int stageX, int stageY);
-        public void onStateChanged(int stateId, int listIndex);
+    public void closeMedia(String playerId) {
+        closeMediaImpl(CallbackUtility.getSWFCallbackHandlers(), playerId);
     }
 
-    public final void init(String playerId, FlashMediaPlayer player, Command initCommand) {
-        cache.put(playerId, new EventHandler(player, initCommand));
-    }
+    private native void closeMediaImpl(JavaScriptObject swf, String playerId) /*-{
+    delete swf[playerId];
+    }-*/;
 
-    public final boolean isPlayerInCache(String playerId) {
-        return cache.containsKey(playerId);
+    private native void initCallbackImpl(JavaScriptObject swf, String playerId, FMPStateCallback callback) /*-{
+    swf[playerId] = new Object();
+    swf[playerId].onInit = function(){
+    callback.@com.bramosystems.oss.player.core.client.impl.FMPStateManager.FMPStateCallback::onInit()();
     }
-
-    public final void closeMedia(String playerId) {
-        cache.remove(playerId);
+    swf[playerId].onEvent = function(type,buttonDown,alt,ctrl,shift,cmd,stageX_keyCode,stageY_charCode){
+    callback.@com.bramosystems.oss.player.core.client.impl.FMPStateManager.FMPStateCallback::onEvent(IZZZZZII)(type,buttonDown,alt,ctrl,shift,cmd,stageX_keyCode,stageY_charCode);
     }
-
-    private void onState(String playerId, int stateId, int listIndex) {
-        cache.get(playerId).onStateChange(stateId, listIndex);
+    swf[playerId].onStateChanged = function(state, listIndex){
+    callback.@com.bramosystems.oss.player.core.client.impl.FMPStateManager.FMPStateCallback::onStateChanged(II)(state,listIndex);
     }
-
-    private void onInit(String playerId) {
-        cache.get(playerId).initComplete();
+    swf[playerId].onLoadingProgress = function(progress){
+    callback.@com.bramosystems.oss.player.core.client.impl.FMPStateManager.FMPStateCallback::onProgress(D)(progress);
     }
-
-    private void onMessage(String playerId, int type, String message) {
-        cache.get(playerId).onMessage(type, message);
+    swf[playerId].onMessage = function(type, message){
+    callback.@com.bramosystems.oss.player.core.client.impl.FMPStateManager.FMPStateCallback::onMessage(ILjava/lang/String;)(type,message);
     }
-
-    private void onProgress(String playerId, double progress) {
-        cache.get(playerId).onLoading(progress);
-    }
-
-    private void onMediaInfo(String playerId, String info) {
-        MediaInfo mi = new MediaInfo();
-        fillMediaInfoImpl(info, mi);
-        cache.get(playerId).onMediaInfo(mi);
-    }
-
-    private void onEvent(String playerId, int type, boolean buttonDown, boolean alt, boolean ctrl,
-            boolean shift, boolean cmd, int stageX, int stageY) {
-        cache.get(playerId).onEvent(type, buttonDown, alt, ctrl, shift, cmd, stageX, stageY);
-    }
-
-    private native void initGlobalCallbacks(FMPStateManager impl) /*-{
-    $wnd.bstSwfMdaEvent = function(playerId,type,buttonDown,alt,ctrl,shift,cmd,stageX_keyCode,stageY_charCode){
-    impl.@com.bramosystems.oss.player.core.client.impl.FMPStateManager::onEvent(Ljava/lang/String;IZZZZZII)(playerId,type,buttonDown,alt,ctrl,shift,cmd,stageX_keyCode,stageY_charCode);
-    }
-    $wnd.bstSwfMdaMediaStateChanged = function(playerId, state, listIndex){
-    impl.@com.bramosystems.oss.player.core.client.impl.FMPStateManager::onState(Ljava/lang/String;II)(playerId, state, listIndex);
-    }
-    $wnd.bstSwfMdaInit = function(playerId){
-    impl.@com.bramosystems.oss.player.core.client.impl.FMPStateManager::onInit(Ljava/lang/String;)(playerId);
-    }
-    $wnd.bstSwfMdaLoadingProgress = function(playerId, progress){
-    impl.@com.bramosystems.oss.player.core.client.impl.FMPStateManager::onProgress(Ljava/lang/String;D)(playerId, progress);
-    }
-    $wnd.bstSwfMdaMessage = function(playerId, type, message){
-    impl.@com.bramosystems.oss.player.core.client.impl.FMPStateManager::onMessage(Ljava/lang/String;ILjava/lang/String;)(playerId, type, message);
-    }
-    $wnd.bstSwfMdaMetadata = function(playerId, id3){
-    impl.@com.bramosystems.oss.player.core.client.impl.FMPStateManager::onMediaInfo(Ljava/lang/String;Ljava/lang/String;)(playerId, id3);
+    swf[playerId].onMetadata = function(id3){
+    callback.@com.bramosystems.oss.player.core.client.impl.FMPStateManager.FMPStateCallback::onMediaInfo(Ljava/lang/String;)(id3);
     }
     }-*/;
 
-    private native void fillMediaInfoImpl(String infoCSV, MediaInfo mData) /*-{
+    public native void fillMediaInfoImpl(String infoCSV, MediaInfo mData) /*-{
     // parse from CSV like values ...
     // year[$]albumTitle[$]artists[$]comment[$]genre[$]title[$]
     // contentProviders[$]copyright[$]duration[$]hardwareSoftwareRequirements[$]
@@ -137,100 +86,19 @@ public class FMPStateManager {
     mData.@com.bramosystems.oss.player.core.client.MediaInfo::videoHeight = csv[14];
     }-*/;
 
-    private class EventHandler {
+    public static interface FMPStateCallback {
 
-        private FlashMediaPlayer player;
-        private Command initCompleteCommand;
+        public void onInit();
 
-        public EventHandler(FlashMediaPlayer handler, Command initCompleteCommand) {
-            this.player = handler;
-            this.initCompleteCommand = initCompleteCommand;
-        }
+        public void onMessage(int type, String message);
 
-        public void onStateChange(int newState, int listIndex) {
-            switch (newState) {
-                case 1: // loading started...
-////                    listener.onPlayerReady();
-                    break;
-                case 2: // play started...
-                    PlayStateEvent.fire(player, PlayStateEvent.State.Started, listIndex);
-                    break;
-                case 3: // play stopped...
-                    PlayStateEvent.fire(player, PlayStateEvent.State.Stopped, listIndex);
-                    break;
-                case 4: // play paused...
-                    PlayStateEvent.fire(player, PlayStateEvent.State.Paused, listIndex);
-                    break;
-                case 9: // play finished...
-                    PlayStateEvent.fire(player, PlayStateEvent.State.Finished, listIndex);
-                    break;
-                case 10: // loading complete ...
-                    LoadingProgressEvent.fire(player, 1.0);
-                    break;
-            }
-        }
+        public void onProgress(double progress);
 
-        public void initComplete() {
-            initCompleteCommand.execute();
-        }
-
-        public void onLoading(double progress) {
-            LoadingProgressEvent.fire(player, progress);
-        }
-
-        public void onMessage(int type, String description) {
-            DebugEvent.fire(player, type == 1 ? DebugEvent.MessageType.Error : DebugEvent.MessageType.Info, description);
-        }
-
-        public void onMediaInfo(MediaInfo info) {
-            MediaInfoEvent.fire(player, info);
-        }
+        public void onMediaInfo(String info);
 
         public void onEvent(int type, boolean buttonDown, boolean alt, boolean ctrl,
-                boolean shift, boolean cmd, int stageX_keyCode, int stageY_charCode) {
+                boolean shift, boolean cmd, int stageX, int stageY);
 
-            int button = buttonDown ? NativeEvent.BUTTON_LEFT : NativeEvent.BUTTON_RIGHT;
-            int screenX = -1, screenY = -1;
-
-            Document _doc = Document.get();
-            NativeEvent event = null;
-
-            switch (type) {
-                case 1: // mouse down
-                    event = _doc.createMouseDownEvent(1, screenX, screenY, stageX_keyCode,
-                            stageY_charCode, ctrl, alt, shift, cmd, button);
-                    break;
-                case 2: // mouse up
-                    event = _doc.createMouseUpEvent(1, screenX, screenY, stageX_keyCode,
-                            stageY_charCode, ctrl, alt, shift, cmd, button);
-                    break;
-                case 3: // mouse move
-                    event = _doc.createMouseMoveEvent(1, screenX, screenY, stageX_keyCode,
-                            stageY_charCode, ctrl, alt, shift, cmd, button);
-                    break;
-                case 10: // click
-                    event = _doc.createClickEvent(1, screenX, screenY, stageX_keyCode,
-                            stageY_charCode, ctrl, alt, shift, cmd);
-                    break;
-                case 11: // double click
-                    event = _doc.createDblClickEvent(1, screenX, screenY, stageX_keyCode,
-                            stageY_charCode, ctrl, alt, shift, cmd);
-                    break;
-                case 20: // key down
-                    event = _doc.createKeyDownEvent(ctrl, alt, shift, cmd, stageX_keyCode,
-                            stageY_charCode);
-                    break;
-                case 21: // key press
-                    event = _doc.createKeyPressEvent(ctrl, alt, shift, cmd, stageX_keyCode,
-                            stageY_charCode);
-                    break;
-                case 22: // key up
-                    event = _doc.createKeyUpEvent(ctrl, alt, shift, cmd, stageX_keyCode,
-                            stageY_charCode);
-                    break;
-            }
-
-            DomEvent.fireNativeEvent(event, player);
-        }
+        public void onStateChanged(int stateId, int listIndex);
     }
 }

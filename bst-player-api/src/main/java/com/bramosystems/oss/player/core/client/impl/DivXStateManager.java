@@ -16,6 +16,7 @@
 package com.bramosystems.oss.player.core.client.impl;
 
 import com.bramosystems.oss.player.core.client.MediaInfo;
+import com.google.gwt.core.client.JavaScriptObject;
 
 /**
  * @author Sikirulai Braheem
@@ -23,7 +24,7 @@ import com.bramosystems.oss.player.core.client.MediaInfo;
 public class DivXStateManager {
 
     public DivXStateManager(String playerId, StateCallback callback) {
-        initCallbacks(playerId, callback);
+        initCallbacks(CallbackUtility.getDivxCallbackHandlers(), playerId, callback);
     }
 
     public MediaInfo getFilledMediaInfo(double duration, double videoWidth, double videoHeight) {
@@ -32,31 +33,26 @@ public class DivXStateManager {
         return mi;
     }
 
-    private native void initCallbacks(String playerId, StateCallback callback) /*-{
-    if($wnd.bstplayer == null){
-    $wnd.bstplayer = new Object();
-    }
-    if($wnd.bstplayer.handlers == null){
-    $wnd.bstplayer.handlers = new Object();
-    }
-    if($wnd.bstplayer.handlers.divx == null){
-    $wnd.bstplayer.handlers.divx = new Object();
-    }
-    $wnd.bstplayer.handlers.divx[playerId] = new Object();
-    $wnd.bstplayer.handlers.divx[playerId].stateChanged = function(eventId){
+    private native void initCallbacks(JavaScriptObject divx, String playerId, StateCallback callback) /*-{
+    divx[playerId] = new Object();
+    divx[playerId].stateChanged = function(eventId){
     callback.@com.bramosystems.oss.player.core.client.impl.DivXStateManager.StateCallback::onStatusChanged(I)(parseInt(eventId));
     }
-    $wnd.bstplayer.handlers.divx[playerId].downloadState = function(current, total){
-     $wnd.alert("loading : curent = " + current + ", total = " + total);
+    divx[playerId].downloadState = function(current, total){
+//     $wnd.alert("loading : curent = " + current + ", total = " + total);
     callback.@com.bramosystems.oss.player.core.client.impl.DivXStateManager.StateCallback::onLoadingChanged(DD)(parseFloat(current),parseFloat(total));
     }
-    $wnd.bstplayer.handlers.divx[playerId].timeState = function(time){
+    divx[playerId].timeState = function(time){
     callback.@com.bramosystems.oss.player.core.client.impl.DivXStateManager.StateCallback::onPositionChanged(D)(parseFloat(time));
     }
     }-*/;
 
-    public native void clearCallbacks(String playerId) /*-{
-    delete $wnd.bstplayer.divxEvents[playerId];
+    public void clearCallbacks(String playerId) {
+        clearCallbackImpl(CallbackUtility.getDivxCallbackHandlers(), playerId);
+    }
+
+    private native void clearCallbackImpl(JavaScriptObject divx, String playerId) /*-{
+    delete divx[playerId];
     }-*/;
 
     private native void fillMediaInfoImpl(MediaInfo mData, double duration, double vWidth, double vHeight) /*-{

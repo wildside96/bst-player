@@ -59,9 +59,9 @@ public class Dev extends VerticalPanel implements EntryPoint {
     public void onModuleLoad() {
 //        RootPanel.get().add(new ScrollPanel(this));
         RootPanel.get().add(this);
-        addPlayer(Plugin.WinMediaPlayer);
+//        addPlayer(Plugin.WinMediaPlayer);
 //        addPlayer(Plugin.DivXPlayer);
-//        addPlayer(Plugin.FlashPlayer);
+        addPlayer(Plugin.FlashPlayer);
 //        addPlayer(Plugin.QuickTimePlayer);
 //        addPlayer(Plugin.Native);
 //        addPlayer(Plugin.VLCPlayer);
@@ -92,9 +92,9 @@ public class Dev extends VerticalPanel implements EntryPoint {
                     }));
                     break;
                 case FlashPlayer:
-                    mmp = new FlashMediaPlayer(getURL("/local-video/playlist.m3u"),
-                            //                            "http://localhost:8080/bst-media-server/stream?" +
-                            //                            "file=brandy-everything.mp3",
+                    mmp = new FlashMediaPlayer(
+                            getURL("/local-video/big-buck-bunny.mp4"),
+//                            "http://localhost:8080/bst-media-server/stream?file=brandy-everything.mp3",
                             false, "350px", "100%");
                     break;
                 case QuickTimePlayer:
@@ -118,7 +118,7 @@ public class Dev extends VerticalPanel implements EntryPoint {
             }
             mmp.showLogger(true);
             mmp.setLoopCount(-1);
-//            mmp.setControllerVisible(true);
+            mmp.setControllerVisible(false);
             add(mmp);
         } catch (LoadException ex) {
             add(new Label("Load Exception"));

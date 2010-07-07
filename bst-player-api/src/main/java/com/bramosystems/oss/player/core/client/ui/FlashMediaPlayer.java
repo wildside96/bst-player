@@ -23,14 +23,17 @@ import com.bramosystems.oss.player.core.client.impl.FMPStateManager;
 import com.bramosystems.oss.player.core.client.impl.FlashMediaPlayerImpl;
 import com.bramosystems.oss.player.core.client.impl.BeforeUnloadCallback;
 import com.bramosystems.oss.player.core.client.impl.PlayerWidget;
-import com.bramosystems.oss.player.core.client.skin.CustomPlayerControl;
 import com.bramosystems.oss.player.core.event.client.DebugEvent;
 import com.bramosystems.oss.player.core.event.client.DebugHandler;
 import com.bramosystems.oss.player.core.event.client.MediaInfoEvent;
 import com.bramosystems.oss.player.core.event.client.MediaInfoHandler;
+import com.bramosystems.oss.player.core.event.client.PlayStateEvent;
 import com.bramosystems.oss.player.core.event.client.PlayerStateEvent;
 import com.bramosystems.oss.player.core.event.client.PlayerStateHandler;
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.dom.client.Document;
+import com.google.gwt.dom.client.NativeEvent;
+import com.google.gwt.event.dom.client.DomEvent;
 import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.DOM;
@@ -78,16 +81,125 @@ import java.util.ArrayList;
  */
 public class FlashMediaPlayer extends AbstractMediaPlayer implements PlaylistSupport, MatrixSupport {
 
-    private static FMPStateManager manager = new FMPStateManager();
+    private FMPStateManager manager;
     private FlashMediaPlayerImpl impl;
     private HandlerRegistration initListHandler;
     private String playerId;
     private boolean isEmbedded, resizeToVideoSize;
     private Logger logger;
-    private CustomPlayerControl control;
     private ArrayList<String> _playlistCache;
     private PlayerWidget swf;
     private String _height, _width;
+
+    private FlashMediaPlayer() throws PluginNotFoundException, PluginVersionException {
+        PluginVersion req = Plugin.FlashPlayer.getVersion();
+        PluginVersion v = PlayerUtil.getFlashPlayerVersion();
+        if (v.compareTo(req) < 0) {
+            throw new PluginVersionException(Plugin.FlashPlayer, req.toString(), v.toString());
+        }
+
+        _playlistCache = new ArrayList<String>();
+        resizeToVideoSize = false;
+        playerId = DOM.createUniqueId().replace("-", "");
+
+        manager = new FMPStateManager(playerId, new FMPStateManager.FMPStateCallback() {
+
+            @Override
+            public void onInit() {
+                impl = FlashMediaPlayerImpl.getPlayer(playerId);
+                fireDebug("Flash Player plugin");
+                fireDebug("Version : " + impl.getPluginVersion());
+                firePlayerStateEvent(PlayerStateEvent.State.Ready);
+            }
+
+            @Override
+            public void onMessage(int type, String message) {
+                if (type == 1) {
+                    fireError(message);
+                } else {
+                    fireDebug(message);
+                }
+            }
+
+            @Override
+            public void onProgress(double progress) {
+                fireLoadingProgress(progress);
+            }
+
+            @Override
+            public void onMediaInfo(String info) {
+                MediaInfo mi = new MediaInfo();
+                manager.fillMediaInfoImpl(info, mi);
+                fireMediaInfoAvailable(mi);
+            }
+
+            @Override
+            public void onEvent(int type, boolean buttonDown, boolean alt, boolean ctrl,
+                    boolean shift, boolean cmd, int stageX, int stageY) {
+                int button = buttonDown ? NativeEvent.BUTTON_LEFT : NativeEvent.BUTTON_RIGHT;
+                int screenX = -1, screenY = -1;
+
+                Document _doc = Document.get();
+                NativeEvent event = null;
+                switch (type) {
+                    case 1: // mouse down
+                        event = _doc.createMouseDownEvent(1, screenX, screenY, stageX, stageY,
+                                ctrl, alt, shift, cmd, button);
+                        break;
+                    case 2: // mouse up
+                        event = _doc.createMouseUpEvent(1, screenX, screenY, stageX, stageY,
+                                ctrl, alt, shift, cmd, button);
+                        break;
+                    case 3: // mouse move
+                        event = _doc.createMouseMoveEvent(1, screenX, screenY, stageX, stageY,
+                                ctrl, alt, shift, cmd, button);
+                        break;
+                    case 10: // click
+                        event = _doc.createClickEvent(1, screenX, screenY, stageX, stageY,
+                                ctrl, alt, shift, cmd);
+                        break;
+                    case 11: // double click
+                        event = _doc.createDblClickEvent(1, screenX, screenY, stageX, stageY,
+                                ctrl, alt, shift, cmd);
+                        break;
+                    case 20: // key down
+                        event = _doc.createKeyDownEvent(ctrl, alt, shift, cmd, stageX, stageY);
+                        break;
+                    case 21: // key press
+                        event = _doc.createKeyPressEvent(ctrl, alt, shift, cmd, stageX, stageY);
+                        break;
+                    case 22: // key up
+                        event = _doc.createKeyUpEvent(ctrl, alt, shift, cmd, stageX, stageY);
+                        break;
+                }
+                DomEvent.fireNativeEvent(event, FlashMediaPlayer.this);
+            }
+
+            @Override
+            public void onStateChanged(int stateId, int listIndex) {
+                switch (stateId) {
+                    case 1: // loading started...
+////                    listener.onPlayerReady();
+                        break;
+                    case 2: // play started...
+                        firePlayStateEvent(PlayStateEvent.State.Started, listIndex);
+                        break;
+                    case 3: // play stopped...
+                        firePlayStateEvent(PlayStateEvent.State.Stopped, listIndex);
+                        break;
+                    case 4: // play paused...
+                        firePlayStateEvent(PlayStateEvent.State.Paused, listIndex);
+                        break;
+                    case 9: // play finished...
+                        firePlayStateEvent(PlayStateEvent.State.Finished, listIndex);
+                        break;
+                    case 10: // loading complete ...
+                        fireLoadingProgress(1.0);
+                        break;
+                }
+            }
+        });
+    }
 
     /**
      * Constructs <code>FlashMediaPlayer</code> with the specified {@code height} and
@@ -112,17 +224,9 @@ public class FlashMediaPlayer extends AbstractMediaPlayer implements PlaylistSup
      */
     public FlashMediaPlayer(final String mediaURL, final boolean autoplay, String height, String width)
             throws PluginNotFoundException, PluginVersionException, LoadException {
-        PluginVersion req = Plugin.FlashPlayer.getVersion();
-        PluginVersion v = PlayerUtil.getFlashPlayerVersion();
-        if (v.compareTo(req) < 0) {
-            throw new PluginVersionException(Plugin.FlashPlayer, req.toString(), v.toString());
-        }
-
-        _playlistCache = new ArrayList<String>();
+        this();
         _height = height;
         _width = width;
-        resizeToVideoSize = false;
-        playerId = DOM.createUniqueId().replace("-", "");
 
         isEmbedded = (height == null) || (width == null);
         if (isEmbedded) {
@@ -131,52 +235,42 @@ public class FlashMediaPlayer extends AbstractMediaPlayer implements PlaylistSup
         }
 
         // inject bst-flash-player version via maven resources filter...
-        String playerAppFile = "bst-flash-player-${version}.swf";
+        String playerAppFile = "bst-flash-player-1.1.1-SNAPSHOT.swf";
+//        String playerAppFile = "bst-flash-player-${version}.swf";
 
         swf = new PlayerWidget(Plugin.FlashPlayer, playerId, GWT.getModuleBaseURL() + playerAppFile,
                 autoplay, new BeforeUnloadCallback() {
 
+            @Override
             public void onBeforeUnload() {
                 impl.closeMedia();
                 manager.closeMedia(playerId);
             }
         });
-        swf.addParam("flashVars", "playerId=" + playerId);
+        swf.addParam("flashVars", "playerId=" + playerId + "&autoplay="
+                + autoplay + "&mediaURL=" + mediaURL);
         swf.addParam("allowScriptAccess", "always");
+        swf.addParam("allowFullScreen", "true");
         swf.addParam("bgcolor", "#000000");
 
-        manager.init(playerId, this, new Command() {
-
-            public void execute() {
-                impl = FlashMediaPlayerImpl.getPlayer(playerId);
-                fireDebug("Flash Player plugin");
-                fireDebug("Version : " + impl.getPluginVersion());
-                impl.loadMedia(mediaURL);
-                firePlayerStateEvent(PlayerStateEvent.State.Ready);
-                if (autoplay) {
-                    impl.playMedia();
-                }
-            }
-        });
         FlowPanel panel = new FlowPanel();
         panel.add(swf);
 
         if (!isEmbedded) {
-            control = new CustomPlayerControl(this);
-            panel.add(control);
-
             logger = new Logger();
             logger.setVisible(false);
             panel.add(logger);
 
             addDebugHandler(new DebugHandler() {
 
+                @Override
                 public void onDebug(DebugEvent event) {
                     logger.log(event.getMessage(), false);
                 }
             });
             addMediaInfoHandler(new MediaInfoHandler() {
 
+                @Override
                 public void onMediaInfoAvailable(MediaInfoEvent event) {
                     MediaInfo info = event.getMediaInfo();
                     if (info.getAvailableItems().contains(MediaInfoKey.VideoHeight)
@@ -208,7 +302,7 @@ public class FlashMediaPlayer extends AbstractMediaPlayer implements PlaylistSup
      */
     public FlashMediaPlayer(String mediaURL) throws PluginNotFoundException,
             PluginVersionException, LoadException {
-        this(mediaURL, true, "0px", "100%");
+        this(mediaURL, true, "20px", "100%");
     }
 
     /**
@@ -227,13 +321,13 @@ public class FlashMediaPlayer extends AbstractMediaPlayer implements PlaylistSup
      */
     public FlashMediaPlayer(String mediaURL, boolean autoplay) throws PluginNotFoundException,
             PluginVersionException, LoadException {
-        this(mediaURL, autoplay, "0px", "100%");
+        this(mediaURL, autoplay, "20px", "100%");
     }
 
     private void checkVideoSize(int vidHeight, int vidWidth) {
         String _h = _height, _w = _width;
         if (vidHeight == 0) {
-            _h = "0px"; // suppress SWF app height for audio files ...
+            _h = "20px"; // suppress SWF app height for audio files ...
         }
 
         if (resizeToVideoSize) {
@@ -276,54 +370,55 @@ public class FlashMediaPlayer extends AbstractMediaPlayer implements PlaylistSup
         setWidth(_width);
     }
 
-    /**
-     * @deprecated As of version 1.1, remove player from panel instead
-     */
-    public void close() {
-        impl.closeMedia();
-        manager.closeMedia(playerId);
-    }
-
+    @Override
     public long getMediaDuration() {
         checkAvailable();
         return (long) impl.getMediaDuration();
     }
 
+    @Override
     public double getPlayPosition() {
         checkAvailable();
         return impl.getPlayPosition();
     }
 
+    @Override
     public double getVolume() {
         checkAvailable();
         return impl.getVolume();
     }
 
+    @Override
     public void loadMedia(String mediaURL) throws LoadException {
         checkAvailable();
         impl.loadMedia(mediaURL);
     }
 
+    @Override
     public void pauseMedia() {
         checkAvailable();
         impl.pauseMedia();
     }
 
+    @Override
     public void playMedia() throws PlayException {
         checkAvailable();
         impl.playMedia();
     }
 
+    @Override
     public void setPlayPosition(double position) {
         checkAvailable();
         impl.setPlayPosition(position);
     }
 
+    @Override
     public void setVolume(double volume) {
         checkAvailable();
         impl.setVolume(volume);
     }
 
+    @Override
     public void stopMedia() {
         checkAvailable();
         impl.stopMedia();
@@ -340,9 +435,17 @@ public class FlashMediaPlayer extends AbstractMediaPlayer implements PlaylistSup
      * Displays or hides the player controls.
      */
     @Override
-    public void setControllerVisible(boolean show) {
-        if (!isEmbedded) {
-            control.setVisible(show);
+    public void setControllerVisible(final boolean show) {
+        if (isPlayerOnPage(playerId)) {
+            impl.setControllerVisible(show);
+        } else {
+            addToPlayerReadyCommandQueue("controller", new Command() {
+
+                @Override
+                public void execute() {
+                    impl.setControllerVisible(show);
+                }
+            });
         }
     }
 
@@ -351,7 +454,8 @@ public class FlashMediaPlayer extends AbstractMediaPlayer implements PlaylistSup
      */
     @Override
     public boolean isControllerVisible() {
-        return control.isVisible();
+        checkAvailable();
+        return impl.isControllerVisible();
     }
 
     /**
@@ -376,6 +480,7 @@ public class FlashMediaPlayer extends AbstractMediaPlayer implements PlaylistSup
         } else {
             addToPlayerReadyCommandQueue("loopcount", new Command() {
 
+                @Override
                 public void execute() {
                     impl.setLoopCount(loop);
                 }
@@ -383,6 +488,7 @@ public class FlashMediaPlayer extends AbstractMediaPlayer implements PlaylistSup
         }
     }
 
+    @Override
     public void addToPlaylist(final String mediaURL) {
         if (isPlayerOnPage(playerId)) {
             impl.addToPlaylist(mediaURL);
@@ -390,6 +496,7 @@ public class FlashMediaPlayer extends AbstractMediaPlayer implements PlaylistSup
             if (initListHandler == null) {
                 initListHandler = addPlayerStateHandler(new PlayerStateHandler() {
 
+                    @Override
                     public void onPlayerStateChanged(PlayerStateEvent event) {
                         switch (event.getPlayerState()) {
                             case Ready:
@@ -406,11 +513,13 @@ public class FlashMediaPlayer extends AbstractMediaPlayer implements PlaylistSup
         }
     }
 
+    @Override
     public boolean isShuffleEnabled() {
         checkAvailable();
         return impl.isShuffleEnabled();
     }
 
+    @Override
     public void removeFromPlaylist(int index) {
         checkAvailable();
         impl.removeFromPlaylist(index);
@@ -422,12 +531,14 @@ public class FlashMediaPlayer extends AbstractMediaPlayer implements PlaylistSup
      * <p>As of version 1.0, if this player is not available on the panel, this method
      * call is added to the command-queue for later execution.
      */
+    @Override
     public void setShuffleEnabled(final boolean enable) {
         if (isPlayerOnPage(playerId)) {
             impl.setShuffleEnabled(enable);
         } else {
             addToPlayerReadyCommandQueue("shuffle", new Command() {
 
+                @Override
                 public void execute() {
                     impl.setShuffleEnabled(enable);
                 }
@@ -435,16 +546,19 @@ public class FlashMediaPlayer extends AbstractMediaPlayer implements PlaylistSup
         }
     }
 
+    @Override
     public void clearPlaylist() {
         checkAvailable();
         impl.clearPlaylist();
     }
 
+    @Override
     public int getPlaylistSize() {
         checkAvailable();
         return impl.getPlaylistCount();
     }
 
+    @Override
     public void play(int index) throws IndexOutOfBoundsException {
         checkAvailable();
         if (!impl.playMedia(index)) {
@@ -452,6 +566,7 @@ public class FlashMediaPlayer extends AbstractMediaPlayer implements PlaylistSup
         }
     }
 
+    @Override
     public void playNext() throws PlayException {
         checkAvailable();
         if (!impl.playNext()) {
@@ -459,6 +574,7 @@ public class FlashMediaPlayer extends AbstractMediaPlayer implements PlaylistSup
         }
     }
 
+    @Override
     public void playPrevious() throws PlayException {
         checkAvailable();
         if (!impl.playPrevious()) {
@@ -499,6 +615,7 @@ public class FlashMediaPlayer extends AbstractMediaPlayer implements PlaylistSup
      * <p>If this player is not attached to a panel, this method call is added to
      * the command-queue for later execution.
      */
+    @Override
     public void setMatrix(final TransformationMatrix matrix) {
         if (isPlayerOnPage(playerId)) {
             impl.setMatrix(matrix.getMatrix().getVx().getX(),
@@ -512,6 +629,7 @@ public class FlashMediaPlayer extends AbstractMediaPlayer implements PlaylistSup
         } else {
             addToPlayerReadyCommandQueue("matrix", new Command() {
 
+                @Override
                 public void execute() {
                     setMatrix(matrix);
                 }
@@ -519,6 +637,7 @@ public class FlashMediaPlayer extends AbstractMediaPlayer implements PlaylistSup
         }
     }
 
+    @Override
     public TransformationMatrix getMatrix() {
         checkAvailable();
         String[] elements = impl.getMatrix().split(",");
@@ -545,31 +664,30 @@ public class FlashMediaPlayer extends AbstractMediaPlayer implements PlaylistSup
                 }
         }
     }
-/*
- * Not available yet !
- * 
+    /*
+     * Not available yet !
+     *
     @Override
     public void setRate(final double rate) {
-        if (isPlayerOnPage(playerId)) {
-//            impl.setRate(rate);
-        } else {
-            addToPlayerReadyCommandQueue("rate", new Command() {
+    if (isPlayerOnPage(playerId)) {
+    //            impl.setRate(rate);
+    } else {
+    addToPlayerReadyCommandQueue("rate", new Command() {
 
-                public void execute() {
-//                    impl.setRate(rate);
-                }
-            });
-        }
+    public void execute() {
+    //                    impl.setRate(rate);
+    }
+    });
+    }
     }
 
     @Override
     public double getRate() {
-        checkAvailable();
-        return 0;//impl.getRate();
+    checkAvailable();
+    return 0;//impl.getRate();
     }
-*/
+     */
 }
-
 /**
  * TODO:
  * About sandboxes
