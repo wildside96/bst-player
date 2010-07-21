@@ -39,7 +39,6 @@ public class DivXStateManager {
     callback.@com.bramosystems.oss.player.core.client.impl.DivXStateManager.StateCallback::onStatusChanged(I)(parseInt(eventId));
     }
     divx[playerId].downloadState = function(current, total){
-//     $wnd.alert("loading : curent = " + current + ", total = " + total);
     callback.@com.bramosystems.oss.player.core.client.impl.DivXStateManager.StateCallback::onLoadingChanged(DD)(parseFloat(current),parseFloat(total));
     }
     divx[playerId].timeState = function(time){

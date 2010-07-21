@@ -20,6 +20,7 @@ import com.bramosystems.oss.player.core.client.PluginNotFoundException;
 import com.bramosystems.oss.player.core.client.PluginVersionException;
 import com.google.gwt.uibinder.client.UiConstructor;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 /**
  * Wrapper class for {@link com.bramosystems.oss.player.core.client.ui.VLCPlayer}
@@ -63,9 +64,7 @@ public class VLCPlayer extends PlayerWrapper<com.bramosystems.oss.player.core.cl
         ArrayList<String> _urls = new ArrayList<String>();
         if (mediaURL.contains(",")) {
             String[] murls = mediaURL.split(",");
-            for (String url : murls) {
-                _urls.add(url);
-            }
+            _urls.addAll(Arrays.asList(murls));
         } else {
             _urls.add(mediaURL);
         }
