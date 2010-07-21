@@ -120,15 +120,18 @@ public class QTStateManager {
             isBuffering = false;
             loopManager = new LoopManager(false, new LoopManager.LoopCallback() {
 
+                @Override
                 public void onLoopFinished() {
                     PlayStateEvent.fire(handlers, PlayStateEvent.State.Finished, 0);
                     onDebug("Media playback complete");
                 }
 
+                @Override
                 public void loopForever(boolean loop) {
                     impl.setLoopingImpl(loop);
                 }
 
+                @Override
                 public void playNextLoop() {
                     impl.play();
                 }

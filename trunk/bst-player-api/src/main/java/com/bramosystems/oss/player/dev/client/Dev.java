@@ -61,10 +61,10 @@ public class Dev extends VerticalPanel implements EntryPoint {
         RootPanel.get().add(this);
 //        addPlayer(Plugin.WinMediaPlayer);
 //        addPlayer(Plugin.DivXPlayer);
-        addPlayer(Plugin.FlashPlayer);
+//        addPlayer(Plugin.FlashPlayer);
 //        addPlayer(Plugin.QuickTimePlayer);
 //        addPlayer(Plugin.Native);
-//        addPlayer(Plugin.VLCPlayer);
+        addPlayer(Plugin.VLCPlayer);
 
 //        add(new MimeStuffs());
 
@@ -75,9 +75,9 @@ public class Dev extends VerticalPanel implements EntryPoint {
             switch (plugin) {
                 case DivXPlayer:
                     add(new Label("Testing DivX Web Player"));
-                    mmp = new FlatVideoPlayer(Plugin.DivXPlayer,
-                            //                    DivXPlayer divx = new DivXPlayer(//mediaURL,
-                            getURL("/local-video/gi-joe-trailer.mkv"),
+//                    mmp = new FlatVideoPlayer(Plugin.DivXPlayer,
+                    mmp = new DivXPlayer(
+                            getURL("/local-video/divx7_postinstall.divx"),
                             false, "350px", "100%");
 //                    divx.setResizeToVideoSize(true);
 //                    divx.setBannerEnabled(false);
@@ -101,7 +101,7 @@ public class Dev extends VerticalPanel implements EntryPoint {
                     mmp = new QuickTimePlayer(getURL("/local-video/01_Al_Fatihah.m4a"), false);
                     break;
                 case VLCPlayer:
-                    mmp = new VLCPlayer(getURL("/local-video/01_Al_Fatihah.m4a"), false);
+                    mmp = new VLCPlayer(getURL("/local-video/01_Al_Fatihah.m4a"), true, "50px", "100%");
                     break;
                 case WinMediaPlayer:
                     mmp = new WinMediaPlayer(
@@ -118,7 +118,7 @@ public class Dev extends VerticalPanel implements EntryPoint {
             }
             mmp.showLogger(true);
             mmp.setLoopCount(-1);
-            mmp.setControllerVisible(false);
+//            mmp.setControllerVisible(false);
             add(mmp);
         } catch (LoadException ex) {
             add(new Label("Load Exception"));

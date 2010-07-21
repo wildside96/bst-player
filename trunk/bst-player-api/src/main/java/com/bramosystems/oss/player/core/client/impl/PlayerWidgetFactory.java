@@ -81,6 +81,7 @@ public class PlayerWidgetFactory {
         e.addParam("target", "");
         e.addParam("autoplay", "" + autoplay);
         e.addParam("type", "application/x-vlc-plugin");
+        e.addParam("events", "true");
         e.addParam("version", "VideoLAN.VLCPlugin.2");
         return e.getElement();
     }

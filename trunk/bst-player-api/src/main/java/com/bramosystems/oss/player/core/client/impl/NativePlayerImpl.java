@@ -99,9 +99,7 @@ public class NativePlayerImpl extends JavaScriptObject {
     public final native void setTime(double time) /*-{
     try {
     this.currentTime = time / 1000;
-    } catch(e) {
-    return 0;
-    }
+    } catch(e) {}
     }-*/;
 
     public final native double getDuration() /*-{

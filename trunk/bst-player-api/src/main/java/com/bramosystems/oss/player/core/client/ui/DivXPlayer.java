@@ -25,8 +25,35 @@ import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.ui.FlowPanel;
 
 /**
+ * Widget to embed DivX Web Player&trade; plugin.
  *
- * TODO: verify version number ...
+ * <h3>Usage Example</h3>
+ *
+ * <p>
+ * <code><pre>
+ * SimplePanel panel = new SimplePanel();   // create panel to hold the player
+ * Widget player = null;
+ * try {
+ *      // create the player
+ *      player = new DivXPlayer("www.example.com/mediafile.divx");
+ * } catch(LoadException e) {
+ *      // catch loading exception and alert user
+ *      Window.alert("An error occured while loading");
+ * } catch(PluginVersionException e) {
+ *      // catch plugin version exception and alert user to download plugin first.
+ *      // An option is to use the utility method in PlayerUtil class.
+ *      player = PlayerUtil.getMissingPluginNotice(Plugin.DivXPlayer, "Missing Plugin",
+ *              ".. some nice message telling the user to click and download plugin first ..",
+ *              false);
+ * } catch(PluginNotFoundException e) {
+ *      // catch PluginNotFoundException and tell user to download plugin, possibly providing
+ *      // a link to the plugin download page.
+ *      player = new HTML(".. another kind of message telling the user to download plugin..");
+ * }
+ *
+ * panel.setWidget(player); // add player to panel.
+ * </pre></code>
+ * 
  * @since 1.2
  * @author Sikiru Braheem
  */
@@ -83,9 +110,9 @@ public class DivXPlayer extends AbstractMediaPlayer {
                         loopManager.notifyPlayFinished();
                         break;
                     case 10: // STATUS_PLAYING
-                        if(firePlayStated) {
-                        fireDebug("Playback started");
-                        firePlayStateEvent(PlayStateEvent.State.Started, 0);
+                        if (firePlayStated) {
+                            fireDebug("Playback started");
+                            firePlayStateEvent(PlayStateEvent.State.Started, 0);
                         }
                         firePlayStated = true;
                         break;
@@ -132,7 +159,6 @@ public class DivXPlayer extends AbstractMediaPlayer {
 
             @Override
             public void onLoadingChanged(double current, double total) {
-                fireDebug("loading : curent = " + current + ", total = " + total);
                 fireLoadingProgress(current / total);
             }
 
@@ -153,6 +179,20 @@ public class DivXPlayer extends AbstractMediaPlayer {
         });
     }
 
+    /**
+     * Constructs <code>BivXPlayer</code> to playback media located at {@code mediaURL} using the
+     * default height of 90px and width of 100%. Media playback begins automatically if
+     * {@code autoplay} is {@code true}.
+     *
+     * @param mediaURL the URL of the media to playback
+     * @param autoplay {@code true} to play playing automatically, {@code false} otherwise
+     * @param height the height of the player
+     * @param width the width of the player.
+     *
+     * @throws LoadException if an error occurs while loading the media.
+     * @throws PluginVersionException if the required DivX Web Player plugin version is not installed on the client.
+     * @throws PluginNotFoundException if DivX Web Player plugin is not installed on the client.
+     */
     public DivXPlayer(String mediaURL, boolean autoplay, String height, String width)
             throws LoadException, PluginNotFoundException, PluginVersionException {
         this();
@@ -220,9 +260,38 @@ public class DivXPlayer extends AbstractMediaPlayer {
         initWidget(panel);
     }
 
+    /**
+     * Constructs <code>BivXPlayer</code> to playback media located at {@code mediaURL} using the
+     * default height of 90px and width of 100%. Media playback begins automatically if
+     * {@code autoplay} is {@code true}.
+     *
+     * @param mediaURL the URL of the media to playback
+     * @param autoplay {@code true} to play playing automatically, {@code false} otherwise
+     *
+     * @throws LoadException if an error occurs while loading the media.
+     * @throws PluginVersionException if the required DivX Web Player plugin version is not installed on the client.
+     * @throws PluginNotFoundException if DivX Web Player plugin is not installed on the client.
+     */
     public DivXPlayer(String mediaURL, boolean autoplay) throws
             LoadException, PluginNotFoundException, PluginVersionException {
         this(mediaURL, autoplay, "90px", "100%");
+    }
+
+    /**
+     * Constructs <code>DivXPlayer</code> to automatically playback media located at
+     * {@code mediaURL} using the default height of 90px and width of 100%.
+     *
+     * <p>This is the same as calling {@code DivXPlayer(mediaURL, true, "90px", "100%")}
+     *
+     * @param mediaURL the URL of the media to playback
+     *
+     * @throws LoadException if an error occurs while loading the media.
+     * @throws PluginVersionException if the required DivX Web Player plugin version is not installed on the client.
+     * @throws PluginNotFoundException if DivX Web Player plugin is not installed on the client.
+     */
+    public DivXPlayer(String mediaURL) throws LoadException,
+            PluginNotFoundException, PluginVersionException {
+        this(mediaURL, true, "90px", "100%");
     }
 
     private void checkAvailable() {
