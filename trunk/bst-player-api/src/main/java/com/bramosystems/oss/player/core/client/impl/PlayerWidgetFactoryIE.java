@@ -58,7 +58,8 @@ public class PlayerWidgetFactoryIE extends PlayerWidgetFactory {
     }
 
     @Override
-    protected Element getQTElement(String playerId, String mediaURL, boolean autoplay) {
+    protected Element getQTElement(String playerId, String mediaURL, boolean autoplay,
+            HashMap<String, String> params) {
         XObjectIE xo = new XObjectIE(playerId, "clsid:02BF25D5-8C17-4B23-BC80-D3488ABDDC6B");
         xo.getElement().setAttribute("style", "behavior: url(#" + QTStateManagerIE.behaviourObjId + ")");
         xo.addParam("AutoPlay", Boolean.toString(autoplay));
@@ -68,6 +69,12 @@ public class PlayerWidgetFactoryIE extends PlayerWidgetFactory {
         xo.addParam("ENABLEJAVASCRIPT", Boolean.toString(true));
         xo.addParam("KIOSKMODE", Boolean.toString(true));
         xo.addParam("PostDomEvents", Boolean.toString(true));
+        
+        Iterator<String> keys = params.keySet().iterator();
+        while (keys.hasNext()) {
+            String name = keys.next();
+            xo.addParam(name, params.get(name));
+        }
         return xo.getElement();
     }
 

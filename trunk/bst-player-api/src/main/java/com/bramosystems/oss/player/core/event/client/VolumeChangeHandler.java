@@ -15,6 +15,7 @@
  */
 package com.bramosystems.oss.player.core.event.client;
 
+import com.bramosystems.oss.player.core.client.skin.VolumeControl;
 import com.google.gwt.event.shared.EventHandler;
 
 /**

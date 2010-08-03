@@ -34,6 +34,7 @@ public class CallbackUtility {
     $wnd.bstplayer.handlers = new Object();
     $wnd.bstplayer.handlers.swf = new Object();
     $wnd.bstplayer.handlers.divx = new Object();
+    $wnd.bstplayer.handlers.vlc = new Object();
     }-*/;
 
     public static native JavaScriptObject getSWFCallbackHandlers() /*-{
@@ -42,5 +43,9 @@ public class CallbackUtility {
 
     public static native JavaScriptObject getDivxCallbackHandlers() /*-{
     return $wnd.bstplayer.handlers.divx;
+    }-*/;
+
+    public static native JavaScriptObject getVLCCallbackHandlers() /*-{
+    return $wnd.bstplayer.handlers.vlc;
     }-*/;
 }

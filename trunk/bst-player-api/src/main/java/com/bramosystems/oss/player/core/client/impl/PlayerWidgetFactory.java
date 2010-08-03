@@ -101,7 +101,8 @@ public class PlayerWidgetFactory {
         return xo.getElement();
     }
 
-    protected Element getQTElement(String playerId, String mediaURL, boolean autoplay) {
+    protected Element getQTElement(String playerId, String mediaURL, boolean autoplay,
+            HashMap<String, String> params) {
         XEmbed xo = new XEmbed(playerId);
         xo.addParam("type", "video/quicktime");
         xo.addParam("autoplay", Boolean.toString(autoplay));
@@ -111,7 +112,12 @@ public class PlayerWidgetFactory {
         xo.addParam("kioskmode", Boolean.toString(true));
         xo.addParam("EnableJavaScript", Boolean.toString(true));
         xo.addParam("postdomevents", Boolean.toString(true));
-//        xo.addParam("targetcache", Boolean.toString(false));
+
+        Iterator<String> keys = params.keySet().iterator();
+        while (keys.hasNext()) {
+            String name = keys.next();
+            xo.addParam(name, params.get(name));
+        }
         return xo.getElement();
     }
 

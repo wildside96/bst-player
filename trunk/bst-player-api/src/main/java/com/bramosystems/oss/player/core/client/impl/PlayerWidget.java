@@ -142,7 +142,7 @@ public class PlayerWidget extends Widget {
                 e = pf.getSWFElement(playerId, mediaURL, params);
                 break;
             case QuickTimePlayer:
-                e = pf.getQTElement(playerId, mediaURL, autoplay);
+                e = pf.getQTElement(playerId, mediaURL, autoplay, params);
                 break;
             case VLCPlayer:
                 e = pf.getVLCElement(playerId, "", false);

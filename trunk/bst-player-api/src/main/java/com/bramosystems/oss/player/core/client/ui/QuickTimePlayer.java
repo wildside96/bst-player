@@ -574,6 +574,46 @@ public class QuickTimePlayer extends AbstractMediaPlayerWithPlaylist implements 
         return impl.getRate();
     }
 
+    @Override
+    public <T extends ConfigValue> void setConfigParameter(ConfigParameter param, T value) {
+        super.setConfigParameter(param, value);
+        switch(param) {
+            case QTScale:
+                playerWidget.addParam("SCALE", value.toString());
+                break;
+        }
+    }
+
+    @Override
+    public void setConfigParameter(ConfigParameter param, Number value) {
+        super.setConfigParameter(param, value);
+        switch(param) {
+            case QTScale:
+                playerWidget.addParam("SCALE", value.toString());
+                break;
+        }
+    }
+
+    /**
+     * An enum of scalling values that can be used to scale the dimensions of a QuickTime movie
+     *
+     * @see ConfigParameter#QTScale
+     * @since 1.2
+     * @author Sikiru Braheem
+     */
+    public static enum Scale implements ConfigValue {
+        /**
+         * Scale the movie to fit the player size
+         */
+        ToFit,
+
+        /**
+         * Scale the movie to fill as much of the specified player size as possible while preserving the
+         * movie’s aspect ratio
+         */
+        Aspect;
+    }
+
     /**
      * Defines the transformation matrix of the QuickTime&trade; Player plugin.  The transformation
      * matrix can be used to perform several standard graphical operations like translation,

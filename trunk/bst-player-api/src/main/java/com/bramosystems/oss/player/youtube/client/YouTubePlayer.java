@@ -154,6 +154,7 @@ public class YouTubePlayer extends AbstractMediaPlayer {
         logger.setVisible(false);
         addDebugHandler(new DebugHandler() {
 
+            @Override
             public void onDebug(DebugEvent event) {
                 logger.log(event.getMessage(), false);
             }
@@ -168,6 +169,7 @@ public class YouTubePlayer extends AbstractMediaPlayer {
         // register for DOM events ...
         eventMgr.init(apiId, new Command() {
 
+            @Override
             public void execute() {
                 impl = YouTubePlayerImpl.getPlayerImpl(playerId);
                 impl.registerHandlers(YouTubePlayer.this, playerId);
@@ -187,6 +189,7 @@ public class YouTubePlayer extends AbstractMediaPlayer {
         };
         addPlayerStateHandler(new PlayerStateHandler() {
 
+            @Override
             public void onPlayerStateChanged(PlayerStateEvent event) {
                 switch (event.getPlayerState()) {
                     case BufferingStarted:
