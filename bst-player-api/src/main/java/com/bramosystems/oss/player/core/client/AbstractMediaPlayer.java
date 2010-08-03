@@ -23,6 +23,7 @@ import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.ui.Composite;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 
@@ -80,8 +81,7 @@ public abstract class AbstractMediaPlayer extends Composite implements HasMediaS
      * @param mediaURL the URL of the media to load into the player.
      * @throws LoadException if an error occurs while loading the media
      * @throws IllegalStateException if the player is not available, this is the case
-     * if the player is not attached to the DOM yet or after the
-     * <code>{@link #close()}</code> method has been called on this player.
+     * if the player is not attached to the DOM.
      */
     public abstract void loadMedia(String mediaURL) throws LoadException;
 
@@ -91,8 +91,7 @@ public abstract class AbstractMediaPlayer extends Composite implements HasMediaS
      * @throws PlayException if an error occurs
      * during media playback.
      * @throws IllegalStateException if the player is not available, this is the case
-     * if the player is not attached to the DOM yet or after the
-     * <code>{@link #close()}</code> method has been called on this player.
+     * if the player is not attached to the DOM.
      */
     public abstract void playMedia() throws PlayException;
 
@@ -100,8 +99,7 @@ public abstract class AbstractMediaPlayer extends Composite implements HasMediaS
      * Stops the media playback.
      *
      * @throws IllegalStateException if the player is not available, this is the case
-     * if the player is not attached to the DOM yet or after the
-     * <code>{@link #close()}</code> method has been called on this player.
+     * if the player is not attached to the DOM.
      */
     public abstract void stopMedia();
 
@@ -109,8 +107,7 @@ public abstract class AbstractMediaPlayer extends Composite implements HasMediaS
      * Pause the media playback
      *
      * @throws IllegalStateException if the player is not available, this is the case
-     * if the player is not attached to the DOM yet or after the
-     * <code>{@link #close()}</code> method has been called on this player.
+     * if the player is not attached to the DOM.
      */
     public abstract void pauseMedia();
 
@@ -121,8 +118,7 @@ public abstract class AbstractMediaPlayer extends Composite implements HasMediaS
      * @return the duration of the loaded media in milliseconds.
      *
      * @throws IllegalStateException if the player is not available, this is the case
-     * if the player is not attached to the DOM yet or after the
-     * <code>{@link #close()}</code> method has been called on this player.
+     * if the player is not attached to the DOM.
      */
     public abstract long getMediaDuration();
 
@@ -132,8 +128,7 @@ public abstract class AbstractMediaPlayer extends Composite implements HasMediaS
      * @return the current position of the media being played.
      *
      * @throws IllegalStateException if the player is not available, this is the case
-     * if the player is not attached to the DOM yet or after the
-     * <code>{@link #close()}</code> method has been called on this player.
+     * if the player is not attached to the DOM.
      */
     public abstract double getPlayPosition();
 
@@ -143,8 +138,7 @@ public abstract class AbstractMediaPlayer extends Composite implements HasMediaS
      * @param position the new position from where to start playback
      *
      * @throws IllegalStateException if the player is not available, this is the case
-     * if the player is not attached to the DOM yet or after the
-     * <code>{@link #close()}</code> method has been called on this player.
+     * if the player is not attached to the DOM.
      */
     public abstract void setPlayPosition(double position);
 
@@ -154,8 +148,7 @@ public abstract class AbstractMediaPlayer extends Composite implements HasMediaS
      * @return volume.
      *
      * @throws IllegalStateException if the player is not available, this is the case
-     * if the player is not attached to the DOM yet or after the
-     * <code>{@link #close()}</code> method has been called on this player.
+     * if the player is not attached to the DOM.
      */
     public abstract double getVolume();
 
@@ -165,8 +158,7 @@ public abstract class AbstractMediaPlayer extends Composite implements HasMediaS
      * @param volume {@code 0} (silent) to {@code 1} (full volume).
      *
      * @throws IllegalStateException if the player is not available, this is the case
-     * if the player is not attached to the DOM yet or after the
-     * <code>{@link #close()}</code> method has been called on this player.
+     * if the player is not attached to the DOM.
      */
     public abstract void setVolume(double volume);
 
@@ -464,7 +456,29 @@ public abstract class AbstractMediaPlayer extends Composite implements HasMediaS
      * @since 1.1
      */
     public <T extends ConfigValue> void setConfigParameter(ConfigParameter param, T value) {
-        if ((value != null) && (value.getClass() != param.getValueType())) {
+        if ((value != null) && (!Arrays.asList(param.getValueType()).contains(value.getClass()))) {
+            throw new IllegalArgumentException("Found ConfigParameter type "
+                    + value.getClass() + ", Requires " + param.getValueType() + " for value!");
+        }
+    }
+     
+    /**
+     * Sets the specified player parameter to the specified value IF AND ONLY IF the
+     * parameter is applicable on the player
+     *
+     * <p><h4>Overriding in a subclass</h4>
+     * This method should be called first by any subclass that overrides it. This
+     * implementation checks if the specified value is a valid type for the specified
+     * parameter.</p>
+     *
+     * @param param the configuration parameter
+     * @param value the numeric value
+     * @throws IllegalArgumentException if {@code param} is not useable with a number
+     * @since 1.2
+     * @see #setConfigParameter(ConfigParameter, ConfigValue)
+     */
+    public void setConfigParameter(ConfigParameter param, Number value) {
+        if ((value != null) && (!Arrays.asList(param.getValueType()).contains(value.getClass()))) {
             throw new IllegalArgumentException("Found ConfigParameter type "
                     + value.getClass() + ", Requires " + param.getValueType() + " for value!");
         }

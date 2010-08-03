@@ -16,6 +16,7 @@
  */
 package com.bramosystems.oss.player.core.client;
 
+import com.bramosystems.oss.player.core.client.ui.QuickTimePlayer.Scale;
 import com.bramosystems.oss.player.core.client.ui.WinMediaPlayer.UIMode;
 
 /**
@@ -26,6 +27,7 @@ import com.bramosystems.oss.player.core.client.ui.WinMediaPlayer.UIMode;
  *
  * @author Sikiru Braheem <sbraheem at bramosystems . com>
  * @since 1.1
+ * @see AbstractMediaPlayer#setConfigParameter(ConfigParameter, ConfigValue)
  */
 public enum ConfigParameter {
 
@@ -42,10 +44,25 @@ public enum ConfigParameter {
      * <p>The mode indicates which controls are shown on the user interface.</p>
      * <p>This parameter requires a {@linkplain UIMode} value type
      */
-    WMPUIMode(UIMode.class);
-    private Class valueType;
+    WMPUIMode(UIMode.class),
 
-    private ConfigParameter(Class valueType) {
+    /**
+     * Parameter for QuickTimePlayers' Scale property.
+     *
+     * <p>This parameter is used to scale the dimensions of a QuickTime movie. It requires either a
+     * {@linkplain Scale} value type or a double value</p>
+     *
+     * <p>A double value scales the movie by a factor of the value. For example, to play a movie at 
+     * half its normal size, use QTScale with a value of 0.5</p>
+     *
+     * @see Scale
+     * @since 1.2
+     */
+    QTScale(Scale.class, Double.class);
+
+    private Class[] valueType;
+
+    private ConfigParameter(Class ... valueType) {
         this.valueType = valueType;
     }
 
@@ -54,7 +71,7 @@ public enum ConfigParameter {
      *
      * @return the required type of value
      */
-    public Class getValueType() {
+    public Class[] getValueType() {
         return valueType;
     }
 }

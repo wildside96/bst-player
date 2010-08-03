@@ -481,11 +481,6 @@ public class DivXPlayer extends AbstractMediaPlayer {
         return resizeToVideoSize;
     }
 
-    @Override
-    public <T extends ConfigValue> void setConfigParameter(ConfigParameter param, T value) {
-        super.setConfigParameter(param, value);
-    }
-
     /**
      * Specifies whether the player should display the DivX advertisement banner
      * at the end of playback.
