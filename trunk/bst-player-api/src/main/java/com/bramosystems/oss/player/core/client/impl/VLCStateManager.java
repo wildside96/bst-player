@@ -15,319 +15,368 @@
  */
 package com.bramosystems.oss.player.core.client.impl;
 
-import com.bramosystems.oss.player.core.event.client.PlayStateHandler;
-import com.bramosystems.oss.player.core.event.client.PlayStateEvent;
-import com.bramosystems.oss.player.core.event.client.PlayerStateEvent;
 import com.bramosystems.oss.player.core.client.*;
 import com.bramosystems.oss.player.core.client.ui.VLCPlayer;
-import com.bramosystems.oss.player.core.event.client.DebugEvent;
-import com.bramosystems.oss.player.core.event.client.LoadingProgressEvent;
-import com.bramosystems.oss.player.core.event.client.MediaInfoEvent;
+import com.bramosystems.oss.player.core.event.client.PlayStateEvent;
+import com.bramosystems.oss.player.core.event.client.PlayStateEvent.State;
+import com.google.gwt.user.client.Random;
 import com.google.gwt.user.client.Timer;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
+import java.util.HashSet;
 
 public class VLCStateManager {
 
-    private Timer statePooler;
-    private final int poolerPeriod = 200;
-    private int previousState, metaDataWaitCount, index;
-    private boolean isBuffering, stoppedByUser, canDoMetadata;
-    private ArrayList<Integer> playlistIndexCache, shuffledIndexCache;
-    private PlayStateEvent.State currentState;
-    private VLCPlayer player;
-    private VLCPlayerImpl impl;
-    private LoopManager loopManager;
+    private VLCStateCallback callback;
+    private PoollingStateManager stateMgr;
+    private VLCPlaylistManager playlistMgr;
 
-    public VLCStateManager() {
-        previousState = -10;
-        stoppedByUser = false;
-        canDoMetadata = true;
-        metaDataWaitCount = -1;
-
-        statePooler = new Timer() {
-
-            @Override
-            public void run() {
-                checkPlayState();
-            }
-        };
-
-        index = -1;
-        playlistIndexCache = new ArrayList<Integer>();
-        currentState = PlayStateEvent.State.Finished;
-        loopManager = new LoopManager(true, new LoopManager.LoopCallback() {
-
-            @Override
-            public void onLoopFinished() {
-                PlayStateEvent.fire(player, PlayStateEvent.State.Finished, index);
-                DebugEvent.fire(player, DebugEvent.MessageType.Info, "Playback finished");
-            }
-
-            @Override
-            public void loopForever(boolean loop) {
-                try {
-                    if (player.getPlaylistSize() == 1) {
-                        canDoMetadata = false;
-                    }
-                    next(true);
-                } catch (PlayException ex) {
-                    DebugEvent.fire(player, DebugEvent.MessageType.Info, ex.getMessage());
-                }
-            }
-
-            @Override
-            public void playNextLoop() {
-                try {
-                    if (player.getPlaylistSize() == 1) {
-                        canDoMetadata = false;
-                    }
-                    next(true);
-                } catch (PlayException ex) {
-                    DebugEvent.fire(player, DebugEvent.MessageType.Info, ex.getMessage());
-                }
-            }
-        });
+    public VLCStateManager(VLCStateCallback callback) {
+        this.callback = callback;
+        stateMgr = new PoollingStateManager();
     }
 
     public void start(VLCPlayer _player, VLCPlayerImpl _impl) {
-        player = _player;
-        player.addPlayStateHandler(new PlayStateHandler() {
-
-            @Override
-            public void onPlayStateChanged(PlayStateEvent event) {
-                currentState = event.getPlayState();
-            }
-        });
-        impl = _impl;
-        statePooler.scheduleRepeating(poolerPeriod);
-    }
-
-    /**
-     * playback is finished, check if their is need to raise play-finished event
-     */
-    private void checkFinished() {
-        try {
-            next(false);    // move to next item in list
-        } catch (PlayException ex) {
-            loopManager.notifyPlayFinished();
-        }
-    }
-
-    private void checkPlayState() {
-        int state = impl.getPlayerState();
-
-        if (state == previousState) {
-            if (metaDataWaitCount >= 0) {
-                metaDataWaitCount--;
-                if (metaDataWaitCount < 0) {
-                    MediaInfo info = new MediaInfo();
-                    impl.fillMediaInfo(info);
-                    MediaInfoEvent.fire(player, info);
-                }
-            }
-            return;
-        }
-
-        switch (state) {
-            case -1:   // no input yet...
-                break;
-            case 0:    // idle/close
-                DebugEvent.fire(player, DebugEvent.MessageType.Info, "Idle ...");
-                break;
-            case 6:    // finished
-                if (stoppedByUser) {
-                    DebugEvent.fire(player, DebugEvent.MessageType.Info, "Playback stopped");
-                    firePlayStateEvent(PlayStateEvent.State.Stopped, index);
-                } else {
-                    DebugEvent.fire(player, DebugEvent.MessageType.Info,
-                            "Playback complete item #" + index);
-                    checkFinished();
-                }
-                break;
-            case 1:    // opening media
-                DebugEvent.fire(player, DebugEvent.MessageType.Info, "Opening playlist item #" + index);
-                canDoMetadata = true;
-            //                    break;
-            case 2:    // buffering
-                DebugEvent.fire(player, DebugEvent.MessageType.Info, "Buffering started");
-                firePlayerStateEvent(PlayerStateEvent.State.BufferingStarted);
-                isBuffering = true;
-                break;
-            case 3:    // playing
-                if (isBuffering) {
-                    DebugEvent.fire(player, DebugEvent.MessageType.Info, "Buffering stopped");
-                    firePlayerStateEvent(PlayerStateEvent.State.BufferingFinished);
-                    isBuffering = false;
-                }
-
-                if (canDoMetadata) {
-                    canDoMetadata = false;
-                    metaDataWaitCount = 4;  // implement some kind of delay, no extra timers...
-                }
-
-//                    fireDebug("Current Track : " + getCurrentAudioTrack(id));
-                DebugEvent.fire(player, DebugEvent.MessageType.Info, "Playback started");
-                stoppedByUser = false;
-                firePlayStateEvent(PlayStateEvent.State.Started, index);
-                //                    loadingComplete();
-                break;
-            case 4:    // paused
-                DebugEvent.fire(player, DebugEvent.MessageType.Info, "Playback paused");
-                firePlayStateEvent(PlayStateEvent.State.Paused, index);
-                break;
-            case 5:    // stopping
-                firePlayStateEvent(PlayStateEvent.State.Stopped, index);
-                break;
-            case 7:    // error
-                break;
-            case 8:    // playback complete
-                break;
-        }
-        previousState = state;
-    }
-
-    private void loadingComplete() {
-        LoadingProgressEvent.fire(player, 1.0);
-    }
-
-    public int getLoopCount() {
-        return loopManager.getLoopCount();
-    }
-
-    public void setLoopCount(int loopCount) {
-        loopManager.setLoopCount(loopCount);
+        stateMgr.initManager(_impl);
+        playlistMgr = new VLCPlaylistManager(_impl, callback);
     }
 
     public void close() {
-        statePooler.cancel();
+        stateMgr.stop();
     }
 
-    public void shuffle() {
-        Integer[] shuffled = playlistIndexCache.toArray(new Integer[0]);
-        Arrays.sort(shuffled, new Comparator<Integer>() {
+    public VLCPlaylistManager getPlaylistManager() {
+        return playlistMgr;
+    }
 
-            @Override
-            public int compare(Integer o1, Integer o2) {
-                int pos = 0;
-                switch (Math.round((float) (Math.random() * 2.0))) {
-                    case 0:
-                        pos = -1;
-                        break;
-                    case 1:
-                        pos = 0;
-                        break;
-                    case 2:
-                        pos = 1;
+    protected class PoollingStateManager {
+
+        private final int POOL_RATE = 300;
+        private int _previousState, _metaDataWaitCount, _previousIndex;
+        private boolean _isBuffering;
+        private Timer _timer;
+        private VLCPlayerImpl _impl;
+
+        public PoollingStateManager() {
+            _previousState = -20;
+            _previousIndex = -1;
+            _timer = new Timer() {
+
+                @Override
+                public void run() {
+                    checkState();
                 }
-                return pos;
+            };
+        }
+
+        public void initManager(VLCPlayerImpl impl) {
+            _impl = impl;
+            _timer.scheduleRepeating(POOL_RATE);
+        }
+
+        public void stop() {
+            _timer.cancel();
+        }
+
+        private void checkState() {
+            int state = _impl.getPlayerState();
+            int _index = playlistMgr.getPlaylistIndex();
+
+            if (state == _previousState) {
+                if ((_metaDataWaitCount > 0) && (--_metaDataWaitCount <= 0)) {
+                    MediaInfo info = new MediaInfo();
+                    _impl.fillMediaInfo(info);
+                    callback.onMediaInfo(info);
+                }
+                return;
             }
-        });
-        shuffledIndexCache = new ArrayList<Integer>(Arrays.asList(shuffled));
-    }
 
-    public void addToPlaylist(String mediaUrl, String options) {
-        int _index = options == null ? impl.addToPlaylist(mediaUrl) : impl.addToPlaylist(mediaUrl, options);
-        fireDebug("Added '" + mediaUrl + "' to playlist @ #" + _index
-                + (options == null ? "" : " with options [" + options + "]"));
-        playlistIndexCache.add(_index);
-        if (player.isShuffleEnabled()) {
-            shuffle();
+            callback.onInfo("state : " + state + ", index : " + _index);
+
+            switch (state) {
+                case -1:   // no input yet...
+                    break;
+                case 0:    // idle/close
+                    callback.onIdle();
+                    break;
+                case 1:    // opening media
+                    callback.onOpening(_index);
+                    break;
+                case 2:    // buffering
+                    _isBuffering = true;
+                    callback.onBuffering(true);
+                    break;
+                case 3:    // playing
+                    if (_isBuffering) {
+                        _isBuffering = false;
+                        callback.onBuffering(false);
+                    }
+
+                    if (_index != _previousIndex) {
+                        _metaDataWaitCount = 4;  // implement some kind of delay, no extra timers...
+                    }
+                    playlistMgr.setCurrentState(State.Started);
+                    playlistMgr.setStoppedByUser(false);
+                    callback.onPlaying(_index);
+                    //                    loadingComplete();
+                    break;
+                case 4:    // paused
+                    playlistMgr.setCurrentState(State.Paused);
+                    callback.onPaused(_index);
+                    break;
+                case 5:    // stopping
+                    callback.onInfo("stopping ...");
+                    break;
+                case 6:    // finished
+                    if (playlistMgr.isStoppedByUser()) {
+                        playlistMgr.setCurrentState(State.Stopped);
+                        callback.onStopped(_index);
+                    } else {
+                        callback.onEndReached(_index);
+                        try {
+                            playlistMgr.next(false);
+                        } catch (PlayException ex) {
+                            playlistMgr.setCurrentState(State.Finished);
+                        }
+                    }
+                    break;
+                case 7:    // error
+                    break;
+                default:    // unknown state ...
+                    callback.onInfo("[unknown state] " + state);
+            }
+            _previousState = state;
+            _previousIndex = _index;
         }
     }
 
-    public void removeFromPlaylist(int index) {
-        impl.removeFromPlaylist(playlistIndexCache.get(index));
-        playlistIndexCache.remove(index);
-        if (player.isShuffleEnabled()) {
-            shuffle();
+    public static interface VLCStateCallback {
+
+        public void onIdle();
+
+        public void onOpening(int index);
+
+        public void onBuffering(boolean started);
+
+        public void onPlaying(int index);
+
+        public void onPaused(int index);
+
+        public void onStopped(int index);
+//        public void onForward();
+//        public void onBackward();
+
+        public void onError(String message);
+
+        public void onInfo(String message);
+
+        public void onEndReached(int index);
+//        public void onPositionChanged();
+//        public void onTimeChanged();
+//        public void onMouseGrabed(double x, double y);
+
+        public void onMediaInfo(MediaInfo info);
+    }
+
+    public static class VLCPlaylistManager {
+
+        private ArrayList<Integer> _indexCache;
+        private VLCStateCallback _callback;
+        private VLCPlayerImpl _impl;
+        private boolean stoppedByUser;
+        private PlayStateEvent.State _currentState;
+        private IndexOracle _indexOracle;
+
+        VLCPlaylistManager(VLCPlayerImpl impl, VLCStateCallback callback) {
+            _indexCache = new ArrayList<Integer>();
+            _indexOracle = new IndexOracle();
+            _impl = impl;
+            _callback = callback;
+            _currentState = PlayStateEvent.State.Stopped;
         }
-    }
 
-    public void clearPlaylist() {
-        impl.clearPlaylist();
-        playlistIndexCache.clear();
-    }
-
-    /**
-     * get next playlist index.  can repeat playlist if looping is allowed...
-     * @param loop
-     * @return
-     * @throws PlayException
-     */
-    private int getNextPlayIndex(boolean loop) throws PlayException {
-        if (index >= (playlistIndexCache.size() - 1)) {
-            index = -1;
-            if (!loop) {
-                throw new PlayException("No more entries in playlist");
+        public void setCurrentState(State currentState) {
+            _currentState = currentState;
+            switch (_currentState) {
+                case Finished:
+                    _indexOracle.reset();
             }
         }
-        return player.isShuffleEnabled() ? shuffledIndexCache.get(++index) : playlistIndexCache.get(++index);
-    }
 
-    private int getPreviousPlayIndex(boolean loop) throws PlayException {
-        if (index < 0) {
-            index = playlistIndexCache.size();
-            if (!loop) {
+        public int getPlaylistIndex() {
+            return _indexOracle.getCurrentIndex();
+        }
+
+        void setStoppedByUser(boolean stoppedByUser) {
+            this.stoppedByUser = stoppedByUser;
+        }
+
+        boolean isStoppedByUser() {
+            return stoppedByUser;
+        }
+
+        public void play() throws PlayException {
+            switch (_currentState) {
+                case Paused:
+                    _impl.togglePause();
+                    break;
+                case Finished:
+                    _impl.playMediaAt(getNextPlayIndex(true));
+                    break;
+                case Stopped:
+                    _impl.playMediaAt(_indexCache.get(_indexOracle.suggestIndex(true, false)));
+            }
+        }
+
+        public void stop() {
+            stoppedByUser = true;
+            _impl.stop();
+        }
+
+        public void playItemAt(int __index) {
+            switch (_currentState) {
+                case Started:
+                case Paused:
+                    _impl.stop();
+                case Finished:
+                case Stopped:
+                    _impl.playMediaAt(_indexCache.get(__index));
+            }
+        }
+
+        public void next(boolean canLoop) throws PlayException {
+            _impl.playMediaAt(getNextPlayIndex(canLoop));
+        }
+
+        public void previous(boolean canLoop) throws PlayException {
+            _impl.playMediaAt(getPreviousPlayIndex(canLoop));
+        }
+
+        public void addToPlaylist(String mediaUrl, String options) {
+            _indexCache.add(options == null ? _impl.addToPlaylist(mediaUrl)
+                    : _impl.addToPlaylist(mediaUrl, options));
+            _callback.onInfo("Added '" + mediaUrl + "' to playlist"
+                    + (options == null ? "" : " with options [" + options + "]"));
+            _indexOracle.incrementIndexSize();
+        }
+
+        public void removeFromPlaylist(int index) {
+            _impl.removeFromPlaylist(_indexCache.get(index));
+            _indexCache.remove(index);
+            _indexOracle.removeFromCache(index);
+        }
+
+        public void clearPlaylist() {
+            _impl.clearPlaylist();
+            _indexCache.clear();
+            _indexOracle.reset();
+        }
+
+        /**
+         * get next playlist index.  can repeat playlist if looping is allowed...
+         * @param loop
+         * @return
+         * @throws PlayException
+         */
+        private int getNextPlayIndex(boolean loop) throws PlayException {
+            int ind = _indexOracle.suggestIndex(true, loop);
+            if (ind < 0) {
+                throw new PlayException("End of playlist");
+            }
+            return _indexCache.get(ind);
+        }
+
+        private int getPreviousPlayIndex(boolean loop) throws PlayException {
+            int ind = _indexOracle.suggestIndex(false, loop);
+            if (ind < 0) {
                 throw new PlayException("Beginning of playlist reached");
             }
+            return _indexCache.get(ind);
         }
-        return player.isShuffleEnabled() ? shuffledIndexCache.get(--index) : playlistIndexCache.get(--index);
-    }
 
-    public void play() throws PlayException {
-        switch (currentState) {
-            case Paused:
-                impl.togglePause();
-                break;
-            case Finished:
-                impl.playMediaAt(getNextPlayIndex(true));
-                break;
-            case Stopped:
-                impl.playMediaAt(
-                        player.isShuffleEnabled() ? shuffledIndexCache.get(index) : playlistIndexCache.get(index));
+        public boolean isShuffleEnabled() {
+            return _indexOracle.isRandomMode();
+        }
+
+        public void enableShuffle(boolean enable) {
+            _indexOracle.setRandomMode(enable);
         }
     }
 
-    public void playItemAt(int _index) {
-        switch (currentState) {
-            case Started:
-            case Paused:
-                stop();
-            case Finished:
-            case Stopped:
-                impl.playMediaAt(playlistIndexCache.get(_index));
+    private static class IndexOracle {
+
+        private int _currentIndex, _indexSize;
+        private boolean _randomMode;
+        private HashSet<Integer> _usedRandomIndices;
+
+        public IndexOracle() {
+            this(0);
         }
-    }
 
-    /**
-     * play next item in list
-     * @param canLoop
-     * @throws PlayException
-     */
-    public void next(boolean canLoop) throws PlayException {
-        impl.playMediaAt(getNextPlayIndex(canLoop));
-    }
+        public IndexOracle(int indexSize) {
+            _indexSize = indexSize;
+            _usedRandomIndices = new HashSet<Integer>();
+        }
 
-    public void previous(boolean canLoop) throws PlayException {
-        impl.playMediaAt(getPreviousPlayIndex(canLoop));
-    }
+        public void setRandomMode(boolean _randomMode) {
+            this._randomMode = _randomMode;
+        }
 
-    public void stop() {
-        stoppedByUser = true;
-        impl.stop();
-    }
+        public boolean isRandomMode() {
+            return _randomMode;
+        }
 
-    private void fireDebug(String message) {
-        DebugEvent.fire(player, DebugEvent.MessageType.Info, message);
-    }
+        public void incrementIndexSize() {
+            _indexSize++;
+        }
 
-    private void firePlayStateEvent(PlayStateEvent.State state, int index) {
-        PlayStateEvent.fire(player, state, index);
-    }
+        public void reset() {
+            _usedRandomIndices.clear();
+            _indexSize = 0;
+            _currentIndex = 0;
+        }
 
-    private void firePlayerStateEvent(PlayerStateEvent.State state) {
-        PlayerStateEvent.fire(player, state);
+        public int getCurrentIndex() {
+            return _currentIndex;
+        }
+
+        public void removeFromCache(int index) {
+            _usedRandomIndices.remove(Integer.valueOf(index));
+            _indexSize--;
+        }
+
+        public int suggestIndex(boolean up, boolean canRepeat) {
+            _currentIndex = suggestIndexImpl(up);
+            if (_randomMode) {
+                int _count = 0;
+                while (_usedRandomIndices.contains(_currentIndex)) {
+                    _currentIndex = suggestIndexImpl(up);
+                    _count++;
+                    if (_count == _indexSize) {
+                        _currentIndex = -1;
+                        break;
+                    }
+                }
+            } else {
+                if (_currentIndex == _indexSize) {
+                    _currentIndex = -1;
+                }
+            }
+
+            if (_currentIndex < 0 && canRepeat) {  // prepare for another iteration ...
+                _usedRandomIndices.clear();
+                _currentIndex = up ? 0 : _indexSize;
+                _currentIndex = suggestIndex(up, canRepeat);
+            }
+
+            if (_currentIndex >= 0) { // keep the used index ...
+                _usedRandomIndices.add(_currentIndex);
+            }
+            return _currentIndex;
+        }
+
+        private int suggestIndexImpl(boolean up) {
+            return _randomMode ? Random.nextInt(_indexSize)
+                    : (up ? _currentIndex++ : _currentIndex--);
+        }
     }
 }

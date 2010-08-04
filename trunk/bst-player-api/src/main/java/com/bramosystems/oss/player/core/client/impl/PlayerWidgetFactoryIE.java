@@ -35,7 +35,7 @@ public class PlayerWidgetFactoryIE extends PlayerWidgetFactory {
     @Override
     protected Element getVLCElement(String playerId, String mediaURL, boolean autoplay) {
         XObjectIE axo = new XObjectIE(playerId, "clsid:9BE31822-FDAD-461B-AD51-BE1D1C159921");
-        axo.getElement().setPropertyBoolean("events", true);
+        axo.getElement().setPropertyString("events", "True");
         axo.addParam("AutoPlay", "False");
         axo.addParam("AutoLoop", "False");
         axo.addParam("Src", "");
