@@ -217,7 +217,7 @@ public class VLCPlayerImpl extends JavaScriptObject {
     } catch(e){}
     }-*/;
 
-    public final native void clearPlaylist () /*-{
+    public final native void clearPlaylist() /*-{
     try{
     this.playlist.items.clear();
     } catch(e){}

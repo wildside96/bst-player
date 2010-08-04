@@ -16,13 +16,13 @@
 package com.bramosystems.oss.player.dev.client;
 
 import com.bramosystems.oss.player.core.client.AbstractMediaPlayer;
+import com.bramosystems.oss.player.core.client.ConfigParameter;
 import com.bramosystems.oss.player.core.client.LoadException;
 import com.bramosystems.oss.player.core.client.PlayerUtil;
 import com.bramosystems.oss.player.core.client.Plugin;
 import com.bramosystems.oss.player.core.client.PluginNotFoundException;
 import com.bramosystems.oss.player.core.client.PluginVersionException;
 import com.bramosystems.oss.player.core.client.ui.*;
-import com.bramosystems.oss.player.flat.client.FlatVideoPlayer;
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -50,7 +50,7 @@ public class Dev extends VerticalPanel implements EntryPoint {
 
             @Override
             public void onUncaughtException(Throwable e) {
-                Window.alert("Uncaught : " + e.getMessage());
+                Window.alert("Dev Uncaught : " + e.getMessage());
             }
         });
     }
@@ -94,23 +94,32 @@ public class Dev extends VerticalPanel implements EntryPoint {
                 case FlashPlayer:
                     mmp = new FlashMediaPlayer(
                             getURL("/local-video/big-buck-bunny.mp4"),
-//                            "http://localhost:8080/bst-media-server/stream?file=brandy-everything.mp3",
+                            //                            "http://localhost:8080/bst-media-server/stream?file=brandy-everything.mp3",
                             false, "350px", "100%");
                     break;
                 case QuickTimePlayer:
-                    mmp = new QuickTimePlayer(getURL("/local-video/01_Al_Fatihah.m4a"), false);
+//                    mmp = new QuickTimePlayer(getURL("/local-video/01_Al_Fatihah.m4a"), false);
+                    mmp = new QuickTimePlayer(getURL("/local-video/Sample.mov"), false, "555px", "720px");
+                    mmp.setConfigParameter(ConfigParameter.QTScale, QuickTimePlayer.Scale.ToFit);
                     break;
                 case VLCPlayer:
-                    mmp = new VLCPlayer(getURL("/local-video/01_Al_Fatihah.m4a"), true, "50px", "100%");
+                    mmp = new VLCPlayer(getURL("/local-video/big-buck-bunny.mp4"), true, "250px", "100%");
+                    ((VLCPlayer) mmp).addToPlaylist(getURL("/local-video/fireflies.flv"));
+                    ((VLCPlayer) mmp).addToPlaylist(getURL("/local-video/divx7_postinstall.divx"));
+                    ((VLCPlayer) mmp).addToPlaylist(getURL("/local-video/traffic.flv"));
+                    ((VLCPlayer) mmp).addToPlaylist(getURL("/local-video/Sample.mov"));
+                    ((VLCPlayer) mmp).setShuffleEnabled(true);
+
+//                    mmp = new VLCPlayer1(getURL("/local-video/big-buck-bunny.mp4"), true, "50px", "100%");
                     break;
                 case WinMediaPlayer:
                     mmp = new WinMediaPlayer(
-//                    mmp = new FlatVideoPlayer(Plugin.WinMediaPlayer,
+                            //                    mmp = new FlatVideoPlayer(Plugin.WinMediaPlayer,
                             getURL("/local-video/home-video.wmv"), true, "200px", "100%");
 //                    mmp = new WinMediaPlayer(getURL("/local-video/applause.mp3"), true);
 //                    mmp = new WinMediaPlayer(getURL("/local-video/playlist.m3u"), true);
 //                    mmp = new WinMediaPlayer(getURL("/local-video/home-video.wmv"), true, "200px", "100%");
- //                   mmp.setResizeToVideoSize(true);
+                    //                   mmp.setResizeToVideoSize(true);
                     break;
                 case Native:
                     mmp = new NativePlayer(getURL("/local-video/big-buck-bunny.ogv"),

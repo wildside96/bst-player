@@ -15,23 +15,19 @@
  */
 package com.bramosystems.oss.player.core.client.ui;
 
-import com.bramosystems.oss.player.core.event.client.PlayerStateHandler;
-import com.bramosystems.oss.player.core.event.client.PlayerStateEvent;
-import com.bramosystems.oss.player.core.event.client.MediaInfoEvent;
-import com.bramosystems.oss.player.core.event.client.DebugEvent;
-import com.bramosystems.oss.player.core.event.client.MediaInfoHandler;
-import com.bramosystems.oss.player.core.event.client.DebugHandler;
 import com.bramosystems.oss.player.core.client.*;
 import com.bramosystems.oss.player.core.client.MediaInfo.MediaInfoKey;
+import com.bramosystems.oss.player.core.client.impl.BeforeUnloadCallback;
+import com.bramosystems.oss.player.core.client.impl.LoopManager;
 import com.bramosystems.oss.player.core.client.impl.VLCPlayerImpl;
 import com.bramosystems.oss.player.core.client.impl.VLCStateManager;
-import com.bramosystems.oss.player.core.client.impl.BeforeUnloadCallback;
 import com.bramosystems.oss.player.core.client.impl.PlayerWidget;
 import com.bramosystems.oss.player.core.client.skin.CustomPlayerControl;
+import com.bramosystems.oss.player.core.event.client.*;
 import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.DOM;
-import com.google.gwt.user.client.ui.*;
+import com.google.gwt.user.client.ui.FlowPanel;
 import java.util.ArrayList;
 
 /**
@@ -63,7 +59,6 @@ import java.util.ArrayList;
  * </pre></code>
  *
  * @author Sikirulai Braheem
- * TODO: fix memory leak, timer related ...
  */
 public class VLCPlayer extends AbstractMediaPlayer implements PlaylistSupport {
 
@@ -72,10 +67,11 @@ public class VLCPlayer extends AbstractMediaPlayer implements PlaylistSupport {
     private VLCStateManager stateHandler;
     private String playerId, mediaUrl, _width, _height;
     private Logger logger;
-    private boolean isEmbedded, autoplay, resizeToVideoSize, shuffleOn;
+    private boolean isEmbedded, autoplay, resizeToVideoSize;
     private HandlerRegistration initListHandler;
     private ArrayList<MRL> _playlistCache;
     private CustomPlayerControl control;
+    private LoopManager loopManager;
 
     VLCPlayer() throws PluginNotFoundException, PluginVersionException {
         PluginVersion req = Plugin.VLCPlayer.getVersion();
@@ -86,8 +82,90 @@ public class VLCPlayer extends AbstractMediaPlayer implements PlaylistSupport {
 
         _playlistCache = new ArrayList<MRL>();
         playerId = DOM.createUniqueId().replace("-", "");
-        stateHandler = new VLCStateManager();
-        shuffleOn = false;
+        
+        loopManager = new LoopManager(true, new LoopManager.LoopCallback() {
+
+            @Override
+            public void onLoopFinished() {
+                firePlayStateEvent(PlayStateEvent.State.Finished, 0);
+            }
+
+            @Override
+            public void loopForever(boolean loop) {
+            }
+
+            @Override
+            public void playNextLoop() {
+                try {
+                    stateHandler.getPlaylistManager().next(true);
+                } catch (PlayException ex) {
+                }
+            }
+        });
+        stateHandler = new VLCStateManager(new VLCStateManager.VLCStateCallback() {
+
+///           @Override
+            public void onLoadingComplete() {
+                fireLoadingProgress(1.0);
+            }
+
+            @Override
+            public void onIdle() {
+                fireDebug("x Idle ...");
+            }
+
+            @Override
+            public void onOpening(int index) {
+                fireDebug("x Opening playlist item #" + index);
+            }
+
+            @Override
+            public void onBuffering(boolean started) {
+                fireDebug("x Buffering started : " + started);
+                firePlayerStateEvent(started ? PlayerStateEvent.State.BufferingStarted
+                        : PlayerStateEvent.State.BufferingFinished);
+            }
+
+            @Override
+            public void onPlaying(int index) {
+                fireDebug("x Playback started");
+                firePlayStateEvent(PlayStateEvent.State.Started, index);
+            }
+
+            @Override
+            public void onPaused(int index) {
+                fireDebug("x Playback paused");
+                firePlayStateEvent(PlayStateEvent.State.Paused, index);
+            }
+
+            @Override
+            public void onError(String message) {
+                fireError(message);
+            }
+
+            @Override
+            public void onInfo(String message) {
+                fireDebug(message);
+            }
+
+            @Override
+            public void onEndReached(int index) {
+                fireDebug("x Playback complete item #" + index);
+                loopManager.notifyPlayFinished();
+            }
+
+            @Override
+            public void onStopped(int index) {
+                firePlayStateEvent(PlayStateEvent.State.Stopped, index);
+                fireDebug("x Playback stopped");
+            }
+
+            @Override
+            public void onMediaInfo(MediaInfo info) {
+                fireDebug("x MediaInfo available");
+                fireMediaInfoAvailable(info);
+            }
+        });
     }
 
     /**
@@ -97,7 +175,7 @@ public class VLCPlayer extends AbstractMediaPlayer implements PlaylistSupport {
      *
      * <p> {@code height} and {@code width} are specified as CSS units. A value of {@code null}
      * for {@code height} or {@code width} puts the player in embedded mode.  When in embedded mode,
-     * the player is made invisible on the page and media state events are propagated to registered 
+     * the player is made invisible on the page and media state events are propagated to registered
      * listeners only.  This is desired especially when used with custom sound controls.  For custom
      * video control, specify valid CSS values for {@code height} and {@code width} but hide the
      * player controls with {@code setControllerVisible(false)}.
@@ -216,7 +294,7 @@ public class VLCPlayer extends AbstractMediaPlayer implements PlaylistSupport {
         stateHandler.start(this, impl);   // start state pooling ...
 
         // load player ...
-        stateHandler.addToPlaylist(mediaUrl, null);
+        stateHandler.getPlaylistManager().addToPlaylist(mediaUrl, null);
 
         // fire player ready ...
         firePlayerStateEvent(PlayerStateEvent.State.Ready);
@@ -224,7 +302,7 @@ public class VLCPlayer extends AbstractMediaPlayer implements PlaylistSupport {
         // and play if required ...
         if (autoplay) {
             try {
-                stateHandler.play();
+                stateHandler.getPlaylistManager().play();
             } catch (PlayException ex) {
             }
         }
@@ -233,38 +311,38 @@ public class VLCPlayer extends AbstractMediaPlayer implements PlaylistSupport {
     @Override
     public void loadMedia(String mediaURL) throws LoadException {
         checkAvailable();
-        stateHandler.clearPlaylist();
-        stateHandler.addToPlaylist(mediaUrl, null);
+        stateHandler.getPlaylistManager().clearPlaylist();
+        stateHandler.getPlaylistManager().addToPlaylist(mediaUrl, null);
     }
 
     @Override
     public void playMedia() throws PlayException {
         checkAvailable();
-        stateHandler.play();
+        stateHandler.getPlaylistManager().play();
     }
 
     @Override
     public void play(int index) throws IndexOutOfBoundsException {
         checkAvailable();
-        stateHandler.playItemAt(index);
+        stateHandler.getPlaylistManager().playItemAt(index);
     }
 
     @Override
     public void playNext() throws PlayException {
         checkAvailable();
-        stateHandler.next(true); // play next and play over if end-of-playlist
+        stateHandler.getPlaylistManager().next(true); // play next and play over if end-of-playlist
     }
 
     @Override
     public void playPrevious() throws PlayException {
         checkAvailable();
-        stateHandler.previous(true);
+        stateHandler.getPlaylistManager().previous(true);
     }
 
     @Override
     public void stopMedia() {
         checkAvailable();
-        stateHandler.stop();
+        stateHandler.getPlaylistManager().stop();
     }
 
     @Override
@@ -334,7 +412,7 @@ public class VLCPlayer extends AbstractMediaPlayer implements PlaylistSupport {
     @Override
     public int getLoopCount() {
         checkAvailable();
-        return stateHandler.getLoopCount();
+        return loopManager.getLoopCount();
     }
 
     /**
@@ -346,13 +424,13 @@ public class VLCPlayer extends AbstractMediaPlayer implements PlaylistSupport {
     @Override
     public void setLoopCount(final int loop) {
         if (isPlayerOnPage(playerId)) {
-            stateHandler.setLoopCount(loop);
+            loopManager.setLoopCount(loop);
         } else {
             addToPlayerReadyCommandQueue("loopcount", new Command() {
 
                 @Override
                 public void execute() {
-                    stateHandler.setLoopCount(loop);
+                    loopManager.setLoopCount(loop);
                 }
             });
         }
@@ -361,7 +439,7 @@ public class VLCPlayer extends AbstractMediaPlayer implements PlaylistSupport {
     @Override
     public void addToPlaylist(String mediaURL) {
         if (isPlayerOnPage(playerId)) {
-            stateHandler.addToPlaylist(mediaURL, null);
+            stateHandler.getPlaylistManager().addToPlaylist(mediaURL, null);
         } else {
             if (initListHandler == null) {
                 initListHandler = addPlayerStateHandler(new PlayerStateHandler() {
@@ -371,7 +449,7 @@ public class VLCPlayer extends AbstractMediaPlayer implements PlaylistSupport {
                         switch (event.getPlayerState()) {
                             case Ready:
                                 for (MRL mrl : _playlistCache) {
-                                    stateHandler.addToPlaylist(mrl.getUrl(), mrl.getOption());
+                                    stateHandler.getPlaylistManager().addToPlaylist(mrl.getUrl(), mrl.getOption());
                                 }
                                 break;
                         }
@@ -386,27 +464,34 @@ public class VLCPlayer extends AbstractMediaPlayer implements PlaylistSupport {
     @Override
     public boolean isShuffleEnabled() {
         checkAvailable();
-        return shuffleOn;
+        return stateHandler.getPlaylistManager().isShuffleEnabled();
     }
 
     @Override
-    public void setShuffleEnabled(boolean enable) {
-        shuffleOn = enable;
-        if (enable) {
-            stateHandler.shuffle();
+    public void setShuffleEnabled(final boolean enable) {
+        if (isPlayerOnPage(playerId)) {
+            stateHandler.getPlaylistManager().enableShuffle(enable);
+        } else {
+            addToPlayerReadyCommandQueue("shuffle", new Command() {
+
+                @Override
+                public void execute() {
+                    stateHandler.getPlaylistManager().enableShuffle(enable);
+                }
+            });
         }
     }
 
     @Override
     public void removeFromPlaylist(int index) {
         checkAvailable();
-        stateHandler.removeFromPlaylist(index);
+        stateHandler.getPlaylistManager().removeFromPlaylist(index);
     }
 
     @Override
     public void clearPlaylist() {
         checkAvailable();
-        stateHandler.clearPlaylist();
+        stateHandler.getPlaylistManager().clearPlaylist();
     }
 
     @Override

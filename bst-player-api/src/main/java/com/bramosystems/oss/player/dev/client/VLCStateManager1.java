@@ -17,8 +17,10 @@ package com.bramosystems.oss.player.dev.client;
 
 import com.bramosystems.oss.player.core.event.client.PlayStateEvent;
 import com.bramosystems.oss.player.core.client.*;
+import com.bramosystems.oss.player.core.client.impl.CallbackUtility;
 import com.bramosystems.oss.player.core.client.impl.LoopManager;
 import com.bramosystems.oss.player.core.client.impl.VLCPlayerImpl;
+import com.google.gwt.core.client.JavaScriptObject;
 import java.util.ArrayList;
 
 public class VLCStateManager1 {
@@ -329,13 +331,13 @@ public class VLCStateManager1 {
     public final native void registerEventCallbacks(VLCPlayerImpl player, VLCEventCallback callback) /*-{
     try {
     player.onMediaPlayerNothingSpecial = function(event) {
-    callback.@com.bramosystems.oss.player.core.client.impl.VLCStateManager1.VLCEventCallback::onIdle()();
+    callback.@com.bramosystems.oss.player.dev.client.VLCStateManager1.VLCEventCallback::onIdle()();
     };
     player.onMediaPlayerEncounteredError = function(event) {
-    callback.@com.bramosystems.oss.player.core.client.impl.VLCStateManager1.VLCEventCallback::onError()();
+    callback.@com.bramosystems.oss.player.dev.client.VLCStateManager1.VLCEventCallback::onError()();
     };
     player.addEventListener('MediaPlayerNothingSpecial', function(event) {
-    callback.@com.bramosystems.oss.player.core.client.impl.VLCStateManager1.VLCEventCallback::onIdle()();
+    callback.@com.bramosystems.oss.player.dev.client.VLCStateManager1.VLCEventCallback::onIdle()();
     }, false);
     }catch(e){
     $wnd.alert(e);
@@ -345,47 +347,47 @@ public class VLCStateManager1 {
     public final native void registerEventCallbacks2(VLCPlayerImpl player, VLCEventCallback callback) /*-{
     try {
     player.onMediaPlayerNothingSpecial = function(event) {
-    callback.@com.bramosystems.oss.player.core.client.impl.VLCStateManager1.VLCEventCallback::onIdle()();
+    callback.@com.bramosystems.oss.player.dev.client.VLCStateManager1.VLCEventCallback::onIdle()();
     };
     player.addEventListener('MediaPlayerNothingSpecial', function(event) {
-    callback.@com.bramosystems.oss.player.core.client.impl.VLCStateManager1.VLCEventCallback::onIdle()();
+    callback.@com.bramosystems.oss.player.dev.client.VLCStateManager1.VLCEventCallback::onIdle()();
     }, false);
     player.addEventListener('MediaPlayerOpening', function(event) {
-    callback.@com.bramosystems.oss.player.core.client.impl.VLCStateManager1.VLCEventCallback::onOpening()();
+    callback.@com.bramosystems.oss.player.dev.client.VLCStateManager1.VLCEventCallback::onOpening()();
     }, false);
     player.addEventListener('MediaPlayerBuffering', function(event) {
-    callback.@com.bramosystems.oss.player.core.client.impl.VLCStateManager1.VLCEventCallback::onBuffering()();
+    callback.@com.bramosystems.oss.player.dev.client.VLCStateManager1.VLCEventCallback::onBuffering()();
     }, false);
     player.addEventListener('MediaPlayerPlaying', function(event) {
-    callback.@com.bramosystems.oss.player.core.client.impl.VLCStateManager1.VLCEventCallback::onPlaying()();
+    callback.@com.bramosystems.oss.player.dev.client.VLCStateManager1.VLCEventCallback::onPlaying()();
     }, false);
     player.addEventListener('MediaPlayerPaused', function(event) {
-    callback.@com.bramosystems.oss.player.core.client.impl.VLCStateManager1.VLCEventCallback::onPaused()();
+    callback.@com.bramosystems.oss.player.dev.client.VLCStateManager1.VLCEventCallback::onPaused()();
     }, false);
     player.addEventListener('MediaPlayerForward', function(event) {
-    callback.@com.bramosystems.oss.player.core.client.impl.VLCStateManager1.VLCEventCallback::onForward()();
+    callback.@com.bramosystems.oss.player.dev.client.VLCStateManager1.VLCEventCallback::onForward()();
     }, false);
     player.addEventListener('MediaPlayerBackward', function(event) {
-    callback.@com.bramosystems.oss.player.core.client.impl.VLCStateManager1.VLCEventCallback::onBackward()();
+    callback.@com.bramosystems.oss.player.dev.client.VLCStateManager1.VLCEventCallback::onBackward()();
     }, false);
     player.addEventListener('MediaPlayerEncounteredError', function(event) {
-    callback.@com.bramosystems.oss.player.core.client.impl.VLCStateManager1.VLCEventCallback::onError()();
+    callback.@com.bramosystems.oss.player.dev.client.VLCStateManager1.VLCEventCallback::onError()();
     }, false);
     player.addEventListener('MediaPlayerEndReached', function(event) {
-    callback.@com.bramosystems.oss.player.core.client.impl.VLCStateManager1.VLCEventCallback::onEndReached()();
+    callback.@com.bramosystems.oss.player.dev.client.VLCStateManager1.VLCEventCallback::onEndReached()();
     }, false);
     player.addEventListener('MediaPlayerTimeChanged', function(event) {
-    callback.@com.bramosystems.oss.player.core.client.impl.VLCStateManager1.VLCEventCallback::onTimeChanged()();
+    callback.@com.bramosystems.oss.player.dev.client.VLCStateManager1.VLCEventCallback::onTimeChanged()();
     }, false);
     player.addEventListener('MediaPlayerPositionChanged', function(event) {
-    callback.@com.bramosystems.oss.player.core.client.impl.VLCStateManager1.VLCEventCallback::onPositionChanged()();
+    callback.@com.bramosystems.oss.player.dev.client.VLCStateManager1.VLCEventCallback::onPositionChanged()();
     }, false);
     player.addEventListener('MediaPlayerMouseGrab', function(event,x,y) {
-    callback.@com.bramosystems.oss.player.core.client.impl.VLCStateManager1.VLCEventCallback::onMouseGrabed(DD)(x,y);
+    callback.@com.bramosystems.oss.player.dev.client.VLCStateManager1.VLCEventCallback::onMouseGrabed(DD)(x,y);
     }, false);
     }catch(e){
     $wnd.alert(e);
-//    callback.@com.bramosystems.oss.player.core.client.impl.VLCStateManager1.VLCEventCallback::onError()();
+//    callback.@com.bramosystems.oss.player.dev.client.VLCStateManager1.VLCEventCallback::onError()();
     }
     }-*/;
 
@@ -422,16 +424,96 @@ public class VLCStateManager1 {
         public void onMouseGrabed(double x, double y);
     }
 
-    public final native void registerEventCallbackds(VLCPlayerImpl player, VLCEventCallback callback) /*-{
-    player.attachEvent('playStateChange', function(NewState) {
-    impl.@com.bramosystems.oss.player.core.client.impl.WMPStateManagerIE::firePlayStateChanged(Ljava/lang/String;I)(player.id, NewState);
-    });
-    player.attachEvent('buffering', function(Start) {
-    impl.@com.bramosystems.oss.player.core.client.impl.WMPStateManagerIE::fireBuffering(Ljava/lang/String;Z)(player.id, Start);
-    });
-    player.attachEvent('error', function() {
-    impl.@com.bramosystems.oss.player.core.client.impl.WMPStateManagerIE::fireError(Ljava/lang/String;)(player.id);
-    });
-    impl.@com.bramosystems.oss.player.core.client.impl.WMPStateManagerIE::firePlayStateChanged(Ljava/lang/String;I)(player.id, player.playState);
+    public void initHandlers(String playerId, VLCEventCallback callback) {
+        initCallbackImpl(CallbackUtility.getVLCCallbackHandlers(), playerId, callback);
+    }
+
+    private native void closeMediaImpl(JavaScriptObject vlc, String playerId) /*-{
+    delete vlc[playerId];
+    }-*/;
+
+    private native void initCallbackImpl(JavaScriptObject vlc, String playerId, VLCEventCallback callback) /*-{
+    vlc[playerId] = new Object();
+    vlc[playerId].onNothingSpecial = function(event) {
+     $wnd.alert('nothing spec');
+    callback.@com.bramosystems.oss.player.dev.client.VLCStateManager1.VLCEventCallback::onIdle()();
+    };
+    vlc[playerId].onOpening = function(event) {
+    callback.@com.bramosystems.oss.player.dev.client.VLCStateManager1.VLCEventCallback::onOpening()();
+    };
+    vlc[playerId].onBuffering = function(event) {
+    callback.@com.bramosystems.oss.player.dev.client.VLCStateManager1.VLCEventCallback::onBuffering()();
+    };
+    vlc[playerId].onPlaying = function(event) {
+     $wnd.alert('nothing playing ');
+    callback.@com.bramosystems.oss.player.dev.client.VLCStateManager1.VLCEventCallback::onPlaying()();
+    };
+    vlc[playerId].onPaused = function(event) {
+    callback.@com.bramosystems.oss.player.dev.client.VLCStateManager1.VLCEventCallback::onPaused()();
+    };
+    vlc[playerId].onForward = function(event) {
+    callback.@com.bramosystems.oss.player.dev.client.VLCStateManager1.VLCEventCallback::onForward()();
+    };
+    vlc[playerId].onBackward = function(event) {
+    callback.@com.bramosystems.oss.player.dev.client.VLCStateManager1.VLCEventCallback::onBackward()();
+    };
+    vlc[playerId].onError = function(event) {
+    callback.@com.bramosystems.oss.player.dev.client.VLCStateManager1.VLCEventCallback::onError()();
+    };
+    vlc[playerId].onEndReached = function(event) {
+    callback.@com.bramosystems.oss.player.dev.client.VLCStateManager1.VLCEventCallback::onEndReached()();
+    };
+    vlc[playerId].onTimeChanged = function(event) {
+    callback.@com.bramosystems.oss.player.dev.client.VLCStateManager1.VLCEventCallback::onTimeChanged()();
+    };
+    vlc[playerId].onPositionChanged = function(event) {
+    callback.@com.bramosystems.oss.player.dev.client.VLCStateManager1.VLCEventCallback::onPositionChanged()();
+    };
+    vlc[playerId].onMouseGrab = function(event,x,y) {
+    callback.@com.bramosystems.oss.player.dev.client.VLCStateManager1.VLCEventCallback::onMouseGrabed(DD)(x,y);
+    };
+    }-*/;
+
+    public void registerEventCallbacksIE(VLCPlayerImpl player, String playerId) {
+//        registerEventCallbacksIEImpl(player, playerId, CallbackUtility.getVLCCallbackHandlers());
+        registerEventCallbacksImpl(player, playerId, CallbackUtility.getVLCCallbackHandlers());
+    }
+
+    private native void registerEventCallbacksImpl(VLCPlayerImpl player, String playerId, JavaScriptObject vlc) /*-{
+    try {
+    player.addEventListener('MediaPlayerNothingSpecial', vlc[playerId].onNothingSpecial, false);
+    player.addEventListener('MediaPlayerOpening', vlc[playerId].onOpening, false);
+    player.addEventListener('MediaPlayerBuffering', vlc[playerId].onBuffering, false);
+    player.addEventListener('MediaPlayerPlaying', vlc[playerId].onPlaying, false);
+    player.addEventListener('MediaPlayerPaused', vlc[playerId].onPaused, false);
+    player.addEventListener('MediaPlayerForward', vlc[playerId].onForward, false);
+    player.addEventListener('MediaPlayerBackward', vlc[playerId].onBackward, false);
+    player.addEventListener('MediaPlayerEncounteredError', vlc[playerId].onError, false);
+    player.addEventListener('MediaPlayerEndReached', vlc[playerId].onEndReached, false);
+    player.addEventListener('MediaPlayerTimeChanged', vlc[playerId].onTimeChanged, false);
+    player.addEventListener('MediaPlayerPositionChanged', vlc[playerId].onPositionChanged, false);
+    player.addEventListener('MediaPlayerMouseGrab', vlc[playerId].onMouseGrab, false);
+    }catch(e){
+    $wnd.alert(e);
+    }
+    }-*/;
+
+    private native void registerEventCallbacksIEImpl(VLCPlayerImpl player, String playerId, JavaScriptObject vlc) /*-{
+    try {
+    player.attachEvent('MediaPlayerNothingSpecial', vlc[playerId].onNothingSpecial);
+    player.attachEvent('MediaPlayerOpening', vlc[playerId].onOpening);
+    player.attachEvent('MediaPlayerBuffering', vlc[playerId].onBuffering);
+    player.attachEvent('MediaPlayerPlaying', vlc[playerId].onPlaying);
+    player.attachEvent('MediaPlayerPaused', vlc[playerId].onPaused);
+    player.attachEvent('MediaPlayerForward', vlc[playerId].onForward);
+    player.attachEvent('MediaPlayerBackward', vlc[playerId].onBackward);
+    player.attachEvent('MediaPlayerEncounteredError', vlc[playerId].onError);
+    player.attachEvent('MediaPlayerEndReached', vlc[playerId].onEndReached);
+    player.attachEvent('MediaPlayerTimeChanged', vlc[playerId].onTimeChanged);
+    player.attachEvent('MediaPlayerPositionChanged', vlc[playerId].onPositionChanged);
+    player.attachEvent('MediaPlayerMouseGrab', vlc[playerId].onMouseGrab);
+    }catch(e){
+    $wnd.alert(e);
+    }
     }-*/;
 }
