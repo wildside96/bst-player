@@ -23,6 +23,8 @@ import com.bramosystems.oss.player.core.client.Plugin;
 import com.bramosystems.oss.player.core.client.PluginNotFoundException;
 import com.bramosystems.oss.player.core.client.PluginVersionException;
 import com.bramosystems.oss.player.core.client.ui.*;
+import com.bramosystems.oss.player.core.event.client.LoadingProgressEvent;
+import com.bramosystems.oss.player.core.event.client.LoadingProgressHandler;
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -39,8 +41,6 @@ import com.google.gwt.user.client.ui.VerticalPanel;
  * @author Sikirulai Braheem <sbraheem at gmail.com>
  */
 public class Dev extends VerticalPanel implements EntryPoint {
-
-    private AbstractMediaPlayer mmp;
 
     public Dev() {
         setSpacing(20);
@@ -62,15 +62,15 @@ public class Dev extends VerticalPanel implements EntryPoint {
 //        addPlayer(Plugin.WinMediaPlayer);
 //        addPlayer(Plugin.DivXPlayer);
 //        addPlayer(Plugin.FlashPlayer);
-//        addPlayer(Plugin.QuickTimePlayer);
+        addPlayer(Plugin.QuickTimePlayer);
 //        addPlayer(Plugin.Native);
-        addPlayer(Plugin.VLCPlayer);
+//        addPlayer(Plugin.VLCPlayer);
 
 //        add(new MimeStuffs());
-
     }
 
     private void addPlayer(Plugin plugin) {
+        AbstractMediaPlayer mmp = null;
         try {
             switch (plugin) {
                 case DivXPlayer:
@@ -87,7 +87,7 @@ public class Dev extends VerticalPanel implements EntryPoint {
 
                         @Override
                         public void onClick(ClickEvent event) {
-                            mmp.setControllerVisible(!mmp.isControllerVisible());
+ //                           mmp.setControllerVisible(!mmp.isControllerVisible());
                         }
                     }));
                     break;
@@ -100,7 +100,19 @@ public class Dev extends VerticalPanel implements EntryPoint {
                 case QuickTimePlayer:
 //                    mmp = new QuickTimePlayer(getURL("/local-video/01_Al_Fatihah.m4a"), false);
                     mmp = new QuickTimePlayer(getURL("/local-video/Sample.mov"), false, "555px", "720px");
-                    mmp.setConfigParameter(ConfigParameter.QTScale, QuickTimePlayer.Scale.ToFit);
+//                    mmp.setConfigParameter(ConfigParameter.QTScale, QuickTimePlayer.Scale.ToFit);
+                    mmp.addLoadingProgressHandler(new LoadingProgressHandler() {
+
+                        @Override
+                        public void onLoadingProgress(LoadingProgressEvent event) {
+                            System.out.println("event.progress: " + event.getProgress());
+
+                            if (event.getProgress() == 1.0d) {
+                                System.out.println("onLoadingProgress completed!");
+                            }
+                        }
+                    });
+                    
                     break;
                 case VLCPlayer:
                     mmp = new VLCPlayer(getURL("/local-video/big-buck-bunny.mp4"), true, "250px", "100%");
@@ -124,9 +136,10 @@ public class Dev extends VerticalPanel implements EntryPoint {
                 case Native:
                     mmp = new NativePlayer(getURL("/local-video/big-buck-bunny.ogv"),
                             false, "450px", "100%");
+                    ((NativePlayer) mmp).addToPlaylist(getURL("/local-video/big-buck-bunny.mp4"));
             }
             mmp.showLogger(true);
-            mmp.setLoopCount(-1);
+//            mmp.setLoopCount(-1);
 //            mmp.setControllerVisible(false);
             add(mmp);
         } catch (LoadException ex) {

@@ -80,6 +80,10 @@ public class NativePlayerImpl extends JavaScriptObject {
     return this.currentSrc;
     }-*/;
 
+    public final native boolean isAutoPlay() /*-{
+    return this.autoplay;
+    }-*/;
+
     public final native boolean isLooping() /*-{
     return this.loop;
     }-*/;

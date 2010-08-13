@@ -15,16 +15,7 @@
  */
 package com.bramosystems.oss.player.core.client.impl;
 
-import com.bramosystems.oss.player.core.event.client.PlayerStateEvent;
-import com.bramosystems.oss.player.core.event.client.HasMediaStateHandlers;
-import com.bramosystems.oss.player.core.event.client.PlayStateEvent;
-import com.bramosystems.oss.player.core.event.client.MediaInfoEvent;
-import com.bramosystems.oss.player.core.event.client.LoadingProgressEvent;
-import com.bramosystems.oss.player.core.event.client.DebugEvent;
-import com.bramosystems.oss.player.core.client.MediaInfo;
 import com.bramosystems.oss.player.core.client.ui.QuickTimePlayer;
-import com.google.gwt.i18n.client.NumberFormat;
-import java.util.HashMap;
 
 /**
  * Native implementation of the QuickTimePlayer class. It is not recommended to
@@ -35,180 +26,54 @@ import java.util.HashMap;
  */
 public class QTStateManager {
 
-    private HashMap<String, EventHandler> cache;
+    public QTStateManager() {}
 
-    public QTStateManager() {
-        cache = new HashMap<String, EventHandler>();
+    public void registerMediaStateListener(QuickTimePlayerImpl impl, QTEventHandler handler, String mediaURL) {
+        impl.resetPropertiesOnReload(false);
+        registerMediaStateListenerImpl(impl, handler);
+        impl.load(mediaURL);
     }
 
-    public void init(String playerId, HasMediaStateHandlers handler) {
-        cache.put(playerId, new EventHandler(playerId, handler));
-    }
-
-    protected void onState(String playerId, int stateId) {
-        cache.get(playerId).onStateChange(stateId);
-    }
-
-    public void close(String playerId) {
-        cache.remove(playerId);
-    }
-
-    public void registerMediaStateListener(QuickTimePlayerImpl player, final String mediaUrl) {
-        registerMediaStateListenerImpl(this, player);
-    }
-
-    public final int getLoopCount(String playerId) {
-        return cache.get(playerId).getLoopCount();
-    }
-
-    public final void setLoopCount(String playerId, int count) {
-        cache.get(playerId).setLoopCount(count);
-    }
-
-    private native void registerMediaStateListenerImpl(QTStateManager impl, QuickTimePlayerImpl playr) /*-{
-    var playerId = playr.id;
+    protected native void registerMediaStateListenerImpl(QuickTimePlayerImpl playr, QTEventHandler handler) /*-{
     playr.addEventListener('qt_begin', function(){  // plugin init complete
-    impl.@com.bramosystems.oss.player.core.client.impl.QTStateManager::onState(Ljava/lang/String;I)(playerId, 1);
+    handler.@com.bramosystems.oss.player.core.client.impl.QTStateManager.QTEventHandler::onStateChange(I)(1);
     }, false);
     playr.addEventListener('qt_load', function(){   // loading complete
-    impl.@com.bramosystems.oss.player.core.client.impl.QTStateManager::onState(Ljava/lang/String;I)(playerId, 2);
+    handler.@com.bramosystems.oss.player.core.client.impl.QTStateManager.QTEventHandler::onStateChange(I)(2);
     }, false);
     playr.addEventListener('qt_play', function(){   // play started
-    impl.@com.bramosystems.oss.player.core.client.impl.QTStateManager::onState(Ljava/lang/String;I)(playerId, 3);
+    handler.@com.bramosystems.oss.player.core.client.impl.QTStateManager.QTEventHandler::onStateChange(I)(3);
     }, false);
     playr.addEventListener('qt_ended', function(){  // playback finished
-    impl.@com.bramosystems.oss.player.core.client.impl.QTStateManager::onState(Ljava/lang/String;I)(playerId, 4);
+    handler.@com.bramosystems.oss.player.core.client.impl.QTStateManager.QTEventHandler::onStateChange(I)(4);
     }, false);
     playr.addEventListener('qt_canplay', function(){    // player ready
-    impl.@com.bramosystems.oss.player.core.client.impl.QTStateManager::onState(Ljava/lang/String;I)(playerId, 5);
+    handler.@com.bramosystems.oss.player.core.client.impl.QTStateManager.QTEventHandler::onStateChange(I)(5);
     }, false);
     playr.addEventListener('qt_volumechange', function(){   // volume changed
-    impl.@com.bramosystems.oss.player.core.client.impl.QTStateManager::onState(Ljava/lang/String;I)(playerId, 6);
+    handler.@com.bramosystems.oss.player.core.client.impl.QTStateManager.QTEventHandler::onStateChange(I)(6);
     }, false);
     playr.addEventListener('qt_progress', function(){   // progress
-    impl.@com.bramosystems.oss.player.core.client.impl.QTStateManager::onState(Ljava/lang/String;I)(playerId, 7);
+    handler.@com.bramosystems.oss.player.core.client.impl.QTStateManager.QTEventHandler::onStateChange(I)(7);
     }, false);
     playr.addEventListener('qt_error', function(){  // error
-    impl.@com.bramosystems.oss.player.core.client.impl.QTStateManager::onState(Ljava/lang/String;I)(playerId, 8);
+    handler.@com.bramosystems.oss.player.core.client.impl.QTStateManager.QTEventHandler::onStateChange(I)(8);
     }, false);
     playr.addEventListener('qt_loadedmetadata', function(){
-    impl.@com.bramosystems.oss.player.core.client.impl.QTStateManager::onState(Ljava/lang/String;I)(playerId, 9);
+    handler.@com.bramosystems.oss.player.core.client.impl.QTStateManager.QTEventHandler::onStateChange(I)(9);
     }, false);
     playr.addEventListener('qt_pause', function(){   // play paused
-    impl.@com.bramosystems.oss.player.core.client.impl.QTStateManager::onState(Ljava/lang/String;I)(playerId, 10);
+    handler.@com.bramosystems.oss.player.core.client.impl.QTStateManager.QTEventHandler::onStateChange(I)(10);
     }, false);
     playr.addEventListener('qt_waiting', function(){   // buffering
-    impl.@com.bramosystems.oss.player.core.client.impl.QTStateManager::onState(Ljava/lang/String;I)(playerId, 11);
+    handler.@com.bramosystems.oss.player.core.client.impl.QTStateManager.QTEventHandler::onStateChange(I)(11);
     }, false);
     playr.addEventListener('qt_stalled', function(){   // playback stalled
-    impl.@com.bramosystems.oss.player.core.client.impl.QTStateManager::onState(Ljava/lang/String;I)(playerId, 12);
+    handler.@com.bramosystems.oss.player.core.client.impl.QTStateManager.QTEventHandler::onStateChange(I)(12);
     }, false);
     }-*/;
 
-    public class EventHandler {
-
-        protected HasMediaStateHandlers handlers;
-        protected String id;
-        private NumberFormat volFmt = NumberFormat.getPercentFormat();
-        private boolean isBuffering;
-        private QuickTimePlayerImpl impl;
-        private LoopManager loopManager;
-
-        public EventHandler(String _id, HasMediaStateHandlers _handlers) {
-            handlers = _handlers;
-            id = _id;
-            isBuffering = false;
-            loopManager = new LoopManager(false, new LoopManager.LoopCallback() {
-
-                @Override
-                public void onLoopFinished() {
-                    PlayStateEvent.fire(handlers, PlayStateEvent.State.Finished, 0);
-                    onDebug("Media playback complete");
-                }
-
-                @Override
-                public void loopForever(boolean loop) {
-                    impl.setLoopingImpl(loop);
-                }
-
-                @Override
-                public void playNextLoop() {
-                    impl.play();
-                }
-            });
-        }
-
-        // TODO: check for a way of generating stopped event...
-        public void onStateChange(int newState) {
-            switch (newState) {
-                case 1: // plugin init complete ...
-                    impl = QuickTimePlayerImpl.getPlayer(id);
-                    onDebug("QuickTime Player plugin");
-                    onDebug("Version : " + impl.getPluginVersionImpl());
-                    break;
-                case 2: // loading complete ...
-                    onDebug("Media loading complete");
-                    LoadingProgressEvent.fire(handlers, 1.0);
-                    break;
-                case 3: // play started ...
-                    if (isBuffering) {
-                        isBuffering = false;
-                        PlayerStateEvent.fire(handlers, PlayerStateEvent.State.BufferingFinished);
-                        onDebug("Buffering ended ...");
-                    }
-                    PlayStateEvent.fire(handlers, PlayStateEvent.State.Started, 0);
-                    onDebug("Playing media at " + impl.getMovieURL());
-                    break;
-                case 4: // play finished, notify loop manager ...
-                    loopManager.notifyPlayFinished();
-                    break;
-                case 5: // player ready ...
-                    onDebug("Plugin ready for media playback");
-                    PlayerStateEvent.fire(handlers, PlayerStateEvent.State.Ready);
-                    break;
-                case 6: // volume changed ...
-                    onDebug("Volume changed to " + volFmt.format(impl.getVolume()));
-                    break;
-                case 7: // progress changed ...
-                    LoadingProgressEvent.fire(handlers, impl.getMaxBytesLoaded() / (double) impl.getMovieSize());
-                    break;
-                case 8: // error event ...
-                    onError(impl.getStatus() + " occured while loading media!");
-                    break;
-                case 9: // metadata stuffs ...
-                    MediaInfo info = new MediaInfo();
-                    impl.fillMediaInfo(info);
-                    MediaInfoEvent.fire(handlers, info);
-                    break;
-                case 10: // playback paused ...
-                    onDebug("Playback paused");
-                    PlayStateEvent.fire(handlers, PlayStateEvent.State.Paused, 0);
-                    break;
-                case 11: // buffering ...
-                    isBuffering = true;
-                    onDebug("Buffering started ...");
-                    PlayerStateEvent.fire(handlers, PlayerStateEvent.State.BufferingStarted);
-                    break;
-                case 12: // stalled ...
-                    onDebug("Player stalled !");
-                    break;
-            }
-        }
-
-        public void onError(String description) {
-            DebugEvent.fire(handlers, DebugEvent.MessageType.Error, description);
-        }
-
-        public void onDebug(String message) {
-            DebugEvent.fire(handlers, DebugEvent.MessageType.Info, message);
-        }
-
-        public void setLoopCount(int count) {
-            loopManager.setLoopCount(count);
-        }
-
-        public int getLoopCount() {
-            return loopManager.getLoopCount();
-        }
+    public static interface QTEventHandler {
+        public void onStateChange(int newState);
     }
 }

@@ -15,16 +15,18 @@
  */
 package com.bramosystems.oss.player.core.client.ui;
 
+import com.bramosystems.oss.player.core.client.AbstractMediaPlayer;
 import java.util.ArrayList;
 
-import com.bramosystems.oss.player.core.client.AbstractMediaPlayerWithPlaylist;
 import com.bramosystems.oss.player.core.client.LoadException;
 import com.bramosystems.oss.player.core.client.MediaInfo;
 import com.bramosystems.oss.player.core.client.MediaInfo.MediaInfoKey;
 import com.bramosystems.oss.player.core.client.PlayException;
 import com.bramosystems.oss.player.core.client.PlayerUtil;
+import com.bramosystems.oss.player.core.client.PlaylistSupport;
 import com.bramosystems.oss.player.core.client.Plugin;
 import com.bramosystems.oss.player.core.client.PluginNotFoundException;
+import com.bramosystems.oss.player.core.client.impl.DelegatePlaylistManager;
 import com.bramosystems.oss.player.core.client.impl.LoopManager;
 import com.bramosystems.oss.player.core.client.impl.NativePlayerImpl;
 import com.bramosystems.oss.player.core.client.impl.NativePlayerUtil;
@@ -65,7 +67,8 @@ import com.google.gwt.user.client.ui.FlowPanel;
  *
  * @author Sikirulai Braheem <sbraheem at bramosystems dot com>
  */
-public class NativePlayer extends AbstractMediaPlayerWithPlaylist {
+public class NativePlayer extends AbstractMediaPlayer implements PlaylistSupport {
+//public class NativePlayer extends AbstractMediaPlayerWithPlaylist {
 
     private NumberFormat volFmt = NumberFormat.getPercentFormat();
     private NativePlayerImpl impl;
@@ -74,6 +77,9 @@ public class NativePlayer extends AbstractMediaPlayerWithPlaylist {
     private boolean adjustToVideoSize, isEmbedded;
     private Logger logger;
     private LoopManager loopManager;
+    private DelegatePlaylistManager playlistManager;
+    private ArrayList<String> sources;
+    private Command initCommand;
 
     private NativePlayer() throws PluginNotFoundException {
         if (!PlayerUtil.isHTML5CompliantClient()) {
@@ -82,6 +88,23 @@ public class NativePlayer extends AbstractMediaPlayerWithPlaylist {
 
         playerId = DOM.createUniqueId().replace("-", "");
         adjustToVideoSize = false;
+        playlistManager = new DelegatePlaylistManager(this);
+        sources = new ArrayList<String>();
+        initCommand = new Command() {
+
+            @Override
+            public void execute() {
+                for (String src : sources) {
+                    playlistManager.addToPlaylist(src);
+                }
+                sources = null;
+                if (impl.isAutoPlay()) {
+                    play(0);
+                } else {
+                    playlistManager.load(0);
+                }
+            }
+        };
     }
 
     private void _init(String width, String height) {
@@ -126,22 +149,22 @@ public class NativePlayer extends AbstractMediaPlayerWithPlaylist {
         loopManager = new LoopManager(!NativePlayerUtil.get.isLoopingSupported(),
                 new LoopManager.LoopCallback() {
 
-            @Override
-            public void onLoopFinished() {
-                fireDebug("Play finished");
-                firePlayStateEvent(PlayStateEvent.State.Finished, 0);
-            }
+                    @Override
+                    public void onLoopFinished() {
+                        fireDebug("Play finished");
+                        firePlayStateEvent(PlayStateEvent.State.Finished, 0);
+                    }
 
-            @Override
-            public void loopForever(boolean loop) {
-                impl.setLooping(loop);
-            }
+                    @Override
+                    public void loopForever(boolean loop) {
+                        impl.setLooping(loop);
+                    }
 
-            @Override
-            public void playNextLoop() {
-                impl.play();
-            }
-        });
+                    @Override
+                    public void playNextLoop() {
+                        impl.play();
+                    }
+                });
     }
 
     /**
@@ -197,6 +220,7 @@ public class NativePlayer extends AbstractMediaPlayerWithPlaylist {
         this();
         playerWidget = new PlayerWidget(Plugin.Native, playerId, mediaURL, autoplay, null);
         _init(width, height);
+        sources.add(mediaURL);
     }
 
     /**
@@ -222,6 +246,7 @@ public class NativePlayer extends AbstractMediaPlayerWithPlaylist {
         this();
         playerWidget = new PlayerWidget(Plugin.Native, playerId, mediaSources, autoplay, null);
         _init(width, height);
+        sources.addAll(mediaSources);
     }
 
     /**
@@ -236,6 +261,7 @@ public class NativePlayer extends AbstractMediaPlayerWithPlaylist {
         impl.registerMediaStateHandlers(this);
         fireDebug("Browsers' Native Player");
         firePlayerStateEvent(PlayerStateEvent.State.Ready);
+        initCommand.execute();
     }
 
     @Override
@@ -507,6 +533,72 @@ public class NativePlayer extends AbstractMediaPlayerWithPlaylist {
                 fireDebug("Media loading aborted!");
                 break;
         }
+    }
+
+    @Override
+    public void setShuffleEnabled(final boolean enable) {
+        if (isPlayerOnPage(playerId)) {
+            playlistManager.setShuffleEnabled(enable);
+        } else {
+            addToPlayerReadyCommandQueue("shuffle", new Command() {
+
+                @Override
+                public void execute() {
+                    playlistManager.setShuffleEnabled(enable);
+                }
+            });
+        }
+    }
+
+    @Override
+    public boolean isShuffleEnabled() {
+        checkAvailable();
+        return playlistManager.isShuffleEnabled();
+    }
+
+    @Override
+    public void addToPlaylist(String mediaURL) {
+        if (isPlayerOnPage(playerId)) {
+            playlistManager.addToPlaylist(mediaURL);
+        } else {
+            sources.add(mediaURL);
+        }
+    }
+
+    @Override
+    public void removeFromPlaylist(int index) {
+        checkAvailable();
+        playlistManager.removeFromPlaylist(index);
+    }
+
+    @Override
+    public void clearPlaylist() {
+        checkAvailable();
+        playlistManager.clearPlaylist();
+    }
+
+    @Override
+    public void playNext() throws PlayException {
+        checkAvailable();
+        playlistManager.playNext();
+    }
+
+    @Override
+    public void playPrevious() throws PlayException {
+        checkAvailable();
+        playlistManager.playPrevious();
+    }
+
+    @Override
+    public void play(int index) throws IndexOutOfBoundsException {
+        checkAvailable();
+        playlistManager.play(index);
+    }
+
+    @Override
+    public int getPlaylistSize() {
+        checkAvailable();
+        return playlistManager.getPlaylistSize();
     }
 
     private enum NetworkState {
