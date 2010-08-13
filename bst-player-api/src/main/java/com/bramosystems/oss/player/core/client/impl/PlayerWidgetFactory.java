@@ -107,11 +107,6 @@ public class PlayerWidgetFactory {
         xo.addParam("type", "video/quicktime");
         xo.addParam("autoplay", Boolean.toString(autoplay));
         xo.addParam("src", mediaURL);
-        xo.addParam("bgcolor", "#000000");
-        xo.addParam("showlogo", Boolean.toString(false));
-        xo.addParam("kioskmode", Boolean.toString(true));
-        xo.addParam("EnableJavaScript", Boolean.toString(true));
-        xo.addParam("postdomevents", Boolean.toString(true));
 
         Iterator<String> keys = params.keySet().iterator();
         while (keys.hasNext()) {
@@ -138,7 +133,7 @@ public class PlayerWidgetFactory {
     protected Element getNativeElement(String playerId, String mediaURL, boolean autoplay) {
         Element videoElement = _doc.createElement("video");
         videoElement.setId(playerId);
-        videoElement.setPropertyString("src", mediaURL);
+//        videoElement.setPropertyString("src", mediaURL);
         if (autoplay) {
             videoElement.setPropertyBoolean("autoplay", autoplay);
         }
@@ -154,11 +149,11 @@ public class PlayerWidgetFactory {
         }
         videoElement.setPropertyBoolean("controls", true);
 
-        for (String item : sources) {
-            Element s = _doc.createElement("source");
-            s.setAttribute("src", item);
-            videoElement.appendChild(s);
-        }
+//        for (String item : sources) {
+//            Element s = _doc.createElement("source");
+//            s.setAttribute("src", item);
+//            videoElement.appendChild(s);
+//        }
         return videoElement;
     }
 

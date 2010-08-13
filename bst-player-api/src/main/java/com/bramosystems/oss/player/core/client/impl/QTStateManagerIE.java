@@ -42,49 +42,42 @@ public class QTStateManagerIE extends QTStateManager {
     }
 
     @Override
-    public void registerMediaStateListener(QuickTimePlayerImpl impl, String mediaUrl) {
-        impl.resetPropertiesOnReload(false);
-        registerMediaStateListenerImpl(this, impl);
-        impl.load(mediaUrl);
-    }
-
-    private native void registerMediaStateListenerImpl(QTStateManager impl, QuickTimePlayerImpl playr) /*-{
-    var playerId = playr.id;
+    protected native void registerMediaStateListenerImpl(QuickTimePlayerImpl playr, QTEventHandler handler) /*-{
     playr.attachEvent("onqt_begin", function(evt){
-    impl.@com.bramosystems.oss.player.core.client.impl.QTStateManager::onState(Ljava/lang/String;I)(playerId, 1);
+    handler.@com.bramosystems.oss.player.core.client.impl.QTStateManager.QTEventHandler::onStateChange(I)(1);
     });
     playr.attachEvent("onqt_load", function(evt){
-    impl.@com.bramosystems.oss.player.core.client.impl.QTStateManager::onState(Ljava/lang/String;I)(playerId, 2);
+    handler.@com.bramosystems.oss.player.core.client.impl.QTStateManager.QTEventHandler::onStateChange(I)(2);
     });
     playr.attachEvent('onqt_play', function(evt) {
-    impl.@com.bramosystems.oss.player.core.client.impl.QTStateManager::onState(Ljava/lang/String;I)(playerId, 3);
+    handler.@com.bramosystems.oss.player.core.client.impl.QTStateManager.QTEventHandler::onStateChange(I)(3);
     });
     playr.attachEvent('onqt_ended', function(evt) {
-    impl.@com.bramosystems.oss.player.core.client.impl.QTStateManager::onState(Ljava/lang/String;I)(playerId, 4);
+    handler.@com.bramosystems.oss.player.core.client.impl.QTStateManager.QTEventHandler::onStateChange(I)(4);
     });
     playr.attachEvent('onqt_canplay', function(evt) {
-    impl.@com.bramosystems.oss.player.core.client.impl.QTStateManager::onState(Ljava/lang/String;I)(playerId, 5);
+    handler.@com.bramosystems.oss.player.core.client.impl.QTStateManager.QTEventHandler::onStateChange(I)(5);
     });
     playr.attachEvent('onqt_volumechange', function(evt) {
-    impl.@com.bramosystems.oss.player.core.client.impl.QTStateManager::onState(Ljava/lang/String;I)(playerId, 6);
+    handler.@com.bramosystems.oss.player.core.client.impl.QTStateManager.QTEventHandler::onStateChange(I)(6);
     });
     playr.attachEvent('onqt_progress', function(evt) {
-    impl.@com.bramosystems.oss.player.core.client.impl.QTStateManager::onState(Ljava/lang/String;I)(playerId, 7);
+    handler.@com.bramosystems.oss.player.core.client.impl.QTStateManager.QTEventHandler::onStateChange(I)(7);
     });
     playr.attachEvent('onqt_error', function(evt) {
-    impl.@com.bramosystems.oss.player.core.client.impl.QTStateManager::onState(Ljava/lang/String;I)(playerId, 8);
+    handler.@com.bramosystems.oss.player.core.client.impl.QTStateManager.QTEventHandler::onStateChange(I)(8);
     });
     playr.attachEvent('onqt_loadedmetadata', function(evt) {
-    impl.@com.bramosystems.oss.player.core.client.impl.QTStateManager::onState(Ljava/lang/String;I)(playerId, 9);
+    handler.@com.bramosystems.oss.player.core.client.impl.QTStateManager.QTEventHandler::onStateChange(I)(9);
     });
     playr.attachEvent('onqt_pause', function(evt) {
-    impl.@com.bramosystems.oss.player.core.client.impl.QTStateManager::onState(Ljava/lang/String;I)(playerId, 10);
+    handler.@com.bramosystems.oss.player.core.client.impl.QTStateManager.QTEventHandler::onStateChange(I)(10);
     });
     playr.attachEvent('onqt_waiting', function(evt) {
-    impl.@com.bramosystems.oss.player.core.client.impl.QTStateManager::onState(Ljava/lang/String;I)(playerId, 11);
+    handler.@com.bramosystems.oss.player.core.client.impl.QTStateManager.QTEventHandler::onStateChange(I)(11);
     });
     playr.attachEvent('onqt_stalled', function(evt) {
-    impl.@com.bramosystems.oss.player.core.client.impl.QTStateManager::onState(Ljava/lang/String;I)(playerId, 12);
+    handler.@com.bramosystems.oss.player.core.client.impl.QTStateManager.QTEventHandler::onStateChange(I)(12);
     });
     }-*/;
 }

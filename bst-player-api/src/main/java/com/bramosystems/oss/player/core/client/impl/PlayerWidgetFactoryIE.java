@@ -61,14 +61,9 @@ public class PlayerWidgetFactoryIE extends PlayerWidgetFactory {
     protected Element getQTElement(String playerId, String mediaURL, boolean autoplay,
             HashMap<String, String> params) {
         XObjectIE xo = new XObjectIE(playerId, "clsid:02BF25D5-8C17-4B23-BC80-D3488ABDDC6B");
-        xo.getElement().setAttribute("style", "behavior: url(#" + QTStateManagerIE.behaviourObjId + ")");
+        xo.getElement().getStyle().setProperty("BEHAVIOR" , "url(#" + QTStateManagerIE.behaviourObjId + ")");
         xo.addParam("AutoPlay", Boolean.toString(autoplay));
         xo.addParam("Src", mediaURL);
-        xo.addParam("BGCOLOR", "#000000");
-        xo.addParam("SHOWLOGO", Boolean.toString(false));
-        xo.addParam("ENABLEJAVASCRIPT", Boolean.toString(true));
-        xo.addParam("KIOSKMODE", Boolean.toString(true));
-        xo.addParam("PostDomEvents", Boolean.toString(true));
         
         Iterator<String> keys = params.keySet().iterator();
         while (keys.hasNext()) {

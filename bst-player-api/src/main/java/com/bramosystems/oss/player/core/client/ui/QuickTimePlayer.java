@@ -20,12 +20,13 @@ import com.bramosystems.oss.player.core.client.*;
 import com.bramosystems.oss.player.core.client.MediaInfo.MediaInfoKey;
 import com.bramosystems.oss.player.core.client.impl.QTStateManager;
 import com.bramosystems.oss.player.core.client.impl.QuickTimePlayerImpl;
-import com.bramosystems.oss.player.core.client.impl.BeforeUnloadCallback;
+import com.bramosystems.oss.player.core.client.impl.LoopManager;
 import com.bramosystems.oss.player.core.client.impl.PlayerWidget;
 import com.bramosystems.oss.player.core.event.client.DebugEvent;
 import com.bramosystems.oss.player.core.event.client.DebugHandler;
 import com.bramosystems.oss.player.core.event.client.MediaInfoEvent;
 import com.bramosystems.oss.player.core.event.client.MediaInfoHandler;
+import com.bramosystems.oss.player.core.event.client.PlayStateEvent;
 import com.bramosystems.oss.player.core.event.client.PlayerStateEvent;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.i18n.client.NumberFormat;
@@ -67,12 +68,15 @@ import com.google.gwt.user.client.ui.*;
 public class QuickTimePlayer extends AbstractMediaPlayerWithPlaylist implements MatrixSupport {
 
     private static QTStateManager manager = GWT.create(QTStateManager.class);
-    private static NumberFormat mxNf = NumberFormat.getFormat("#0.0###"); // fix QT Matrix precision issues
+    private static NumberFormat mxNf = NumberFormat.getFormat("#0.0###"), // fix QT Matrix precision issues
+            volFmt = NumberFormat.getPercentFormat();
     private QuickTimePlayerImpl impl;
+    private QTStateManager.QTEventHandler handler;
     private PlayerWidget playerWidget;
     private String playerId, mediaUrl;
     private Logger logger;
-    private boolean isEmbedded, resizeToVideoSize;
+    private LoopManager loopManager;
+    private boolean isEmbedded, resizeToVideoSize, _isBuffering;
     private String _height, _width;
 
     private QuickTimePlayer() throws PluginNotFoundException, PluginVersionException {
@@ -84,6 +88,80 @@ public class QuickTimePlayer extends AbstractMediaPlayerWithPlaylist implements 
 
         playerId = DOM.createUniqueId().replace("-", "");
         resizeToVideoSize = false;
+
+        loopManager = new LoopManager(false, new LoopManager.LoopCallback() {
+
+            @Override
+            public void onLoopFinished() {
+                firePlayStateEvent(PlayStateEvent.State.Finished, 0);
+                fireDebug("Media playback complete");
+            }
+
+            @Override
+            public void loopForever(boolean loop) {
+                impl.setLoopingImpl(loop);
+            }
+
+            @Override
+            public void playNextLoop() {
+                impl.play();
+            }
+        });
+        handler = new QTStateManager.QTEventHandler() {
+
+            @Override
+            public void onStateChange(int newState) {
+                switch (newState) {
+//                    case 1: // plugin init complete ...
+                    case 2: // loading complete ...
+                        fireDebug("Media loading complete");
+                        fireLoadingProgress(1.0);
+                        break;
+                    case 3: // play started ...
+                        if (_isBuffering) {
+                            _isBuffering = false;
+                            firePlayerStateEvent(PlayerStateEvent.State.BufferingFinished);
+                            fireDebug("Buffering ended ...");
+                        }
+                        firePlayStateEvent(PlayStateEvent.State.Started, 0);
+                        fireDebug("Playing media at " + impl.getMovieURL());
+                        break;
+                    case 4: // play finished, notify loop manager ...
+                        loopManager.notifyPlayFinished();
+                        break;
+                    case 5: // player ready ...
+                        fireDebug("Player ready for playback");
+                        break;
+                    case 6: // volume changed ...
+                        fireDebug("Volume changed to " + volFmt.format(impl.getVolume()));
+                        break;
+                    case 7: // progress changed ...
+                        fireLoadingProgress(impl.getMaxBytesLoaded() / (double) impl.getMovieSize());
+                        break;
+                    case 8: // error event ...
+                        fireError(impl.getStatus() + " occured while loading media!");
+                        break;
+                    case 9: // metadata stuffs ...
+                        fireDebug("Loading media at " + impl.getMovieURL());
+                        MediaInfo info = new MediaInfo();
+                        impl.fillMediaInfo(info);
+                        fireMediaInfoAvailable(info);
+                        break;
+                    case 10: // playback paused ...
+                        fireDebug("Playback paused");
+                        firePlayStateEvent(PlayStateEvent.State.Paused, 0);
+                        break;
+                    case 11: // buffering ...
+                        _isBuffering = true;
+                        fireDebug("Buffering started ...");
+                        firePlayerStateEvent(PlayerStateEvent.State.BufferingStarted);
+                        break;
+                    case 12: // stalled ...
+                        fireDebug("Player stalled !");
+                        break;
+                }
+            }
+        };
     }
 
     /**
@@ -112,19 +190,17 @@ public class QuickTimePlayer extends AbstractMediaPlayerWithPlaylist implements 
         this();
 
         mediaUrl = mediaURL;
-        manager.init(playerId, this);
 
         FlowPanel panel = new FlowPanel();
         initWidget(panel);
 
-        playerWidget = new PlayerWidget(Plugin.QuickTimePlayer, playerId,
-                mediaURL, autoplay, new BeforeUnloadCallback() {
-
-            @Override
-            public void onBeforeUnload() {
-                manager.close(playerId);
-            }
-        });
+        playerWidget = new PlayerWidget(Plugin.QuickTimePlayer, playerId, "", autoplay, null);
+        playerWidget.addParam("BGCOLOR", "#000000");
+        playerWidget.addParam("SHOWLOGO", "False");
+        playerWidget.addParam("ENABLEJAVASCRIPT", "True");
+        playerWidget.addParam("KIOSKMODE", "True");
+        playerWidget.addParam("PostDomEvents", "True");
+        playerWidget.addParam("CONTROLLER", "True");
         panel.add(playerWidget);
 
         _height = height;
@@ -147,12 +223,12 @@ public class QuickTimePlayer extends AbstractMediaPlayerWithPlaylist implements 
                 @Override
                 public void onMediaInfoAvailable(MediaInfoEvent event) {
                     MediaInfo info = event.getMediaInfo();
+                    logger.log(info.asHTMLString(), true);
                     if (info.getAvailableItems().contains(MediaInfoKey.VideoHeight)
                             || info.getAvailableItems().contains(MediaInfoKey.VideoWidth)) {
                         checkVideoSize(Integer.parseInt(info.getItem(MediaInfoKey.VideoHeight)) + 16,
                                 Integer.parseInt(info.getItem(MediaInfoKey.VideoWidth)));
                     }
-                    logger.log(info.asHTMLString(), true);
                 }
             });
         } else {
@@ -213,7 +289,10 @@ public class QuickTimePlayer extends AbstractMediaPlayerWithPlaylist implements 
                 impl = QuickTimePlayerImpl.getPlayer(playerId);
                 if (impl != null) {
                     cancel();
-                    manager.registerMediaStateListener(impl, mediaUrl);
+                    fireDebug("QuickTime Player plugin");
+                    fireDebug("Version : " + impl.getPluginVersionImpl());
+                    manager.registerMediaStateListener(impl, handler, mediaUrl);
+                    firePlayerStateEvent(PlayerStateEvent.State.Ready);
                 }
             }
         };
@@ -322,7 +401,7 @@ public class QuickTimePlayer extends AbstractMediaPlayerWithPlaylist implements 
     @Override
     public int getLoopCount() {
         checkAvailable();
-        return manager.getLoopCount(playerId);
+        return loopManager.getLoopCount();
     }
 
     /**
@@ -334,13 +413,13 @@ public class QuickTimePlayer extends AbstractMediaPlayerWithPlaylist implements 
     @Override
     public void setLoopCount(final int loop) {
         if (isPlayerOnPage(playerId)) {
-            manager.setLoopCount(playerId, loop);
+            loopManager.setLoopCount(loop);
         } else {
             addToPlayerReadyCommandQueue("loopcount", new Command() {
 
                 @Override
                 public void execute() {
-                    manager.setLoopCount(playerId, loop);
+                    loopManager.setLoopCount(loop);
                 }
             });
         }
@@ -577,7 +656,7 @@ public class QuickTimePlayer extends AbstractMediaPlayerWithPlaylist implements 
     @Override
     public <T extends ConfigValue> void setConfigParameter(ConfigParameter param, T value) {
         super.setConfigParameter(param, value);
-        switch(param) {
+        switch (param) {
             case QTScale:
                 playerWidget.addParam("SCALE", value.toString());
                 break;
@@ -587,7 +666,7 @@ public class QuickTimePlayer extends AbstractMediaPlayerWithPlaylist implements 
     @Override
     public void setConfigParameter(ConfigParameter param, Number value) {
         super.setConfigParameter(param, value);
-        switch(param) {
+        switch (param) {
             case QTScale:
                 playerWidget.addParam("SCALE", value.toString());
                 break;
@@ -602,11 +681,11 @@ public class QuickTimePlayer extends AbstractMediaPlayerWithPlaylist implements 
      * @author Sikiru Braheem
      */
     public static enum Scale implements ConfigValue {
+
         /**
          * Scale the movie to fit the player size
          */
         ToFit,
-
         /**
          * Scale the movie to fill as much of the specified player size as possible while preserving the
          * movie’s aspect ratio

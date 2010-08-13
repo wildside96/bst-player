@@ -57,7 +57,7 @@ import com.google.gwt.user.client.ui.FlowPanel;
  * @since 1.2
  * @author Sikiru Braheem
  */
-public class DivXPlayer extends AbstractMediaPlayer {
+public class DivXPlayer extends AbstractMediaPlayer implements PlaylistSupport {
 
     private DivXStateManager manager;
     private DivXPlayerImpl impl;
@@ -66,6 +66,7 @@ public class DivXPlayer extends AbstractMediaPlayer {
     private Logger logger;
     private LoopManager loopManager;
     private DisplayMode displayMode;
+    private DelegatePlaylistManager playlistManager;
     private boolean resizeToVideoSize, isEmbedded, playing, firePlayStated = true;
     private double currentPosition;
     private int _volume = 50;
@@ -167,6 +168,7 @@ public class DivXPlayer extends AbstractMediaPlayer {
                 currentPosition = time * 1000;
             }
         });
+        playlistManager = new DelegatePlaylistManager(this);
         displayMode = DisplayMode.MINI;
 
         // add play state monitoring to enhance setPlayPosition method..
@@ -216,7 +218,7 @@ public class DivXPlayer extends AbstractMediaPlayer {
         });
         playerWidget.addParam("statusCallback", "bstplayer.handlers.divx." + playerId + ".stateChanged");
         playerWidget.addParam("downloadCallback", "bstplayer.handlers.divx." + playerId + ".downloadState");
-        playerWidget.addParam("timeCallback", "bstplayer.handlers.divx." + playerId + ".timeState");
+//        playerWidget.addParam("timeCallback", "bstplayer.handlers.divx." + playerId + ".timeState");
 
         // TODO: remove when divx implements volume getter ...
         addToPlayerReadyCommandQueue("volume", new Command() {
@@ -601,6 +603,51 @@ public class DivXPlayer extends AbstractMediaPlayer {
                 }
             });
         }
+    }
+
+    @Override
+    public void setShuffleEnabled(boolean enable) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public boolean isShuffleEnabled() {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public void addToPlaylist(String mediaURL) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public void removeFromPlaylist(int index) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public void clearPlaylist() {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public void playNext() throws PlayException {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public void playPrevious() throws PlayException {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public void play(int index) throws IndexOutOfBoundsException {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public int getPlaylistSize() {
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 
     private static enum SeekMethod {
