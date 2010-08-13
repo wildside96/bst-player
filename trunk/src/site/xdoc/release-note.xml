@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<document xmlns="http://maven.apache.org/XDOC/2.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/XDOC/2.0 http://maven.apache.org/xsd/xdoc-2.0.xsd">
+<!--document xmlns="http://maven.apache.org/XDOC/2.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/XDOC/2.0 http://maven.apache.org/xsd/xdoc-2.0.xsd"-->
+<document>
     <head>
         <meta name="description" content="Information about released packages" />
     </head>
@@ -15,6 +16,39 @@
             <p>
                 This page contains information on the various released packages of the project.
             </p>
+
+            <subsection name=" - Version 1.2">
+                <p>
+                    <b>New Features</b>
+                </p>
+
+                <ul>
+                    <li>Adds DivXPlayer widget to embed DivX Web Player plugin.</li>
+                    <li>FlashMediaPlayer implements native player controls</li>
+                    <li>Adds fullscreen support to FlashMediaPlayer</li>
+                    <li></li>
+                    <li></li>
+                    <li></li>
+                </ul>
+
+                <p>
+                    <b>Improvements</b>
+                </p>
+                <ul>
+                    <li>WinMediaPlayer requires Media Player Plugin for Firefox in non-IE browsers</li>
+                    <li>Adds API tunning features to improve performance</li>
+                </ul>
+
+                <p>
+                    <b>Bug Fixes</b>
+                </p>
+                <ul>
+                    <li>
+                        <a href="http://code.google.com/p/bst-player/issues/detail?id=24">Issue #24</a> -
+                    Continous playback with WinMediaPlayer fixed
+                    </li>
+                </ul>
+            </subsection>
 
             <subsection name="08 February 2010 - Version 1.1">
                 <p>
