@@ -20,8 +20,8 @@ import com.bramosystems.oss.player.core.client.PlayerUtil;
 import com.bramosystems.oss.player.core.client.Plugin;
 import com.bramosystems.oss.player.core.client.PluginNotFoundException;
 import com.bramosystems.oss.player.core.client.PluginVersionException;
-import com.bramosystems.oss.player.core.client.ui.VLCPlayer;
 import com.bramosystems.oss.player.common.client.Links;
+import com.bramosystems.oss.player.core.client.ui.VLCPlayer;
 import com.bramosystems.oss.player.resources.sources.ResourceBundle;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.Window;
@@ -58,8 +58,8 @@ public class VLCShowcase extends AbstractCase {
                 }
                 addCase("Playing sound automatically", null, v,
                         ResourceBundle.bundle.vlcBasic());
-              break;
-            case vlcLogger:
+//              break;
+//            case vlcLogger:
                 try {
                     VLCPlayer vlc = new VLCPlayer(GWT.getHostPageBaseURL() + "media/o-na-som.mp3", false);
                     vlc.showLogger(true);
@@ -77,7 +77,7 @@ public class VLCShowcase extends AbstractCase {
             case vlcVideo:
                 try {
                     VLCPlayer v1 = new VLCPlayer(GWT.getHostPageBaseURL() +
-                            "media/traffic.flv", false, "350px", "100%");
+                            "media/traffic.flv", false, getCaseHeight(), "100%");
                     v1.showLogger(true);
                     v = v1;
                 } catch (LoadException ex) {
@@ -91,7 +91,7 @@ public class VLCShowcase extends AbstractCase {
 
                 try {
                     VLCPlayer v1V = new VLCPlayer(GWT.getHostPageBaseURL() +
-                            "media/traffic.flv", false, "350px", "100%");
+                            "media/traffic.flv", false, getCaseHeight(), "100%");
                     v1V.setResizeToVideoSize(true);
                     v1V.showLogger(true);
                     v2 = v1V;

@@ -64,8 +64,8 @@ public class SWFShowcase extends AbstractCase {
                 }
                 addCase("Playing MP3 media automatically", null, mp,
                         ResourceBundle.bundle.swfBasic());
-                break;
-            case swfLogger:
+//                break;
+//            case swfLogger:
                 try {
                     FlashMediaPlayer p3 = new FlashMediaPlayer(GWT.getHostPageBaseURL() + "media/o-na-som.mp3", false);
                     p3.showLogger(true);
@@ -83,7 +83,7 @@ public class SWFShowcase extends AbstractCase {
             case swfVideo:
                 try {
                     FlashMediaPlayer mmp = new FlashMediaPlayer(GWT.getHostPageBaseURL() + "media/traffic.flv",
-                            false, "350px", "100%");
+                            false, getCaseHeight(), "100%");
                     mmp.showLogger(true);
                     mp = mmp;
                 } catch (LoadException ex) {
@@ -94,11 +94,11 @@ public class SWFShowcase extends AbstractCase {
                     mp = PlayerUtil.getMissingPluginNotice(Plugin.FlashPlayer);
                 }
                 addCase("Embedding video", null, mp, ResourceBundle.bundle.swfVideo());
-
+/*
                 try {
                     final Label lbl = new Label();
                     FlashMediaPlayer mmp = new FlashMediaPlayer(GWT.getHostPageBaseURL() + "media/traffic.flv",
-                            false, "350px", "100%");
+                            false, getCaseHeight(), "100%");
                     mmp.setResizeToVideoSize(true);
                     mmp.showLogger(true);
                     mmp.addKeyDownHandler(new KeyDownHandler() {
@@ -134,6 +134,7 @@ public class SWFShowcase extends AbstractCase {
                     mp2 = PlayerUtil.getMissingPluginNotice(Plugin.FlashPlayer);
                 }
                 addCase("Player adjusted to video size", null, mp2, ResourceBundle.bundle.swfVideoAuto());
+                */
                 break;
             case swfPlaylist:
                 try {

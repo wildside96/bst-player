@@ -27,8 +27,8 @@
         <g:Label styleName='media-desc'>
         Use the logger to check which plugin is in use
         </g:Label>
-        <showcase:CustomPlayer name='dynvdAuto' autoplay='false' height='350px' width='100%'
+        <showcase:CustomPlayer name='dynVdAuto' autoplay='false' height='350px' width='100%'
             mediaURL='GWT-HOST::media/big-buck-bunny.mp4.mp3' />
-        <showcase:Sources name='dynvdAuto' />
+        <showcase:Sources name='dynVdAuto' />
     </g:VerticalPanel>
 </ui:UiBinder>

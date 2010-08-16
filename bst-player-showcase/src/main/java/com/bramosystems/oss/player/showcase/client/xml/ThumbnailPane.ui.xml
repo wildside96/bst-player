@@ -1,0 +1,14 @@
+<!--
+Uncomment this for XHTML entities
+<!DOCTYPE ui:UiBinder SYSTEM "http://dl.google.com/gwt/DTD/xhtml.ent">
+-->
+<ui:UiBinder xmlns:ui="urn:ui:com.google.gwt.uibinder" xmlns:g="urn:import:com.google.gwt.user.client.ui">
+    <ui:style src="css/styles.css"/>
+
+    <g:FlowPanel styleName='{style.samples}'>
+        <g:Button styleName='{style.sample-nav-left}' ui:field='navLeft'>lt;</g:Button>
+        <g:SimplePanel styleName='{style.sample-thumbs}' ui:field='thumbPanel'/>
+        <g:Button styleName='{style.sample-nav-right}' ui:field='navRight'>gt;</g:Button>
+        <g:SimplePanel styleName='{style.clear}'/>
+    </g:FlowPanel>
+</ui:UiBinder>

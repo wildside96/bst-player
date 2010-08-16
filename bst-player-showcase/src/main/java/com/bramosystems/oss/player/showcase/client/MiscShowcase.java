@@ -71,7 +71,7 @@ public class MiscShowcase extends AbstractCase {
             case miscFlash:
                 try {
                     SWFWidget swf = new SWFWidget("http://www.youtube.com/v/IqnWs_j5MbM",
-                            "100%", "350px", PluginVersion.get(9, 0, 0));
+                            "100%", getCaseHeight(), PluginVersion.get(9, 0, 0));
                     swf.addProperty("bgcolor", "#000000");
                     w = swf;
                 } catch (PluginVersionException ex) {
@@ -89,7 +89,7 @@ public class MiscShowcase extends AbstractCase {
                     p.setFullScreenEnabled(false);
 
                     YouTubePlayer u = new YouTubePlayer("http://www.youtube.com/v/QbwZL-EK6CY",
-                            p, "100%", "350px");
+                            p, "100%", getCaseHeight());
                     u.showLogger(true);
                     w = u;
                 } catch (PluginVersionException ex) {
@@ -105,7 +105,7 @@ public class MiscShowcase extends AbstractCase {
             case ytubeChrome:
                 try {
                     ChromelessPlayer cp = new ChromelessPlayer("http://www.youtube.com/v/QbwZL-EK6CY&hl=en&fs=1&",
-                            "100%", "350px");
+                            "100%", getCaseHeight());
                     CustomPlayerControl cpc = new CustomPlayerControl(cp);
 
                     FlowPanel fp = new FlowPanel();

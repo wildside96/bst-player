@@ -8,4 +8,14 @@
                 <goal>gwt:run</goal>
             </goals>
         </action>
+        <action>
+            <actionName>CUSTOM-jetty-run</actionName>
+            <displayName>jetty-run</displayName>
+            <goals>
+                <goal>jetty:run-exploded</goal>
+            </goals>
+            <activatedProfiles>
+                <activatedProfile>dev-mode</activatedProfile>
+            </activatedProfiles>
+        </action>
     </actions>
