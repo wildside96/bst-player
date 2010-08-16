@@ -42,6 +42,7 @@ public interface ResourceBundle extends ClientBundle {
     public ExternalTextResource wmpVideoAuto();
     @Source("wmp-playlist.html")
     public ExternalTextResource wmpPlaylist();
+
     @Source("qt-basic.html")
     public ExternalTextResource qtBasic();
     @Source("qt-logger.html")
@@ -79,6 +80,15 @@ public interface ResourceBundle extends ClientBundle {
     public ExternalTextResource nativeVideo();
     @Source("ntv-video-auto.html")
     public ExternalTextResource nativeVideoAuto();
+
+    @Source("ntv-basic.html")
+    public ExternalTextResource divxBasic();
+    @Source("ntv-logger.html")
+    public ExternalTextResource divxLogger();
+    @Source("ntv-video.html")
+    public ExternalTextResource divxVideo();
+    @Source("ntv-video-auto.html")
+    public ExternalTextResource divxVideoAuto();
 
     @Source("misc-basic.html")
     public ExternalTextResource miscBasic();

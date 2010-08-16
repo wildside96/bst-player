@@ -17,7 +17,6 @@
 package com.bramosystems.oss.player.binder.client;
 
 import com.bramosystems.oss.player.common.client.Links;
-import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.user.client.History;
@@ -27,24 +26,22 @@ import com.google.gwt.user.client.ui.*;
  *
  * @author Sikiru Braheem <sbraheem at bramosystems . com>
  */
-public class Case extends Composite implements ValueChangeHandler<String> {
+public class Case extends FlowPanel implements ValueChangeHandler<String> {
 
     private Label caseHeader;
-    private ScrollPanel casePanel;
+    private SimplePanel casePanel;
 
     public Case() {
         caseHeader = new Label();
         caseHeader.setStyleName("case-header");
 
-        casePanel = new ScrollPanel();
+        casePanel = new SimplePanel();
         casePanel.setStyleName("case-content");
 
-        DockLayoutPanel dp = new DockLayoutPanel(Unit.PX);
-        dp.setStyleName("content-wrapper");
-        dp.addNorth(caseHeader, 40);
-        dp.add(casePanel);
+        setStyleName("content-wrapper");
+        add(caseHeader);
+        add(casePanel);
 
-        initWidget(dp);
         History.addValueChangeHandler(this);
     }
 

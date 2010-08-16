@@ -1,0 +1,39 @@
+.panel {
+    margin: 2px;
+    border: 1px solid #ccc;
+    padding: 3px;
+}
+.panel-title {
+}
+
+.samples {
+    height: 100%;
+    vertical-align: middle;
+}
+.sample-nav-left {
+    float: left;
+}
+.sample-nav-right {
+    float: right;
+}
+.sample-thumbs {
+    height: 100%;
+    margin: auto;
+    float: left;
+    vertical-align: middle;
+}
+.clear {
+    clear: both;
+}
+.thumbnail {
+    height: 70px;
+    width: 70px;
+    border: 2px ridge #ccc;
+    margin: 10px;
+    padding: 5px;
+    background-color: aliceblue;
+    cursor: pointer;
+}
+.player-options {
+    margin-top: 5px;
+}

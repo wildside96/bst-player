@@ -56,7 +56,7 @@ public class NativeShowcase extends AbstractCase {
                 }
                 addCase("Playing MP3 media automatically", null, mp,
                         ResourceBundle.bundle.nativeBasic());
-            case ntiveLogger:
+//            case ntiveLogger:
                 try {
                     NativePlayer p3 = new NativePlayer(GWT.getHostPageBaseURL() + "media/o-na-som.mp3", false);
                     p3.showLogger(true);
@@ -71,12 +71,13 @@ public class NativeShowcase extends AbstractCase {
                 break;
             case ntiveVideo:
                 ArrayList<String> items = new ArrayList<String>();
-                items.add(new String(GWT.getHostPageBaseURL() + "media/big-buck-bunny.mp4"));
-                items.add(new String(GWT.getHostPageBaseURL() + "media/big-buck-bunny.ogv"));
+                items.add(GWT.getHostPageBaseURL() + "media/big-buck-bunny.mp4");
+                items.add(GWT.getHostPageBaseURL() + "media/big-buck-bunny.ogv");
 
                 try {
-                    NativePlayer mmp = new NativePlayer(items, false, "350px", "100%");
+                    NativePlayer mmp = new NativePlayer(items, false, getCaseHeight(), "100%");
                     mmp.showLogger(true);
+                    mmp.setLoopCount(2);
                     mp = mmp;
                 } catch (LoadException ex) {
                     Window.alert("Load exception");
@@ -86,8 +87,9 @@ public class NativeShowcase extends AbstractCase {
                 addCase("Embedding video", null, mp, ResourceBundle.bundle.nativeVideo());
 
                 try {
-                    NativePlayer mmp = new NativePlayer(items, false, "350px", "100%");
+                    NativePlayer mmp = new NativePlayer(items, false, getCaseHeight(), "100%");
                     mmp.setResizeToVideoSize(true);
+                    mmp.setLoopCount(-1);
                     mp2 = mmp;
                 } catch (LoadException ex) {
                     Window.alert("Load exp");

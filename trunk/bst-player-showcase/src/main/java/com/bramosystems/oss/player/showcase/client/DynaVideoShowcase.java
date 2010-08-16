@@ -41,95 +41,10 @@ public class DynaVideoShowcase extends AbstractCase {
     public void initCase(Links link) {
         Widget v = null;
         switch (link) {
-            case dynvdWmp:
-                try {
-                    FlatVideoPlayer fv = new FlatVideoPlayer(Plugin.WinMediaPlayer,
-                            "http://bst-player.googlecode.com/svn/tags/showcase/media/teaching-of-islam.wmv",
-                            false, "350px", "100%");
-                    fv.showLogger(true);
-                    v = fv;
-                } catch (LoadException ex) {
-                    Window.alert("Load exp");
-                } catch (PluginVersionException ex) {
-                    v = PlayerUtil.getMissingPluginNotice(Plugin.WinMediaPlayer, ex.getRequiredVersion());
-                } catch (PluginNotFoundException ex) {
-                    v = PlayerUtil.getMissingPluginNotice(Plugin.WinMediaPlayer);
-                }
-                addCase("Custom video player with Windows Media Player plugin", 
-                        "Teaching of Islam", v, ResourceBundle.bundle.vidWmp());
-                break;
-            case dynvdSwf:
-                try {
-                    FlatVideoPlayer vp = new FlatVideoPlayer(Plugin.FlashPlayer,
-                            GWT.getHostPageBaseURL() + "media/traffic.flv",
-                            false, "350px", "100%");
-                    vp.showLogger(true);
-                    v = vp;
-                } catch (LoadException ex) {
-                    Window.alert("Load exp");
-                } catch (PluginVersionException ex) {
-                    v = PlayerUtil.getMissingPluginNotice(Plugin.FlashPlayer, ex.getRequiredVersion());
-                } catch (PluginNotFoundException ex) {
-                    v = PlayerUtil.getMissingPluginNotice(Plugin.FlashPlayer);
-                }
-                addCase("Custom video player with Flash plugin", null,
-                        v, ResourceBundle.bundle.vidSwf());
-                break;
-            case dynvdQt:
-                try {
-                    FlatVideoPlayer vp = new FlatVideoPlayer(Plugin.QuickTimePlayer,
-                            GWT.getHostPageBaseURL() + "media/traffic.mp4",
-                            false, "250px", "100%");
-                    vp.showLogger(true);
-                    v = vp;
-                } catch (LoadException ex) {
-                    Window.alert("Load exp");
-                } catch (PluginVersionException ex) {
-                    v = PlayerUtil.getMissingPluginNotice(Plugin.QuickTimePlayer, ex.getRequiredVersion());
-                } catch (PluginNotFoundException ex) {
-                    v = PlayerUtil.getMissingPluginNotice(Plugin.QuickTimePlayer);
-                }
-                addCase("Custom video player with QuickTime Player plugin", null,
-                        v, ResourceBundle.bundle.vidQt());
-                break;
-            case dynvdVlc:
-                try {
-                    FlatVideoPlayer vp = new FlatVideoPlayer(Plugin.VLCPlayer,
-                            GWT.getHostPageBaseURL() + "media/big-buck-bunny.mp4",
-                            false, "350px", "100%");
-                    vp.showLogger(true);
-                    v = vp;
-                } catch (LoadException ex) {
-                    Window.alert("Load exp");
-                } catch (PluginVersionException ex) {
-                    v = PlayerUtil.getMissingPluginNotice(Plugin.VLCPlayer, ex.getRequiredVersion());
-                } catch (PluginNotFoundException ex) {
-                    v = PlayerUtil.getMissingPluginNotice(Plugin.VLCPlayer);
-                }
-                addCase("Custom video playback with VLC Media Player", null,
-                        v, ResourceBundle.bundle.vidVlc());
-                break;
-            case dynvdNtv:
-                try {
-                    FlatVideoPlayer vp = new FlatVideoPlayer(Plugin.Native,
-                            GWT.getHostPageBaseURL() + "media/big-buck-bunny.mp4",
-                            false, "350px", "100%");
-                    vp.showLogger(true);
-                    v = vp;
-                } catch (LoadException ex) {
-                    Window.alert("Load exp");
-                } catch (PluginVersionException ex) {
-                    v = PlayerUtil.getMissingPluginNotice(Plugin.Native, ex.getRequiredVersion());
-                } catch (PluginNotFoundException ex) {
-                    v = PlayerUtil.getMissingPluginNotice(Plugin.Native);
-                }
-                addCase("Custom video playback with VLC Media Player", null,
-                        v, ResourceBundle.bundle.vidNtv());
-                break;
-            case dynvdAuto:
+            case dynVdAuto:
                 try {
                     FlatVideoPlayer p = new FlatVideoPlayer(GWT.getHostPageBaseURL() +
-                            "media/big-buck-bunny.mp4", false, "350px", "100%");
+                            "media/big-buck-bunny.mp4", false, getCaseHeight(), "100%");
                     p.showLogger(true);
                     v = p;
                 } catch (LoadException ex) {

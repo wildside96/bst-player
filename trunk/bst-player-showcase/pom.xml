@@ -4,7 +4,7 @@
     <parent>
         <artifactId>bst-player</artifactId>
         <groupId>com.bramosystems.oss.player</groupId>
-        <version>1.1.1-SNAPSHOT</version>
+        <version>1.2-SNAPSHOT</version>
     </parent>
     <artifactId>bst-player-showcase</artifactId>
     <packaging>war</packaging>
@@ -14,20 +14,19 @@
     </description>
 
     <build>
-        <finalName>showcase</finalName>
+        <finalName>bst-player-showcase</finalName>
         <plugins>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>gwt-maven-plugin</artifactId>
                 <configuration>
-                    <modules>
-                        <module>com.bramosystems.oss.player.showcase.Showcase</module>
-                        <module>com.bramosystems.oss.player.binder.Showcase</module>
-                    </modules>
+                    <module>com.bramosystems.oss.player.showcase.Showcase</module>
                     <disableCastChecking>true</disableCastChecking>
                     <disableClassMetadata>true</disableClassMetadata>
                     <soyc>false</soyc>
                     <runTarget>javacode.html</runTarget>
+                    <hostedWebapp>${project.build.directory}/${project.build.finalName}</hostedWebapp>
+                    <copyWebapp>true</copyWebapp>
                 </configuration>
                 <executions>
                     <execution>

@@ -1,0 +1,14 @@
+<!--
+Uncomment this for XHTML entities
+<!DOCTYPE ui:UiBinder SYSTEM "http://dl.google.com/gwt/DTD/xhtml.ent">
+-->
+<ui:UiBinder xmlns:ui="urn:ui:com.google.gwt.uibinder"
+	xmlns:g="urn:import:com.google.gwt.user.client.ui">
+    <ui:style src="css/styles.css"/>
+
+    <g:VerticalPanel styleName='{style.player-options}'>
+        <g:CheckBox>Show Controls</g:CheckBox>
+        <g:CheckBox>Show Logger</g:CheckBox>
+        <g:CheckBox>Resize to Video Size</g:CheckBox>
+    </g:VerticalPanel>
+</ui:UiBinder>

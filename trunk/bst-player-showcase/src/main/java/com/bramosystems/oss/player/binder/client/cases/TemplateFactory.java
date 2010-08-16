@@ -122,7 +122,7 @@ public class TemplateFactory {
     public static interface ListAuto extends UiBinder<Widget, TemplateFactory> {
     }
 
-    @UiTemplate("aud-swf.ui.xml")
+/*    @UiTemplate("aud-swf.ui.xml")
     public static interface CustomSwf extends UiBinder<Widget, TemplateFactory> {
     }
     @UiTemplate("aud-vlc.ui.xml")
@@ -137,11 +137,12 @@ public class TemplateFactory {
     @UiTemplate("aud-ntv.ui.xml")
     public static interface CustomNtv extends UiBinder<Widget, TemplateFactory> {
     }
+*/
     @UiTemplate("aud-auto.ui.xml")
     public static interface CustomAuto extends UiBinder<Widget, TemplateFactory> {
     }
 
-    @UiTemplate("vid-swf.ui.xml")
+/*    @UiTemplate("vid-swf.ui.xml")
     public static interface CustomVidSwf extends UiBinder<Widget, TemplateFactory> {
     }
     @UiTemplate("vid-vlc.ui.xml")
@@ -156,6 +157,7 @@ public class TemplateFactory {
     @UiTemplate("vid-ntv.ui.xml")
     public static interface CustomVidNtv extends UiBinder<Widget, TemplateFactory> {
     }
+*/
     @UiTemplate("vid-auto.ui.xml")
     public static interface CustomVidAuto extends UiBinder<Widget, TemplateFactory> {
     }

@@ -15,37 +15,37 @@
  */
 package com.bramosystems.oss.player.showcase.client;
 
+import com.bramosystems.oss.player.common.client.Menu;
 import com.bramosystems.oss.player.resources.sources.ResourceBundle;
 import com.google.gwt.core.client.EntryPoint;
-import com.google.gwt.core.client.GWT;
-import com.google.gwt.uibinder.client.UiBinder;
-import com.google.gwt.uibinder.client.UiTemplate;
+import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.user.client.History;
-import com.google.gwt.user.client.ui.Composite;
-import com.google.gwt.user.client.ui.DockLayoutPanel;
-import com.google.gwt.user.client.ui.RootLayoutPanel;
-import com.google.gwt.user.client.ui.RootPanel;
-import com.google.gwt.user.client.ui.Widget;
+import com.google.gwt.user.client.ui.*;
 
 /**
  *
  * @author Sikirulai Braheem <sbraheem at gmail.com>
  */
-public class Showcase extends Composite implements EntryPoint {
+public class Showcase1 extends Composite implements EntryPoint {
 
-    public Showcase() {
-        initWidget(uiBinder.createAndBindUi(this));
-        /*
-        HorizontalStackLayoutPanel sp = new HorizontalStackLayoutPanel(Unit.PX);
-        sp.setHeight("100%");
+    public Showcase1() {
+        HTML banner = new HTML("<div class='app-banner'>BST Player Showcase</div>" +
+                "<div class='app-version'>Version 1.1-SNAPSHOT</div>");
 
-        for (MenuEntry me : MenuEntry.values()) {
-        sp.add(new SamplePanel(me), new Label(me.name()), 20);
-        }
-         */
+        HTML footer = new HTML("Copyright &copy; 2009 Braheem Sikiru<br/>" +
+                "All other product, service names, brands, or trademarks, are " +
+                "the property of their respective owners.");
+        footer.setStyleName("app-footer");
+
+        DockLayoutPanel dp = new DockLayoutPanel(Unit.PX);
+        dp.setStyleName("app-wrapper");
+        dp.addNorth(banner, 50);
+        dp.addSouth(footer, 40);
+        dp.addWest(new Menu(), 200);
+        dp.add(new CaseHandler());
+        initWidget(dp);
     }
 
-    @Override
     public void onModuleLoad() {
         ResourceBundle.bundle.styles().ensureInjected();
 
@@ -53,11 +53,5 @@ public class Showcase extends Composite implements EntryPoint {
         RootLayoutPanel.get().add(this);
 
         History.fireCurrentHistoryState();
-    }
-
-    private static ShowcaseUiBinder uiBinder = GWT.create(ShowcaseUiBinder.class);
-
-    @UiTemplate("xml/Showcase.ui.xml")
-    interface ShowcaseUiBinder extends UiBinder<DockLayoutPanel, Showcase> {
-    }
+}
 }

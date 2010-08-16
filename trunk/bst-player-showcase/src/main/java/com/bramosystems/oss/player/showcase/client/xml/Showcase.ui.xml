@@ -1,0 +1,44 @@
+<!DOCTYPE ui:UiBinder SYSTEM "http://dl.google.com/gwt/DTD/xhtml.ent">
+
+<ui:UiBinder xmlns:ui="urn:ui:com.google.gwt.uibinder" xmlns:g="urn:import:com.google.gwt.user.client.ui"
+xmlns:showcase="urn:import:com.bramosystems.oss.player.showcase.client">
+    <ui:style src="css/styles.css"/>
+
+    <g:DockLayoutPanel unit="PX">
+        <g:north size="50">
+            <g:HTMLPanel>
+                <div class='app-banner'>BST Player Showcase</div>
+                <div class='app-version'>Version 1.1-SNAPSHOT</div>
+            </g:HTMLPanel>
+        </g:north>
+        
+        <g:east size="250">
+            <g:DockLayoutPanel unit="PCT">
+                <g:south size="50">
+                    <g:FlowPanel styleName='{style.panel}'>
+                        <g:Label styleName='{style.panel-title}'>Player Log</g:Label>
+                        <g:SimplePanel styleName='{style.samples}' />
+                    </g:FlowPanel>
+                </g:south>
+
+                <g:center>
+                    <g:FlowPanel styleName='{style.panel}'>
+                        <g:Label styleName='{style.panel-title}'>Player Options</g:Label>
+                        <showcase:PlayerOptions />
+                    </g:FlowPanel>
+                </g:center>
+            </g:DockLayoutPanel>
+        </g:east>
+
+        <g:south size="150">
+            <g:FlowPanel styleName='{style.panel}'>
+                <g:Label styleName='{style.panel-title}'>Samples</g:Label>
+                <showcase:ThumbnailPane />
+            </g:FlowPanel>
+        </g:south>
+
+        <g:center>
+            <showcase:PlayerPane styleName='{style.panel}' />
+        </g:center>
+    </g:DockLayoutPanel>
+</ui:UiBinder>

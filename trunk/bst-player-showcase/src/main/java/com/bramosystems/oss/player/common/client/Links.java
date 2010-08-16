@@ -24,56 +24,49 @@ import com.google.gwt.resources.client.ExternalTextResource;
  * @author Sikiru Braheem <sbraheem at bramosystems . com>
  */
 public enum Links {
-
     homeIntro("Introduction", ResourceBundle.bundle.home()),
     homeDocs("Documentation", ResourceBundle.bundle.homeDocs()),
     homePlugins("Available Plugins", null),
     homeMimetypes("Mime Types", null),
 
     wmpBasic("Embed Windows Media Player", ResourceBundle.bundle.wmpBasic()),
-    wmpLogger("With Logger widget visible", ResourceBundle.bundle.wmpLogger()),
+//    wmpLogger("With Logger widget visible", ResourceBundle.bundle.wmpLogger()),
     wmpVideo("Embedding Video", ResourceBundle.bundle.wmpVideo()),
-    wmpVideoAuto("Embedding Video", ResourceBundle.bundle.wmpVideoAuto()),
+//    wmpVideoAuto("Embedding Video", ResourceBundle.bundle.wmpVideoAuto()),
     wmpPlaylist("Windows Media Playlist", ResourceBundle.bundle.wmpPlaylist()),
 
     qtBasic("Embed QuickTime Plugin", ResourceBundle.bundle.qtBasic()),
-    qtLogger("With Logger widget visible", ResourceBundle.bundle.qtLogger()),
+//    qtLogger("With Logger widget visible", ResourceBundle.bundle.qtLogger()),
     qtVideo("Embedding QuickTime Video", ResourceBundle.bundle.qtVideo()),
-    qtVideoAuto("Embedding QuickTime Video", ResourceBundle.bundle.qtVideoAuto()),
+//    qtVideoAuto("Embedding QuickTime Video", ResourceBundle.bundle.qtVideoAuto()),
 
     vlcBasic("Embed VLC Player", ResourceBundle.bundle.vlcBasic()),
-    vlcLogger("Using the Logger widget", ResourceBundle.bundle.vlcLogger()),
+//    vlcLogger("Using the Logger widget", ResourceBundle.bundle.vlcLogger()),
     vlcVideo("Embedding Video", ResourceBundle.bundle.vlcVideo()),
-    vlcVideoAuto("Embedding Video", ResourceBundle.bundle.vlcVideoAuto()),
+//    vlcVideoAuto("Embedding Video", ResourceBundle.bundle.vlcVideoAuto()),
 
     swfBasic("Embed Flash plugin", ResourceBundle.bundle.swfBasic()),
-    swfLogger("With Logger widget visible", ResourceBundle.bundle.swfLogger()),
+//    swfLogger("With Logger widget visible", ResourceBundle.bundle.swfLogger()),
     swfVideo("Embedding Video", ResourceBundle.bundle.swfVideo()),
-    swfVideoAuto("Embedding Video", ResourceBundle.bundle.swfVideoAuto()),
+//    swfVideoAuto("Embedding Video", ResourceBundle.bundle.swfVideoAuto()),
     swfPlaylist("Using M3U playlist", ResourceBundle.bundle.swfPlaylist()),
 
+    divxBasic("Embed DivX Web plugin", ResourceBundle.bundle.divxBasic()),
+//    divxLogger("With Logger widget visible", ResourceBundle.bundle.divxLogger()),
+    divxVideo("Embedding DivX Video", ResourceBundle.bundle.divxVideo()),
+//    divxVideoAuto("Embedding Video", ResourceBundle.bundle.divxVideoAuto()),
+
     ntiveBasic("Embed Native player", ResourceBundle.bundle.nativeBasic()),
-    ntiveLogger("With Logger widget visible", ResourceBundle.bundle.nativeLogger()),
+//    ntiveLogger("With Logger widget visible", ResourceBundle.bundle.nativeLogger()),
     ntiveVideo("Embedding Video", ResourceBundle.bundle.nativeVideo()),
-    ntiveVideoAuto("Embedding Video", ResourceBundle.bundle.nativeVideoAuto()),
+//    ntiveVideoAuto("Embedding Video", ResourceBundle.bundle.nativeVideoAuto()),
 
     listSwf("Playlists with Flash Player", ResourceBundle.bundle.pllSwf()),
     listVlc("Playlists with VLC Media Player", ResourceBundle.bundle.pllVlc()),
     listAuto("Playlist with any suitable player", ResourceBundle.bundle.pllAuto()),
 
-    dynWmp("With Windows Media Player plugin", ResourceBundle.bundle.audWmp()),
-    dynSwf("With Flash plugin", ResourceBundle.bundle.audSwf()),
-    dynQt("With QuickTime plugin", ResourceBundle.bundle.audQt()),
-    dynVlc("With VLC Player Plugin", ResourceBundle.bundle.audVlc()),
-    dynNtv("With HTML 5 media elements", ResourceBundle.bundle.audNtv()),
-    dynAuto("Plugin determined at runtime", ResourceBundle.bundle.audAuto()),
-
-    dynvdWmp("With Windows Media Player plugin", ResourceBundle.bundle.vidWmp()),
-    dynvdSwf("With Flash plugin", ResourceBundle.bundle.vidSwf()),
-    dynvdQt("With QuickTime plugin", ResourceBundle.bundle.vidQt()),
-    dynvdVlc("With VLC Media Player", ResourceBundle.bundle.vidVlc()),
-    dynvdNtv("With HTML 5 media elements", ResourceBundle.bundle.vidNtv()),
-    dynvdAuto("Plugin determined at runtime", ResourceBundle.bundle.vidAuto()),
+    dynAuto("Custom audio player", ResourceBundle.bundle.audAuto()),
+    dynVdAuto("Custom video player", ResourceBundle.bundle.vidAuto()),
 
     matrixBasic("Matrix Support", null),
 

@@ -29,25 +29,27 @@ import com.google.gwt.user.client.ui.*;
  */
 public class CaseHandler extends Composite implements ValueChangeHandler<String> {
 
-    private Label caseHeader;
+//    private Label caseHeader;
     private ScrollPanel casePanel;
 
     public CaseHandler() {
-        DockLayoutPanel dc = new DockLayoutPanel(Unit.PX);
-        dc.setStyleName("content-wrapper");
-        initWidget(dc);
+//        DockLayoutPanel dc = new DockLayoutPanel(Unit.PX);
+//        dc.setStyleName("content-wrapper");
+//        initWidget(dc);
 
-        caseHeader = new Label();
-        caseHeader.setStyleName("case-header");
-        dc.addNorth(caseHeader, 40);
+//        caseHeader = new Label();
+//        caseHeader.setStyleName("case-header");
+//        dc.addNorth(caseHeader, 40);
 
         casePanel = new ScrollPanel();
         casePanel.setStyleName("case-content");
-        dc.add(casePanel);
+//        dc.add(casePanel);
+        initWidget(casePanel);
 
         History.addValueChangeHandler(this);
     }
 
+    @Override
     public void onValueChange(ValueChangeEvent<String> event) {
         Links link = Links.homeIntro;
         try {
@@ -64,19 +66,9 @@ public class CaseHandler extends Composite implements ValueChangeHandler<String>
                 c = SumShowcase.instance;
                 break;
             case dynAuto:
-            case dynNtv:
-            case dynQt:
-            case dynSwf:
-            case dynVlc:
-            case dynWmp:
                 c = DynaShowcase.instance;
                 break;
-            case dynvdAuto:
-            case dynvdNtv:
-            case dynvdQt:
-            case dynvdSwf:
-            case dynvdVlc:
-            case dynvdWmp:
+            case dynVdAuto:
                 c = DynaVideoShowcase.instance;
                 break;
             case miscBasic:
@@ -91,22 +83,22 @@ public class CaseHandler extends Composite implements ValueChangeHandler<String>
                 c = PlaylistShowcase.instance;
                 break;
             case ntiveBasic:
-            case ntiveLogger:
+//            case ntiveLogger:
             case ntiveVideo:
                 c = NativeShowcase.instance;
                 break;
             case qtBasic:
-            case qtLogger:
+//            case qtLogger:
             case qtVideo:
                 c = QTShowcase.instance;
                 break;
             case vlcBasic:
-            case vlcLogger:
+//            case vlcLogger:
             case vlcVideo:
                 c = VLCShowcase.instance;
                 break;
             case wmpBasic:
-            case wmpLogger:
+//            case wmpLogger:
             case wmpPlaylist:
             case wmpVideo:
                 c = WMPShowcase.instance;
@@ -115,7 +107,7 @@ public class CaseHandler extends Composite implements ValueChangeHandler<String>
                 c = MatrixShowcase.instance;
                 break;
             case swfBasic:
-            case swfLogger:
+//            case swfLogger:
             case swfPlaylist:
             case swfVideo:
                 c = SWFShowcase.instance;
@@ -124,7 +116,7 @@ public class CaseHandler extends Composite implements ValueChangeHandler<String>
         c.clearCases();
         c.initCase(link);
 
-        caseHeader.setText(link.getTitle());
+//        caseHeader.setText(link.getTitle());
         casePanel.setWidget(c);
     }
 }

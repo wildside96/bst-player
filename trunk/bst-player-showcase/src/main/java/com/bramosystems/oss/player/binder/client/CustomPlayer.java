@@ -50,38 +50,8 @@ public class CustomPlayer extends PlayerWrapper {
                 mp = new Capsule(Plugin.Auto, mediaURL, autoplay);
                 mp.showLogger(true);
                 break;
-            case dynNtv:
-                mp = new Capsule(Plugin.Native, mediaURL, autoplay);
-                break;
-            case dynQt:
-                mp = new Capsule(Plugin.QuickTimePlayer, mediaURL, autoplay);
-                break;
-            case dynSwf:
-                mp = new Capsule(Plugin.FlashPlayer, mediaURL, autoplay);
-                break;
-            case dynVlc:
-                mp = new Capsule(Plugin.VLCPlayer, mediaURL, autoplay);
-                break;
-            case dynWmp:
-                mp = new Capsule(Plugin.WinMediaPlayer, mediaURL, autoplay);
-                break;
-            case dynvdAuto:
+            case dynVdAuto:
                 mp = new FlatVideoPlayer(Plugin.Auto, mediaURL, autoplay, height, width);
-                break;
-            case dynvdNtv:
-                mp = new FlatVideoPlayer(Plugin.Native, mediaURL, autoplay, height, width);
-                break;
-            case dynvdQt:
-                mp = new FlatVideoPlayer(Plugin.QuickTimePlayer, mediaURL, autoplay, height, width);
-                break;
-            case dynvdSwf:
-                mp = new FlatVideoPlayer(Plugin.FlashPlayer, mediaURL, autoplay, height, width);
-                break;
-            case dynvdVlc:
-                mp = new FlatVideoPlayer(Plugin.VLCPlayer, mediaURL, autoplay, height, width);
-                break;
-            case dynvdWmp:
-                mp = new FlatVideoPlayer(Plugin.WinMediaPlayer, mediaURL, autoplay, height, width);
                 break;
         }
         return mp;

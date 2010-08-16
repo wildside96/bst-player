@@ -59,8 +59,8 @@ public class QTShowcase extends AbstractCase {
                 }
                 addCase("Playing sound automatically", null, qt,
                         ResourceBundle.bundle.qtBasic());
-                break;
-            case qtLogger:
+//                break;
+ //           case qtLogger:
                 try {
                     QuickTimePlayer p = new QuickTimePlayer(GWT.getHostPageBaseURL() + "media/o-na-som.mp3",
                             false);
@@ -79,7 +79,7 @@ public class QTShowcase extends AbstractCase {
             case qtVideo:
                 try {
                     QuickTimePlayer p = new QuickTimePlayer(GWT.getHostPageBaseURL() + "media/traffic.mp4",
-                            false, "300px", "100%");
+                            false, getCaseHeight(), "100%");
                     p.showLogger(true);
                     qt = p;
                 } catch (LoadException ex) {
@@ -93,7 +93,7 @@ public class QTShowcase extends AbstractCase {
 
                 try {
                     QuickTimePlayer p = new QuickTimePlayer(GWT.getHostPageBaseURL() + "media/traffic.mp4",
-                            false, "300px", "100%");
+                            false, getCaseHeight(), "100%");
                     p.setResizeToVideoSize(true);
                     qt2 = p;
                 } catch (LoadException ex) {

@@ -18,15 +18,15 @@ package com.bramosystems.oss.player.common.client;
 
 import com.bramosystems.oss.player.core.client.Plugin;
 import com.bramosystems.oss.player.core.client.PluginNotFoundException;
-import com.bramosystems.oss.player.core.client.impl.MimePool;
+import com.bramosystems.oss.player.core.client.MimePool;
 import com.bramosystems.oss.player.util.client.BrowserPlugin;
 import com.bramosystems.oss.player.util.client.MimeType;
 import com.google.gwt.core.client.JsArray;
 import com.google.gwt.user.client.ui.FlexTable;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Set;
 
 /**
  *
@@ -108,10 +108,10 @@ public class BrowserInfo extends FlexTable {
         setHTML(0, 0, "Plugin");
         setHTML(0, 1, "Suffixes");
 
-        MimePool pool = MimePool.get();
+        MimePool pool = MimePool.instance;
         int row = 0;
         for (Plugin plug : Plugin.values()) {
-            HashSet<String> suf = pool.getRegisteredExtensions(plug);
+            Set<String> suf = pool.getRegisteredExtensions(plug);
             setHTML(row, 0, plug.name());
             setHTML(row++, 1, suf != null ? suf.toString() : "-");
         }

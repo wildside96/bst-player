@@ -62,12 +62,13 @@ public class WMPShowcase extends AbstractCase {
                 }
                 addCase("Playing sound automatically", null, wmp,
                         ResourceBundle.bundle.wmpBasic());
-                break;
-            case wmpLogger:
+//                break;
+//            case wmpLogger:
                 try {
                     final WinMediaPlayer p = new WinMediaPlayer(GWT.getHostPageBaseURL()
                             + "media/o-na-som.mp3", false);
                     p.showLogger(true);
+                    p.setLoopCount(20);
                     wmp = p;
                 } catch (LoadException ex) {
                     Window.alert("Load exp");
@@ -116,7 +117,7 @@ public class WMPShowcase extends AbstractCase {
             case wmpVideo:
                 String url = "http://bst-player.googlecode.com/svn/tags/showcase/media/islamic-jihad.wmv";
                 try {
-                    WinMediaPlayer p = new WinMediaPlayer(url, false, "350px", "100%");
+                    WinMediaPlayer p = new WinMediaPlayer(url, false, getCaseHeight(), "100%");
                     p.showLogger(true);
                     wmp = p;
                 } catch (LoadException ex) {
@@ -130,7 +131,7 @@ public class WMPShowcase extends AbstractCase {
                         wmp, ResourceBundle.bundle.wmpVideo());
 
                 try {
-                    WinMediaPlayer p = new WinMediaPlayer(url, false, "350px", "100%");
+                    WinMediaPlayer p = new WinMediaPlayer(url, false, getCaseHeight(), "100%");
                     p.setResizeToVideoSize(true);
                     p.showLogger(true);
                     wmp1 = p;

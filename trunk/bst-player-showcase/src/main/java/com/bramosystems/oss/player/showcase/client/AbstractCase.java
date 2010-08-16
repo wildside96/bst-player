@@ -40,6 +40,7 @@ public abstract class AbstractCase extends Composite {
 
     protected final void addCase(String title, String description, Widget player,
             ExternalTextResource codeSrc) {
+        /*
         if (title != null) {
             Label tlbl = new Label(title);
             tlbl.setStyleName("section-desc");
@@ -51,20 +52,22 @@ public abstract class AbstractCase extends Composite {
             dlbl.setStyleName("media-desc");
             casePanel.add(dlbl);
         }
-
+*/
         if (player != null) {
             casePanel.add(player);
         }
-
+/*
         if (codeSrc != null) {
             final HTML src = new HTML();
             try {
                 codeSrc.getText(new ResourceCallback<TextResource>() {
 
+                    @Override
                     public void onError(ResourceException e) {
                         src.setHTML("<div>Failed to load code sample!</div>");
                     }
 
+                    @Override
                     public void onSuccess(TextResource resource) {
                         src.setHTML(resource.getText());
                     }
@@ -73,12 +76,18 @@ public abstract class AbstractCase extends Composite {
                 src.setHTML("<div>Failed to load code sample!</div>");
             }
             casePanel.add(src);
-        }
-    }
+        }        
+ */   }
 
     public final void clearCases() {
         casePanel.clear();
     }
 
     public abstract void initCase(Links link);
+
+    protected String getCaseHeight() {
+//        return (casePanel.getOffsetHeight()) + "px";
+        System.out.println("offset : " + casePanel.getOffsetHeight());
+        return "250px";
+    }
 }
