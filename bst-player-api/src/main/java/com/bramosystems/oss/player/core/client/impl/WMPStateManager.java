@@ -15,13 +15,15 @@
  */
 package com.bramosystems.oss.player.core.client.impl;
 
+import com.bramosystems.oss.player.core.client.PlayException;
 import com.bramosystems.oss.player.core.event.client.PlayerStateEvent;
-import com.bramosystems.oss.player.core.event.client.HasMediaStateHandlers;
 import com.bramosystems.oss.player.core.event.client.PlayStateEvent;
 import com.bramosystems.oss.player.core.event.client.MediaInfoEvent;
 import com.bramosystems.oss.player.core.event.client.LoadingProgressEvent;
 import com.bramosystems.oss.player.core.event.client.DebugEvent;
 import com.bramosystems.oss.player.core.client.MediaInfo;
+import com.bramosystems.oss.player.core.client.PlaylistSupport;
+import com.bramosystems.oss.player.core.client.ui.WinMediaPlayer;
 import com.google.gwt.dom.client.Document;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.dom.client.NativeEvent;
@@ -46,7 +48,7 @@ public class WMPStateManager {
         initGlobalEventListeners(this);
     }
 
-    public EventProcessor init(String playerId, HasMediaStateHandlers handler) {
+    public EventProcessor init(String playerId, WinMediaPlayer handler) {
         EventProcessor sm = new EventProcessor(handler);
         cache.put(playerId, sm);
         return sm;
@@ -153,35 +155,21 @@ public class WMPStateManager {
 
     public void registerMediaStateHandlers(WinMediaPlayerImpl player) {
         // do nothing, provided for DOM event registration in IE.
-//        registerMediaStateHandlerImpl(this, player);
     }
 
-    private native void registerMediaStateHandlerImpl(WMPStateManager impl, WinMediaPlayerImpl player) /*-{
-        $wnd.alert('attaching handlers : ');
-    player.addEventListener('OnDSPlayStateChangeEvt', function(NewState) {
-        $wnd.alert('state : ' + NewState);
-     //    impl.@com.bramosystems.oss.player.core.client.impl.WMPStateManagerIE::firePlayStateChanged(Ljava/lang/String;I)(player.id, NewState);
-    }, false);
-    player.addEventListener('buffering', function(Start) {
-//    impl.@com.bramosystems.oss.player.core.client.impl.WMPStateManagerIE::fireBuffering(Ljava/lang/String;Z)(player.id, Start);
-    }, false);
-    player.addEventListener('error', function() {
-//    impl.@com.bramosystems.oss.player.core.client.impl.WMPStateManagerIE::fireError(Ljava/lang/String;)(player.id);
-    }, false);
-//    impl.@com.bramosystems.oss.player.core.client.impl.WMPStateManagerIE::firePlayStateChanged(Ljava/lang/String;I)(player.id, player.playState);
-    }-*/;
+    public class EventProcessor implements PlaylistSupport {
 
-    public class EventProcessor {
-
-        protected HasMediaStateHandlers handlers;
+        protected WinMediaPlayer handlers;
+        protected WinMediaPlayerImpl player;
         private boolean enabled;
         private Timer downloadProgressTimer;
-        protected WinMediaPlayerImpl player;
+        private DelegatePlaylistManager playlistManager;
         private String _mURL = "-", _oURL = "";
 
-        public EventProcessor(HasMediaStateHandlers _handlers) {
-            this.handlers = _handlers;
+        public EventProcessor(WinMediaPlayer _handlers) {
+            handlers = _handlers;
             enabled = false;
+            playlistManager = new DelegatePlaylistManager(handlers);
             downloadProgressTimer = new Timer() {
 
                 @Override
@@ -333,6 +321,51 @@ public class WMPStateManager {
                     break;
             }
             DomEvent.fireNativeEvent(event, handlers, e);
+        }
+
+        @Override
+        public void setShuffleEnabled(final boolean enable) {
+            playlistManager.setShuffleEnabled(enable);
+        }
+
+        @Override
+        public boolean isShuffleEnabled() {
+            return playlistManager.isShuffleEnabled();
+        }
+
+        @Override
+        public void addToPlaylist(String mediaURL) {
+            playlistManager.addToPlaylist(mediaURL);
+        }
+
+        @Override
+        public void removeFromPlaylist(int index) {
+            playlistManager.removeFromPlaylist(index);
+        }
+
+        @Override
+        public void clearPlaylist() {
+            playlistManager.clearPlaylist();
+        }
+
+        @Override
+        public void playNext() throws PlayException {
+            playlistManager.playNext();
+        }
+
+        @Override
+        public void playPrevious() throws PlayException {
+            playlistManager.playPrevious();
+        }
+
+        @Override
+        public void play(int index) throws IndexOutOfBoundsException {
+            playlistManager.play(index);
+        }
+
+        @Override
+        public int getPlaylistSize() {
+            return playlistManager.getPlaylistSize();
         }
     }
 }

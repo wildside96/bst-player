@@ -96,7 +96,7 @@ public class ChromelessPlayer extends YouTubePlayer {
     protected String getNormalizedVideoAppURL(String videoURL, PlayerParameters playerParameters) {
         parseURLParams(videoURL, playerParameters);
         params = playerParameters;
-        params.setPlayerAPIId(apiId);
+        params.setPlayerAPIId(playerId);
         this.videoURL = videoURL;
         return "http://www.youtube.com/apiplayer?version=3&enablejsapi=1&playerapiid="
                 + params.getPlayerAPIId();

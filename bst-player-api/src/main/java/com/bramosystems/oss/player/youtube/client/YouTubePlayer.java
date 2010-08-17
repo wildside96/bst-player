@@ -75,7 +75,7 @@ public class YouTubePlayer extends AbstractMediaPlayer {
 
     private static YouTubeEventManager eventMgr = new YouTubeEventManager();
     protected YouTubePlayerImpl impl;
-    protected String playerId, apiId, _width, _height;
+    protected String playerId, _width, _height;
     private Timer bufferingTimer;
     private Logger logger;
     private PlayerWidget swf;
@@ -127,7 +127,6 @@ public class YouTubePlayer extends AbstractMediaPlayer {
             throw new NullPointerException("videoURL cannot be null");
         }
 
-        apiId = "apiid_" + DOM.createUniqueId().replace("-", "");
         _width = width;
         _height = height;
 
@@ -142,6 +141,7 @@ public class YouTubePlayer extends AbstractMediaPlayer {
                     impl.stop();
                     impl.clear();
                 }
+                eventMgr.close(playerId);
             }
         });
         swf.addParam("allowScriptAccess", "always");
@@ -167,7 +167,7 @@ public class YouTubePlayer extends AbstractMediaPlayer {
         setWidth(width);
 
         // register for DOM events ...
-        eventMgr.init(apiId, new Command() {
+        eventMgr.init(playerId, new Command() {
 
             @Override
             public void execute() {
@@ -221,7 +221,7 @@ public class YouTubePlayer extends AbstractMediaPlayer {
     protected String getNormalizedVideoAppURL(String videoURL, PlayerParameters playerParameters) {
         parseURLParams(videoURL, playerParameters);
         playerParameters.setJSApiEnabled(true);
-        playerParameters.setPlayerAPIId(apiId);
+        playerParameters.setPlayerAPIId(playerId);
         return videoURL + paramsToString(playerParameters);
     }
 

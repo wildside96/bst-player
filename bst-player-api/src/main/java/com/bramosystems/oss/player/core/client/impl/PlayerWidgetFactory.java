@@ -21,7 +21,6 @@ import com.google.gwt.dom.client.Document;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.dom.client.ObjectElement;
 import com.google.gwt.dom.client.ParamElement;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 
@@ -133,27 +132,11 @@ public class PlayerWidgetFactory {
     protected Element getNativeElement(String playerId, String mediaURL, boolean autoplay) {
         Element videoElement = _doc.createElement("video");
         videoElement.setId(playerId);
-//        videoElement.setPropertyString("src", mediaURL);
+        videoElement.setPropertyString("src", mediaURL);
         if (autoplay) {
             videoElement.setPropertyBoolean("autoplay", autoplay);
         }
         videoElement.setPropertyBoolean("controls", true);
-        return videoElement;
-    }
-
-    protected Element getNativeElement(String playerId, ArrayList<String> sources, boolean autoplay) {
-        Element videoElement = _doc.createElement("video");
-        videoElement.setId(playerId);
-        if (autoplay) {
-            videoElement.setPropertyBoolean("autoplay", autoplay);
-        }
-        videoElement.setPropertyBoolean("controls", true);
-
-//        for (String item : sources) {
-//            Element s = _doc.createElement("source");
-//            s.setAttribute("src", item);
-//            videoElement.appendChild(s);
-//        }
         return videoElement;
     }
 

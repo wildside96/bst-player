@@ -116,9 +116,9 @@ public class ExportUtil {
     this.pauseMedia = function() {
     _player.@com.bramosystems.oss.player.script.client.ExportUtil.ScriptPlayer::pauseMedia()();
     }
-    this.close = function() {
-    _player.@com.bramosystems.oss.player.script.client.ExportUtil.ScriptPlayer::close()();
-    }
+//    this.close = function() {
+//    _player.@com.bramosystems.oss.player.script.client.ExportUtil.ScriptPlayer::close()();
+//    }
     this.getMediaDuration = function() {
     return _player.@com.bramosystems.oss.player.script.client.ExportUtil.ScriptPlayer::getMediaDurationImpl()();
     }

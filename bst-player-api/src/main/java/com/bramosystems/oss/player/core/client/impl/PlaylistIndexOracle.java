@@ -55,6 +55,11 @@ public class PlaylistIndexOracle {
         return _currentIndex;
     }
 
+    public void setCurrentIndex(int index) {
+        _currentIndex = index;
+        _usedRandomIndices.add(_currentIndex);
+    }
+
     public void removeFromCache(int index) {
         _usedRandomIndices.remove(Integer.valueOf(index));
         _indexSize--;
@@ -92,6 +97,6 @@ public class PlaylistIndexOracle {
 
     private int suggestIndexImpl(boolean up) {
         return _randomMode ? Random.nextInt(_indexSize)
-                : (up ? _currentIndex++ : _currentIndex--);
+                : (up ? ++_currentIndex : --_currentIndex);
     }
 }

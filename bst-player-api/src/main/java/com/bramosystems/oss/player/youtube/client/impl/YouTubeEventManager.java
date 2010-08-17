@@ -15,8 +15,9 @@
  */
 package com.bramosystems.oss.player.youtube.client.impl;
 
+import com.bramosystems.oss.player.core.client.impl.CallbackUtility;
+import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.user.client.Command;
-import java.util.HashMap;
 
 /**
  * Handles global events for the YouTubePlayer
@@ -25,25 +26,35 @@ import java.util.HashMap;
  */
 public class YouTubeEventManager {
 
-    private HashMap<String, Command> initCache;
-
     public YouTubeEventManager() {
-        initCache = new HashMap<String, Command>();
-        initGlobalCallbacks(this);
     }
 
-    public final void init(String playerApiId, Command initCompleteCommand) {
-        initCache.put(playerApiId, initCompleteCommand);
+    public final void init(String playerApiId, Command initCommand) {
+        initImpl(playerApiId, CallbackUtility.getUTubeCallbackHandlers(), initCommand);
     }
 
-    private void onInit(String playerApiId) {
-        initCache.get(playerApiId).execute();
-        initCache.remove(playerApiId);
+    public final void close(String playerApiId) {
+        closeImpl(playerApiId, CallbackUtility.getUTubeCallbackHandlers());
     }
 
-    private native void initGlobalCallbacks(YouTubeEventManager impl) /*-{
+    private native void closeImpl(String playerApiId, JavaScriptObject utube) /*-{
+    delete utube[playerApiId];
+    }-*/;
+
+    private native void initImpl(String playerApiId, JavaScriptObject utube, Command initCommand) /*-{
+    utube[playerApiId] = new Object();
+    utube[playerApiId].init = function(){
+    initCommand.@com.google.gwt.user.client.Command::execute()();
+    }
+    }-*/;
+
+    static {
+        initGlobalCallback(CallbackUtility.getUTubeCallbackHandlers());
+    }
+
+    private static native void initGlobalCallback(JavaScriptObject utube) /*-{
     $wnd.onYouTubePlayerReady = function(playerApiId){
-    impl.@com.bramosystems.oss.player.youtube.client.impl.YouTubeEventManager::onInit(Ljava/lang/String;)(playerApiId);
+    utube[playerApiId].init();
     }
     }-*/;
 }

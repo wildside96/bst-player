@@ -29,52 +29,13 @@ public class NativePlayerUtil {
 
     public static NativePlayerUtil get = GWT.create(NativePlayerUtil.class);
 
-
-    public static native TestUtil getTestUtil() /*-{
-    return $doc.createElement('video');
-    }-*/;
-
-    public static class TestUtil extends JavaScriptObject {
-
-        protected TestUtil() {
-        }
-
-        public final TestResult canPlayType(String mimeType) {
-            try {
-                return TestResult.valueOf(canPlayTypeImpl(mimeType));
-            } catch (Exception e) {
-                return TestResult.no;
-            }
-        }
-
-        private native String canPlayTypeImpl(String mimeType) /*-{
-        return this.canPlayType(mimeType);
-        }-*/;
-    }
-
-    public static enum TestResult {
-        /**
-         * The browser cannot handle the specified media resource
-         */
-        no,
-
-        /**
-         * The browser can maybe (but not sure) handle the specified media resource
-         */
-        maybe,
-        /**
-         * The browser can confidently handle the specified media resource
-         */
-        probably
-    }
-
     private NativePlayerUtil() {
     }
 
     public String getPlayerHeight() {
         return "20px";
     }
-    
+
     /**
      * Checks if implementation supports the 'loop' property
      * @return
@@ -115,5 +76,50 @@ public class NativePlayerUtil {
         public boolean isLoopingSupported() {
             return false;
         }
+    }
+
+    public static native TestUtil getTestUtil() /*-{
+    return $doc.createElement('video');
+    }-*/;
+
+    public static class TestUtil extends JavaScriptObject {
+
+        protected TestUtil() {
+        }
+
+        public final TestResult canPlayType(String mimeType) {
+            try {
+                return TestResult.valueOf(canPlayTypeImpl(mimeType));
+            } catch (Exception e) {
+                return TestResult.no;
+            }
+        }
+
+        private native String canPlayTypeImpl(String mimeType) /*-{
+        return this.canPlayType(mimeType);
+        }-*/;
+    }
+
+    public static enum TestResult {
+
+        /**
+         * The browser cannot handle the specified media resource
+         */
+        no,
+        /**
+         * The browser can maybe (but not sure) handle the specified media resource
+         */
+        maybe,
+        /**
+         * The browser can confidently handle the specified media resource
+         */
+        probably
+    }
+
+    public static interface NativeEventCallback {
+
+        public void onProgressChanged();
+
+        public void onStateChanged(int code);
     }
 }

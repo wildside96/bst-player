@@ -200,42 +200,42 @@ public class NativePlayerImpl extends JavaScriptObject {
     }
     }-*/;
 
-    public final native void registerMediaStateHandlers(NativePlayer _player) /*-{
+    public final native void registerMediaStateHandler(NativePlayerUtil.NativeEventCallback _callback) /*-{
     this.addEventListener('progress', function(){  // plugin init complete
-    _player.@com.bramosystems.oss.player.core.client.ui.NativePlayer::fireProgressChanged()();
+    _callback.@com.bramosystems.oss.player.core.client.impl.NativePlayerUtil.NativeEventCallback::onProgressChanged()();
     }, false);
     this.addEventListener('play', function(){  // play started
-    _player.@com.bramosystems.oss.player.core.client.ui.NativePlayer::fireStateChanged(I)(1);
+    _callback.@com.bramosystems.oss.player.core.client.impl.NativePlayerUtil.NativeEventCallback::onStateChanged(I)(1);
     }, false);
     this.addEventListener('pause', function(){  // play paused
-    _player.@com.bramosystems.oss.player.core.client.ui.NativePlayer::fireStateChanged(I)(2);
+    _callback.@com.bramosystems.oss.player.core.client.impl.NativePlayerUtil.NativeEventCallback::onStateChanged(I)(2);
     }, false);
     this.addEventListener('ended', function(){  // play started
-    _player.@com.bramosystems.oss.player.core.client.ui.NativePlayer::fireStateChanged(I)(3);
+    _callback.@com.bramosystems.oss.player.core.client.impl.NativePlayerUtil.NativeEventCallback::onStateChanged(I)(3);
     }, false);
     this.addEventListener('waiting', function(){  // buffering
-    _player.@com.bramosystems.oss.player.core.client.ui.NativePlayer::fireStateChanged(I)(4);
+    _callback.@com.bramosystems.oss.player.core.client.impl.NativePlayerUtil.NativeEventCallback::onStateChanged(I)(4);
     }, false);
     this.addEventListener('playing', function(){  // playing again, buffering stopped
-    _player.@com.bramosystems.oss.player.core.client.ui.NativePlayer::fireStateChanged(I)(5);
+    _callback.@com.bramosystems.oss.player.core.client.impl.NativePlayerUtil.NativeEventCallback::onStateChanged(I)(5);
     }, false);
     this.addEventListener('loadedmetadata', function(){  // metadata available
-    _player.@com.bramosystems.oss.player.core.client.ui.NativePlayer::fireStateChanged(I)(6);
+    _callback.@com.bramosystems.oss.player.core.client.impl.NativePlayerUtil.NativeEventCallback::onStateChanged(I)(6);
     }, false);
     this.addEventListener('volumechange', function(){  // volume changed
-    _player.@com.bramosystems.oss.player.core.client.ui.NativePlayer::fireStateChanged(I)(7);
+    _callback.@com.bramosystems.oss.player.core.client.impl.NativePlayerUtil.NativeEventCallback::onStateChanged(I)(7);
     }, false);
     this.addEventListener('loadstart', function(){  // loading started
-    _player.@com.bramosystems.oss.player.core.client.ui.NativePlayer::fireStateChanged(I)(10);
+    _callback.@com.bramosystems.oss.player.core.client.impl.NativePlayerUtil.NativeEventCallback::onStateChanged(I)(10);
     }, false);
     this.addEventListener('load', function(){  // loading completed
-    _player.@com.bramosystems.oss.player.core.client.ui.NativePlayer::fireStateChanged(I)(11);
+    _callback.@com.bramosystems.oss.player.core.client.impl.NativePlayerUtil.NativeEventCallback::onStateChanged(I)(11);
     }, false);
     this.addEventListener('error', function(){  // loading error
-    _player.@com.bramosystems.oss.player.core.client.ui.NativePlayer::fireStateChanged(I)(12);
+    _callback.@com.bramosystems.oss.player.core.client.impl.NativePlayerUtil.NativeEventCallback::onStateChanged(I)(12);
     }, false);
     this.addEventListener('abort', function(){  // loading aborted
-    _player.@com.bramosystems.oss.player.core.client.ui.NativePlayer::fireStateChanged(I)(13);
+    _callback.@com.bramosystems.oss.player.core.client.impl.NativePlayerUtil.NativeEventCallback::onStateChanged(I)(13);
     }, false);
     }-*/;
 

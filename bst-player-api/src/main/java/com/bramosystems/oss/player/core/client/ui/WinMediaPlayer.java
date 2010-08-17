@@ -15,7 +15,7 @@
  */
 package com.bramosystems.oss.player.core.client.ui;
 
-import com.bramosystems.oss.player.core.client.AbstractMediaPlayerWithPlaylist;
+import com.bramosystems.oss.player.core.client.AbstractMediaPlayer;
 import com.bramosystems.oss.player.core.client.ConfigParameter;
 import com.bramosystems.oss.player.core.client.ConfigValue;
 import com.bramosystems.oss.player.core.client.LoadException;
@@ -27,6 +27,7 @@ import com.bramosystems.oss.player.core.client.PluginNotFoundException;
 import com.bramosystems.oss.player.core.client.PluginVersion;
 import com.bramosystems.oss.player.core.client.PluginVersionException;
 import com.bramosystems.oss.player.core.client.MediaInfo.MediaInfoKey;
+import com.bramosystems.oss.player.core.client.PlaylistSupport;
 import com.bramosystems.oss.player.core.client.impl.BeforeUnloadCallback;
 import com.bramosystems.oss.player.core.client.impl.PlayerWidget;
 import com.bramosystems.oss.player.core.client.impl.PlayerWidgetFactory;
@@ -80,7 +81,8 @@ import com.google.gwt.user.client.ui.FlowPanel;
  *
  * @author Sikirulai Braheem
  */
-public class WinMediaPlayer extends AbstractMediaPlayerWithPlaylist {
+//public class WinMediaPlayer extends AbstractMediaPlayerWithPlaylist {
+public class WinMediaPlayer extends AbstractMediaPlayer implements PlaylistSupport {
 
     private static WMPStateManager stateManager;
     private WMPStateManager.EventProcessor eventProcessor;
@@ -90,7 +92,6 @@ public class WinMediaPlayer extends AbstractMediaPlayerWithPlaylist {
     private Logger logger;
     private boolean isEmbedded, resizeToVideoSize;
     private UIMode uiMode;
-    private BeforeUnloadCallback unloadCallback;
     private Command autoplayCommand;
 
     private WinMediaPlayer(EmbedMode embedMode) throws PluginNotFoundException, PluginVersionException {
@@ -110,15 +111,6 @@ public class WinMediaPlayer extends AbstractMediaPlayerWithPlaylist {
             stateManager = GWT.create(WMPStateManager.class);
         }
         eventProcessor = stateManager.init(playerId, WinMediaPlayer.this);
-
-        unloadCallback = new BeforeUnloadCallback() {
-
-            @Override
-            public void onBeforeUnload() {
-                stateManager.close(playerId);
-                impl.close();
-            }
-        };
         resizeToVideoSize = false;
     }
 
@@ -163,7 +155,15 @@ public class WinMediaPlayer extends AbstractMediaPlayerWithPlaylist {
         FlowPanel panel = new FlowPanel();
         initWidget(panel);
 
-        playerWidget = new PlayerWidget(Plugin.WinMediaPlayer, playerId, mediaURL, false, unloadCallback);
+        playerWidget = new PlayerWidget(Plugin.WinMediaPlayer, playerId, mediaURL, false, 
+                new BeforeUnloadCallback() {
+
+            @Override
+            public void onBeforeUnload() {
+                stateManager.close(playerId);
+                impl.close();
+            }
+        });
         panel.add(playerWidget);
 
         autoplayCommand = new Command() {
@@ -210,6 +210,7 @@ public class WinMediaPlayer extends AbstractMediaPlayerWithPlaylist {
         }
         playerWidget.setSize(_width, _height);
         setWidth(_width);
+        fireDebug("Windows Media Player plugin");
     }
 
     /**
@@ -303,11 +304,8 @@ public class WinMediaPlayer extends AbstractMediaPlayerWithPlaylist {
     @Override
     protected final void onLoad() {
         setupPlayer(false);
-
-        fireDebug("Windows Media Player plugin");
-        fireDebug("Version : " + impl.getPlayerVersion());
+        fireDebug("Plugin Version : " + impl.getPlayerVersion());
         firePlayerStateEvent(PlayerStateEvent.State.Ready);
-
         autoplayCommand.execute();
     }
 
@@ -645,6 +643,68 @@ public class WinMediaPlayer extends AbstractMediaPlayerWithPlaylist {
     public double getRate() {
         checkAvailable();
         return impl.getRate();
+    }
+
+    @Override
+    public void setShuffleEnabled(final boolean enable) {
+        if (isPlayerOnPage(playerId)) {
+            eventProcessor.setShuffleEnabled(enable);
+        } else {
+            addToPlayerReadyCommandQueue("shuffle", new Command() {
+
+                @Override
+                public void execute() {
+                    eventProcessor.setShuffleEnabled(enable);
+                }
+            });
+        }
+    }
+
+    @Override
+    public boolean isShuffleEnabled() {
+        checkAvailable();
+        return eventProcessor.isShuffleEnabled();
+    }
+
+    @Override
+    public void addToPlaylist(String mediaURL) {
+        eventProcessor.addToPlaylist(mediaURL);
+    }
+
+    @Override
+    public void removeFromPlaylist(int index) {
+        checkAvailable();
+        eventProcessor.removeFromPlaylist(index);
+    }
+
+    @Override
+    public void clearPlaylist() {
+        checkAvailable();
+        eventProcessor.clearPlaylist();
+    }
+
+    @Override
+    public void playNext() throws PlayException {
+        checkAvailable();
+        eventProcessor.playNext();
+    }
+
+    @Override
+    public void playPrevious() throws PlayException {
+        checkAvailable();
+        eventProcessor.playPrevious();
+    }
+
+    @Override
+    public void play(int index) throws IndexOutOfBoundsException {
+        checkAvailable();
+        eventProcessor.play(index);
+    }
+
+    @Override
+    public int getPlaylistSize() {
+        checkAvailable();
+        return eventProcessor.getPlaylistSize();
     }
 
     /**

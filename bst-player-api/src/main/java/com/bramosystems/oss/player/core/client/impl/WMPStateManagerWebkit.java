@@ -15,8 +15,8 @@
  */
 package com.bramosystems.oss.player.core.client.impl;
 
+import com.bramosystems.oss.player.core.client.ui.WinMediaPlayer;
 import com.bramosystems.oss.player.core.event.client.PlayerStateEvent;
-import com.bramosystems.oss.player.core.event.client.HasMediaStateHandlers;
 import com.bramosystems.oss.player.core.event.client.LoadingProgressEvent;
 import com.google.gwt.user.client.Timer;
 
@@ -32,7 +32,7 @@ public class WMPStateManagerWebkit extends WMPStateManager {
     }
 
 //    @Override
-    public void init(WinMediaPlayerImpl player, HasMediaStateHandlers handler, boolean resizing) {
+    public void init(WinMediaPlayerImpl player, WinMediaPlayer handler, boolean resizing) {
         cache.put(player.getPlayerId(), new PoolingStateManager(player, handler, resizing));
     }
 
@@ -70,7 +70,7 @@ public class WMPStateManagerWebkit extends WMPStateManager {
 
 
         public PoolingStateManager(final WinMediaPlayerImpl _player,
-                HasMediaStateHandlers _handlers, boolean _resizing) {
+                WinMediaPlayer _handlers, boolean _resizing) {
             super(_handlers);
             previousState = -9;
             stoppedByUser = false;
