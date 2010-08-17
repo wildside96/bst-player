@@ -235,8 +235,8 @@ public class FlashMediaPlayer extends AbstractMediaPlayer implements PlaylistSup
         }
 
         // inject bst-flash-player version via maven resources filter...
-        String playerAppFile = "bst-flash-player-1.1.1-SNAPSHOT.swf";
-//        String playerAppFile = "bst-flash-player-${version}.swf";
+//        String playerAppFile = "bst-flash-player-1.1.1-SNAPSHOT.swf";
+        String playerAppFile = "bst-flash-player-${version}.swf";
 
         swf = new PlayerWidget(Plugin.FlashPlayer, playerId, GWT.getModuleBaseURL() + playerAppFile,
                 autoplay, new BeforeUnloadCallback() {
@@ -664,104 +664,25 @@ public class FlashMediaPlayer extends AbstractMediaPlayer implements PlaylistSup
                 }
         }
     }
-    /*
-     * Not available yet !
-     *
+
     @Override
     public void setRate(final double rate) {
-    if (isPlayerOnPage(playerId)) {
-    //            impl.setRate(rate);
-    } else {
-    addToPlayerReadyCommandQueue("rate", new Command() {
+        if (isPlayerOnPage(playerId)) {
+            //            impl.setRate(rate);
+        } else {
+            addToPlayerReadyCommandQueue("rate", new Command() {
 
-    public void execute() {
-    //                    impl.setRate(rate);
-    }
-    });
-    }
+                @Override
+                public void execute() {
+//                    impl.setRate(rate);
+                }
+            });
+        }
     }
 
     @Override
     public double getRate() {
-    checkAvailable();
-    return 0;//impl.getRate();
+        checkAvailable();
+        return 0;//impl.getRate();
     }
-     */
 }
-/**
- * TODO:
- * About sandboxes
-The sandbox type indicates the type of security zone in which the SWF file is operating. In Flash Player, all SWF
-files (and HTML files, for the purposes of SWF-to-HTML scripting) are placed into one of four types of sandbox:
-remote All files from non-local URLs are placed in a remote sandbox. There are many such sandboxes, one for
-each Internet (or intranet) domain from which files are loaded.
-local-with-filesystem The default sandbox for local files. SWF files in this sandbox may not contact the Internet
-(or any servers) in any way—they may not access network endpoints with addresses such as HTTP URLs.
-local-with-networking SWF file in this sandbox may communicate over the network but may not read from local
-file systems.
-local-trusted This sandbox is not restricted. Any local file can be placed in this sandbox if given authorization by
-the end user. This authorization can come in two forms: interactively through the Settings Manager or noninteractively
-through an executable installer that creates Flash Player configuration files on the user’s computer.
-You can determine the current sandbox type by using the sandboxType property of the Security class, as the
-following example shows:
-<?xml version="1.0" encoding="utf-8"?>
-<!-- security/DetectCurrentSandbox.mxml -->
-<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml" creationComplete="initApp()">
-<mx:Script><![CDATA[
-[Bindable]
-private var l_sandboxType:String;
-private function initApp():void {
-l_sandboxType = String(Security.sandboxType);
-}
-]]></mx:Script>
-<mx:Form>
-<mx:FormItem id="fi1" label="Security.sandboxType">
-<mx:Label id="l1" text="{l_sandboxType}"/>
-</mx:FormItem>
-</mx:Form>
-</mx:Application>
-When you compile a Flex application, you have some control over which sandbox the application is in. This determination
-is a combination of the value of the use-network compiler option (the default is true) and whether the
-SWF file was loaded by the client over a network connection or as a local file.
-34 CHAPTER 3
-The following table shows how the sandbox type is determined:
-Browser security
-Flash Player clients can be one of the following four types:
-•Embedded Flash Player
-•Debugger version of embedded Flash Player
-•Stand-alone Flash Player
-•Debugger version of stand-alone Flash Player
-The stand-alone Flash Player runs on the desktop. It is typically used by people who are running applications that
-are installed and maintained by an IT department that has access to the desktop on which the application runs.
-The embedded Flash Player is run within a browser. Anyone with Internet access can run applications from
-anywhere with this player. For Internet Explorer, the embedded player is loaded as an ActiveX control inside the
-browser. For Netscape-based browsers (including Firefox), it is loaded as a plug-in inside the browser. Using an
-embedded player lets the developer use browser-based technologies such as FORM and BASIC authentication as
-well as SSL.
-Browser APIs
-Applications hosting the Flash Player ActiveX control or Flash Player plug-in can use the EnforceLocalSecurity
-and DisableLocalSecurity API calls to control security settings. If DisableLocalSecurity is opened, the application
-does not benefit from the local-with-networking and local-with-file-system sandboxes. All files loaded from the
-local file system are placed into the local-trusted sandbox. The default behavior for an ActiveX control hosted in
-a client application is DisableLocalSecurity.
-If EnforceLocalSecurity is opened, the application can use all three local sandboxes. The default behavior for the
-browser plug-in is EnforceLocalSecurity.
-Cross-scripting
-Cross-scripting is when a SWF file communicates directly with another SWF file. This communication includes
-calling methods and setting properties of the other SWF file.
-use-network
-Loaded
-Sandbox type
-false
-locally
-local-with-filesystem
-true
-locally
-local-with-network
-true
-network
-remote
-false
-network
-n/a (causes an error)
- */

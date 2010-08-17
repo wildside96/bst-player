@@ -23,18 +23,20 @@ import com.bramosystems.oss.player.core.client.Plugin;
 import com.bramosystems.oss.player.core.client.PluginNotFoundException;
 import com.bramosystems.oss.player.core.client.PluginVersionException;
 import com.bramosystems.oss.player.core.client.ui.*;
-import com.bramosystems.oss.player.core.event.client.LoadingProgressEvent;
-import com.bramosystems.oss.player.core.event.client.LoadingProgressHandler;
+import com.bramosystems.oss.player.youtube.client.PlayerParameters;
+import com.bramosystems.oss.player.youtube.client.YouTubePlayer;
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.Window.Location;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
+import java.util.ArrayList;
 
 /**
  *
@@ -62,11 +64,12 @@ public class Dev extends VerticalPanel implements EntryPoint {
 //        addPlayer(Plugin.WinMediaPlayer);
 //        addPlayer(Plugin.DivXPlayer);
 //        addPlayer(Plugin.FlashPlayer);
-        addPlayer(Plugin.QuickTimePlayer);
+//        addPlayer(Plugin.QuickTimePlayer);
 //        addPlayer(Plugin.Native);
 //        addPlayer(Plugin.VLCPlayer);
 
 //        add(new MimeStuffs());
+        addUTube();
     }
 
     private void addPlayer(Plugin plugin) {
@@ -74,20 +77,20 @@ public class Dev extends VerticalPanel implements EntryPoint {
         try {
             switch (plugin) {
                 case DivXPlayer:
-                    add(new Label("Testing DivX Web Player"));
 //                    mmp = new FlatVideoPlayer(Plugin.DivXPlayer,
                     mmp = new DivXPlayer(
                             getURL("/local-video/divx7_postinstall.divx"),
                             false, "350px", "100%");
-//                    divx.setResizeToVideoSize(true);
 //                    divx.setBannerEnabled(false);
 //                    divx.setDisplayMode(DivXPlayer.DisplayMode.LARGE);
 //                    divx.setAllowContextMenu(false);
+                    ((DivXPlayer) mmp).addToPlaylist(getURL("/local-video/divx7_postinstall.divx"));
+//                    ((DivXPlayer) mmp).addToPlaylist(getURL("/local-video/gi-joe-trailer.mkv"));
                     add(new Button("Show", new ClickHandler() {
 
                         @Override
                         public void onClick(ClickEvent event) {
- //                           mmp.setControllerVisible(!mmp.isControllerVisible());
+                            //                           mmp.setControllerVisible(!mmp.isControllerVisible());
                         }
                     }));
                     break;
@@ -98,21 +101,9 @@ public class Dev extends VerticalPanel implements EntryPoint {
                             false, "350px", "100%");
                     break;
                 case QuickTimePlayer:
-//                    mmp = new QuickTimePlayer(getURL("/local-video/01_Al_Fatihah.m4a"), false);
-                    mmp = new QuickTimePlayer(getURL("/local-video/Sample.mov"), false, "555px", "720px");
-//                    mmp.setConfigParameter(ConfigParameter.QTScale, QuickTimePlayer.Scale.ToFit);
-                    mmp.addLoadingProgressHandler(new LoadingProgressHandler() {
-
-                        @Override
-                        public void onLoadingProgress(LoadingProgressEvent event) {
-                            System.out.println("event.progress: " + event.getProgress());
-
-                            if (event.getProgress() == 1.0d) {
-                                System.out.println("onLoadingProgress completed!");
-                            }
-                        }
-                    });
-                    
+                    mmp = new QuickTimePlayer(getURL("/local-video/Sample.mov"), false, "250px", "100%");
+                    ((QuickTimePlayer) mmp).addToPlaylist(getURL("/local-video/01_Al_Fatihah.m4a"));
+                    ((QuickTimePlayer) mmp).addToPlaylist(getURL("/local-video/big-buck-bunny.mp4"));
                     break;
                 case VLCPlayer:
                     mmp = new VLCPlayer(getURL("/local-video/big-buck-bunny.mp4"), true, "250px", "100%");
@@ -121,23 +112,21 @@ public class Dev extends VerticalPanel implements EntryPoint {
                     ((VLCPlayer) mmp).addToPlaylist(getURL("/local-video/traffic.flv"));
                     ((VLCPlayer) mmp).addToPlaylist(getURL("/local-video/Sample.mov"));
                     ((VLCPlayer) mmp).setShuffleEnabled(true);
-
-//                    mmp = new VLCPlayer1(getURL("/local-video/big-buck-bunny.mp4"), true, "50px", "100%");
                     break;
                 case WinMediaPlayer:
-                    mmp = new WinMediaPlayer(
-                            //                    mmp = new FlatVideoPlayer(Plugin.WinMediaPlayer,
-                            getURL("/local-video/home-video.wmv"), true, "200px", "100%");
-//                    mmp = new WinMediaPlayer(getURL("/local-video/applause.mp3"), true);
-//                    mmp = new WinMediaPlayer(getURL("/local-video/playlist.m3u"), true);
-//                    mmp = new WinMediaPlayer(getURL("/local-video/home-video.wmv"), true, "200px", "100%");
-                    //                   mmp.setResizeToVideoSize(true);
+                    mmp = new WinMediaPlayer(getURL("/local-video/home-video.wmv"), true, "200px", "100%");
+                    ((WinMediaPlayer) mmp).addToPlaylist(getURL("/local-video/applause.mp3"));
+                    ((WinMediaPlayer) mmp).addToPlaylist(getURL("/local-video/playlist.m3u"));
                     break;
                 case Native:
-                    mmp = new NativePlayer(getURL("/local-video/big-buck-bunny.ogv"),
-                            false, "450px", "100%");
-                    ((NativePlayer) mmp).addToPlaylist(getURL("/local-video/big-buck-bunny.mp4"));
+                    ArrayList<String> urls = new ArrayList<String>();
+                    urls.add(getURL("/local-video/big-buck-bunny.ogv"));
+                    urls.add(getURL("/local-video/big-buck-bunny.mp4"));
+
+                    mmp = new NativePlayer(urls, true, "450px", "100%");
+//                    ((NativePlayer) mmp).addToPlaylist(getURL("/local-video/big-buck-bunny.mp4"));
             }
+            mmp.setConfigParameter(ConfigParameter.QTScale, QuickTimePlayer.Scale.ToFit);
             mmp.showLogger(true);
 //            mmp.setLoopCount(-1);
 //            mmp.setControllerVisible(false);
@@ -151,8 +140,43 @@ public class Dev extends VerticalPanel implements EntryPoint {
         }
     }
 
+    private void addUTube() {
+        try {
+            PlayerParameters p = new PlayerParameters();
+            p.setLoadRelatedVideos(false);
+            p.setFullScreenEnabled(false);
+
+            final YouTubePlayer u = new YouTubePlayer("http://www.youtube.com/v/QbwZL-EK6CY", "100%", "350px");
+            u.showLogger(true);
+            add(u);
+
+            final Label label = new Label();
+            add(label);
+
+            Timer timer = new Timer() {
+
+                @Override
+                public void run() {
+                    try {
+                        double position = u.getPlayPosition();
+                        double duration = u.getMediaDuration();
+                        label.setText("" + position + "/" + duration);
+                    } catch (IllegalStateException e) {
+                        label.setText("?");
+                    }
+                }
+            };
+            timer.scheduleRepeating(5000);
+        } catch (PluginNotFoundException ex) {
+            add(PlayerUtil.getMissingPluginNotice(ex.getPlugin()));
+        } catch (PluginVersionException ex) {
+            add(PlayerUtil.getMissingPluginNotice(ex.getPlugin()));
+        }
+    }
+
     private String getURL(String path) {
         return Location.createUrlBuilder().setPort(8080).setPath(path).buildString();
+
 
     }
 }

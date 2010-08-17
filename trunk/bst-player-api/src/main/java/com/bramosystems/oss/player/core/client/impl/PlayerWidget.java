@@ -20,7 +20,6 @@ import com.bramosystems.oss.player.core.client.Plugin;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.ui.Widget;
-import java.util.ArrayList;
 import java.util.HashMap;
 
 /**
@@ -33,8 +32,7 @@ public class PlayerWidget extends Widget {
     private HashMap<String, String> params;
     private Plugin plugin;
     private String playerId, mediaURL, _height, _width;
-    private ArrayList<String> mediaURLs;
-    private boolean autoplay, isMultiSource;
+    private boolean autoplay;
 
     private PlayerWidget() {
         setElement(DOM.createDiv());
@@ -51,17 +49,6 @@ public class PlayerWidget extends Widget {
         this.playerId = playerId;
         this.autoplay = autoplay;
         this.mediaURL = mediaURL;
-    }
-
-    public PlayerWidget(Plugin plugin, String playerId, ArrayList<String> mediaURL,
-            boolean autoplay, BeforeUnloadCallback callback) {
-        this();
-        this.callback = callback;
-        this.plugin = plugin;
-        this.playerId = playerId;
-        this.mediaURLs = mediaURL;
-        this.autoplay = autoplay;
-        isMultiSource = true;
     }
 
     public void addParam(String name, String value) {
@@ -118,25 +105,12 @@ public class PlayerWidget extends Widget {
         injectWidget(true);
     }
 
-    public void replace(Plugin plugin, String playerId, ArrayList<String> mediaURL, boolean autoplay) {
-        this.plugin = plugin;
-        this.playerId = playerId;
-        this.mediaURLs = mediaURL;
-        this.autoplay = autoplay;
-        isMultiSource = true;
-        injectWidget(true);
-    }
-
     private void injectWidget(boolean updateDimension) {
         Element e = DOM.createDiv();
         PlayerWidgetFactory pf = PlayerWidgetFactory.get();
         switch (plugin) {
             case Native:
-                if (isMultiSource) {
-                    e = pf.getNativeElement(playerId, mediaURLs, autoplay);
-                } else {
-                    e = pf.getNativeElement(playerId, mediaURL, autoplay);
-                }
+                e = pf.getNativeElement(playerId, mediaURL, autoplay);
                 break;
             case FlashPlayer:
                 e = pf.getSWFElement(playerId, mediaURL, params);

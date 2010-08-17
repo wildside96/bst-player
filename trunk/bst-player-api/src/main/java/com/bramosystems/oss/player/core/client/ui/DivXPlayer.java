@@ -67,7 +67,7 @@ public class DivXPlayer extends AbstractMediaPlayer implements PlaylistSupport {
     private LoopManager loopManager;
     private DisplayMode displayMode;
     private DelegatePlaylistManager playlistManager;
-    private boolean resizeToVideoSize, isEmbedded, playing, firePlayStated = true;
+    private boolean resizeToVideoSize, isEmbedded, playing, firePlayStated;
     private double currentPosition;
     private int _volume = 50;
 
@@ -83,7 +83,12 @@ public class DivXPlayer extends AbstractMediaPlayer implements PlaylistSupport {
 
             @Override
             public void onLoopFinished() {
-                firePlayStateEvent(PlayStateEvent.State.Finished, 0);
+                try {
+                    playlistManager.playNext();
+                } catch (PlayException ex) {
+                    fireDebug("Play finished");
+                    firePlayStateEvent(PlayStateEvent.State.Finished, playlistManager.getPlaylistIndex());
+                }
             }
 
             @Override
@@ -105,6 +110,7 @@ public class DivXPlayer extends AbstractMediaPlayer implements PlaylistSupport {
                         fireDebug("Media Info available");
                         fireMediaInfoAvailable(manager.getFilledMediaInfo(impl.getMediaDuration(),
                                 impl.getVideoWidth(), impl.getVideoHeight()));
+                        firePlayStated = true;
                         break;
                     case 2: // VIDEO_END, notify loop manager...
                         fireDebug("Playback ended");
@@ -112,18 +118,20 @@ public class DivXPlayer extends AbstractMediaPlayer implements PlaylistSupport {
                         break;
                     case 10: // STATUS_PLAYING
                         if (firePlayStated) {
-                            fireDebug("Playback started");
-                            firePlayStateEvent(PlayStateEvent.State.Started, 0);
+                            fireDebug("Playback started - '" + playlistManager.getCurrentItem() + "'");
+                            firePlayStateEvent(PlayStateEvent.State.Started, playlistManager.getPlaylistIndex());
+                        } else {
+                            fireDebug("Playback resumed");
                         }
-                        firePlayStated = true;
+                        firePlayStated = false;
                         break;
                     case 11: // STATUS_PAUSED
                         fireDebug("Playback paused");
-                        firePlayStateEvent(PlayStateEvent.State.Paused, 0);
+                        firePlayStateEvent(PlayStateEvent.State.Paused, playlistManager.getPlaylistIndex());
                         break;
                     case 14: // STATUS_STOPPED
                         fireDebug("Playback stopped");
-                        firePlayStateEvent(PlayStateEvent.State.Stopped, 0);
+                        firePlayStateEvent(PlayStateEvent.State.Stopped, playlistManager.getPlaylistIndex());
                         break;
                     case 15: // BUFFERING_START
                         fireDebug("Buffering started");
@@ -138,12 +146,15 @@ public class DivXPlayer extends AbstractMediaPlayer implements PlaylistSupport {
                         fireDebug("Download started");
                         fireLoadingProgress(0);
                         break;
+                    case 18: // DOWNLOAD_FAILED
+                        fireError("ERROR: Download failed - '" +
+                                playlistManager.getCurrentItem() + "'");
+                        loopManager.notifyPlayFinished();
+                        break;
                     case 19: // DOWNLOAD_DONE
                         fireDebug("Download finished");
                         fireLoadingProgress(1.0);
                         break;
-                    case 0: // INIT_DONE
-                    case 3: // SHUT_DONE
                     case 4: // EMBEDDED_START
                     case 5: // EMBEDDED_END
                     case 6: // WINDOWED_START
@@ -152,8 +163,10 @@ public class DivXPlayer extends AbstractMediaPlayer implements PlaylistSupport {
                     case 9: // FULLSCREEN_END
                     case 12: // STATUS_FF
                     case 13: // STATUS_RW
-                    case 18: // DOWNLOAD_FAILED
-                    default: // TODO: please remove before release...
+                        break;
+                    case 0: // INIT_DONE
+                    case 3: // SHUT_DONE
+                    default:
                         fireDebug("DEV: Status Changed : " + statusId);
                 }
             }
@@ -260,6 +273,9 @@ public class DivXPlayer extends AbstractMediaPlayer implements PlaylistSupport {
         }
 
         initWidget(panel);
+        
+        fireDebug("DivX Web Player plugin");
+        playlistManager.addToPlaylist(mediaURL);
     }
 
     /**
@@ -331,8 +347,7 @@ public class DivXPlayer extends AbstractMediaPlayer implements PlaylistSupport {
     protected final void onLoad() {
         playerWidget.setSize(_width, _height);
         impl = DivXPlayerImpl.getPlayer(playerId);
-        fireDebug("DivX Web Player plugin");
-        fireDebug("Version : " + impl.getPluginVersion());
+        fireDebug("Plugin Version : " + impl.getPluginVersion());
         setWidth(_width);
         firePlayerStateEvent(PlayerStateEvent.State.Ready);
     }
@@ -606,48 +621,65 @@ public class DivXPlayer extends AbstractMediaPlayer implements PlaylistSupport {
     }
 
     @Override
-    public void setShuffleEnabled(boolean enable) {
-        throw new UnsupportedOperationException("Not supported yet.");
+    public void setShuffleEnabled(final boolean enable) {
+        if (isPlayerOnPage(playerId)) {
+            playlistManager.setShuffleEnabled(enable);
+        } else {
+            addToPlayerReadyCommandQueue("shuffle", new Command() {
+
+                @Override
+                public void execute() {
+                    playlistManager.setShuffleEnabled(enable);
+                }
+            });
+        }
     }
 
     @Override
     public boolean isShuffleEnabled() {
-        throw new UnsupportedOperationException("Not supported yet.");
+        checkAvailable();
+        return playlistManager.isShuffleEnabled();
     }
 
     @Override
     public void addToPlaylist(String mediaURL) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        playlistManager.addToPlaylist(mediaURL);
     }
 
     @Override
     public void removeFromPlaylist(int index) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        checkAvailable();
+        playlistManager.removeFromPlaylist(index);
     }
 
     @Override
     public void clearPlaylist() {
-        throw new UnsupportedOperationException("Not supported yet.");
+        checkAvailable();
+        playlistManager.clearPlaylist();
     }
 
     @Override
     public void playNext() throws PlayException {
-        throw new UnsupportedOperationException("Not supported yet.");
+        checkAvailable();
+        playlistManager.playNext();
     }
 
     @Override
     public void playPrevious() throws PlayException {
-        throw new UnsupportedOperationException("Not supported yet.");
+        checkAvailable();
+        playlistManager.playPrevious();
     }
 
     @Override
     public void play(int index) throws IndexOutOfBoundsException {
-        throw new UnsupportedOperationException("Not supported yet.");
+        checkAvailable();
+        playlistManager.play(index);
     }
 
     @Override
     public int getPlaylistSize() {
-        throw new UnsupportedOperationException("Not supported yet.");
+        checkAvailable();
+        return playlistManager.getPlaylistSize();
     }
 
     private static enum SeekMethod {

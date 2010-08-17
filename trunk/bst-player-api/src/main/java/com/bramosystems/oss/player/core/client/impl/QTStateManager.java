@@ -31,7 +31,6 @@ public class QTStateManager {
     public void registerMediaStateListener(QuickTimePlayerImpl impl, QTEventHandler handler, String mediaURL) {
         impl.resetPropertiesOnReload(false);
         registerMediaStateListenerImpl(impl, handler);
-        impl.load(mediaURL);
     }
 
     protected native void registerMediaStateListenerImpl(QuickTimePlayerImpl playr, QTEventHandler handler) /*-{

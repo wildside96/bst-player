@@ -18,6 +18,7 @@ package com.bramosystems.oss.player.core.client.ui;
 import com.bramosystems.oss.player.core.client.geom.MatrixSupport;
 import com.bramosystems.oss.player.core.client.*;
 import com.bramosystems.oss.player.core.client.MediaInfo.MediaInfoKey;
+import com.bramosystems.oss.player.core.client.impl.DelegatePlaylistManager;
 import com.bramosystems.oss.player.core.client.impl.QTStateManager;
 import com.bramosystems.oss.player.core.client.impl.QuickTimePlayerImpl;
 import com.bramosystems.oss.player.core.client.impl.LoopManager;
@@ -65,7 +66,7 @@ import com.google.gwt.user.client.ui.*;
  *
  * @author Sikirulai Braheem
  */
-public class QuickTimePlayer extends AbstractMediaPlayerWithPlaylist implements MatrixSupport {
+public class QuickTimePlayer extends AbstractMediaPlayer implements MatrixSupport, PlaylistSupport {
 
     private static QTStateManager manager = GWT.create(QTStateManager.class);
     private static NumberFormat mxNf = NumberFormat.getFormat("#0.0###"), // fix QT Matrix precision issues
@@ -73,9 +74,10 @@ public class QuickTimePlayer extends AbstractMediaPlayerWithPlaylist implements 
     private QuickTimePlayerImpl impl;
     private QTStateManager.QTEventHandler handler;
     private PlayerWidget playerWidget;
-    private String playerId, mediaUrl;
+    private String playerId;//, mediaUrl;
     private Logger logger;
     private LoopManager loopManager;
+    private DelegatePlaylistManager playlistManager;
     private boolean isEmbedded, resizeToVideoSize, _isBuffering;
     private String _height, _width;
 
@@ -89,12 +91,18 @@ public class QuickTimePlayer extends AbstractMediaPlayerWithPlaylist implements 
         playerId = DOM.createUniqueId().replace("-", "");
         resizeToVideoSize = false;
 
+        playlistManager = new DelegatePlaylistManager(this);
         loopManager = new LoopManager(false, new LoopManager.LoopCallback() {
 
             @Override
             public void onLoopFinished() {
-                firePlayStateEvent(PlayStateEvent.State.Finished, 0);
-                fireDebug("Media playback complete");
+                try {
+                    playlistManager.playNext();
+                } catch (PlayException ex) {
+                    fireDebug("Play finished - " + playlistManager.getPlaylistIndex());
+                    firePlayStateEvent(PlayStateEvent.State.Finished,
+                            playlistManager.getPlaylistIndex());
+                }
             }
 
             @Override
@@ -123,14 +131,14 @@ public class QuickTimePlayer extends AbstractMediaPlayerWithPlaylist implements 
                             firePlayerStateEvent(PlayerStateEvent.State.BufferingFinished);
                             fireDebug("Buffering ended ...");
                         }
-                        firePlayStateEvent(PlayStateEvent.State.Started, 0);
                         fireDebug("Playing media at " + impl.getMovieURL());
+                        firePlayStateEvent(PlayStateEvent.State.Started, playlistManager.getPlaylistIndex());
                         break;
                     case 4: // play finished, notify loop manager ...
                         loopManager.notifyPlayFinished();
                         break;
                     case 5: // player ready ...
-                        fireDebug("Player ready for playback");
+                        fireDebug("Loaded media at " + impl.getMovieURL());
                         break;
                     case 6: // volume changed ...
                         fireDebug("Volume changed to " + volFmt.format(impl.getVolume()));
@@ -142,14 +150,14 @@ public class QuickTimePlayer extends AbstractMediaPlayerWithPlaylist implements 
                         fireError(impl.getStatus() + " occured while loading media!");
                         break;
                     case 9: // metadata stuffs ...
-                        fireDebug("Loading media at " + impl.getMovieURL());
+                        fireDebug("Metadata available");
                         MediaInfo info = new MediaInfo();
                         impl.fillMediaInfo(info);
                         fireMediaInfoAvailable(info);
                         break;
                     case 10: // playback paused ...
                         fireDebug("Playback paused");
-                        firePlayStateEvent(PlayStateEvent.State.Paused, 0);
+                        firePlayStateEvent(PlayStateEvent.State.Paused, playlistManager.getPlaylistIndex());
                         break;
                     case 11: // buffering ...
                         _isBuffering = true;
@@ -188,8 +196,6 @@ public class QuickTimePlayer extends AbstractMediaPlayerWithPlaylist implements 
     public QuickTimePlayer(String mediaURL, boolean autoplay, String height, String width)
             throws LoadException, PluginVersionException, PluginNotFoundException {
         this();
-
-        mediaUrl = mediaURL;
 
         FlowPanel panel = new FlowPanel();
         initWidget(panel);
@@ -235,6 +241,9 @@ public class QuickTimePlayer extends AbstractMediaPlayerWithPlaylist implements 
             _height = "0px";
             _width = "0px";
         }
+
+        fireDebug("QuickTime Player plugin");
+        playlistManager.addToPlaylist(mediaURL);
     }
 
     /**
@@ -289,10 +298,10 @@ public class QuickTimePlayer extends AbstractMediaPlayerWithPlaylist implements 
                 impl = QuickTimePlayerImpl.getPlayer(playerId);
                 if (impl != null) {
                     cancel();
-                    fireDebug("QuickTime Player plugin");
-                    fireDebug("Version : " + impl.getPluginVersionImpl());
-                    manager.registerMediaStateListener(impl, handler, mediaUrl);
+                    fireDebug("Plugin Version : " + impl.getPluginVersionImpl());
+                    manager.registerMediaStateListener(impl, handler, "");
                     firePlayerStateEvent(PlayerStateEvent.State.Ready);
+                    playlistManager.load(0);
                 }
             }
         };
@@ -671,6 +680,68 @@ public class QuickTimePlayer extends AbstractMediaPlayerWithPlaylist implements 
                 playerWidget.addParam("SCALE", value.toString());
                 break;
         }
+    }
+
+    @Override
+    public void setShuffleEnabled(final boolean enable) {
+        if (isPlayerOnPage(playerId)) {
+            playlistManager.setShuffleEnabled(enable);
+        } else {
+            addToPlayerReadyCommandQueue("shuffle", new Command() {
+
+                @Override
+                public void execute() {
+                    playlistManager.setShuffleEnabled(enable);
+                }
+            });
+        }
+    }
+
+    @Override
+    public boolean isShuffleEnabled() {
+        checkAvailable();
+        return playlistManager.isShuffleEnabled();
+    }
+
+    @Override
+    public void addToPlaylist(String mediaURL) {
+        playlistManager.addToPlaylist(mediaURL);
+    }
+
+    @Override
+    public void removeFromPlaylist(int index) {
+        checkAvailable();
+        playlistManager.removeFromPlaylist(index);
+    }
+
+    @Override
+    public void clearPlaylist() {
+        checkAvailable();
+        playlistManager.clearPlaylist();
+    }
+
+    @Override
+    public void playNext() throws PlayException {
+        checkAvailable();
+        playlistManager.playNext();
+    }
+
+    @Override
+    public void playPrevious() throws PlayException {
+        checkAvailable();
+        playlistManager.playPrevious();
+    }
+
+    @Override
+    public void play(int index) throws IndexOutOfBoundsException {
+        checkAvailable();
+        playlistManager.play(index);
+    }
+
+    @Override
+    public int getPlaylistSize() {
+        checkAvailable();
+        return playlistManager.getPlaylistSize();
     }
 
     /**

@@ -68,7 +68,6 @@ import com.google.gwt.user.client.ui.FlowPanel;
  * @author Sikirulai Braheem <sbraheem at bramosystems dot com>
  */
 public class NativePlayer extends AbstractMediaPlayer implements PlaylistSupport {
-//public class NativePlayer extends AbstractMediaPlayerWithPlaylist {
 
     private NumberFormat volFmt = NumberFormat.getPercentFormat();
     private NativePlayerImpl impl;
@@ -78,8 +77,7 @@ public class NativePlayer extends AbstractMediaPlayer implements PlaylistSupport
     private Logger logger;
     private LoopManager loopManager;
     private DelegatePlaylistManager playlistManager;
-    private ArrayList<String> sources;
-    private Command initCommand;
+    private NativePlayerUtil.NativeEventCallback _callback;
 
     private NativePlayer() throws PluginNotFoundException {
         if (!PlayerUtil.isHTML5CompliantClient()) {
@@ -89,19 +87,108 @@ public class NativePlayer extends AbstractMediaPlayer implements PlaylistSupport
         playerId = DOM.createUniqueId().replace("-", "");
         adjustToVideoSize = false;
         playlistManager = new DelegatePlaylistManager(this);
-        sources = new ArrayList<String>();
-        initCommand = new Command() {
+        loopManager = new LoopManager(!NativePlayerUtil.get.isLoopingSupported(),
+                new LoopManager.LoopCallback() {
+
+                    @Override
+                    public void onLoopFinished() {
+                        try {
+                            playlistManager.playNext();
+                        } catch (PlayException ex) {
+                            fireDebug("Play finished - " + playlistManager.getPlaylistIndex());
+                            firePlayStateEvent(PlayStateEvent.State.Finished, 
+                                    playlistManager.getPlaylistIndex());
+                        }
+                    }
+
+                    @Override
+                    public void loopForever(boolean loop) {
+                        impl.setLooping(loop);
+                    }
+
+                    @Override
+                    public void playNextLoop() {
+                        impl.play();
+                    }
+                });
+        _callback = new NativePlayerUtil.NativeEventCallback() {
 
             @Override
-            public void execute() {
-                for (String src : sources) {
-                    playlistManager.addToPlaylist(src);
+            public void onProgressChanged() {
+                NativePlayerImpl.TimeRange time = impl.getBuffered();
+                if (time != null) {
+                    double i = time.getLength();
+                    fireLoadingProgress((time.getEnd(i - 1) - time.getStart(0)) * 1000 / impl.getDuration());
                 }
-                sources = null;
-                if (impl.isAutoPlay()) {
-                    play(0);
-                } else {
-                    playlistManager.load(0);
+            }
+
+            @Override
+            public void onStateChanged(int code) {
+                switch (code) {
+                    case 1: // play started
+                        fireDebug("Play started");
+                        firePlayStateEvent(PlayStateEvent.State.Started, playlistManager.getPlaylistIndex());
+                        fireDebug("Playing media at '" + impl.getMediaURL() + "'");
+                        break;
+                    case 2: // pause
+                        fireDebug("Play paused");
+                        firePlayStateEvent(PlayStateEvent.State.Paused, playlistManager.getPlaylistIndex());
+                        break;
+                    case 3: // finished
+                        // notify loop manager, it handles play finished event ...
+                        loopManager.notifyPlayFinished();
+                        break;
+                    case 4: // buffering
+                        fireDebug("Buffering started");
+                        firePlayerStateEvent(PlayerStateEvent.State.BufferingStarted);
+                        break;
+                    case 5: // playing again, buffering stopped
+                        fireDebug("Buffering stopped");
+                        firePlayerStateEvent(PlayerStateEvent.State.BufferingFinished);
+                        break;
+                    case 6: // process metadata
+                        fireDebug("Media Metadata available");
+                        MediaInfo info = new MediaInfo();
+                        impl.fillMediaInfo(info);
+                        fireMediaInfoAvailable(info);
+                        break;
+                    case 7: // volume changed
+                        if (impl.isMute()) {
+                            fireDebug("Volume muted");
+                        } else {
+                            fireDebug("Volume changed : " + volFmt.format(impl.getVolume()));
+                        }
+                        break;
+                    case 10: // loading started
+                        fireDebug("Loading '" + playlistManager.getCurrentItem() + "'");
+                        fireLoadingProgress(0);
+                        break;
+                    case 11: // loading finished
+                        fireDebug("Loading completed");
+                        fireLoadingProgress(1.0);
+                        break;
+                    case 12: // error
+                        switch (MediaError.values()[impl.getErrorState()]) {
+                            case Aborted:
+                                fireError("ERROR: Loading aborted!");
+                                break;
+                            case DecodeError:
+                                fireError("ERROR: Decoding error");
+                                break;
+                            case NetworkError:
+                                fireError("ERROR: Network error");
+                                break;
+                            case UnsupportedMedia:
+                                fireError("ERROR: Media not supported! '"
+                                        + playlistManager.getCurrentItem() + "'");
+                                fireDebug("Trying alternative playlist item ...");
+                                playlistManager.loadAlternative();
+                                break;
+                        }
+                        break;
+                    case 13: // loading aborted
+                        fireDebug("Media loading aborted!");
+                        break;
                 }
             }
         };
@@ -136,35 +223,16 @@ public class NativePlayer extends AbstractMediaPlayer implements PlaylistSupport
                 @Override
                 public void onMediaInfoAvailable(MediaInfoEvent event) {
                     MediaInfo info = event.getMediaInfo();
+                    logger.log(info.asHTMLString(), true);
                     if (info.getAvailableItems().contains(MediaInfoKey.VideoHeight)
                             || info.getAvailableItems().contains(MediaInfoKey.VideoWidth)) {
                         checkVideoSize(Integer.parseInt(info.getItem(MediaInfoKey.VideoHeight)),
                                 Integer.parseInt(info.getItem(MediaInfoKey.VideoWidth)));
                     }
-                    logger.log(info.asHTMLString(), true);
                 }
             });
         }
-
-        loopManager = new LoopManager(!NativePlayerUtil.get.isLoopingSupported(),
-                new LoopManager.LoopCallback() {
-
-                    @Override
-                    public void onLoopFinished() {
-                        fireDebug("Play finished");
-                        firePlayStateEvent(PlayStateEvent.State.Finished, 0);
-                    }
-
-                    @Override
-                    public void loopForever(boolean loop) {
-                        impl.setLooping(loop);
-                    }
-
-                    @Override
-                    public void playNextLoop() {
-                        impl.play();
-                    }
-                });
+        fireDebug("HTML5 Native Player");
     }
 
     /**
@@ -218,9 +286,9 @@ public class NativePlayer extends AbstractMediaPlayer implements PlaylistSupport
     public NativePlayer(String mediaURL, boolean autoplay, String height, String width)
             throws LoadException, PluginNotFoundException {
         this();
-        playerWidget = new PlayerWidget(Plugin.Native, playerId, mediaURL, autoplay, null);
+        playerWidget = new PlayerWidget(Plugin.Native, playerId, "", autoplay, null);
         _init(width, height);
-        sources.add(mediaURL);
+        playlistManager.addToPlaylist(mediaURL);
     }
 
     /**
@@ -244,9 +312,9 @@ public class NativePlayer extends AbstractMediaPlayer implements PlaylistSupport
     public NativePlayer(ArrayList<String> mediaSources, boolean autoplay, String height, String width)
             throws LoadException, PluginNotFoundException {
         this();
-        playerWidget = new PlayerWidget(Plugin.Native, playerId, mediaSources, autoplay, null);
+        playerWidget = new PlayerWidget(Plugin.Native, playerId, "", autoplay, null);
         _init(width, height);
-        sources.addAll(mediaSources);
+        playlistManager.addToPlaylist(mediaSources);
     }
 
     /**
@@ -258,10 +326,9 @@ public class NativePlayer extends AbstractMediaPlayer implements PlaylistSupport
         setWidth(_width);
 
         impl = NativePlayerImpl.getPlayer(playerId);
-        impl.registerMediaStateHandlers(this);
-        fireDebug("Browsers' Native Player");
+        impl.registerMediaStateHandler(_callback);
         firePlayerStateEvent(PlayerStateEvent.State.Ready);
-        initCommand.execute();
+        playlistManager.load(0);
     }
 
     @Override
@@ -282,7 +349,7 @@ public class NativePlayer extends AbstractMediaPlayer implements PlaylistSupport
         checkAvailable();
         impl.pause();
         impl.setTime(0);
-        firePlayStateEvent(PlayStateEvent.State.Stopped, 0);
+        firePlayStateEvent(PlayStateEvent.State.Stopped, playlistManager.getPlaylistIndex());
     }
 
     @Override
@@ -457,84 +524,6 @@ public class NativePlayer extends AbstractMediaPlayer implements PlaylistSupport
         }
     }
 
-    @SuppressWarnings("unused")
-    private void fireProgressChanged() {
-        NativePlayerImpl.TimeRange time = impl.getBuffered();
-        if (time != null) {
-            double i = time.getLength();
-            fireLoadingProgress((time.getEnd(i - 1) - time.getStart(0)) * 1000 / impl.getDuration());
-        }
-    }
-
-    @SuppressWarnings("unused")
-    private void fireStateChanged(int code) {
-        switch (code) {
-            case 1: // play started
-                fireDebug("Play started");
-                firePlayStateEvent(PlayStateEvent.State.Started, 0);
-                fireDebug("Playing media at '" + impl.getMediaURL() + "'");
-                break;
-            case 2: // pause
-                fireDebug("Play paused");
-                firePlayStateEvent(PlayStateEvent.State.Paused, 0);
-                break;
-            case 3: // finished
-                // notify loop manager, it handles play finished event ...
-                loopManager.notifyPlayFinished();
-                break;
-            case 4: // buffering
-                fireDebug("Buffering started");
-                firePlayerStateEvent(PlayerStateEvent.State.BufferingStarted);
-                break;
-            case 5: // playing again, buffering stopped
-                fireDebug("Buffering stopped");
-                firePlayerStateEvent(PlayerStateEvent.State.BufferingFinished);
-                break;
-            case 6: // process metadata
-                fireDebug("Media Metadata available");
-                MediaInfo info = new MediaInfo();
-                impl.fillMediaInfo(info);
-                fireMediaInfoAvailable(info);
-                break;
-            case 7: // volume changed
-                if (impl.isMute()) {
-                    fireDebug("Volume muted");
-                } else {
-                    fireDebug("Volume changed : " + volFmt.format(impl.getVolume()));
-                }
-                break;
-            case 10: // loading started
-                fireDebug("Loading started");
-                fireLoadingProgress(0);
-                break;
-            case 11: // loading finished
-                fireDebug("Loading completed");
-                fireLoadingProgress(1.0);
-                break;
-            case 12: // error
-                switch (MediaError.values()[impl.getErrorState()]) {
-                    case Aborted:
-                        fireDebug("Loading aborted!");
-                        break;
-                    case DecodeError:
-                        fireError("ERROR: Decoding error");
-                        break;
-                    case NetworkError:
-                        fireError("ERROR: Network error");
-                        break;
-                    case UnsupportedMedia:
-//                        String url = mediaURL != null ? mediaURL : mediaItems.get(0).getSource();
-//                        fireError("ERROR: Media not supported - " + url);
-                        fireError("ERROR: Media not supported! '" + impl.getMediaURL() + "'");
-                        break;
-                }
-                break;
-            case 13: // loading aborted
-                fireDebug("Media loading aborted!");
-                break;
-        }
-    }
-
     @Override
     public void setShuffleEnabled(final boolean enable) {
         if (isPlayerOnPage(playerId)) {
@@ -558,11 +547,11 @@ public class NativePlayer extends AbstractMediaPlayer implements PlaylistSupport
 
     @Override
     public void addToPlaylist(String mediaURL) {
-        if (isPlayerOnPage(playerId)) {
-            playlistManager.addToPlaylist(mediaURL);
-        } else {
-            sources.add(mediaURL);
-        }
+        playlistManager.addToPlaylist(mediaURL);
+    }
+
+    public void addToPlaylist(String... mediaURLs) {
+        playlistManager.addToPlaylist(mediaURLs);
     }
 
     @Override
