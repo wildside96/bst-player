@@ -53,6 +53,7 @@ public class Dev extends VerticalPanel implements EntryPoint {
             @Override
             public void onUncaughtException(Throwable e) {
                 Window.alert("Dev Uncaught : " + e.getMessage());
+                GWT.log(e.getMessage(), e);
             }
         });
     }
@@ -66,10 +67,10 @@ public class Dev extends VerticalPanel implements EntryPoint {
 //        addPlayer(Plugin.FlashPlayer);
 //        addPlayer(Plugin.QuickTimePlayer);
 //        addPlayer(Plugin.Native);
-//        addPlayer(Plugin.VLCPlayer);
+        addPlayer(Plugin.VLCPlayer);
 
 //        add(new MimeStuffs());
-        addUTube();
+//        addUTube();
     }
 
     private void addPlayer(Plugin plugin) {
@@ -84,8 +85,8 @@ public class Dev extends VerticalPanel implements EntryPoint {
 //                    divx.setBannerEnabled(false);
 //                    divx.setDisplayMode(DivXPlayer.DisplayMode.LARGE);
 //                    divx.setAllowContextMenu(false);
-                    ((DivXPlayer) mmp).addToPlaylist(getURL("/local-video/divx7_postinstall.divx"));
-//                    ((DivXPlayer) mmp).addToPlaylist(getURL("/local-video/gi-joe-trailer.mkv"));
+//                    ((DivXPlayer) mmp).addToPlaylist(getURL("/local-video/divx7_postinstall.divx"));
+                    ((DivXPlayer) mmp).addToPlaylist(getURL("/local-video/gi-joe-trailer.mkv"));
                     add(new Button("Show", new ClickHandler() {
 
                         @Override
@@ -102,21 +103,20 @@ public class Dev extends VerticalPanel implements EntryPoint {
                     break;
                 case QuickTimePlayer:
                     mmp = new QuickTimePlayer(getURL("/local-video/Sample.mov"), false, "250px", "100%");
-                    ((QuickTimePlayer) mmp).addToPlaylist(getURL("/local-video/01_Al_Fatihah.m4a"));
+//                    ((QuickTimePlayer) mmp).addToPlaylist(getURL("/local-video/01_Al_Fatihah.m4a"));
                     ((QuickTimePlayer) mmp).addToPlaylist(getURL("/local-video/big-buck-bunny.mp4"));
                     break;
                 case VLCPlayer:
                     mmp = new VLCPlayer(getURL("/local-video/big-buck-bunny.mp4"), true, "250px", "100%");
-                    ((VLCPlayer) mmp).addToPlaylist(getURL("/local-video/fireflies.flv"));
+//                    ((VLCPlayer) mmp).addToPlaylist(getURL("/local-video/fireflies.flv"));
                     ((VLCPlayer) mmp).addToPlaylist(getURL("/local-video/divx7_postinstall.divx"));
-                    ((VLCPlayer) mmp).addToPlaylist(getURL("/local-video/traffic.flv"));
+  //                  ((VLCPlayer) mmp).addToPlaylist(getURL("/local-video/traffic.flv"));
                     ((VLCPlayer) mmp).addToPlaylist(getURL("/local-video/Sample.mov"));
-                    ((VLCPlayer) mmp).setShuffleEnabled(true);
                     break;
                 case WinMediaPlayer:
                     mmp = new WinMediaPlayer(getURL("/local-video/home-video.wmv"), true, "200px", "100%");
-                    ((WinMediaPlayer) mmp).addToPlaylist(getURL("/local-video/applause.mp3"));
-                    ((WinMediaPlayer) mmp).addToPlaylist(getURL("/local-video/playlist.m3u"));
+//                    ((WinMediaPlayer) mmp).addToPlaylist(getURL("/local-video/applause.mp3"));
+//                    ((WinMediaPlayer) mmp).addToPlaylist(getURL("/local-video/playlist.m3u"));
                     break;
                 case Native:
                     ArrayList<String> urls = new ArrayList<String>();
@@ -128,7 +128,8 @@ public class Dev extends VerticalPanel implements EntryPoint {
             }
             mmp.setConfigParameter(ConfigParameter.QTScale, QuickTimePlayer.Scale.ToFit);
             mmp.showLogger(true);
-//            mmp.setLoopCount(-1);
+            mmp.setLoopCount(-1);
+//            ((PlaylistSupport) mmp).setShuffleEnabled(true);
 //            mmp.setControllerVisible(false);
             add(mmp);
         } catch (LoadException ex) {

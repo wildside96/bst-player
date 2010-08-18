@@ -92,27 +92,30 @@ public class QuickTimePlayer extends AbstractMediaPlayer implements MatrixSuppor
         resizeToVideoSize = false;
 
         playlistManager = new DelegatePlaylistManager(this);
-        loopManager = new LoopManager(false, new LoopManager.LoopCallback() {
+        loopManager = new LoopManager(true, new LoopManager.LoopCallback() {
 
             @Override
             public void onLoopFinished() {
-                try {
-                    playlistManager.playNext();
-                } catch (PlayException ex) {
-                    fireDebug("Play finished - " + playlistManager.getPlaylistIndex());
-                    firePlayStateEvent(PlayStateEvent.State.Finished,
-                            playlistManager.getPlaylistIndex());
-                }
+                fireDebug("Play finished - " + playlistManager.getPlaylistIndex());
+                firePlayStateEvent(PlayStateEvent.State.Finished,
+                        playlistManager.getPlaylistIndex());
             }
 
             @Override
             public void loopForever(boolean loop) {
-                impl.setLoopingImpl(loop);
+                impl.setLoopingImpl(loop); // TODO: this is repeatOne mode...
             }
 
             @Override
             public void playNextLoop() {
-                impl.play();
+                try {
+                    playlistManager.playNext(true);
+                } catch (PlayException ex) {}
+            }
+
+            @Override
+            public void playNextItem() throws PlayException {
+                playlistManager.playNext();
             }
         });
         handler = new QTStateManager.QTEventHandler() {
@@ -135,6 +138,7 @@ public class QuickTimePlayer extends AbstractMediaPlayer implements MatrixSuppor
                         firePlayStateEvent(PlayStateEvent.State.Started, playlistManager.getPlaylistIndex());
                         break;
                     case 4: // play finished, notify loop manager ...
+                        fireDebug("notifying play finished ...");
                         loopManager.notifyPlayFinished();
                         break;
                     case 5: // player ready ...

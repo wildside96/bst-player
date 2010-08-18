@@ -22,37 +22,89 @@ import com.bramosystems.oss.player.core.event.client.PlayerStateHandler;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+/**
+ * Provides Playlist emulation support for media plugins
+ *
+ * @since 1.2
+ * @author Sikiru
+ */
 public class DelegatePlaylistManager implements PlaylistSupport {
 
     private ArrayList<MRL> urls;
     private ArrayList<String> msgCache;
-    private AbstractMediaPlayer player;
+    private PlayerCallback callback;
     private PlaylistIndexOracle indexOracle;
     private int pIndex;
     private boolean useCache;
 
-    public DelegatePlaylistManager(AbstractMediaPlayer _player) {
-        player = _player;
-        player.addPlayerStateHandler(new PlayerStateHandler() {
+    public DelegatePlaylistManager() {
+        urls = new ArrayList<MRL>();
+        msgCache = new ArrayList<String>();
+        indexOracle = new PlaylistIndexOracle();
+        useCache = true;
+        callback = initCallback();
+    }
+
+    public DelegatePlaylistManager(final AbstractMediaPlayer _player) {
+        this();
+        callback = new PlayerCallback() {
+
+            @Override
+            public void play() throws PlayException {
+                _player.playMedia();
+            }
+
+            @Override
+            public void load(String url) {
+                try {
+                    _player.loadMedia(url);
+                } catch (LoadException ex) {
+                    onDebug(ex.getMessage());
+                }
+            }
+
+            @Override
+            public void onDebug(String message) {
+                DebugEvent.fire(_player, DebugEvent.MessageType.Info, message);
+            }
+        };
+        _player.addPlayerStateHandler(new PlayerStateHandler() {
 
             @Override
             public void onPlayerStateChanged(PlayerStateEvent event) {
                 switch (event.getPlayerState()) {
                     case Ready:
-                        if (msgCache != null) {
-                            useCache = false;
-                            for (String msg : msgCache) {
-                                DebugEvent.fire(player, DebugEvent.MessageType.Info, msg);
-                            }
-                            msgCache = null;
-                        }
+                        flushMessageCache();
                 }
             }
         });
-        urls = new ArrayList<MRL>();
-        msgCache = new ArrayList<String>();
-        indexOracle = new PlaylistIndexOracle();
-        useCache = true;
+    }
+
+    protected PlayerCallback initCallback() {
+        return new PlayerCallback() {
+
+            @Override
+            public void play() throws PlayException {
+            }
+
+            @Override
+            public void load(String url) {
+            }
+
+            @Override
+            public void onDebug(String message) {
+            }
+        };
+    }
+
+    protected void flushMessageCache() {
+        if (msgCache != null) {
+            useCache = false;
+            for (String msg : msgCache) {
+                callback.onDebug(msg);
+            }
+            msgCache = null;
+        }
     }
 
     @Override
@@ -99,12 +151,21 @@ public class DelegatePlaylistManager implements PlaylistSupport {
     @Override
     public void clearPlaylist() {
         urls.clear();
-        indexOracle.reset();
+        indexOracle.reset(false);
     }
 
     @Override
     public void playNext() throws PlayException {
-        int ind = indexOracle.suggestIndex(true, false);
+        playNext(false);
+    }
+
+    @Override
+    public void playPrevious() throws PlayException {
+        playPrevious(false);
+    }
+
+    public void playNext(boolean force) throws PlayException {
+        int ind = indexOracle.suggestIndex(true, force);
         if (ind < 0) {
             throw new PlayException("End of playlist");
         }
@@ -112,9 +173,8 @@ public class DelegatePlaylistManager implements PlaylistSupport {
         _playOrLoadMedia(ind, true);
     }
 
-    @Override
-    public void playPrevious() throws PlayException {
-        int ind = indexOracle.suggestIndex(false, false);
+    public void playPrevious(boolean force) throws PlayException {
+        int ind = indexOracle.suggestIndex(false, force);
         if (ind < 0) {
             throw new PlayException("Beginning of playlist reached");
         }
@@ -137,15 +197,15 @@ public class DelegatePlaylistManager implements PlaylistSupport {
      * @param index
      * @throws IndexOutOfBoundsException
      */
-    public void loadAlternative() {
+    public void loadAlternative() throws LoadException {
         try {
-            player.loadMedia(urls.get(indexOracle.getCurrentIndex()).getNextResource());
-        } catch (LoadException ex) {
-            _debug(ex.getMessage());
+            callback.load(urls.get(indexOracle.getCurrentIndex()).getNextResource(false));
+        } catch (Exception e) {
+            throw new LoadException(e.getMessage());
         }
     }
 
-    public void load(int index) throws IndexOutOfBoundsException {
+    public void load(int index) {
         try {
             indexOracle.setCurrentIndex(index);
             _playOrLoadMedia(index, false);
@@ -155,7 +215,7 @@ public class DelegatePlaylistManager implements PlaylistSupport {
     }
 
     public String getCurrentItem() {
-        return urls.get(indexOracle.getCurrentIndex()).getCurrentResource();
+        return urls.get(getPlaylistIndex()).getCurrentResource();
     }
 
     @Override
@@ -169,13 +229,9 @@ public class DelegatePlaylistManager implements PlaylistSupport {
     }
 
     private void _playOrLoadMedia(int index, boolean play) throws PlayException {
-        try {
-            player.loadMedia(urls.get(index).getNextResource());
-            if (play) {
-                player.playMedia();
-            }
-        } catch (LoadException ex) {
-            _debug(ex.getMessage());
+        callback.load(urls.get(index).getNextResource(true));
+        if (play) {
+            callback.play();
         }
     }
 
@@ -183,14 +239,22 @@ public class DelegatePlaylistManager implements PlaylistSupport {
         if (useCache) {
             msgCache.add(msg);
         } else {
-            DebugEvent.fire(player, DebugEvent.MessageType.Info, msg);
+            callback.onDebug(msg);
         }
+    }
+
+    public static interface PlayerCallback {
+
+        public void play() throws PlayException;
+
+        public void load(String url);
+
+        public void onDebug(String message);
     }
 
     private class MRL extends ArrayList<String> {
 
         private int index;
-        private boolean _decIndex;
 
         public MRL() {
             super();
@@ -200,13 +264,14 @@ public class DelegatePlaylistManager implements PlaylistSupport {
             addAll(Arrays.asList(urls));
         }
 
-        public String getNextResource() {
-            _decIndex = true;
-            return get(index++);
+        public String getNextResource(boolean roll) {
+            index++;
+            index = (roll && (index == size())) ? 0 : index;
+            return get(index);
         }
 
         public String getCurrentResource() {
-            return get(_decIndex ? index - 1 : index);
+            return get(index);
         }
     }
 }
