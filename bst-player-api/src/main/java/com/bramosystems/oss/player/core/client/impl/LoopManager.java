@@ -16,6 +16,8 @@
  */
 package com.bramosystems.oss.player.core.client.impl;
 
+import com.bramosystems.oss.player.core.client.PlayException;
+
 /**
  * Provides programmatic loop count management for players without native support
  *
@@ -78,8 +80,18 @@ public class LoopManager {
 
     /**
      * notifies this manager that the player just finished current loop
+     * TODO: handle playlist with looping in place...
      */
     public void notifyPlayFinished() {
+        // one item playback finished, try another item ...
+        try {
+            callback.playNextItem();
+        } catch (PlayException ex) {
+            checkLoop();
+        }
+    }
+
+    private void checkLoop() {
         if(handleLooping && (_count < 0)) {
             // loop continously, player has no support for it! initiate here...
             callback.playNextLoop();
@@ -95,6 +107,7 @@ public class LoopManager {
         }
     }
 
+    // TODO: check repeat mode ...
     public static interface LoopCallback {
 
         /**
@@ -112,5 +125,11 @@ public class LoopManager {
          * One loop finished, start another ...
          */
         public void playNextLoop();
+
+        /**
+         * Play next playlist item
+         * @throws PlayException if playlist has no more entries
+         */
+        public void playNextItem() throws PlayException;
     }
 }

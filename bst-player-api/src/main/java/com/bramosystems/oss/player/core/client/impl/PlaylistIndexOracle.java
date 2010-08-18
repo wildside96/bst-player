@@ -33,6 +33,10 @@ public class PlaylistIndexOracle {
         _usedRandomIndices = new HashSet<Integer>();
     }
 
+    public void setIndexSize(int _indexSize) {
+        this._indexSize = _indexSize;
+    }
+
     public void setRandomMode(boolean _randomMode) {
         this._randomMode = _randomMode;
     }
@@ -45,10 +49,13 @@ public class PlaylistIndexOracle {
         _indexSize++;
     }
 
-    public void reset() {
+    /**
+     * Clears all used indices and set currentIndex to zero
+     * @param usedIndicesOnly true to reset indices only
+     */
+    public void reset(boolean usedIndicesOnly) {
         _usedRandomIndices.clear();
-        _indexSize = 0;
-        _currentIndex = 0;
+        _currentIndex = usedIndicesOnly ? _currentIndex : 0;
     }
 
     public int getCurrentIndex() {
@@ -65,8 +72,20 @@ public class PlaylistIndexOracle {
         _indexSize--;
     }
 
+    /**
+     * suggest next playable index
+     * @param up suggest up/down
+     * @param canRepeat should rewind playlist or not
+     * @return index, -1 indicates end-of-playlist
+     */
     public int suggestIndex(boolean up, boolean canRepeat) {
-        _currentIndex = suggestIndexImpl(up);
+        if (_currentIndex < 0 && canRepeat) {  // prepare for another iteration ...
+            _usedRandomIndices.clear();
+            _currentIndex = up ? 0 : _indexSize;
+        } else {
+            _currentIndex = suggestIndexImpl(up);
+        }
+
         if (_randomMode) {
             int _count = 0;
             while (_usedRandomIndices.contains(_currentIndex)) {
@@ -81,12 +100,6 @@ public class PlaylistIndexOracle {
             if (_currentIndex == _indexSize) {
                 _currentIndex = -1;
             }
-        }
-
-        if (_currentIndex < 0 && canRepeat) {  // prepare for another iteration ...
-            _usedRandomIndices.clear();
-            _currentIndex = up ? 0 : _indexSize;
-            _currentIndex = suggestIndex(up, canRepeat);
         }
 
         if (_currentIndex >= 0) { // keep the used index ...

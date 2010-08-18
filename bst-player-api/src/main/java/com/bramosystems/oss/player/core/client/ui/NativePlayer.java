@@ -91,14 +91,15 @@ public class NativePlayer extends AbstractMediaPlayer implements PlaylistSupport
                 new LoopManager.LoopCallback() {
 
                     @Override
+                    public void playNextItem() throws PlayException {
+                        playlistManager.playNext();
+                    }
+
+                    @Override
                     public void onLoopFinished() {
-                        try {
-                            playlistManager.playNext();
-                        } catch (PlayException ex) {
-                            fireDebug("Play finished - " + playlistManager.getPlaylistIndex());
-                            firePlayStateEvent(PlayStateEvent.State.Finished, 
-                                    playlistManager.getPlaylistIndex());
-                        }
+                        fireDebug("Play finished - " + playlistManager.getPlaylistIndex());
+                        firePlayStateEvent(PlayStateEvent.State.Finished,
+                                playlistManager.getPlaylistIndex());
                     }
 
                     @Override
@@ -182,7 +183,11 @@ public class NativePlayer extends AbstractMediaPlayer implements PlaylistSupport
                                 fireError("ERROR: Media not supported! '"
                                         + playlistManager.getCurrentItem() + "'");
                                 fireDebug("Trying alternative playlist item ...");
-                                playlistManager.loadAlternative();
+                                try {
+                                    playlistManager.loadAlternative();
+                                } catch (LoadException ex) {
+                                    fireError("ERROR: No alternative media supported!");
+                                }
                                 break;
                         }
                         break;

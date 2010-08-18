@@ -79,26 +79,29 @@ public class DivXPlayer extends AbstractMediaPlayer implements PlaylistSupport {
         }
 
         playerId = DOM.createUniqueId().replace("-", "");
-        loopManager = new LoopManager(false, new LoopManager.LoopCallback() {
+        loopManager = new LoopManager(true, new LoopManager.LoopCallback() {
 
             @Override
             public void onLoopFinished() {
-                try {
-                    playlistManager.playNext();
-                } catch (PlayException ex) {
-                    fireDebug("Play finished");
-                    firePlayStateEvent(PlayStateEvent.State.Finished, playlistManager.getPlaylistIndex());
-                }
+                fireDebug("Play finished");
+                firePlayStateEvent(PlayStateEvent.State.Finished, playlistManager.getPlaylistIndex());
+            }
+
+            @Override
+            public void playNextItem() throws PlayException {
+                playlistManager.playNext();
             }
 
             @Override
             public void loopForever(boolean loop) {
-                impl.setLoop(loop);
+                impl.setLoop(loop); // TODO: repeatOne mode..
             }
 
             @Override
             public void playNextLoop() {
-                impl.playMedia();
+                try {
+                    playlistManager.playNext(true);
+                } catch (PlayException ex) {}
             }
         });
         manager = new DivXStateManager(playerId, new DivXStateManager.StateCallback() {
@@ -147,8 +150,8 @@ public class DivXPlayer extends AbstractMediaPlayer implements PlaylistSupport {
                         fireLoadingProgress(0);
                         break;
                     case 18: // DOWNLOAD_FAILED
-                        fireError("ERROR: Download failed - '" +
-                                playlistManager.getCurrentItem() + "'");
+                        fireError("ERROR: Download failed - '"
+                                + playlistManager.getCurrentItem() + "'");
                         loopManager.notifyPlayFinished();
                         break;
                     case 19: // DOWNLOAD_DONE
@@ -273,7 +276,7 @@ public class DivXPlayer extends AbstractMediaPlayer implements PlaylistSupport {
         }
 
         initWidget(panel);
-        
+
         fireDebug("DivX Web Player plugin");
         playlistManager.addToPlaylist(mediaURL);
     }
