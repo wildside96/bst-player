@@ -579,4 +579,24 @@ public abstract class AbstractMediaPlayer extends Composite implements HasMediaS
     public HandlerRegistration addKeyPressHandler(KeyPressHandler handler) {
         return addDomHandler(handler, KeyPressEvent.getType());
     }
+
+    /**
+     * Puts the player in the specified repeat mode.
+     *
+     * @param mode the new repeat mode
+     * @since 1.2
+     * @see RepeatMode
+     */
+    public void setRepeatMode(RepeatMode mode) {}
+
+    /**
+     * Returns the current playback repeat mode
+     *
+     * @return repeat mode
+     * @see RepeatMode
+     * @since 1.2
+     */
+    public RepeatMode getRepeatMode() {
+        return RepeatMode.REPEAT_OFF;
+    }
 }

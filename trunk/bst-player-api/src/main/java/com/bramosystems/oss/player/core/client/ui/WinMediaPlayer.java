@@ -28,7 +28,10 @@ import com.bramosystems.oss.player.core.client.PluginVersion;
 import com.bramosystems.oss.player.core.client.PluginVersionException;
 import com.bramosystems.oss.player.core.client.MediaInfo.MediaInfoKey;
 import com.bramosystems.oss.player.core.client.PlaylistSupport;
+import com.bramosystems.oss.player.core.client.RepeatMode;
 import com.bramosystems.oss.player.core.client.impl.BeforeUnloadCallback;
+import com.bramosystems.oss.player.core.client.impl.DelegatePlaylistManager;
+import com.bramosystems.oss.player.core.client.impl.LoopManager;
 import com.bramosystems.oss.player.core.client.impl.PlayerWidget;
 import com.bramosystems.oss.player.core.client.impl.PlayerWidgetFactory;
 import com.bramosystems.oss.player.core.client.impl.WMPStateManager;
@@ -37,6 +40,7 @@ import com.bramosystems.oss.player.core.event.client.DebugEvent;
 import com.bramosystems.oss.player.core.event.client.DebugHandler;
 import com.bramosystems.oss.player.core.event.client.MediaInfoEvent;
 import com.bramosystems.oss.player.core.event.client.MediaInfoHandler;
+import com.bramosystems.oss.player.core.event.client.PlayStateEvent;
 import com.bramosystems.oss.player.core.event.client.PlayerStateEvent;
 import com.bramosystems.oss.player.core.event.client.PlayerStateEvent.State;
 import com.google.gwt.core.client.GWT;
@@ -81,18 +85,19 @@ import com.google.gwt.user.client.ui.FlowPanel;
  *
  * @author Sikirulai Braheem
  */
-//public class WinMediaPlayer extends AbstractMediaPlayerWithPlaylist {
 public class WinMediaPlayer extends AbstractMediaPlayer implements PlaylistSupport {
 
     private static WMPStateManager stateManager;
     private WMPStateManager.EventProcessor eventProcessor;
     private WinMediaPlayerImpl impl;
     private PlayerWidget playerWidget;
-    private String playerId, mediaURL, _width, _height;
+    private String playerId, _width, _height;
     private Logger logger;
     private boolean isEmbedded, resizeToVideoSize;
     private UIMode uiMode;
     private Command autoplayCommand;
+    private WMPPlaylistManager playlistManager;
+    private LoopManager loopManager;
 
     private WinMediaPlayer(EmbedMode embedMode) throws PluginNotFoundException, PluginVersionException {
         if (embedMode.equals(EmbedMode.PROGRAMMABLE)
@@ -110,7 +115,42 @@ public class WinMediaPlayer extends AbstractMediaPlayer implements PlaylistSuppo
         if (stateManager == null) {
             stateManager = GWT.create(WMPStateManager.class);
         }
-        eventProcessor = stateManager.init(playerId, WinMediaPlayer.this);
+
+        playlistManager = new WMPPlaylistManager();
+        loopManager = new LoopManager(new LoopManager.LoopCallback() {
+
+            @Override
+            public void onLoopFinished() {
+                playlistManager.loadNext();
+                fireDebug("Media playback finished");
+                firePlayStateEvent(PlayStateEvent.State.Finished, playlistManager.getPlaylistIndex());
+            }
+
+            @Override
+            public void repeatPlay() {
+                playlistManager.play(playlistManager.getPlaylistIndex());
+            }
+
+            @Override
+            public void playNextLoop() {
+                try {
+                    playlistManager.playNext(true);
+                } catch (PlayException ex) {
+                }
+            }
+
+            @Override
+            public void playNextItem() throws PlayException {
+                playlistManager.playNext();
+            }
+        });
+        eventProcessor = stateManager.init(playerId, playlistManager, new WMPStateManager.WMPImplCallback() {
+
+            @Override
+            public WinMediaPlayerImpl getImpl() {
+                return impl;
+            }
+        });
         resizeToVideoSize = false;
     }
 
@@ -147,7 +187,6 @@ public class WinMediaPlayer extends AbstractMediaPlayer implements PlaylistSuppo
             EmbedMode embedMode)
             throws LoadException, PluginNotFoundException, PluginVersionException {
         this(embedMode);
-        this.mediaURL = mediaURL;
 
         _height = height;
         _width = width;
@@ -155,15 +194,15 @@ public class WinMediaPlayer extends AbstractMediaPlayer implements PlaylistSuppo
         FlowPanel panel = new FlowPanel();
         initWidget(panel);
 
-        playerWidget = new PlayerWidget(Plugin.WinMediaPlayer, playerId, mediaURL, false, 
+        playerWidget = new PlayerWidget(Plugin.WinMediaPlayer, playerId, "", false,
                 new BeforeUnloadCallback() {
 
-            @Override
-            public void onBeforeUnload() {
-                stateManager.close(playerId);
-                impl.close();
-            }
-        });
+                    @Override
+                    public void onBeforeUnload() {
+                        stateManager.close(playerId);
+                        impl.close();
+                    }
+                });
         panel.add(playerWidget);
 
         autoplayCommand = new Command() {
@@ -210,7 +249,9 @@ public class WinMediaPlayer extends AbstractMediaPlayer implements PlaylistSuppo
         }
         playerWidget.setSize(_width, _height);
         setWidth(_width);
+
         fireDebug("Windows Media Player plugin");
+        playlistManager.addToPlaylist(mediaURL);
     }
 
     /**
@@ -286,11 +327,10 @@ public class WinMediaPlayer extends AbstractMediaPlayer implements PlaylistSuppo
     private void setupPlayer(boolean replaceWidget) {
         if (replaceWidget) {
             eventProcessor.setEnabled(false);
-            playerWidget.replace(Plugin.WinMediaPlayer, playerId, mediaURL, false);
+            playerWidget.replace(Plugin.WinMediaPlayer, playerId, playlistManager.getCurrentItem(), false);
         }
 
         impl = WinMediaPlayerImpl.getPlayer(playerId);
-        eventProcessor.setPlayerImpl(impl);
         stateManager.registerMediaStateHandlers(impl);
         eventProcessor.setEnabled(true);
         if (uiMode != null) {
@@ -306,7 +346,8 @@ public class WinMediaPlayer extends AbstractMediaPlayer implements PlaylistSuppo
         setupPlayer(false);
         fireDebug("Plugin Version : " + impl.getPlayerVersion());
         firePlayerStateEvent(PlayerStateEvent.State.Ready);
-        autoplayCommand.execute();
+        playlistManager.load(0);
+//        autoplayCommand.execute();
     }
 
     @Override
@@ -414,11 +455,7 @@ public class WinMediaPlayer extends AbstractMediaPlayer implements PlaylistSuppo
     @Override
     public int getLoopCount() {
         checkAvailable();
-        if (impl.isModeEnabled(PlayerMode.loop.name())) {
-            return -1;
-        } else {
-            return impl.getPlayCount();
-        }
+        return loopManager.getLoopCount();
     }
 
     /**
@@ -426,37 +463,19 @@ public class WinMediaPlayer extends AbstractMediaPlayer implements PlaylistSuppo
      *
      * <p>As of version 1.0, if this player is not available on the panel, this method
      * call is added to the command-queue for later execution.
-     *
-     * <p><b>Note:</b> Setting <code>loop</code> to a negative value sets <code>loopCount</code>
-     * to <code>Short.MAX_VALUE</code> in non-IE browsers
      */
     @Override
     public void setLoopCount(final int loop) {
         if (isAvailable()) {
-            setLoopCountImpl(loop);
+            loopManager.setLoopCount(loop);
         } else {
             addToPlayerReadyCommandQueue("loopcount", new Command() {
 
                 @Override
                 public void execute() {
-                    setLoopCountImpl(loop);
+                    loopManager.setLoopCount(loop);
                 }
             });
-        }
-    }
-
-    private void setLoopCountImpl(int loop) {
-        if (loop < 0) { // loop forever ...
-            if (stateManager.isSetModeSupported()) {
-                impl.enableMode(PlayerMode.loop.name(), true);
-//                impl.getSettings().setPlayCount(0);
-            } else { // set play count to a high value ;-)
-                impl.setPlayCount(Short.MAX_VALUE);
-                // TODO: find workaround for totem plugin, this does no work
-            }
-        } else {
-            impl.enableMode(PlayerMode.loop.name(), false);
-            impl.setPlayCount(loop);
         }
     }
 
@@ -492,9 +511,9 @@ public class WinMediaPlayer extends AbstractMediaPlayer implements PlaylistSuppo
         if (resizeToVideoSize) {
             if ((vidHeight > 0) && (vidWidth > 0)) {
                 // adjust to video size ...
-                fireDebug("Resizing Player : " + vidWidth + " x " + vidHeight);
                 _w = vidWidth + "px";
                 _h = vidHeight + "px";
+                fireDebug("Resizing Player : " + _w + " x " + _h);
             }
         }
 
@@ -503,16 +522,9 @@ public class WinMediaPlayer extends AbstractMediaPlayer implements PlaylistSuppo
 
         if (!_height.equals(_h) && !_width.equals(_w)) {
             if (stateManager.shouldRunResizeQuickFix()) {
-                // get important parameters ...
-                int playCount = impl.getPlayCount();
-                boolean isLooping = impl.isModeEnabled(PlayerMode.loop.name());
-                
+                // TODO check this properly 
                 setupPlayer(true); // replace player ...
-
-                // apply previous parameters ...
-                impl.setPlayCount(playCount);
-                impl.enableMode(PlayerMode.loop.name(), isLooping);
-                impl.play();  // continue playback ...
+                playlistManager.play(playlistManager.getPlaylistIndex());
             }
             firePlayerStateEvent(State.DimensionChangedOnVideo);
         }
@@ -648,13 +660,13 @@ public class WinMediaPlayer extends AbstractMediaPlayer implements PlaylistSuppo
     @Override
     public void setShuffleEnabled(final boolean enable) {
         if (isPlayerOnPage(playerId)) {
-            eventProcessor.setShuffleEnabled(enable);
+            playlistManager.setShuffleEnabled(enable);
         } else {
             addToPlayerReadyCommandQueue("shuffle", new Command() {
 
                 @Override
                 public void execute() {
-                    eventProcessor.setShuffleEnabled(enable);
+                    playlistManager.setShuffleEnabled(enable);
                 }
             });
         }
@@ -663,48 +675,58 @@ public class WinMediaPlayer extends AbstractMediaPlayer implements PlaylistSuppo
     @Override
     public boolean isShuffleEnabled() {
         checkAvailable();
-        return eventProcessor.isShuffleEnabled();
+        return playlistManager.isShuffleEnabled();
     }
 
     @Override
     public void addToPlaylist(String mediaURL) {
-        eventProcessor.addToPlaylist(mediaURL);
+        playlistManager.addToPlaylist(mediaURL);
     }
 
     @Override
     public void removeFromPlaylist(int index) {
         checkAvailable();
-        eventProcessor.removeFromPlaylist(index);
+        playlistManager.removeFromPlaylist(index);
     }
 
     @Override
     public void clearPlaylist() {
         checkAvailable();
-        eventProcessor.clearPlaylist();
+        playlistManager.clearPlaylist();
     }
 
     @Override
     public void playNext() throws PlayException {
         checkAvailable();
-        eventProcessor.playNext();
+        playlistManager.playNext();
     }
 
     @Override
     public void playPrevious() throws PlayException {
         checkAvailable();
-        eventProcessor.playPrevious();
+        playlistManager.playPrevious();
     }
 
     @Override
     public void play(int index) throws IndexOutOfBoundsException {
         checkAvailable();
-        eventProcessor.play(index);
+        playlistManager.play(index);
     }
 
     @Override
     public int getPlaylistSize() {
         checkAvailable();
-        return eventProcessor.getPlaylistSize();
+        return playlistManager.getPlaylistSize();
+    }
+
+    @Override
+    public RepeatMode getRepeatMode() {
+        return loopManager.getRepeatMode();
+    }
+
+    @Override
+    public void setRepeatMode(RepeatMode mode) {
+        loopManager.setRepeatMode(mode);
     }
 
     /**
@@ -788,24 +810,94 @@ public class WinMediaPlayer extends AbstractMediaPlayer implements PlaylistSuppo
         PROGRAMMABLE
     }
 
-    private enum PlayerMode {
+    private class WMPPlaylistManager extends DelegatePlaylistManager
+            implements WMPStateManager.WMPEventCallback {
 
-        /**
-         * Restart playlist at the beginning after playing to the end
-         */
-        autoRewind,
-        /**
-         * Repeat playlist
-         */
-        loop,
-        /**
-         * Display the nearest key frame at the current position when
-         * not playing.  This mode is not applicable to audio media.
-         */
-        //        showFrame,
-        /**
-         * Play tracks in random order
-         */
-        shuffle
+        private boolean ready, playOnReady;
+
+        public WMPPlaylistManager() {
+        }
+
+        @Override
+        protected PlayerCallback initCallback() {
+            return new PlayerCallback() {
+
+                @Override
+                public void play() throws PlayException {
+                    if (ready) {
+                        impl.play();
+                    }
+                }
+
+                @Override
+                public void load(String url) {
+                    playOnReady = true;
+                    impl.setURL(url);
+                }
+
+                @Override
+                public void onDebug(String message) {
+                    fireDebug(message);
+                }
+            };
+        }
+
+        @Override
+        public void onLoadingProgress(double progress) {
+            fireLoadingProgress(progress);
+        }
+
+        @Override
+        public void onError(String message) {
+            fireError(message);
+        }
+
+        @Override
+        public void onInfo(String message) {
+            fireDebug(message);
+        }
+
+        @Override
+        public void onBuffering(boolean started) {
+            firePlayerStateEvent(started ? State.BufferingStarted : State.BufferingFinished);
+        }
+
+        @Override
+        public void onStop() {
+            firePlayStateEvent(PlayStateEvent.State.Stopped, 0);
+        }
+
+        @Override
+        public void onPlay() {
+            firePlayStateEvent(PlayStateEvent.State.Started, 0);
+        }
+
+        @Override
+        public void onPaused() {
+            firePlayStateEvent(PlayStateEvent.State.Paused, 0);
+        }
+
+        @Override
+        public void onEnded() {
+            loopManager.notifyPlayFinished();
+        }
+
+        @Override
+        public void onMediaInfo(MediaInfo info) {
+            fireMediaInfoAvailable(info);
+        }
+
+        @Override
+        public void onOpening() {
+            ready = false;
+        }
+
+        @Override
+        public void onReady() {
+            ready = true;
+            if (playOnReady) {
+                impl.play();
+            }
+        }
     }
 }

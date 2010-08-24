@@ -79,7 +79,7 @@ public class DivXPlayer extends AbstractMediaPlayer implements PlaylistSupport {
         }
 
         playerId = DOM.createUniqueId().replace("-", "");
-        loopManager = new LoopManager(true, new LoopManager.LoopCallback() {
+        loopManager = new LoopManager(new LoopManager.LoopCallback() {
 
             @Override
             public void onLoopFinished() {
@@ -93,8 +93,8 @@ public class DivXPlayer extends AbstractMediaPlayer implements PlaylistSupport {
             }
 
             @Override
-            public void loopForever(boolean loop) {
-                impl.setLoop(loop); // TODO: repeatOne mode..
+            public void repeatPlay() {
+                playlistManager.play(playlistManager.getPlaylistIndex());
             }
 
             @Override
@@ -683,6 +683,16 @@ public class DivXPlayer extends AbstractMediaPlayer implements PlaylistSupport {
     public int getPlaylistSize() {
         checkAvailable();
         return playlistManager.getPlaylistSize();
+    }
+
+    @Override
+    public RepeatMode getRepeatMode() {
+        return loopManager.getRepeatMode();
+    }
+
+    @Override
+    public void setRepeatMode(RepeatMode mode) {
+        loopManager.setRepeatMode(mode);
     }
 
     private static enum SeekMethod {

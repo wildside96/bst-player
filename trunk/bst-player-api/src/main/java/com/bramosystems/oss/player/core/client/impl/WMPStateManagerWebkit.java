@@ -33,12 +33,12 @@ public class WMPStateManagerWebkit extends WMPStateManager {
 
 //    @Override
     public void init(WinMediaPlayerImpl player, WinMediaPlayer handler, boolean resizing) {
-        cache.put(player.getPlayerId(), new PoolingStateManager(player, handler, resizing));
+//        cache.put(player.getPlayerId(), new PoolingStateManager(player, handler, resizing));
     }
 
     @Override
     public void close(String playerId) {
-        ((PoolingStateManager) cache.get(playerId)).close();
+//        ((PoolingStateManager) cache.get(playerId)).close();
         cache.remove(playerId);
     }
 
@@ -54,13 +54,13 @@ public class WMPStateManagerWebkit extends WMPStateManager {
 
     @Override
     public void stop(String playerId) {
-        ((PoolingStateManager) cache.get(playerId)).stoppedByUser = true;
+//        ((PoolingStateManager) cache.get(playerId)).stoppedByUser = true;
     }
 
     /*
      * Override generic implementation to pool for WMP play state instead,
      * player not generating events as expected.
-     */
+     *
     protected class PoolingStateManager extends EventProcessor {
 
         private Timer playStateTimer;
@@ -148,4 +148,6 @@ public class WMPStateManagerWebkit extends WMPStateManager {
             playStateTimer.cancel();
         }
     }
+
+    */
 }

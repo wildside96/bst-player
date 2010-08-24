@@ -92,18 +92,18 @@ public class QuickTimePlayer extends AbstractMediaPlayer implements MatrixSuppor
         resizeToVideoSize = false;
 
         playlistManager = new DelegatePlaylistManager(this);
-        loopManager = new LoopManager(true, new LoopManager.LoopCallback() {
+        loopManager = new LoopManager(new LoopManager.LoopCallback() {
 
             @Override
             public void onLoopFinished() {
-                fireDebug("Play finished - " + playlistManager.getPlaylistIndex());
+                playlistManager.loadNext();
                 firePlayStateEvent(PlayStateEvent.State.Finished,
                         playlistManager.getPlaylistIndex());
             }
 
             @Override
-            public void loopForever(boolean loop) {
-                impl.setLoopingImpl(loop); // TODO: this is repeatOne mode...
+            public void repeatPlay() {
+                playlistManager.play(playlistManager.getPlaylistIndex());
             }
 
             @Override
@@ -138,7 +138,6 @@ public class QuickTimePlayer extends AbstractMediaPlayer implements MatrixSuppor
                         firePlayStateEvent(PlayStateEvent.State.Started, playlistManager.getPlaylistIndex());
                         break;
                     case 4: // play finished, notify loop manager ...
-                        fireDebug("notifying play finished ...");
                         loopManager.notifyPlayFinished();
                         break;
                     case 5: // player ready ...
@@ -746,6 +745,16 @@ public class QuickTimePlayer extends AbstractMediaPlayer implements MatrixSuppor
     public int getPlaylistSize() {
         checkAvailable();
         return playlistManager.getPlaylistSize();
+    }
+
+    @Override
+    public RepeatMode getRepeatMode() {
+        return loopManager.getRepeatMode();
+    }
+
+    @Override
+    public void setRepeatMode(RepeatMode mode) {
+        loopManager.setRepeatMode(mode);
     }
 
     /**

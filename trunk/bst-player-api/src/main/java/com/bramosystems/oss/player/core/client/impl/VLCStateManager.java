@@ -16,23 +16,27 @@
 package com.bramosystems.oss.player.core.client.impl;
 
 import com.bramosystems.oss.player.core.client.*;
-import com.bramosystems.oss.player.core.event.client.PlayStateEvent;
 import com.bramosystems.oss.player.core.event.client.PlayStateEvent.State;
 import com.google.gwt.user.client.Timer;
 
 public class VLCStateManager {
 
-    private VLCStateCallback callback;
+    protected VLCStateCallback _callback;
+    protected VLCPlayerImplCallback _impl;
     private PoollingStateManager stateMgr;
     private VLCPlaylistManager playlistMgr;
 
-    public VLCStateManager(VLCStateCallback callback, VLCPlayerImplCallback _impl) {
-        this.callback = callback;
-        stateMgr = new PoollingStateManager(_impl);
-        playlistMgr = new VLCPlaylistManager(_impl, callback);
+    public VLCStateManager() {
     }
 
-    public void start() {
+    public final void init(VLCStateCallback callback, VLCPlayerImplCallback impl) {
+        this._callback = callback;
+        this._impl = impl;
+        playlistMgr = new VLCPlaylistManager(_impl, _callback);
+    }
+
+    public void registerEventCallbacks() {
+        stateMgr = new PoollingStateManager();
         stateMgr.start();
         playlistMgr.flushMessageCache();
     }
@@ -51,10 +55,8 @@ public class VLCStateManager {
         private int _previousState, _metaDataWaitCount, _previousIndex;
         private boolean _isBuffering;
         private Timer _timer;
-        private VLCPlayerImplCallback _impl;
 
-        public PoollingStateManager(VLCPlayerImplCallback impl) {
-            _impl = impl;
+        public PoollingStateManager() {
             _previousState = -20;
             _previousIndex = -1;
             _timer = new Timer() {
@@ -82,31 +84,28 @@ public class VLCStateManager {
                 if ((_metaDataWaitCount > 0) && (--_metaDataWaitCount <= 0)) {
                     MediaInfo info = new MediaInfo();
                     _impl.getImpl().fillMediaInfo(info);
-                    callback.onMediaInfo(info);
+                    _callback.onMediaInfo(info);
                 }
                 return;
             }
-
-            //TODO: remove b4 release ...
-            callback.onInfo("state : " + state + ", index : " + _index);
 
             switch (state) {
                 case -1:   // no input yet...
                     break;
                 case 0:    // idle/close
-                    callback.onIdle();
+                    _callback.onIdle();
                     break;
                 case 1:    // opening media
-                    callback.onOpening(_index);
+                    _callback.onOpening(_index);
                     break;
                 case 2:    // buffering
                     _isBuffering = true;
-                    callback.onBuffering(true);
+                    _callback.onBuffering(true);
                     break;
                 case 3:    // playing
                     if (_isBuffering) {
                         _isBuffering = false;
-                        callback.onBuffering(false);
+                        _callback.onBuffering(false);
                     }
 
                     if (_index != _previousIndex) {
@@ -114,109 +113,33 @@ public class VLCStateManager {
                     }
                     playlistMgr.setCurrentState(State.Started);
                     playlistMgr.setStoppedByUser(false);
-                    callback.onPlaying(_index);
+                    _callback.onPlaying(_index);
                     //                    loadingComplete();
                     break;
                 case 4:    // paused
                     playlistMgr.setCurrentState(State.Paused);
-                    callback.onPaused(_index);
+                    _callback.onPaused(_index);
                     break;
                 case 5:    // stopping
-                    callback.onInfo("stopping ...");
+                    _callback.onInfo("stopping ...");
                     break;
                 case 6:    // finished
                     if (playlistMgr.isStoppedByUser()) {
                         playlistMgr.setCurrentState(State.Stopped);
-                        callback.onStopped(_index);
+                        _callback.onStopped(_index);
                     } else {
                         playlistMgr.setCurrentState(State.Finished);
-                        callback.onEndReached(_index);
+                        _callback.onEndReached(_index);
                     }
                     break;
                 case 7:    // error
                     break;
                 default:    // unknown state ...
-                    callback.onInfo("[unknown state] " + state);
+                    _callback.onInfo("[unknown state] " + state);
             }
             _previousState = state;
             _previousIndex = _index;
         }
-    }
-
-    public static class VLCPlaylistManager extends DelegatePlaylistManager {
-
-        private VLCStateCallback _callback;
-        private VLCPlayerImplCallback _impl;
-        private boolean stoppedByUser;
-        private PlayStateEvent.State _currentState;
-        private int _vlcItemIndex;
-
-        VLCPlaylistManager(VLCPlayerImplCallback impl, VLCStateCallback callback) {
-            _impl = impl;
-            _callback = callback;
-            _currentState = PlayStateEvent.State.Stopped;
-        }
-
-        @Override
-        protected PlayerCallback initCallback() {
-            return new PlayerCallback() {
-
-                @Override
-                public void play() throws PlayException {
-                    _impl.getImpl().playMediaAt(_vlcItemIndex);
-                }
-
-                @Override
-                public void load(String url) {
-                    _impl.getImpl().clearPlaylist();
-                    _vlcItemIndex = _impl.getImpl().addToPlaylist(url);
-                }
-
-                @Override
-                public void onDebug(String message) {
-                    _callback.onInfo(message);
-                }
-            };
-        }
-
-        public void setCurrentState(State currentState) {
-            _currentState = currentState;
-        }
-
-        void setStoppedByUser(boolean stoppedByUser) {
-            this.stoppedByUser = stoppedByUser;
-        }
-
-        boolean isStoppedByUser() {
-            return stoppedByUser;
-        }
-
-        public void play() throws PlayException {
-            switch (_currentState) {
-                case Paused:
-                    _impl.getImpl().togglePause();
-                    break;
-                case Finished:
-                    playNext(true);
-                    break;
-                case Stopped:
-                    play(getPlaylistIndex());
-            }
-        }
-
-        public void stop() {
-            stoppedByUser = true;
-            _impl.getImpl().stop();
-        }
-/*
-        public void addToPlaylist(String mediaUrl, String options) {
-            _indexCache.add(options == null ? _impl.addToPlaylist(mediaUrl)
-                    : _impl.addToPlaylist(mediaUrl, options));
-            _callback.onInfo("Added '" + mediaUrl + "' to playlist"
-                    + (options == null ? "" : " with options [" + options + "]"));
-            _indexOracle.incrementIndexSize();
-        }
-*/
     }
 
     public static interface VLCStateCallback {
@@ -248,7 +171,7 @@ public class VLCStateManager {
     }
 
     public static interface VLCPlayerImplCallback {
+
         public VLCPlayerImpl getImpl();
     }
-
 }

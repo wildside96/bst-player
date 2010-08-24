@@ -17,6 +17,7 @@
 package com.bramosystems.oss.player.core.client.impl;
 
 import com.bramosystems.oss.player.core.client.PlayException;
+import com.bramosystems.oss.player.core.client.RepeatMode;
 
 /**
  * Provides programmatic loop count management for players without native support
@@ -28,19 +29,17 @@ public class LoopManager {
 
     private int loopCount, _count;
     private LoopCallback callback;
-    private boolean handleLooping, looping;
+    private RepeatMode repeatMode;
 
     /**
      *
-     * @param handleLooping true if manager should handle continous looping or false
-     * if player has support for it
      * @param callback the callback
      */
-    public LoopManager(boolean handleLooping, LoopCallback callback) {
+    public LoopManager(LoopCallback callback) {
         this.callback = callback;
-        this.handleLooping = handleLooping;
         loopCount = 1;
         _count = loopCount;
+        repeatMode = RepeatMode.REPEAT_OFF;
     }
 
     /**
@@ -49,9 +48,6 @@ public class LoopManager {
      * @return
      */
     public int getLoopCount() {
-        if (looping) {
-            return -1;
-        }
         return loopCount;
     }
 
@@ -63,63 +59,87 @@ public class LoopManager {
     public void setLoopCount(int loopCount) {
         this.loopCount = loopCount;
         _count = loopCount;
-        boolean toLoop = loopCount < 0;
-        if (looping && !toLoop) {
-            // we're looping already & we wanna loop no more ...
-            looping = false;
-            if (!handleLooping) { // tell player to loopForever no more
-                callback.loopForever(false);
-            }
-        } else if (toLoop) { // we wanna loop now...
-            looping = true;
-            if (!handleLooping) {   // tell player to loopForever
-                callback.loopForever(true);
-            }
+        if (loopCount < 0) {
+            repeatMode = RepeatMode.REPEAT_ALL;
         }
     }
 
     /**
      * notifies this manager that the player just finished current loop
-     * TODO: handle playlist with looping in place...
      */
     public void notifyPlayFinished() {
-        // one item playback finished, try another item ...
+        switch (repeatMode) {
+            case REPEAT_OFF: // one item playback finished, try another item ...
+                playNextOrFinish();
+                break;
+            case REPEAT_ONE: // one item playback finished, play it again ...
+                if (loopCount <= 1) {
+                    callback.repeatPlay();
+                } else {
+                    _count--;
+                    if (_count > 0) {
+                        callback.repeatPlay();
+                    } else {
+                        _count = loopCount;
+                        playNextOrFinish();
+                    }
+                }
+                break;
+            case REPEAT_ALL: // one item playback finished, try another and/or start over ...
+                if (loopCount <= 1) {
+                    playNextOrLoop();
+                } else {
+                    if (_count > 1) {
+                        _count = playNextOrLoop() ? _count : _count - 1;
+                    } else {
+                        _count = playNextOrFinish() ? _count : loopCount;
+                    }
+                }
+        }
+    }
+
+    public RepeatMode getRepeatMode() {
+        return repeatMode;
+    }
+
+    public void setRepeatMode(RepeatMode repeatMode) {
+        this.repeatMode = repeatMode;
+    }
+
+    /**
+     *
+     * @return true if next is played or false if loop is finished
+     */
+    private boolean playNextOrFinish() {
         try {
             callback.playNextItem();
-        } catch (PlayException ex) {
-            checkLoop();
-        }
-    }
-
-    private void checkLoop() {
-        if(handleLooping && (_count < 0)) {
-            // loop continously, player has no support for it! initiate here...
-            callback.playNextLoop();
-            return;
-        }
-
-        _count--;
-        if (_count <= 0) {
-            _count = loopCount;
+            return true;
+        } catch (PlayException ex) { // no more entries in list ....
             callback.onLoopFinished();
-        } else {
-            callback.playNextLoop();
+            return false;
         }
     }
 
-    // TODO: check repeat mode ...
+    /**
+     *
+     * @return true if next is played or false otherwise if looping the list...
+     */
+    private boolean playNextOrLoop() {
+        try {
+            callback.playNextItem();
+            return true;
+        } catch (PlayException ex) {
+            callback.playNextLoop();
+            return false;
+        }
+    }
+
     public static interface LoopCallback {
 
         /**
-         * all loops finished
+         * all loop playback finished
          */
         public void onLoopFinished();
-
-        /**
-         * put player in looping mode
-         * @param loop
-         */
-        public void loopForever(boolean loop);
 
         /**
          * One loop finished, start another ...
@@ -131,5 +151,10 @@ public class LoopManager {
          * @throws PlayException if playlist has no more entries
          */
         public void playNextItem() throws PlayException;
+
+        /**
+         * repeat playback of current item
+         */
+        public void repeatPlay();
     }
 }

@@ -26,6 +26,7 @@ import com.bramosystems.oss.player.core.client.PlayerUtil;
 import com.bramosystems.oss.player.core.client.PlaylistSupport;
 import com.bramosystems.oss.player.core.client.Plugin;
 import com.bramosystems.oss.player.core.client.PluginNotFoundException;
+import com.bramosystems.oss.player.core.client.RepeatMode;
 import com.bramosystems.oss.player.core.client.impl.DelegatePlaylistManager;
 import com.bramosystems.oss.player.core.client.impl.LoopManager;
 import com.bramosystems.oss.player.core.client.impl.NativePlayerImpl;
@@ -87,31 +88,30 @@ public class NativePlayer extends AbstractMediaPlayer implements PlaylistSupport
         playerId = DOM.createUniqueId().replace("-", "");
         adjustToVideoSize = false;
         playlistManager = new DelegatePlaylistManager(this);
-        loopManager = new LoopManager(!NativePlayerUtil.get.isLoopingSupported(),
-                new LoopManager.LoopCallback() {
+        loopManager = new LoopManager(new LoopManager.LoopCallback() {
 
-                    @Override
-                    public void playNextItem() throws PlayException {
-                        playlistManager.playNext();
-                    }
+            @Override
+            public void playNextItem() throws PlayException {
+                playlistManager.playNext();
+            }
 
-                    @Override
-                    public void onLoopFinished() {
-                        fireDebug("Play finished - " + playlistManager.getPlaylistIndex());
-                        firePlayStateEvent(PlayStateEvent.State.Finished,
-                                playlistManager.getPlaylistIndex());
-                    }
+            @Override
+            public void onLoopFinished() {
+                fireDebug("Play finished - " + playlistManager.getPlaylistIndex());
+                firePlayStateEvent(PlayStateEvent.State.Finished,
+                        playlistManager.getPlaylistIndex());
+            }
 
-                    @Override
-                    public void loopForever(boolean loop) {
-                        impl.setLooping(loop);
-                    }
+            @Override
+            public void repeatPlay() {
+                playlistManager.play(playlistManager.getPlaylistIndex());
+            }
 
-                    @Override
-                    public void playNextLoop() {
-                        impl.play();
-                    }
-                });
+            @Override
+            public void playNextLoop() {
+                impl.play();
+            }
+        });
         _callback = new NativePlayerUtil.NativeEventCallback() {
 
             @Override
@@ -593,6 +593,16 @@ public class NativePlayer extends AbstractMediaPlayer implements PlaylistSupport
     public int getPlaylistSize() {
         checkAvailable();
         return playlistManager.getPlaylistSize();
+    }
+
+    @Override
+    public RepeatMode getRepeatMode() {
+        return loopManager.getRepeatMode();
+    }
+
+    @Override
+    public void setRepeatMode(RepeatMode mode) {
+        loopManager.setRepeatMode(mode);
     }
 
     private enum NetworkState {

@@ -15,19 +15,7 @@
  */
 package com.bramosystems.oss.player.core.client.impl;
 
-import com.bramosystems.oss.player.core.client.PlayException;
-import com.bramosystems.oss.player.core.event.client.PlayerStateEvent;
-import com.bramosystems.oss.player.core.event.client.PlayStateEvent;
-import com.bramosystems.oss.player.core.event.client.MediaInfoEvent;
-import com.bramosystems.oss.player.core.event.client.LoadingProgressEvent;
-import com.bramosystems.oss.player.core.event.client.DebugEvent;
 import com.bramosystems.oss.player.core.client.MediaInfo;
-import com.bramosystems.oss.player.core.client.PlaylistSupport;
-import com.bramosystems.oss.player.core.client.ui.WinMediaPlayer;
-import com.google.gwt.dom.client.Document;
-import com.google.gwt.dom.client.Element;
-import com.google.gwt.dom.client.NativeEvent;
-import com.google.gwt.event.dom.client.DomEvent;
 import com.google.gwt.user.client.Timer;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -48,8 +36,8 @@ public class WMPStateManager {
         initGlobalEventListeners(this);
     }
 
-    public EventProcessor init(String playerId, WinMediaPlayer handler) {
-        EventProcessor sm = new EventProcessor(handler);
+    public EventProcessor init(String playerId, WMPEventCallback handler, WMPImplCallback impl) {
+        EventProcessor sm = new EventProcessor(handler, impl);
         cache.put(playerId, sm);
         return sm;
     }
@@ -76,10 +64,6 @@ public class WMPStateManager {
         // do nothing, workaround for webkit implementation...
     }
 
-    public boolean isSetModeSupported() {
-        return false;
-    }
-
     @SuppressWarnings("unused")
     private void firePlayStateChanged() {
         Iterator<String> keys = cache.keySet().iterator();
@@ -102,7 +86,7 @@ public class WMPStateManager {
         Iterator<String> keys = cache.keySet().iterator();
         while (keys.hasNext()) {
             String id = keys.next();
-            cache.get(id).doClickMouseEvents(type, button, shiftState, fX, fY);
+//            cache.get(id).doClickMouseEvents(type, button, shiftState, fX, fY);
         }
     }
 
@@ -157,30 +141,25 @@ public class WMPStateManager {
         // do nothing, provided for DOM event registration in IE.
     }
 
-    public class EventProcessor implements PlaylistSupport {
+    public class EventProcessor {
 
-        protected WinMediaPlayer handlers;
-        protected WinMediaPlayerImpl player;
         private boolean enabled;
         private Timer downloadProgressTimer;
-        private DelegatePlaylistManager playlistManager;
         private String _mURL = "-", _oURL = "";
+        private WMPEventCallback _callback;
+        private WMPImplCallback _impl;
 
-        public EventProcessor(WinMediaPlayer _handlers) {
-            handlers = _handlers;
+        public EventProcessor(WMPEventCallback callback, WMPImplCallback impl) {
+            _callback = callback;
+            _impl = impl;
             enabled = false;
-            playlistManager = new DelegatePlaylistManager(handlers);
             downloadProgressTimer = new Timer() {
 
                 @Override
                 public void run() {
-                    LoadingProgressEvent.fire(handlers, player.getDownloadProgress());
+                    _callback.onLoadingProgress(_impl.getImpl().getDownloadProgress());
                 }
             };
-        }
-
-        public void setPlayerImpl(WinMediaPlayerImpl player) {
-            this.player = player;
         }
 
         public void setEnabled(boolean enabled) {
@@ -192,7 +171,7 @@ public class WMPStateManager {
                 return;
             }
 
-            int state = player.getPlayState();
+            int state = _impl.getImpl().getPlayState();
             if (state < 0) {
                 return;
             }
@@ -201,54 +180,55 @@ public class WMPStateManager {
         }
 
         public void onError(String message) {
-            DebugEvent.fire(handlers, DebugEvent.MessageType.Error, message);
+            _callback.onError(message);
         }
 
         public void debug(String msg) {
-            DebugEvent.fire(handlers, DebugEvent.MessageType.Info, msg);
+            _callback.onInfo(msg);
         }
 
         public void doBuffering(boolean buffering) {
-            PlayerStateEvent.fire(handlers,
-                    buffering ? PlayerStateEvent.State.BufferingStarted : PlayerStateEvent.State.BufferingFinished);
+            _callback.onBuffering(buffering);
 
             debug("Buffering " + (buffering ? " started" : " stopped"));
             if (buffering) {
-                downloadProgressTimer.scheduleRepeating(1000);
+                downloadProgressTimer.scheduleRepeating(250);
             } else {
                 downloadProgressTimer.cancel();
-                LoadingProgressEvent.fire(handlers, 1.0);
+                _callback.onLoadingProgress(1.0);
                 debug("Media loading complete");
             }
         }
 
         protected void processPlayState(int state) {
+                    debug("state : " + state);
             switch (state) {
                 case 1:    // stopped..
                     debug("Media playback stopped");
-                    PlayStateEvent.fire(handlers, PlayStateEvent.State.Stopped, 0);
+                    _callback.onStop();
                     break;
                 case 2:    // paused..
                     debug("Media playback paused");
-                    PlayStateEvent.fire(handlers, PlayStateEvent.State.Paused, 0);
+                    _callback.onPaused();
                     break;
                 case 3:    // playing..
-                    PlayStateEvent.fire(handlers, PlayStateEvent.State.Started, 0);
-                    _mURL = player.getCurrentMediaURL();
+                    _callback.onPlay();
+                    _mURL = _impl.getImpl().getCurrentMediaURL();
                     if (!_oURL.equals(_mURL)) { // new media ...
                         doMetadata();        // do metadata ...
                     }
                     _oURL = _mURL;
                     break;
                 case 8:    // media ended...
-                    PlayStateEvent.fire(handlers, PlayStateEvent.State.Finished, 0);
-                    debug("Media playback finished");
-                    break;
-                case 6:    // buffering ...
-                    debug("Buffering...");
+                    _callback.onEnded();
                     break;
                 case 9:     // preparing new item ...
+                    _callback.onOpening();
+                    break;
                 case 10:    // player ready, ...
+                    _callback.onReady();
+                    break;
+                case 6:    // buffering ...
                 case 11:    // reconnecting to stream  ...
                     break;
             }
@@ -256,7 +236,7 @@ public class WMPStateManager {
 
         public void checkError() {
             if (enabled) {
-                onError(player.getErrorDiscription());
+                onError(_impl.getImpl().getErrorDiscription());
             }
         }
 
@@ -265,14 +245,14 @@ public class WMPStateManager {
 
             MediaInfo info = new MediaInfo();
             String err = "";
-            player.fillMetadata(info, err);
+            _impl.getImpl().fillMetadata(info, err);
             if (err.length() == 0) {
-                MediaInfoEvent.fire(handlers, info);
+                _callback.onMediaInfo(info);
             } else {
                 onError(err);
             }
         }
-
+/*
         public void doClickMouseEvents(int type, int button, int shiftState, double fX, double fY) {
             if (!enabled) {
                 return;
@@ -322,50 +302,23 @@ public class WMPStateManager {
             }
             DomEvent.fireNativeEvent(event, handlers, e);
         }
+*/
+    }
+    public static interface WMPEventCallback {
+        public void onLoadingProgress(double progress);
+        public void onError(String message);
+        public void onInfo(String message);
+        public void onBuffering(boolean started);
+        public void onStop();
+        public void onPlay();
+        public void onPaused();
+        public void onEnded();
+        public void onMediaInfo(MediaInfo info);
+        public void onOpening();
+        public void onReady();
+    }
 
-        @Override
-        public void setShuffleEnabled(final boolean enable) {
-            playlistManager.setShuffleEnabled(enable);
-        }
-
-        @Override
-        public boolean isShuffleEnabled() {
-            return playlistManager.isShuffleEnabled();
-        }
-
-        @Override
-        public void addToPlaylist(String mediaURL) {
-            playlistManager.addToPlaylist(mediaURL);
-        }
-
-        @Override
-        public void removeFromPlaylist(int index) {
-            playlistManager.removeFromPlaylist(index);
-        }
-
-        @Override
-        public void clearPlaylist() {
-            playlistManager.clearPlaylist();
-        }
-
-        @Override
-        public void playNext() throws PlayException {
-            playlistManager.playNext();
-        }
-
-        @Override
-        public void playPrevious() throws PlayException {
-            playlistManager.playPrevious();
-        }
-
-        @Override
-        public void play(int index) throws IndexOutOfBoundsException {
-            playlistManager.play(index);
-        }
-
-        @Override
-        public int getPlaylistSize() {
-            return playlistManager.getPlaylistSize();
-        }
+    public static interface WMPImplCallback {
+        public WinMediaPlayerImpl getImpl();
     }
 }
