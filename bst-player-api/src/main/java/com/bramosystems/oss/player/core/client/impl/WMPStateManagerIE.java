@@ -32,11 +32,6 @@ public class WMPStateManagerIE extends WMPStateManager {
     }
 
     @Override
-    public boolean isSetModeSupported() {
-        return true;
-    }
-
-    @Override
     protected void initGlobalEventListeners(WMPStateManager impl) {
         // override this and do nothing to avoid IE errors. Method is just a
         // workaround for non IE browsers.

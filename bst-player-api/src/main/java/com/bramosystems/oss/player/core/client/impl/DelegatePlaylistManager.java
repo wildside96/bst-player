@@ -214,6 +214,15 @@ public class DelegatePlaylistManager implements PlaylistSupport {
         }
     }
 
+    public void loadNext() {
+        pIndex = indexOracle.suggestIndex(true, true);
+        try {
+            _playOrLoadMedia(pIndex, false);
+        } catch (PlayException ex) {
+            _debug(ex.getMessage());
+        }
+    }
+
     public String getCurrentItem() {
         return urls.get(getPlaylistIndex()).getCurrentResource();
     }

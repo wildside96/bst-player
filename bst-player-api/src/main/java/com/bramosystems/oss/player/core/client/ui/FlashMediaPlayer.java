@@ -685,4 +685,15 @@ public class FlashMediaPlayer extends AbstractMediaPlayer implements PlaylistSup
         checkAvailable();
         return 0;//impl.getRate();
     }
+/*
+    @Override
+    public RepeatMode getRepeatMode() {
+        return loopManager.getRepeatMode();
+    }
+
+    @Override
+    public void setRepeatMode(RepeatMode mode) {
+        loopManager.setRepeatMode(mode);
+    }
+*/
 }

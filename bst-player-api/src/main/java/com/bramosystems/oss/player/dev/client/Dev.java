@@ -22,6 +22,7 @@ import com.bramosystems.oss.player.core.client.PlayerUtil;
 import com.bramosystems.oss.player.core.client.Plugin;
 import com.bramosystems.oss.player.core.client.PluginNotFoundException;
 import com.bramosystems.oss.player.core.client.PluginVersionException;
+import com.bramosystems.oss.player.core.client.RepeatMode;
 import com.bramosystems.oss.player.core.client.ui.*;
 import com.bramosystems.oss.player.youtube.client.PlayerParameters;
 import com.bramosystems.oss.player.youtube.client.YouTubePlayer;
@@ -58,6 +59,7 @@ public class Dev extends VerticalPanel implements EntryPoint {
         });
     }
 
+//TODO: test resizeToVideoSize feature for plugins ...
     @Override
     public void onModuleLoad() {
 //        RootPanel.get().add(new ScrollPanel(this));
@@ -103,20 +105,22 @@ public class Dev extends VerticalPanel implements EntryPoint {
                     break;
                 case QuickTimePlayer:
                     mmp = new QuickTimePlayer(getURL("/local-video/Sample.mov"), false, "250px", "100%");
-//                    ((QuickTimePlayer) mmp).addToPlaylist(getURL("/local-video/01_Al_Fatihah.m4a"));
+                    ((QuickTimePlayer) mmp).addToPlaylist(getURL("/local-video/01_Al_Fatihah.m4a"));
                     ((QuickTimePlayer) mmp).addToPlaylist(getURL("/local-video/big-buck-bunny.mp4"));
                     break;
                 case VLCPlayer:
-                    mmp = new VLCPlayer(getURL("/local-video/big-buck-bunny.mp4"), true, "250px", "100%");
+                    mmp = new VLCPlayer(getURL("/local-video/divx7_postinstall.divx"), true, "250px", "100%");
+//                    mmp.setVolume(0.2);
 //                    ((VLCPlayer) mmp).addToPlaylist(getURL("/local-video/fireflies.flv"));
-                    ((VLCPlayer) mmp).addToPlaylist(getURL("/local-video/divx7_postinstall.divx"));
+//                    mmp = new VLCPlayer(getURL("/local-video/big-buck-bunny.mp4"), true, "250px", "100%");
+//                    ((VLCPlayer) mmp).addToPlaylist(getURL("/local-video/divx7_postinstall.divx"));
   //                  ((VLCPlayer) mmp).addToPlaylist(getURL("/local-video/traffic.flv"));
                     ((VLCPlayer) mmp).addToPlaylist(getURL("/local-video/Sample.mov"));
                     break;
                 case WinMediaPlayer:
-                    mmp = new WinMediaPlayer(getURL("/local-video/home-video.wmv"), true, "200px", "100%");
-//                    ((WinMediaPlayer) mmp).addToPlaylist(getURL("/local-video/applause.mp3"));
-//                    ((WinMediaPlayer) mmp).addToPlaylist(getURL("/local-video/playlist.m3u"));
+                    mmp = new WinMediaPlayer(getURL("/local-video/home-video.wmv"), false, "200px", "100%");
+                    ((WinMediaPlayer) mmp).addToPlaylist(getURL("/local-video/applause.mp3"));
+                    ((WinMediaPlayer) mmp).addToPlaylist(getURL("/local-video/o-na-som.mp3"));
                     break;
                 case Native:
                     ArrayList<String> urls = new ArrayList<String>();
@@ -128,7 +132,9 @@ public class Dev extends VerticalPanel implements EntryPoint {
             }
             mmp.setConfigParameter(ConfigParameter.QTScale, QuickTimePlayer.Scale.ToFit);
             mmp.showLogger(true);
-            mmp.setLoopCount(-1);
+//            mmp.setResizeToVideoSize(true);
+//            mmp.setLoopCount(2);
+//            mmp.setRepeatMode(RepeatMode.REPEAT_ALL);
 //            ((PlaylistSupport) mmp).setShuffleEnabled(true);
 //            mmp.setControllerVisible(false);
             add(mmp);

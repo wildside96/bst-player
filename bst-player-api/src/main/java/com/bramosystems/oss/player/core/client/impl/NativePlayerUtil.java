@@ -36,15 +36,6 @@ public class NativePlayerUtil {
         return "20px";
     }
 
-    /**
-     * Checks if implementation supports the 'loop' property
-     * @return
-     * @since 1.2
-     */
-    public boolean isLoopingSupported() {
-        return true;
-    }
-
     public static class NativePlayerUtilSafari extends NativePlayerUtil {
 
         private boolean isChrome;
@@ -68,14 +59,6 @@ public class NativePlayerUtil {
         return false;
         }
         }-*/;
-    }
-
-    public static class NativePlayerUtilMozilla extends NativePlayerUtil {
-
-        @Override
-        public boolean isLoopingSupported() {
-            return false;
-        }
     }
 
     public static native TestUtil getTestUtil() /*-{
