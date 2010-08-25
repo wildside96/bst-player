@@ -17,7 +17,8 @@
 
 /**
  * Provides user interface widgets to embed Windows Media Player&trade;, QuickTime&trade;
- * Player, VLC Media Player&trade;, Flash Player and HTML 5 video elements in GWT applications.
+ * Player, VLC Media Player&trade;, Flash Player, DivX Web Player&trade; and HTML 5 video elements
+ * in GWT applications.
  */
 package com.bramosystems.oss.player.core.client.ui;
 

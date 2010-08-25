@@ -96,7 +96,7 @@ public class VLCStateManager {
                     _callback.onIdle();
                     break;
                 case 1:    // opening media
-                    _callback.onOpening(_index);
+                    _callback.onOpening();
                     break;
                 case 2:    // buffering
                     _isBuffering = true;
@@ -113,12 +113,12 @@ public class VLCStateManager {
                     }
                     playlistMgr.setCurrentState(State.Started);
                     playlistMgr.setStoppedByUser(false);
-                    _callback.onPlaying(_index);
+                    _callback.onPlaying();
                     //                    loadingComplete();
                     break;
                 case 4:    // paused
                     playlistMgr.setCurrentState(State.Paused);
-                    _callback.onPaused(_index);
+                    _callback.onPaused();
                     break;
                 case 5:    // stopping
                     _callback.onInfo("stopping ...");
@@ -126,10 +126,10 @@ public class VLCStateManager {
                 case 6:    // finished
                     if (playlistMgr.isStoppedByUser()) {
                         playlistMgr.setCurrentState(State.Stopped);
-                        _callback.onStopped(_index);
+                        _callback.onStopped();
                     } else {
                         playlistMgr.setCurrentState(State.Finished);
-                        _callback.onEndReached(_index);
+                        _callback.onEndReached();
                     }
                     break;
                 case 7:    // error
@@ -146,26 +146,26 @@ public class VLCStateManager {
 
         public void onIdle();
 
-        public void onOpening(int index);
+        public void onOpening();
 
         public void onBuffering(boolean started);
 
-        public void onPlaying(int index);
+        public void onPlaying();
 
-        public void onPaused(int index);
+        public void onPaused();
+        public void onEndReached();
 
-        public void onStopped(int index);
-//        public void onForward();
-//        public void onBackward();
+        public void onStopped();
 
         public void onError(String message);
 
         public void onInfo(String message);
 
-        public void onEndReached(int index);
 //        public void onPositionChanged();
 //        public void onTimeChanged();
 //        public void onMouseGrabed(double x, double y);
+//        public void onForward();
+//        public void onBackward();
 
         public void onMediaInfo(MediaInfo info);
     }

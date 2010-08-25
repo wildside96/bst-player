@@ -115,11 +115,13 @@ public class VLCPlayer extends AbstractMediaPlayer implements PlaylistSupport {
 
                     @Override
                     public void onIdle() {
+                        fireDebug("Player Idle");
                     }
 
                     @Override
-                    public void onOpening(int index) {
-                        fireDebug("Opening playlist item #" + index);
+                    public void onOpening() {
+                        fireDebug("Opening playlist item #" + 
+                                stateHandler.getPlaylistManager().getPlaylistIndex());
                     }
 
                     @Override
@@ -129,15 +131,17 @@ public class VLCPlayer extends AbstractMediaPlayer implements PlaylistSupport {
                     }
 
                     @Override
-                    public void onPlaying(int index) {
+                    public void onPlaying() {
                         fireDebug("Playback started - '" + stateHandler.getPlaylistManager().getCurrentItem() + "'");
-                        firePlayStateEvent(PlayStateEvent.State.Started, index);
+                        firePlayStateEvent(PlayStateEvent.State.Started, 
+                                stateHandler.getPlaylistManager().getPlaylistIndex());
                     }
 
                     @Override
-                    public void onPaused(int index) {
+                    public void onPaused() {
                         fireDebug("Playback paused");
-                        firePlayStateEvent(PlayStateEvent.State.Paused, index);
+                        firePlayStateEvent(PlayStateEvent.State.Paused,
+                                stateHandler.getPlaylistManager().getPlaylistIndex());
                     }
 
                     @Override
@@ -151,13 +155,14 @@ public class VLCPlayer extends AbstractMediaPlayer implements PlaylistSupport {
                     }
 
                     @Override
-                    public void onEndReached(int index) {
+                    public void onEndReached() {
                         loopManager.notifyPlayFinished();
                     }
 
                     @Override
-                    public void onStopped(int index) {
-                        firePlayStateEvent(PlayStateEvent.State.Stopped, index);
+                    public void onStopped() {
+                        firePlayStateEvent(PlayStateEvent.State.Stopped,
+                                stateHandler.getPlaylistManager().getPlaylistIndex());
                         fireDebug("Playback stopped");
                     }
 

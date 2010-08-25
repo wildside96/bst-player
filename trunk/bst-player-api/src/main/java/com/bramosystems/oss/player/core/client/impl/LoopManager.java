@@ -59,15 +59,16 @@ public class LoopManager {
     public void setLoopCount(int loopCount) {
         this.loopCount = loopCount;
         _count = loopCount;
-        if (loopCount < 0) {
-            repeatMode = RepeatMode.REPEAT_ALL;
-        }
     }
 
     /**
      * notifies this manager that the player just finished current loop
      */
     public void notifyPlayFinished() {
+        if (loopCount < 0) {
+            repeatMode = RepeatMode.REPEAT_ALL;
+        }
+
         switch (repeatMode) {
             case REPEAT_OFF: // one item playback finished, try another item ...
                 playNextOrFinish();

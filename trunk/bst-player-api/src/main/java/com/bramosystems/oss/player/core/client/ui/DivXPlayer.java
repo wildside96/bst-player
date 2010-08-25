@@ -198,7 +198,7 @@ public class DivXPlayer extends AbstractMediaPlayer implements PlaylistSupport {
     }
 
     /**
-     * Constructs <code>BivXPlayer</code> to playback media located at {@code mediaURL} using the
+     * Constructs <code>DivXPlayer</code> to playback media located at {@code mediaURL} using the
      * default height of 90px and width of 100%. Media playback begins automatically if
      * {@code autoplay} is {@code true}.
      *
@@ -282,7 +282,7 @@ public class DivXPlayer extends AbstractMediaPlayer implements PlaylistSupport {
     }
 
     /**
-     * Constructs <code>BivXPlayer</code> to playback media located at {@code mediaURL} using the
+     * Constructs <code>DivXPlayer</code> to playback media located at {@code mediaURL} using the
      * default height of 90px and width of 100%. Media playback begins automatically if
      * {@code autoplay} is {@code true}.
      *

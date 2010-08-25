@@ -67,8 +67,8 @@
                 <plugin>
                     <artifactId>maven-compiler-plugin</artifactId>
                     <configuration>
-                        <source>1.5</source>
-                        <target>1.5</target>
+                        <source>1.6</source>
+                        <target>1.6</target>
                     </configuration>
                 </plugin>
                 <plugin>
@@ -157,7 +157,7 @@
                     </reportSet>
                 </reportSets>
                 <configuration>
-                    <excludePackageNames>*.impl;*.dev.*;*.video</excludePackageNames>
+                    <excludePackageNames>*.impl;*.dev.*;*.video;*.rebind</excludePackageNames>
                     <doctitle>${project.name} ${project.version}</doctitle>
                     <windowtitle>${project.name} ${project.version}</windowtitle>
                 </configuration>

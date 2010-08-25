@@ -53,8 +53,8 @@ public class Dev extends VerticalPanel implements EntryPoint {
 
             @Override
             public void onUncaughtException(Throwable e) {
-                Window.alert("Dev Uncaught : " + e.getMessage());
                 GWT.log(e.getMessage(), e);
+                Window.alert("Dev Uncaught : " + e.getMessage());
             }
         });
     }
