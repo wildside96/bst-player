@@ -259,6 +259,9 @@ public abstract class AbstractMediaPlayer extends Composite implements HasMediaS
      * Sets the number of times the current media file should repeat playback before stopping.
      * This implementation does nothing, subclasses should override and implement accordingly.
      *
+     * <p><b>NB:</b> As of version 1.2, the behaviour of this property depends on
+     * the {@link #setRepeatMode(RepeatMode)} property
+     *
      * @param loop number of times to repeat playback. A negative value makes playback repeat forever!.
      * @since 0.6
      */
@@ -461,7 +464,7 @@ public abstract class AbstractMediaPlayer extends Composite implements HasMediaS
                     + value.getClass() + ", Requires " + param.getValueType() + " for value!");
         }
     }
-     
+
     /**
      * Sets the specified player parameter to the specified value IF AND ONLY IF the
      * parameter is applicable on the player
@@ -582,6 +585,60 @@ public abstract class AbstractMediaPlayer extends Composite implements HasMediaS
 
     /**
      * Puts the player in the specified repeat mode.
+     *
+     * <p>The effect of the specified mode depends on the {@link #setLoopCount(int)} property as
+     * shown in the table:</p>
+     *
+     * <table border="1" cellspacing="0" cellpadding="3">
+     * <colgroup>
+     * <col width="25%">
+     * <col width="25%">
+     * <col width="*">
+     * </colgroup>
+     * <thead>
+     * <tr>
+     * <th>Value of {@code loopCount}</th>
+     * <th>Value of {@code repeatMode}</th>
+     * <th>What it means?</th>
+     * </tr>
+     * </thead>
+     * <tbody>
+     * <tr>
+     * <td>Any value &lt; 0</td>
+     * <td>Sets {@code repeatMode} to {@link RepeatMode#REPEAT_ALL}</td>
+     * <td>Playlist is repeated continously</td>
+     * </tr>
+     *
+     * <tr>
+     * <td rowspan='3'>1</td>
+     * <td>{@link RepeatMode#REPEAT_OFF}</td>
+     * <td>Entire playlist is played only once</td>
+     * </tr>
+     * <tr>
+     * <td>{@link RepeatMode#REPEAT_ONE}</td>
+     * <td>The current playlist entry is repeated continously</td>
+     * </tr>
+     * <tr>
+     * <td>{@link RepeatMode#REPEAT_ALL}</td>
+     * <td>Entire playlist is repeated continously</td>
+     * </tr>
+     *
+     * <tr>
+     * <td rowspan='3'>Any value &gt; 1</td>
+     * <td>{@link RepeatMode#REPEAT_OFF}</td>
+     * <td>The {@code loopCount} property is ignored, and the entire playlist is played only once</td>
+     * </tr>
+     * <tr>
+     * <td>{@link RepeatMode#REPEAT_ONE}</td>
+     * <td>Player repeats each playlist entry for the number of times specified by {@code loopCount}
+     * and moves on the next until all entries are played and stops</td>
+     * </tr>
+     * <tr>
+     * <td>{@link RepeatMode#REPEAT_ALL}</td>
+     * <td>Player repeats entire playlist for the number of times specified by {@code loopCount} and stops</td>
+     * </tr>
+     * </tbody>
+     * </table>
      *
      * @param mode the new repeat mode
      * @since 1.2

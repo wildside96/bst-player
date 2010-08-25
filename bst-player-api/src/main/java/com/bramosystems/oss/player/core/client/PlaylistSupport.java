@@ -40,7 +40,7 @@ public interface PlaylistSupport {
     /**
      * Adds the media at the specified URL to the players' playlist.
      *
-     * <p>In respect of the <code>same domain</code> policy of some plugins,
+     * <p>In respect of the same domain policy of some plugins/browsers,
      * the URL should point to a destination on the same domain where the
      * application is hosted.
      *

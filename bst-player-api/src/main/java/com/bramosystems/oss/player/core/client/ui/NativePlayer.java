@@ -555,6 +555,17 @@ public class NativePlayer extends AbstractMediaPlayer implements PlaylistSupport
         playlistManager.addToPlaylist(mediaURL);
     }
 
+    /**
+     * Adds the media at the specified URLs to the players' playlist.  However, as
+     * per the HTML 5 specification, the browser chooses ONLY ONE of the {@code mediaURLs}
+     * it supports.
+     *
+     * <p>In respect of the same domain policy of some browsers,
+     * the URLs should point to a destination on the same domain where the
+     * application is hosted.
+     * 
+     * @param mediaURLs the alternative URLs of the same media (probably in different formats).
+     */
     public void addToPlaylist(String... mediaURLs) {
         playlistManager.addToPlaylist(mediaURLs);
     }
