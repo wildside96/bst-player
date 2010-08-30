@@ -22,7 +22,7 @@ package com.bramosystems.oss.player {
 
         function play():void;
 
-        function stop():void;
+        function _stop(fireEvent:Boolean):void;
         function pause():void;
 
         function close():void;

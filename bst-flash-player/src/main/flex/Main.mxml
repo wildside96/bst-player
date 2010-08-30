@@ -18,7 +18,7 @@
 -->
 
 <mx:Application xmlns:mx="http://www.adobe.com/2006/mxml" xmlns="*" applicationComplete="initApp()"
-        horizontalAlign="center" verticalAlign="middle" backgroundAlpha="0.0"
+        horizontalAlign="center" verticalAlign="bottom" backgroundAlpha="0.0" layout="absolute"
         horizontalScrollPolicy="off" verticalScrollPolicy="off" backgroundColor="0x000000"
         paddingLeft="0" paddingTop="0" paddingBottom="0" paddingRight="0">
 
@@ -44,16 +44,6 @@
                 // Check if the container is able to use the external API.
                 if (ExternalInterface.available) {
                     try {
-                        ExternalInterface.addCallback("getPlayerVersion", getFlashVersion);
-
-                        addEventListener(MouseEvent.MOUSE_DOWN, EventUtil.fireMouseDownEvent);
-                        addEventListener(MouseEvent.MOUSE_UP, EventUtil.fireMouseUpEvent);
-                        addEventListener(MouseEvent.MOUSE_MOVE, EventUtil.fireMouseMoveEvent);
-                        addEventListener(MouseEvent.CLICK, EventUtil.fireClickEvent);
-                        addEventListener(MouseEvent.DOUBLE_CLICK, EventUtil.fireDoubleClickEvent);
-                        application.addEventListener(KeyboardEvent.KEY_UP, EventUtil.fireKeyUpEvent);
-                        application.addEventListener(KeyboardEvent.KEY_DOWN, EventUtil.fireKeyDownEvent);
-
                         var setting:Setting = new Setting();
                         var playlist:Playlist = new Playlist(setting);
 
@@ -68,8 +58,25 @@
                         addChild(player);
                         addChild(controller);
 
+                        player.visible = height > 30;
+
+                        /********************** ADD EVENT LISTENERS ************************/
+                        addEventListener(MouseEvent.MOUSE_DOWN, EventUtil.fireMouseDownEvent);
+                        addEventListener(MouseEvent.MOUSE_UP, EventUtil.fireMouseUpEvent);
+                        addEventListener(MouseEvent.MOUSE_MOVE, EventUtil.fireMouseMoveEvent);
+                        addEventListener(MouseEvent.MOUSE_OVER, controller.onAHMouseOver);
+                        addEventListener(MouseEvent.MOUSE_OUT, controller.onAHMouseOut);
+                        addEventListener(MouseEvent.CLICK, EventUtil.fireClickEvent);
+                        addEventListener(MouseEvent.DOUBLE_CLICK, EventUtil.fireDoubleClickEvent);
+                        application.addEventListener(KeyboardEvent.KEY_UP, EventUtil.fireKeyUpEvent);
+                        application.addEventListener(KeyboardEvent.KEY_DOWN, EventUtil.fireKeyDownEvent);
+
                         /********************** SETUP JS-INTERFACE FUNCTIONS ************************/
                         // setup callback interfaces...
+                        ExternalInterface.addCallback("setAutoHideController", controller.setAutoHide);
+                        ExternalInterface.addCallback("isAutoHideController", controller.isAutoHide);
+                        ExternalInterface.addCallback("getPlayerVersion", getPlayerVersion);
+                        ExternalInterface.addCallback("getPluginVersion", getFlashVersion);
                         ExternalInterface.addCallback("close", player.close);
                         ExternalInterface.addCallback("getVideoHeight", player.getVideoHeight);
                         ExternalInterface.addCallback("getVideoWidth", player.getVideoWidth);
@@ -87,6 +94,9 @@
                         ExternalInterface.addCallback("clearPlaylist", playlist.clear);
                         ExternalInterface.addCallback("removeFromPlaylist", playlist.remove);
                         ExternalInterface.addCallback("addToPlaylist", playlist.add);
+                        // repeat mode support ... [since 1.2]
+                        ExternalInterface.addCallback("setRepeatMode", playlist.setRepeatMode);
+                        ExternalInterface.addCallback("getRepeatMode", playlist.getRepeat);
 
                         // play control stuffs...
                         ExternalInterface.addCallback("load", player.load);
@@ -111,10 +121,11 @@
 
                         /******************* FINISH INIT ***********************************/
                         contextMenu = new PlayerMenu().getMenu();
-                        EventUtil.fireApplicationInitialized();
-
+                        Log.info("BST Flash Player 1.2");
                         player.updateVDUSize();
                         player.load(PlayerOptions.mediaURL);
+
+                        EventUtil.fireApplicationInitialized();
                         if (PlayerOptions.autoplay) {
                             player.play();
                         }
@@ -137,6 +148,10 @@
                     vers += "." + v[i];
                 }
                 return vers;
+            }
+
+            public function getPlayerVersion():String {
+                return "1.2";
             }
         ]]>
     </mx:Script>

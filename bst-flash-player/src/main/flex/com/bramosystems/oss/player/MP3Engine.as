@@ -24,7 +24,7 @@ package com.bramosystems.oss.player {
     import flash.events.*;
     import flash.media.*;
     import flash.net.*;
-    import flash.utils.ByteArray;
+    import flash.utils.*;
 
     import mx.core.UIComponent;
 
@@ -37,8 +37,14 @@ package com.bramosystems.oss.player {
             private var position:Number = 0;
             private var isPlaying:Boolean = false, isPaused:Boolean = false;
             private var propagateID3:Boolean = false;
+            private var playTimer:Timer;
 
             public function MP3Engine() {
+                // add position timer ...
+                playTimer = new Timer(500);
+                playTimer.addEventListener(TimerEvent.TIMER, function(event:TimerEvent):void {
+                    EventUtil.firePlayingProgress(getPlayPosition());
+                });
             }
 
             public function _load(url:String):void {
@@ -87,10 +93,11 @@ package com.bramosystems.oss.player {
 
                 channel.stop();
                 isPlaying = false;
+                playTimer.stop();
                 dispatchEvent(new PlayStateEvent(PlayStateEvent.PLAY_PAUSED));
             }
 
-            public function stop():void {
+            public function _stop(fireEvent:Boolean):void {
                 if(channel == null) {
                     Log.info("Stop playback call ignored, sound not played yet!");
                     return;
@@ -101,7 +108,10 @@ package com.bramosystems.oss.player {
 
                 channel.stop();
                 isPlaying = false;
-                dispatchEvent(new PlayStateEvent(PlayStateEvent.PLAY_STOPPED));
+                playTimer.stop();
+                if(fireEvent) {
+                    dispatchEvent(new PlayStateEvent(PlayStateEvent.PLAY_STOPPED));
+                }
             }
 
             public function setPlayPosition(channelPosition:Number):void {
@@ -154,6 +164,7 @@ package com.bramosystems.oss.player {
                 isPlaying = true;
                 isPaused = false;
                 dispatchEvent(new PlayStateEvent(PlayStateEvent.PLAY_STARTED));
+                playTimer.start();
             }
 
             private function loadingCompleteHandler(event:Event):void {
@@ -195,6 +206,7 @@ package com.bramosystems.oss.player {
 
             private function _playFinishedHandler(event:Event):void {
                 position = 0;
+                playTimer.stop();
 //                removeEventListener(Event.ENTER_FRAME, onEnterFrame);
                 dispatchEvent(new PlayStateEvent(PlayStateEvent.PLAY_FINISHED));
             }

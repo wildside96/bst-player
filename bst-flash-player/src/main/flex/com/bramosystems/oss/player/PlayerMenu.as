@@ -36,6 +36,8 @@ package com.bramosystems.oss.player {
             ctxMenu.hideBuiltInItems();
 
             ctxMenu.customItems.push(new ContextMenuItem("BST Player 1.2"));
+//            ctxMenu.customItems.push(new ContextMenuItem("Repeat"));
+//            ctxMenu.customItems.push(new ContextMenuItem("Shuffle"));
         }
 
         public function getMenu():ContextMenu {

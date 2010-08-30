@@ -34,7 +34,7 @@ package com.bramosystems.oss.player.control {
 
         private var play:UIComponent, next:UIComponent;
         private var prev:UIComponent, toggler:UIComponent;
-        private var playButtonShowPlay:Boolean = true;
+        private var playButtonShowPlay:Boolean = true, autoHideController:Boolean = false;
 
         private var player:Player;
         private var playlist:Playlist;
@@ -57,6 +57,7 @@ package com.bramosystems.oss.player.control {
             setStyle("borderSides", "top");
             setStyle("borderStyle", "solid");
             setStyle("borderThickness", 1.5);
+            setStyle("bottom", 0);
 
             seekbar = new Seekbar();
             seekbar.addEventListener(SeekChangedEvent.SEEK_CHANGED, onSeekChanged);
@@ -73,6 +74,11 @@ package com.bramosystems.oss.player.control {
 
             Application.application.stage.addEventListener(FullScreenEvent.FULL_SCREEN, onFullScreen);
             updateDisplay(false);
+
+            var fade:Fade = new Fade();
+            fade.duration = 2000;
+            fade.startDelay = 2000;
+            setStyle('hideEffect', fade);
         }
 
         private function enableButton(button:UIComponent, enable:Boolean):void {
@@ -106,6 +112,24 @@ package com.bramosystems.oss.player.control {
 
         public function setControllerVisible(_visible:Boolean):void {
             visible = _visible;
+        }
+
+        public function onAHMouseOver(evt:MouseEvent):void {
+            visible = true;
+        }
+        public function onAHMouseOut(evt:MouseEvent):void {
+            if(autoHideController) {
+                visible = false;
+            }
+        }
+        public function setAutoHide(autoHide:Boolean):void {
+            autoHideController = autoHide;
+            if(!autoHide && !visible) {
+                visible = true;
+            }
+        }
+        public function isAutoHide():Boolean {
+            return autoHideController;
         }
 
         /********************** Events Callback Hooks *************************/
@@ -188,12 +212,14 @@ package com.bramosystems.oss.player.control {
                 case StageDisplayState.FULL_SCREEN:
                 default:
                     Application.application.stage.displayState = StageDisplayState.NORMAL;
+            setAutoHide(false);
                     break;
             }
         }
 
         private function onFullScreen(event:FullScreenEvent):void {
             updateDisplay(event.fullScreen);
+            setAutoHide(event.fullScreen);
         }
 
         private function onSeekChanged(event:SeekChangedEvent):void {
