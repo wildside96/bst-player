@@ -30,12 +30,14 @@ package com.bramosystems.oss.player {
                 addEventListener(ProgressEvent.PROGRESS, loadingProgressHandler);
                 addEventListener(MetadataEvent.METADATA_RECEIVED, metadataHandler);
                 addEventListener(VideoEvent.STATE_CHANGE, stateHandler);
+                addEventListener(VideoEvent.PLAYHEAD_UPDATE, playingProgressHandler);
+                playheadUpdateInterval = 500;
             }
 
             /**************************** PLAYER IMPL ******************************/
             private var mediaURL:String = "";
             private var playlist:Playlist;
-            private var propagateMeta:Boolean = false;
+            private var propagateMeta:Boolean = false, _canFireStopped:Boolean = false;
 
             public function _load(url:String):void {
                 autoPlay = false;
@@ -54,6 +56,11 @@ package com.bramosystems.oss.player {
                 }
 
                 super.play();
+            }
+
+            public function _stop(fireEvent:Boolean):void {
+                _canFireStopped = fireEvent;
+                stop();
             }
 
             public function setVolume(volume:Number):void {
@@ -138,7 +145,10 @@ package com.bramosystems.oss.player {
                         dispatchEvent(new PlayStateEvent(PlayStateEvent.PLAY_STARTED));
                         break;
                     case VideoEvent.STOPPED:
-                        dispatchEvent(new PlayStateEvent(PlayStateEvent.PLAY_STOPPED));
+                        if(_canFireStopped) {
+                            dispatchEvent(new PlayStateEvent(PlayStateEvent.PLAY_STOPPED));
+                            _canFireStopped = false;
+                        }
                         break;
                     case VideoEvent.PAUSED:
                         dispatchEvent(new PlayStateEvent(PlayStateEvent.PLAY_PAUSED));
@@ -166,6 +176,10 @@ package com.bramosystems.oss.player {
                     EventUtil.fireMediaStateChanged(10);
                     Log.info("Loading complete");
                 }
+            }
+
+            private function playingProgressHandler(event:VideoEvent):void {
+                EventUtil.firePlayingProgress(event.playheadTime * 1000.0);
             }
     }
 }

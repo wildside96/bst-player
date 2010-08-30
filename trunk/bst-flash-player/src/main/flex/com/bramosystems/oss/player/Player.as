@@ -25,7 +25,6 @@ package com.bramosystems.oss.player {
     import flash.geom.*;
     import flash.media.*;
     import flash.net.*;
-    import flash.utils.*;
 
     import mx.core.*;
     import mx.events.*;
@@ -41,7 +40,6 @@ package com.bramosystems.oss.player {
         private var state:int = STOPPED;
         private var player:Engine, mp3:MP3Engine, vdu:VideoEngine;
         private var playlist:Playlist;
-        private var playTimer:Timer;
 
         public function Player(setting:Setting, _playlist:Playlist) {
             x = 0;
@@ -68,12 +66,7 @@ package com.bramosystems.oss.player {
             updateVolume(setting.getVolume());
 
             playlist = _playlist;
-
-            // add position timer ...
-            playTimer = new Timer(1000);
-            playTimer.addEventListener(TimerEvent.TIMER, function(event:TimerEvent):void {
-                EventUtil.firePlayingProgress(player.getPlayPosition());
-            });
+            Application.application.stage.addEventListener(FullScreenEvent.FULL_SCREEN, onFullScreen);
         }
 
         public function setDebugEnabled(enabled:Boolean):void {
@@ -142,7 +135,7 @@ package com.bramosystems.oss.player {
 
         public function stop(rewind:Boolean):void {
             if(rewind) {
-                player.stop();
+                player._stop(true);
             } else {
                 player.pause();
             }
@@ -194,10 +187,8 @@ package com.bramosystems.oss.player {
 
         /*************************** PLAY STATE HANDLERS *********************/
         private function playFinished(event:PlayStateEvent):void {
-                Log.info("Media playback finished");
             EventUtil.fireMediaStateChanged(9, playlist.getIndex());
             if(!playNext()) {
-                playTimer.stop();
                 Log.info("Media playback finished");
                 EventUtil.fireMediaStateChanged(9);
                 state = FINISHED;
@@ -206,14 +197,12 @@ package com.bramosystems.oss.player {
 
         private function playStopped(event:PlayStateEvent):void {
             state = STOPPED;
-            playTimer.stop();
             Log.info("Playback stopped");
             EventUtil.fireMediaStateChanged(3, playlist.getIndex());
         }
 
         private function playPaused(event:PlayStateEvent):void {
             state = PAUSED;
-            playTimer.stop();
             Log.info("Playback paused");
             EventUtil.fireMediaStateChanged(4, playlist.getIndex());
         }
@@ -224,9 +213,8 @@ package com.bramosystems.oss.player {
                     Log.info("Playback resumed");
                     break;
                 default:
-                    Log.info("Playlist item " + playlist.getIndex() + " : playback started");
+                    Log.info("Playlist #" + playlist.getIndex() + " playback started");
             }
-            playTimer.start();
             state = PLAYING;
             EventUtil.fireMediaStateChanged(2, playlist.getIndex());
         }
@@ -234,20 +222,19 @@ package com.bramosystems.oss.player {
         /************************** HELPER FUNCTIONS *****************************/
         private function _load(mediaURL:String):void {
             if(player != null) {
-                player.stop(); // stop playback if any ...
+                player._stop(false); // stop playback if any ...
                 removeChildAt(0);
             }
             state = STOPPED;
-            Log.info("Loading media at '" + mediaURL + "'");
 
             if(mediaURL.search(".mp3") >= 0) {
                 player = mp3
                 addChild(mp3);
-                Log.info("Using MP3Engine ...");
+                Log.info("MP3Engine: Loading media at '" + mediaURL + "'");
             } else {
                 player = vdu;
                 addChild(vdu);
-                Log.info("Using VideoEngine ...");
+                Log.info("VideoEngine: Loading media at '" + mediaURL + "'");
             }
 
             player._load(mediaURL);
@@ -289,6 +276,17 @@ package com.bramosystems.oss.player {
             } else if((_aHeight > _vduHeight) && (_aWidth > _vduWidth)) {  // fit to window
                 vdu.percentHeight = 100;
                 vdu.percentWidth = 100;
+            }
+        }
+
+        /************************** FS effects **********************/
+        private var _visible:Boolean = true;
+        private function onFullScreen(event:FullScreenEvent):void {
+            if(event.fullScreen) {
+                _visible = visible;
+                visible = true;
+            } else {
+                visible = _visible;
             }
         }
     }

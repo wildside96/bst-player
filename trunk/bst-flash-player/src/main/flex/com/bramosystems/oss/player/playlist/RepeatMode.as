@@ -17,9 +17,18 @@
 package com.bramosystems.oss.player.playlist {
 
     public final class RepeatMode {
-        public static const NO_REPEAT:RepeatMode = new RepeatMode();
-        public static const REPEAT_ALL:RepeatMode = new RepeatMode();
-        public static const REPEAT_ONE:RepeatMode = new RepeatMode();
-        public static const CUSTOM_REPEAT:RepeatMode = new RepeatMode();
+        public static const OFF:RepeatMode = new RepeatMode();
+        public static const ALL:RepeatMode = new RepeatMode();
+        public static const ONE:RepeatMode = new RepeatMode();
+
+        public static function getMode(mode:String):RepeatMode {
+            mode = mode.toUpperCase();
+            if(mode == "ALL")
+                return ALL;
+            else if(mode == "ONE")
+                return ONE;
+            else
+                return OFF;
+        }
     }
 }

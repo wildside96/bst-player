@@ -7,6 +7,7 @@ package com.bramosystems.oss.player.events {
         public static const VOLUME_CHANGED:String = "volume";
         public static const SHUFFLE_CHANGED:String = "shuffle";
         public static const LOOP_COUNT_CHANGED:String = "loopCount";
+        public static const REPEAT_MODE_CHANGED:String = "repeatMode";
 
         private var evtType:String;
         public var newValue:String;
