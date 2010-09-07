@@ -40,7 +40,6 @@ import java.util.Properties;
 public class MimePoolGenerator extends Generator {
 
     private final String DEFAULT_MIME_TYPES_FILE = "default-mime-types.properties";
-    private final String DEFAULT_PROTOCOLS_FILE = "default-protocols.properties";
     private HashMap<String, String> mimeMap = new HashMap<String, String>();
     private EnumMap<Plugin, String> pluginMap = new EnumMap<Plugin, String>(Plugin.class);
     private EnumMap<Plugin, String> protoMap = new EnumMap<Plugin, String>(Plugin.class);
@@ -60,31 +59,18 @@ public class MimePoolGenerator extends Generator {
             packageName = classType.getPackage().getName();
             className = classType.getSimpleSourceName() + "Impl";
 
-            // build media mime types ...
+            // build plugin mime types ...
             ConfigurationProperty mimeFile =
                     context.getPropertyOracle().getConfigurationProperty("bstplayer.media.mimeTypes");
             String val = mimeFile.getValues().get(0);
             if (val == null) {
                 logger.log(TreeLogger.Type.INFO, "'" + mimeFile.getName() + "' configuration property not set! Using defaults");
-                buildMimeTypes(DEFAULT_MIME_TYPES_FILE);
-                buildPluginTypes(DEFAULT_MIME_TYPES_FILE);
+                parsePropertyFile(DEFAULT_MIME_TYPES_FILE);
             } else {
                 logger.log(TreeLogger.Type.INFO, "'" + mimeFile.getName() + "' set! Using '" + val + "'");
-                buildMimeTypes(val);
-                buildPluginTypes(val);
+                parsePropertyFile(val);
             }
-
-            // build media protocol types ...
-            ConfigurationProperty protoFile =
-                    context.getPropertyOracle().getConfigurationProperty("bstplayer.media.protocols");
-            val = protoFile.getValues().get(0);
-            if (val == null) {
-                logger.log(TreeLogger.Type.INFO, "'" + protoFile.getName() + "' configuration property not set! Using defaults");
-                buildProtocols(DEFAULT_PROTOCOLS_FILE);
-            } else {
-                logger.log(TreeLogger.Type.INFO, "'" + protoFile.getName() + "' set! Using '" + val + "'");
-                buildProtocols(val);
-            }
+            buildPluginTypes();
 
             // Generate class source code
             generateClass(logger, context);
@@ -96,7 +82,7 @@ public class MimePoolGenerator extends Generator {
         return packageName + "." + className;
     }
 
-    private void buildMimeTypes(String mimePropertyFile) throws UnableToCompleteException {
+    private void parsePropertyFile(String mimePropertyFile) throws UnableToCompleteException {
         try {
             Properties p = new Properties();
             p.load(MimePoolGenerator.class.getResourceAsStream(mimePropertyFile));
@@ -106,34 +92,19 @@ public class MimePoolGenerator extends Generator {
                 if (key.toLowerCase().startsWith("audio") || key.toLowerCase().startsWith("video")) {
                     // mime types ...
                     mimeMap.put(key, p.getProperty(key));
-                }
-            }
-        } catch (IOException ex) {
-            throw new UnableToCompleteException();
-        } catch (Exception e) {
-            throw new UnableToCompleteException();
-        }
-    }
-
-    private void buildPluginTypes(String mimePropertyFile) throws UnableToCompleteException {
-        try {
-            Properties p = new Properties();
-            p.load(MimePoolGenerator.class.getResourceAsStream(mimePropertyFile));
-            Iterator<String> types = p.stringPropertyNames().iterator();
-            while (types.hasNext()) {
-                String key = types.next();
-                if (!key.toLowerCase().startsWith("audio") && !key.toLowerCase().startsWith("video")) {
-                    // plugin types ...
-                    String[] mimes = p.getProperty(key).split(",");
-                    for (String mime : mimes) {
-                        Plugin plug = Plugin.valueOf(key);
-                        String val = pluginMap.get(plug);
-                        if (val == null) {
-                            val = mimeMap.get(mime.trim());
-                        } else {
-                            val += "," + mimeMap.get(mime.trim());
-                        }
-                        pluginMap.put(Plugin.valueOf(key), val);
+                } else if (key.toLowerCase().startsWith("plugin")) {
+                    String _plugin = key.substring(key.indexOf(".") + 1);
+                    try {
+                        pluginMap.put(Plugin.valueOf(_plugin), p.getProperty(key));
+                    } catch (Exception e) {
+                        logger.log(TreeLogger.Type.WARN, "Invalid plugin type - '" + key + "'", e);
+                    }
+                } else if (key.toLowerCase().startsWith("protocols")) {
+                    String _plugin = key.substring(key.indexOf(".") + 1);
+                    try {
+                        protoMap.put(Plugin.valueOf(_plugin), p.getProperty(key));
+                    } catch (Exception e) {
+                        logger.log(TreeLogger.Type.WARN, "Invalid plugin type - '" + key + "'", e);
                     }
                 }
             }
@@ -144,17 +115,22 @@ public class MimePoolGenerator extends Generator {
         }
     }
 
-    private void buildProtocols(String protocolPropertyFile) throws UnableToCompleteException {
+    private void buildPluginTypes() throws UnableToCompleteException {
         try {
-            Properties p = new Properties();
-            p.load(MimePoolGenerator.class.getResourceAsStream(protocolPropertyFile));
-            Iterator<String> types = p.stringPropertyNames().iterator();
-            while (types.hasNext()) {
-                String key = types.next();
-                protoMap.put(Plugin.valueOf(key), p.getProperty(key));
+            Iterator<Plugin> plugins = pluginMap.keySet().iterator();
+            while (plugins.hasNext()) {
+                Plugin key = plugins.next();
+                String[] mimes = pluginMap.get(key).split(",");
+                String exts = null;
+                for (String mime : mimes) {
+                    if (exts == null) {
+                        exts = mimeMap.get(mime.trim());
+                    } else {
+                        exts += "," + mimeMap.get(mime.trim());
+                    }
+                }
+                pluginMap.put(key, exts);
             }
-        } catch (IOException ex) {
-            throw new UnableToCompleteException();
         } catch (Exception e) {
             throw new UnableToCompleteException();
         }
@@ -214,9 +190,11 @@ public class MimePoolGenerator extends Generator {
         sourceWriter.println("addPluginExtensions(Plugin.QuickTimePlayer, \"" + pluginMap.get(Plugin.QuickTimePlayer) + "\");");
         sourceWriter.println("addPluginExtensions(Plugin.VLCPlayer, \"" + pluginMap.get(Plugin.VLCPlayer) + "\");");
         sourceWriter.println("addPluginExtensions(Plugin.WinMediaPlayer, \"" + pluginMap.get(Plugin.WinMediaPlayer) + "\");");
-        sourceWriter.println("addPluginProtocols(Plugin.DivXPlayer, \"" + pluginMap.get(Plugin.QuickTimePlayer) + "\");");
-        sourceWriter.println("addPluginProtocols(Plugin.VLCPlayer, \"" + pluginMap.get(Plugin.VLCPlayer) + "\");");
-        sourceWriter.println("addPluginProtocols(Plugin.WinMediaPlayer, \"" + pluginMap.get(Plugin.WinMediaPlayer) + "\");");
+        sourceWriter.println("addPluginProtocols(Plugin.DivXPlayer, \"" + protoMap.get(Plugin.DivXPlayer) + "\");");
+        sourceWriter.println("addPluginProtocols(Plugin.FlashPlayer, \"" + protoMap.get(Plugin.FlashPlayer) + "\");");
+        sourceWriter.println("addPluginProtocols(Plugin.QuickTimePlayer, \"" + protoMap.get(Plugin.QuickTimePlayer) + "\");");
+        sourceWriter.println("addPluginProtocols(Plugin.VLCPlayer, \"" + protoMap.get(Plugin.VLCPlayer) + "\");");
+        sourceWriter.println("addPluginProtocols(Plugin.WinMediaPlayer, \"" + protoMap.get(Plugin.WinMediaPlayer) + "\");");
         sourceWriter.outdent();
         sourceWriter.println("}");
         sourceWriter.println();

@@ -29,12 +29,10 @@ import com.bramosystems.oss.player.core.event.client.MediaInfoEvent;
 import com.bramosystems.oss.player.core.event.client.MediaInfoHandler;
 import com.bramosystems.oss.player.core.event.client.PlayStateEvent;
 import com.bramosystems.oss.player.core.event.client.PlayerStateEvent;
-import com.bramosystems.oss.player.core.event.client.PlayerStateHandler;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.Document;
 import com.google.gwt.dom.client.NativeEvent;
 import com.google.gwt.event.dom.client.DomEvent;
-import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.ui.*;
@@ -83,13 +81,13 @@ public class FlashMediaPlayer extends AbstractMediaPlayer implements PlaylistSup
 
     private FMPStateManager manager;
     private FlashMediaPlayerImpl impl;
-    private HandlerRegistration initListHandler;
     private String playerId;
     private boolean isEmbedded, resizeToVideoSize;
     private Logger logger;
     private ArrayList<String> _playlistCache;
     private PlayerWidget swf;
     private String _height, _width;
+    private static String DEFAULT_HEIGHT = "22px";
 
     private FlashMediaPlayer() throws PluginNotFoundException, PluginVersionException {
         PluginVersion req = Plugin.FlashPlayer.getVersion();
@@ -107,8 +105,9 @@ public class FlashMediaPlayer extends AbstractMediaPlayer implements PlaylistSup
             @Override
             public void onInit() {
                 impl = FlashMediaPlayerImpl.getPlayer(playerId);
-                fireDebug("Flash Player plugin");
-                fireDebug("Version : " + impl.getPluginVersion());
+                for (String url : _playlistCache) {
+                    impl.addToPlaylist(url);
+                }
                 firePlayerStateEvent(PlayerStateEvent.State.Ready);
             }
 
@@ -273,12 +272,12 @@ public class FlashMediaPlayer extends AbstractMediaPlayer implements PlaylistSup
                 @Override
                 public void onMediaInfoAvailable(MediaInfoEvent event) {
                     MediaInfo info = event.getMediaInfo();
+                    logger.log(event.getMediaInfo().asHTMLString(), true);
                     if (info.getAvailableItems().contains(MediaInfoKey.VideoHeight)
                             || info.getAvailableItems().contains(MediaInfoKey.VideoWidth)) {
                         checkVideoSize(Integer.parseInt(info.getItem(MediaInfoKey.VideoHeight)),
                                 Integer.parseInt(info.getItem(MediaInfoKey.VideoWidth)));
                     }
-                    logger.log(event.getMediaInfo().asHTMLString(), true);
                 }
             });
         }
@@ -302,7 +301,7 @@ public class FlashMediaPlayer extends AbstractMediaPlayer implements PlaylistSup
      */
     public FlashMediaPlayer(String mediaURL) throws PluginNotFoundException,
             PluginVersionException, LoadException {
-        this(mediaURL, true, "20px", "100%");
+        this(mediaURL, true, DEFAULT_HEIGHT, "100%");
     }
 
     /**
@@ -321,24 +320,15 @@ public class FlashMediaPlayer extends AbstractMediaPlayer implements PlaylistSup
      */
     public FlashMediaPlayer(String mediaURL, boolean autoplay) throws PluginNotFoundException,
             PluginVersionException, LoadException {
-        this(mediaURL, autoplay, "20px", "100%");
+        this(mediaURL, autoplay, DEFAULT_HEIGHT, "100%");
     }
 
     private void checkVideoSize(int vidHeight, int vidWidth) {
         String _h = _height, _w = _width;
-        if (vidHeight == 0) {
-            _h = "20px"; // suppress SWF app height for audio files ...
-        }
-
         if (resizeToVideoSize) {
-            if ((vidHeight > 0) && (vidWidth > 0)) {
-                // adjust to video size, if video width < control bar width,
-                // use control bar width ...
-//                int cntWidth = control.getOffsetWidth();
-//                if (vidWidth <= cntWidth) {
-//                    vidWidth = cntWidth;
-//                }
-
+            if (vidHeight == 0) {
+                _h = DEFAULT_HEIGHT; // suppress SWF app height for audio files ...
+            } else if ((vidHeight > 0) && (vidWidth > 0)) {
                 fireDebug("Resizing Player : " + vidWidth + " x " + vidHeight);
                 _h = vidHeight + "px";
                 _w = vidWidth + "px";
@@ -493,22 +483,6 @@ public class FlashMediaPlayer extends AbstractMediaPlayer implements PlaylistSup
         if (isPlayerOnPage(playerId)) {
             impl.addToPlaylist(mediaURL);
         } else {
-            if (initListHandler == null) {
-                initListHandler = addPlayerStateHandler(new PlayerStateHandler() {
-
-                    @Override
-                    public void onPlayerStateChanged(PlayerStateEvent event) {
-                        switch (event.getPlayerState()) {
-                            case Ready:
-                                for (String url : _playlistCache) {
-                                    impl.addToPlaylist(url);
-                                }
-                                break;
-                        }
-                        initListHandler.removeHandler();
-                    }
-                });
-            }
             _playlistCache.add(mediaURL);
         }
     }
@@ -624,7 +598,7 @@ public class FlashMediaPlayer extends AbstractMediaPlayer implements PlaylistSup
                     matrix.getMatrix().getVy().getZ());
 
             if (resizeToVideoSize) {
-                checkVideoSize(getVideoHeight() + 16, getVideoWidth());
+                checkVideoSize(getVideoHeight(), getVideoWidth());
             }
         } else {
             addToPlayerReadyCommandQueue("matrix", new Command() {
@@ -666,34 +640,56 @@ public class FlashMediaPlayer extends AbstractMediaPlayer implements PlaylistSup
     }
 
     @Override
-    public void setRate(final double rate) {
+    public RepeatMode getRepeatMode() {
+        checkAvailable();
+        return impl.getRepeatMode();
+    }
+
+    @Override
+    public void setRepeatMode(final RepeatMode mode) {
         if (isPlayerOnPage(playerId)) {
-            //            impl.setRate(rate);
+            impl.setRepeatMode(mode);
         } else {
-            addToPlayerReadyCommandQueue("rate", new Command() {
+            addToPlayerReadyCommandQueue("repeatMode", new Command() {
 
                 @Override
                 public void execute() {
-//                    impl.setRate(rate);
+                    impl.setRepeatMode(mode);
                 }
             });
         }
     }
 
-    @Override
-    public double getRate() {
-        checkAvailable();
-        return 0;//impl.getRate();
-    }
-/*
-    @Override
-    public RepeatMode getRepeatMode() {
-        return loopManager.getRepeatMode();
+    /**
+     * Sets the player to automatically hide its controls.
+     *
+     * <p>The auto-hide effect is active IF AND ONLY IF the controller is set visible
+     *
+     * @param autohide {@code true} to auto-hide the controller, {@code false} otherwise
+     * @since 1.2
+     */
+    public void setAutoHideController(final boolean autohide) {
+        if (isPlayerOnPage(playerId)) {
+            impl.setAutoHideController(autohide);
+        } else {
+            addToPlayerReadyCommandQueue("autohide", new Command() {
+
+                @Override
+                public void execute() {
+                    impl.setAutoHideController(autohide);
+                }
+            });
+        }
     }
 
-    @Override
-    public void setRepeatMode(RepeatMode mode) {
-        loopManager.setRepeatMode(mode);
+    /**
+     * Checks whether the player automatically hides its controls.
+     *
+     * @return {@code true} is the player autohides its controls, {@code false} otherwise
+     * @since 1.2
+     */
+    public boolean isAutoHideController() {
+        checkAvailable();
+        return impl.isAutoHideController();
     }
-*/
 }

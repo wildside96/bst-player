@@ -24,7 +24,6 @@
     <!-- define configuration properties -->
     <define-property name="bstplayer.enableLogger" values="true, false"/>
     <define-configuration-property name="bstplayer.media.mimeTypes" is-multi-valued="false" />
-    <define-configuration-property name="bstplayer.media.protocols" is-multi-valued="false" />
 
     <!--when-property-is name="user.agent" value="ie6,ie8,gecko,gecko1_8,safari,opera"/-->
 	<!-- WMPStateManager mapping for IE6/7/8 -->

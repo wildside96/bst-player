@@ -15,6 +15,7 @@
  */
 package com.bramosystems.oss.player.core.client.impl;
 
+import com.bramosystems.oss.player.core.client.RepeatMode;
 import com.bramosystems.oss.player.core.client.ui.FlashMediaPlayer;
 import com.google.gwt.core.client.JavaScriptObject;
 
@@ -35,6 +36,10 @@ public class FlashMediaPlayerImpl extends JavaScriptObject {
     }-*/;
 
     public native final String getPluginVersion() /*-{
+    return this.getPluginVersion();
+    }-*/;
+
+    public native final String getPlayerVersion() /*-{
     return this.getPlayerVersion();
     }-*/;
 
@@ -146,5 +151,42 @@ public class FlashMediaPlayerImpl extends JavaScriptObject {
 
     public native final void setControllerVisible(boolean visible) /*-{
     this.setControllerVisible(visible);
+    }-*/;
+
+    public final RepeatMode getRepeatMode() {
+        try {
+            return RepeatMode.valueOf("REPEAT_" + getRepeatModeImpl().toUpperCase());
+        } catch (Exception e) {
+            return RepeatMode.REPEAT_OFF;
+        }
+    }
+
+    public final void setRepeatMode(RepeatMode mode) {
+        switch(mode) {
+            case REPEAT_ALL:
+                setRepeatModeImpl("all");
+                break;
+            case REPEAT_OFF:
+                setRepeatModeImpl("off");
+                break;
+            case REPEAT_ONE:
+                setRepeatModeImpl("one");
+        }
+    }
+
+    private native String getRepeatModeImpl() /*-{
+    return this.getRepeatMode();
+    }-*/;
+
+    private native void setRepeatModeImpl(String mode) /*-{
+    this.setRepeatMode(mode);
+    }-*/;
+
+    public native final boolean isAutoHideController() /*-{
+    return this.isAutoHideController();
+    }-*/;
+
+    public native final void setAutoHideController(boolean autohide) /*-{
+    this.setAutoHideController(autohide);
     }-*/;
 }
