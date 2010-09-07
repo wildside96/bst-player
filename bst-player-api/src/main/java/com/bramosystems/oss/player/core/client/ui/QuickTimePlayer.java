@@ -241,11 +241,10 @@ public class QuickTimePlayer extends AbstractMediaPlayer implements MatrixSuppor
                 }
             });
         } else {
-            _height = "0px";
-            _width = "0px";
+            _height = "1px";
+            _width = "1px";
         }
 
-        fireDebug("QuickTime Player plugin");
         playlistManager.addToPlaylist(mediaURL);
     }
 
@@ -291,6 +290,7 @@ public class QuickTimePlayer extends AbstractMediaPlayer implements MatrixSuppor
      */
     @Override
     protected final void onLoad() {
+        fireDebug("QuickTime Player plugin");
         playerWidget.setSize(_width, _height);
         setWidth(_width);
 

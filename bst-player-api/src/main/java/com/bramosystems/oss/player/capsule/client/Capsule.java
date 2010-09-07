@@ -89,8 +89,8 @@ public class Capsule extends CustomAudioPlayer {
 
     private ImagePack imgPack;
     private ProgressBar progress;
-    private PushButton play,  stop;
-    private Timer playTimer,  infoTimer;
+    private PushButton play, stop, next, prev;
+    private Timer playTimer, infoTimer;
     private PlayState playState;
     private VolumeControl vc;
     private MediaInfo mInfo;
@@ -127,6 +127,7 @@ public class Capsule extends CustomAudioPlayer {
             PluginVersionException, LoadException {
         this(Plugin.Auto, mediaURL, autoplay);
     }
+
     /**
      * Constructs <code>Capsule</code> player to automatically playback the
      * media located at {@code mediaURL}, if {@code autoplay} is {@code true} using
@@ -144,9 +145,9 @@ public class Capsule extends CustomAudioPlayer {
      */
     public Capsule(Plugin plugin, String mediaURL, boolean autoplay) throws PluginNotFoundException,
             PluginVersionException, LoadException {
-        this(plugin,mediaURL,autoplay,(ImagePack) GWT.create(CapsuleImagePack.class));        
+        this(plugin, mediaURL, autoplay, (ImagePack) GWT.create(CapsuleImagePack.class));
     }
-    
+
     /**
      * Constructs <code>Capsule</code> player to automatically playback the
      * media located at {@code mediaURL}, if {@code autoplay} is {@code true} using
@@ -204,6 +205,7 @@ public class Capsule extends CustomAudioPlayer {
 
         play = new PushButton(new Image(imgPack.play()), new ClickHandler() {
 
+            @Override
             public void onClick(ClickEvent event) {
                 switch (playState) {
                     case Stop:
@@ -220,12 +222,12 @@ public class Capsule extends CustomAudioPlayer {
                 }
             }
         });
-
         play.getUpDisabledFace().setImage(new Image(imgPack.playDisabled()));
         play.setEnabled(false);
 
         stop = new PushButton(new Image(imgPack.stop()), new ClickHandler() {
 
+            @Override
             public void onClick(ClickEvent event) {
                 stopMedia();
             }
@@ -234,9 +236,40 @@ public class Capsule extends CustomAudioPlayer {
         stop.getUpHoveringFace().setImage(new Image(imgPack.stopHover()));
         stop.setEnabled(false);
 
+        next = new PushButton(new Image(imgPack.next()), new ClickHandler() {
+
+            @Override
+            public void onClick(ClickEvent event) {
+                try {
+                    playNext();
+                } catch (PlayException ex) {
+                    next.setEnabled(false);
+                }
+            }
+        });
+        next.getUpDisabledFace().setImage(new Image(imgPack.nextDisabled()));
+        next.getUpHoveringFace().setImage(new Image(imgPack.nextHover()));
+        next.setEnabled(false);
+
+        prev = new PushButton(new Image(imgPack.prev()), new ClickHandler() {
+
+            @Override
+            public void onClick(ClickEvent event) {
+                try {
+                    playPrevious();
+                } catch (PlayException ex) {
+                    prev.setEnabled(false);
+                }
+            }
+        });
+        prev.getUpDisabledFace().setImage(new Image(imgPack.prevDisabled()));
+        prev.getUpHoveringFace().setImage(new Image(imgPack.prevHover()));
+        prev.setEnabled(false);
+
         vc = new VolumeControl(new Image(imgPack.spk()), 5);
         vc.addVolumeChangeHandler(new VolumeChangeHandler() {
 
+            @Override
             public void onVolumeChanged(VolumeChangeEvent event) {
                 setVolume(event.getNewVolume());
             }
@@ -245,23 +278,26 @@ public class Capsule extends CustomAudioPlayer {
 
         addDebugHandler(new DebugHandler() {
 
+            @Override
             public void onDebug(DebugEvent event) {
                 logger.log(event.getMessage(), false);
             }
         });
         addLoadingProgressHandler(new LoadingProgressHandler() {
 
+            @Override
             public void onLoadingProgress(LoadingProgressEvent event) {
                 double prog = event.getProgress();
                 progress.setLoadingProgress(prog);
-                if(prog == 1.0){
-                progress.setTime(0, getMediaDuration());
-                vc.setVolume(getVolume());
+                if (prog == 1.0) {
+                    progress.setTime(0, getMediaDuration());
+                    vc.setVolume(getVolume());
                 }
             }
         });
         addMediaInfoHandler(new MediaInfoHandler() {
 
+            @Override
             public void onMediaInfoAvailable(MediaInfoEvent event) {
                 mInfo = event.getMediaInfo();
                 mItems = mInfo.getAvailableItems();
@@ -275,23 +311,32 @@ public class Capsule extends CustomAudioPlayer {
         });
         addPlayStateHandler(new PlayStateHandler() {
 
+            @Override
             public void onPlayStateChanged(PlayStateEvent event) {
+                int index = event.getItemIndex();
                 switch (event.getPlayState()) {
                     case Stopped:
                     case Finished:
                         toPlayState(PlayState.Stop);
+                        next.setEnabled(false);
+                        prev.setEnabled(false);
                         break;
                     case Paused:
                         toPlayState(PlayState.Pause);
+                        next.setEnabled(index < (getPlaylistSize() - 1));
+                        prev.setEnabled(index > 0);
                         break;
                     case Started:
                         toPlayState(PlayState.Playing);
+                        next.setEnabled(index < (getPlaylistSize() - 1));
+                        prev.setEnabled(index > 0);
                         break;
                 }
             }
         });
         addPlayerStateHandler(new PlayerStateHandler() {
 
+            @Override
             public void onPlayerStateChanged(PlayerStateEvent event) {
                 switch (event.getPlayerState()) {
                     case BufferingFinished:
@@ -314,6 +359,8 @@ public class Capsule extends CustomAudioPlayer {
         main.add(new Image(imgPack.lEdge()), DockPanel.WEST);
         main.add(play, DockPanel.WEST);
         main.add(stop, DockPanel.WEST);
+        main.add(prev, DockPanel.WEST);
+        main.add(next, DockPanel.WEST);
         main.add(new Image(imgPack.rEdge()), DockPanel.EAST);
         main.add(vc, DockPanel.EAST);
         main.add(progress, DockPanel.CENTER);
@@ -361,7 +408,7 @@ public class Capsule extends CustomAudioPlayer {
     private class ProgressBar extends Composite {
 
         private MediaSeekBar seekBar;
-        private Label timeLabel,  infoLabel;
+        private Label timeLabel, infoLabel;
 
         public ProgressBar() {
             timeLabel = new Label("--:-- / --:--");
@@ -385,6 +432,7 @@ public class Capsule extends CustomAudioPlayer {
             seekBar.setWidth("100%");
             seekBar.addSeekChangeHandler(new SeekChangeHandler() {
 
+                @Override
                 public void onSeekChanged(SeekChangeEvent event) {
                     setPlayPosition(event.getSeekPosition() * getMediaDuration());
                 }
@@ -401,8 +449,8 @@ public class Capsule extends CustomAudioPlayer {
         }
 
         public void setTime(double timeInMS, double duration) {
-            timeLabel.setText(PlayerUtil.formatMediaTime((long) timeInMS) + " / " +
-                    PlayerUtil.formatMediaTime((long)duration));
+            timeLabel.setText(PlayerUtil.formatMediaTime((long) timeInMS) + " / "
+                    + PlayerUtil.formatMediaTime((long) duration));
             seekBar.setPlayingProgress(timeInMS / duration);
         }
 

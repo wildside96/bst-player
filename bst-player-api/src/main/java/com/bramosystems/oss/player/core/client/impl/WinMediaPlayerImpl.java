@@ -277,4 +277,10 @@ public class WinMediaPlayerImpl extends JavaScriptObject {
     return this.settings.mediaAccessRights;
     } catch(e) {return null;}
     }-*/;
+
+    public final native void setAutoStart(boolean autoStart) /*-{
+    try {
+    this.settings.autoStart = autoStart;
+    } catch(e) {}
+    }-*/;
 }

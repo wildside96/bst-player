@@ -182,16 +182,12 @@ public class PlayerUtil {
         Plugin pg = Plugin.Auto, _plugins[] = null;
 
         switch (plugin) {
-            case PlaylistSupport:
-                _plugins = new Plugin[2];
-                _plugins[0] = Plugin.FlashPlayer;
-                _plugins[1] = Plugin.VLCPlayer;
-                break;
             case MatrixSupport:
                 _plugins = new Plugin[2];
                 _plugins[0] = Plugin.QuickTimePlayer;
                 _plugins[1] = Plugin.FlashPlayer;
                 break;
+            case PlaylistSupport:
             case Auto:
                 _plugins = Plugin.values();
                 break;

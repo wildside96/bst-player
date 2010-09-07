@@ -13,6 +13,7 @@ import com.google.gwt.resources.client.ImageResource;
  * images.
  */
 public interface ImagePack {
+    
     public ImageResource pause();
 
     public ImageResource pauseHover();

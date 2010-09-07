@@ -8,6 +8,7 @@ import com.google.gwt.resources.client.ImageResource;
  * Simple Image Pack with flat blue images.
  */
 public interface FlatImagePack extends ImagePack, ClientBundle {
+    @Override
     public ImageResource pause();
 
     public ImageResource pauseHover();

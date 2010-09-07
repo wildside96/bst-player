@@ -29,6 +29,8 @@ import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.dom.client.MouseMoveEvent;
+import com.google.gwt.event.dom.client.MouseMoveHandler;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.Window.Location;
@@ -63,12 +65,12 @@ public class Dev extends VerticalPanel implements EntryPoint {
     public void onModuleLoad() {
 //        RootPanel.get().add(new ScrollPanel(this));
         RootPanel.get().add(this);
-        addPlayer(Plugin.WinMediaPlayer);
+//        addPlayer(Plugin.WinMediaPlayer);
 //        addPlayer(Plugin.DivXPlayer);
 //        addPlayer(Plugin.FlashPlayer);
 //        addPlayer(Plugin.QuickTimePlayer);
 //        addPlayer(Plugin.Native);
-//        addPlayer(Plugin.VLCPlayer);
+        addPlayer(Plugin.VLCPlayer);
 
 //        add(new MimeStuffs());
 //        addUTube();
@@ -138,6 +140,17 @@ public class Dev extends VerticalPanel implements EntryPoint {
 //            ((PlaylistSupport) mmp).setShuffleEnabled(true);
 //            mmp.setControllerVisible(false);
             add(mmp);
+
+            final Label lbl = new Label("MM - ");
+            add(lbl);
+
+            mmp.addMouseMoveHandler(new MouseMoveHandler() {
+
+                @Override
+                public void onMouseMove(MouseMoveEvent event) {
+                    lbl.setText("MM - " + event.getX() + ", " + event.getY());
+                }
+            });
         } catch (LoadException ex) {
             add(new Label("Load Exception"));
         } catch (PluginNotFoundException ex) {
@@ -183,7 +196,5 @@ public class Dev extends VerticalPanel implements EntryPoint {
 
     private String getURL(String path) {
         return Location.createUrlBuilder().setPort(8080).setPath(path).buildString();
-
-
     }
 }
