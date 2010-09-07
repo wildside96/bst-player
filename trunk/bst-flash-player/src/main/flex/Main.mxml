@@ -64,8 +64,7 @@
                         addEventListener(MouseEvent.MOUSE_DOWN, EventUtil.fireMouseDownEvent);
                         addEventListener(MouseEvent.MOUSE_UP, EventUtil.fireMouseUpEvent);
                         addEventListener(MouseEvent.MOUSE_MOVE, EventUtil.fireMouseMoveEvent);
-                        addEventListener(MouseEvent.MOUSE_OVER, controller.onAHMouseOver);
-                        addEventListener(MouseEvent.MOUSE_OUT, controller.onAHMouseOut);
+                        addEventListener(MouseEvent.MOUSE_MOVE, controller.onAHMouseMove);
                         addEventListener(MouseEvent.CLICK, EventUtil.fireClickEvent);
                         addEventListener(MouseEvent.DOUBLE_CLICK, EventUtil.fireDoubleClickEvent);
                         application.addEventListener(KeyboardEvent.KEY_UP, EventUtil.fireKeyUpEvent);
@@ -73,8 +72,6 @@
 
                         /********************** SETUP JS-INTERFACE FUNCTIONS ************************/
                         // setup callback interfaces...
-                        ExternalInterface.addCallback("setAutoHideController", controller.setAutoHide);
-                        ExternalInterface.addCallback("isAutoHideController", controller.isAutoHide);
                         ExternalInterface.addCallback("getPlayerVersion", getPlayerVersion);
                         ExternalInterface.addCallback("getPluginVersion", getFlashVersion);
                         ExternalInterface.addCallback("close", player.close);
@@ -118,14 +115,18 @@
 //                        ExternalInterface.addCallback("isFullScreen", controller.isFullScreenState);
                         ExternalInterface.addCallback("isControllerVisible", controller.isControllerVisible);
                         ExternalInterface.addCallback("setControllerVisible", controller.setControllerVisible);
+                        ExternalInterface.addCallback("setAutoHideController", controller.setAutoHide);
+                        ExternalInterface.addCallback("isAutoHideController", controller.isAutoHide);
 
                         /******************* FINISH INIT ***********************************/
                         contextMenu = new PlayerMenu().getMenu();
                         Log.info("BST Flash Player 1.2");
-                        player.updateVDUSize();
-                        player.load(PlayerOptions.mediaURL);
-
+                        Log.info("Flash Plugin Version " + getFlashVersion());
+                        playlist.add(PlayerOptions.mediaURL);
                         EventUtil.fireApplicationInitialized();
+
+                        player.updateVDUSize();
+                        player.loadNext();
                         if (PlayerOptions.autoplay) {
                             player.play();
                         }

@@ -38,6 +38,7 @@ package com.bramosystems.oss.player {
             private var mediaURL:String = "";
             private var playlist:Playlist;
             private var propagateMeta:Boolean = false, _canFireStopped:Boolean = false;
+            private var _canFireFinished:Boolean = false;
 
             public function _load(url:String):void {
                 autoPlay = false;
@@ -54,12 +55,13 @@ package com.bramosystems.oss.player {
                     Log.info("Player not loaded, load player first");
                     throw new Error("Player not loaded, load player first");
                 }
-
+                _canFireFinished = true;
                 super.play();
             }
 
             public function _stop(fireEvent:Boolean):void {
                 _canFireStopped = fireEvent;
+                _canFireFinished = false;
                 stop();
             }
 
@@ -139,7 +141,9 @@ package com.bramosystems.oss.player {
                     case VideoEvent.SEEKING: // a seek occurring due to the playHeadTime property being set.
                         break;
                     case VideoEvent.REWINDING: // The autorewind triggered when play stops.
-                        dispatchEvent(new PlayStateEvent(PlayStateEvent.PLAY_FINISHED));
+                        if(_canFireFinished) {
+                            dispatchEvent(new PlayStateEvent(PlayStateEvent.PLAY_FINISHED));
+                        }
                         break;
                     case VideoEvent.PLAYING:
                         dispatchEvent(new PlayStateEvent(PlayStateEvent.PLAY_STARTED));

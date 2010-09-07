@@ -17,9 +17,9 @@
 package com.bramosystems.oss.player.playlist {
 
     public final class RepeatMode {
-        public static const OFF:RepeatMode = new RepeatMode();
-        public static const ALL:RepeatMode = new RepeatMode();
-        public static const ONE:RepeatMode = new RepeatMode();
+        public static const OFF:RepeatMode = new RepeatMode("off");
+        public static const ALL:RepeatMode = new RepeatMode("all");
+        public static const ONE:RepeatMode = new RepeatMode("one");
 
         public static function getMode(mode:String):RepeatMode {
             mode = mode.toUpperCase();
@@ -30,5 +30,14 @@ package com.bramosystems.oss.player.playlist {
             else
                 return OFF;
         }
+
+        public function RepeatMode(_type:String) {
+            type = _type;
+        }
+
+        public function getName():String {
+            return type;
+        }
+        private var type:String;
     }
 }
