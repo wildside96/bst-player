@@ -99,30 +99,35 @@ public abstract class CustomAudioPlayer extends AbstractMediaPlayer implements P
         }
         engine.addDebugHandler(new DebugHandler() {
 
+            @Override
             public void onDebug(DebugEvent event) {
                 fireEvent(event);
             }
         });
         engine.addLoadingProgressHandler(new LoadingProgressHandler() {
 
+            @Override
             public void onLoadingProgress(LoadingProgressEvent event) {
                 fireEvent(event);
             }
         });
         engine.addMediaInfoHandler(new MediaInfoHandler() {
 
+            @Override
             public void onMediaInfoAvailable(MediaInfoEvent event) {
                 fireEvent(event);
             }
         });
         engine.addPlayStateHandler(new PlayStateHandler() {
 
+            @Override
             public void onPlayStateChanged(PlayStateEvent event) {
                 fireEvent(event);
             }
         });
         engine.addPlayerStateHandler(new PlayerStateHandler() {
 
+            @Override
             public void onPlayerStateChanged(PlayerStateEvent event) {
                 fireEvent(event);
             }
@@ -168,38 +173,47 @@ public abstract class CustomAudioPlayer extends AbstractMediaPlayer implements P
         container.setWidget(widget);
     }
 
+    @Override
     public long getMediaDuration() {
         return engine.getMediaDuration();
     }
 
+    @Override
     public double getPlayPosition() {
         return engine.getPlayPosition();
     }
 
+    @Override
     public void setPlayPosition(double position) {
         engine.setPlayPosition(position);
     }
 
+    @Override
     public void loadMedia(String mediaURL) throws LoadException {
         engine.loadMedia(mediaURL);
     }
 
+    @Override
     public void pauseMedia() {
         engine.pauseMedia();
     }
 
+    @Override
     public void playMedia() throws PlayException {
         engine.playMedia();
     }
 
+    @Override
     public void stopMedia() {
         engine.stopMedia();
     }
 
+    @Override
     public double getVolume() {
         return engine.getVolume();
     }
 
+    @Override
     public void setVolume(double volume) {
         engine.setVolume(volume);
     }
@@ -225,12 +239,14 @@ public abstract class CustomAudioPlayer extends AbstractMediaPlayer implements P
         logger.setVisible(show);
     }
 
+    @Override
     public void addToPlaylist(String mediaURL) {
         if (engine instanceof PlaylistSupport) {
             ((PlaylistSupport) engine).addToPlaylist(mediaURL);
         }
     }
 
+    @Override
     public boolean isShuffleEnabled() {
         if (engine instanceof PlaylistSupport) {
             return ((PlaylistSupport) engine).isShuffleEnabled();
@@ -238,6 +254,7 @@ public abstract class CustomAudioPlayer extends AbstractMediaPlayer implements P
         return false;
     }
 
+    @Override
     public void removeFromPlaylist(int index) {
         if (engine instanceof PlaylistSupport) {
             ((PlaylistSupport) engine).removeFromPlaylist(index);
@@ -245,18 +262,21 @@ public abstract class CustomAudioPlayer extends AbstractMediaPlayer implements P
 
     }
 
+    @Override
     public void setShuffleEnabled(boolean enable) {
         if (engine instanceof PlaylistSupport) {
             ((PlaylistSupport) engine).setShuffleEnabled(enable);
         }
     }
 
+    @Override
     public void clearPlaylist() {
         if (engine instanceof PlaylistSupport) {
             ((PlaylistSupport) engine).clearPlaylist();
         }
     }
 
+    @Override
     public int getPlaylistSize() {
         if (engine instanceof PlaylistSupport) {
             return ((PlaylistSupport) engine).getPlaylistSize();
@@ -264,18 +284,21 @@ public abstract class CustomAudioPlayer extends AbstractMediaPlayer implements P
         return 1;
     }
 
+    @Override
     public void play(int index) throws IndexOutOfBoundsException {
         if (engine instanceof PlaylistSupport) {
             ((PlaylistSupport) engine).play(index);
         }
     }
 
+    @Override
     public void playNext() throws PlayException {
         if (engine instanceof PlaylistSupport) {
             ((PlaylistSupport) engine).playNext();
         }
     }
 
+    @Override
     public void playPrevious() throws PlayException {
         if (engine instanceof PlaylistSupport) {
             ((PlaylistSupport) engine).playPrevious();

@@ -16,6 +16,9 @@
 package com.bramosystems.oss.player.core.client.impl;
 
 import com.bramosystems.oss.player.core.client.MediaInfo;
+import com.google.gwt.dom.client.Document;
+import com.google.gwt.dom.client.Element;
+import com.google.gwt.dom.client.NativeEvent;
 import com.google.gwt.user.client.Timer;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -86,7 +89,7 @@ public class WMPStateManager {
         Iterator<String> keys = cache.keySet().iterator();
         while (keys.hasNext()) {
             String id = keys.next();
-//            cache.get(id).doClickMouseEvents(type, button, shiftState, fX, fY);
+            cache.get(id).doClickMouseEvents(type, button, shiftState, fX, fY);
         }
     }
 
@@ -201,7 +204,6 @@ public class WMPStateManager {
         }
 
         protected void processPlayState(int state) {
-                    debug("state : " + state);
             switch (state) {
                 case 1:    // stopped..
                     debug("Media playback stopped");
@@ -252,16 +254,17 @@ public class WMPStateManager {
                 onError(err);
             }
         }
-/*
+
         public void doClickMouseEvents(int type, int button, int shiftState, double fX, double fY) {
             if (!enabled) {
                 return;
             }
+
             boolean shift = (shiftState & 1) == 1;
             boolean alt = (shiftState & 2) == 2;
             boolean ctrl = (shiftState & 4) == 4;
 
-            Element e = Element.as(player); //.getParentElement();
+            Element e = Element.as(_impl.getImpl()); //.getParentElement();
             int clientX = e.getAbsoluteLeft() + (int) fX - e.getOwnerDocument().getScrollLeft();
             int clientY = e.getAbsoluteTop() + (int) fY - e.getOwnerDocument().getScrollTop();
             int screenX = -1; //e.getAbsoluteLeft() + (int) fX; // - e.getScrollLeft();
@@ -300,10 +303,10 @@ public class WMPStateManager {
                     event = _doc.createKeyPressEvent(ctrl, alt, shift, false, button, button);
                     break;
             }
-            DomEvent.fireNativeEvent(event, handlers, e);
+            _callback.onNativeEvent(event);
         }
-*/
     }
+
     public static interface WMPEventCallback {
         public void onLoadingProgress(double progress);
         public void onError(String message);
@@ -316,6 +319,7 @@ public class WMPStateManager {
         public void onMediaInfo(MediaInfo info);
         public void onOpening();
         public void onReady();
+        public void onNativeEvent(NativeEvent event);
     }
 
     public static interface WMPImplCallback {

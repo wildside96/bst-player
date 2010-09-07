@@ -277,7 +277,6 @@ public class DivXPlayer extends AbstractMediaPlayer implements PlaylistSupport {
 
         initWidget(panel);
 
-        fireDebug("DivX Web Player plugin");
         playlistManager.addToPlaylist(mediaURL);
     }
 
@@ -348,6 +347,7 @@ public class DivXPlayer extends AbstractMediaPlayer implements PlaylistSupport {
      */
     @Override
     protected final void onLoad() {
+        fireDebug("DivX Web Player plugin");
         playerWidget.setSize(_width, _height);
         impl = DivXPlayerImpl.getPlayer(playerId);
         fireDebug("Plugin Version : " + impl.getPluginVersion());

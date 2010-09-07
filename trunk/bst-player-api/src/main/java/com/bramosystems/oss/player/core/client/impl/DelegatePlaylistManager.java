@@ -263,7 +263,7 @@ public class DelegatePlaylistManager implements PlaylistSupport {
 
     private class MRL extends ArrayList<String> {
 
-        private int index;
+        private int index = -1;
 
         public MRL() {
             super();

@@ -132,6 +132,7 @@ public class CustomPlayerControl extends Composite {
         seekbar.setWidth("95%");
         seekbar.addSeekChangeHandler(new SeekChangeHandler() {
 
+            @Override
             public void onSeekChanged(SeekChangeEvent event) {
                 player.setPlayPosition(event.getSeekPosition() * player.getMediaDuration());
             }
@@ -147,6 +148,7 @@ public class CustomPlayerControl extends Composite {
 
         play = new PushButton(new Image(imgPack.play()), new ClickHandler() {
 
+            @Override
             public void onClick(ClickEvent event) {
                 switch (playState) {
                     case Stop:
@@ -169,6 +171,7 @@ public class CustomPlayerControl extends Composite {
 
         stop = new PushButton(new Image(imgPack.stop()), new ClickHandler() {
 
+            @Override
             public void onClick(ClickEvent event) {
                 player.stopMedia();
             }
@@ -180,6 +183,7 @@ public class CustomPlayerControl extends Composite {
 
         prev = new PushButton(new Image(imgPack.prev()), new ClickHandler() {
 
+            @Override
             public void onClick(ClickEvent event) {
                 if (player instanceof PlaylistSupport) {
                     try {
@@ -198,6 +202,7 @@ public class CustomPlayerControl extends Composite {
 
         next = new PushButton(new Image(imgPack.next()), new ClickHandler() {
 
+            @Override
             public void onClick(ClickEvent event) {
                 if (player instanceof PlaylistSupport) {
                     try {
@@ -218,6 +223,7 @@ public class CustomPlayerControl extends Composite {
         vc.setPopupStyleName(STYLE_NAME + "-volumeControl");
         vc.addVolumeChangeHandler(new VolumeChangeHandler() {
 
+            @Override
             public void onVolumeChanged(VolumeChangeEvent event) {
                 player.setVolume(event.getNewVolume());
             }
@@ -225,6 +231,7 @@ public class CustomPlayerControl extends Composite {
 
         player.addLoadingProgressHandler(new LoadingProgressHandler() {
 
+            @Override
             public void onLoadingProgress(LoadingProgressEvent event) {
                 seekbar.setLoadingProgress(event.getProgress());
                 vc.setVolume(player.getVolume());
@@ -233,16 +240,14 @@ public class CustomPlayerControl extends Composite {
         });
         player.addPlayStateHandler(new PlayStateHandler() {
 
+            @Override
             public void onPlayStateChanged(PlayStateEvent event) {
                 int index = event.getItemIndex();
                 switch (event.getPlayState()) {
-                    case Finished:
-                        toPlayState(PlayState.Stop);
-                        next.setEnabled(index >= 1);
-                        prev.setEnabled(index >= 1);
-                        break;
                     case Paused:
                         toPlayState(PlayState.Pause);
+                        next.setEnabled(index < (((PlaylistSupport) player).getPlaylistSize() - 1));
+                        prev.setEnabled(index > 0);
                         break;
                     case Started:
                         toPlayState(PlayState.Playing);
@@ -250,12 +255,17 @@ public class CustomPlayerControl extends Composite {
                         prev.setEnabled(index > 0);
                         break;
                     case Stopped:
+                    case Finished:
                         toPlayState(PlayState.Stop);
+                        next.setEnabled(false);
+                        prev.setEnabled(false);
+                        break;
                 }
             }
         });
         player.addPlayerStateHandler(new PlayerStateHandler() {
 
+            @Override
             public void onPlayerStateChanged(PlayerStateEvent event) {
                 switch (event.getPlayerState()) {
                     case Ready:
@@ -331,5 +341,4 @@ public class CustomPlayerControl extends Composite {
 
         Playing, Pause, Stop;
     }
-
 }

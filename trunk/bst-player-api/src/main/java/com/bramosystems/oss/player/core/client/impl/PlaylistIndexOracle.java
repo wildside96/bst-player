@@ -91,15 +91,15 @@ public class PlaylistIndexOracle {
             while (_usedRandomIndices.contains(_currentIndex)) {
                 _currentIndex = suggestIndexImpl(up);
                 _count++;
-                if (_count == _indexSize) {
+                if (_count == _indexSize * 3) {
                     _currentIndex = -1;
                     break;
                 }
             }
-        } else {
-            if (_currentIndex == _indexSize) {
-                _currentIndex = -1;
-            }
+        }
+
+        if (_currentIndex == _indexSize) {
+            _currentIndex = -1;
         }
 
         if (_currentIndex >= 0) { // keep the used index ...

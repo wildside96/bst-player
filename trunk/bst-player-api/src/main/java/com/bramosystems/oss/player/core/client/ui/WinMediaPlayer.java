@@ -44,6 +44,8 @@ import com.bramosystems.oss.player.core.event.client.PlayStateEvent;
 import com.bramosystems.oss.player.core.event.client.PlayerStateEvent;
 import com.bramosystems.oss.player.core.event.client.PlayerStateEvent.State;
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.dom.client.NativeEvent;
+import com.google.gwt.event.dom.client.DomEvent;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.ui.FlowPanel;
@@ -88,6 +90,7 @@ import com.google.gwt.user.client.ui.FlowPanel;
 public class WinMediaPlayer extends AbstractMediaPlayer implements PlaylistSupport {
 
     private static WMPStateManager stateManager;
+    private static String DEFAULT_HEIGHT = "50px";
     private WMPStateManager.EventProcessor eventProcessor;
     private WinMediaPlayerImpl impl;
     private PlayerWidget playerWidget;
@@ -95,11 +98,11 @@ public class WinMediaPlayer extends AbstractMediaPlayer implements PlaylistSuppo
     private Logger logger;
     private boolean isEmbedded, resizeToVideoSize;
     private UIMode uiMode;
-    private Command autoplayCommand;
     private WMPPlaylistManager playlistManager;
     private LoopManager loopManager;
 
-    private WinMediaPlayer(EmbedMode embedMode) throws PluginNotFoundException, PluginVersionException {
+    private WinMediaPlayer(EmbedMode embedMode, boolean autoplay)
+            throws PluginNotFoundException, PluginVersionException {
         if (embedMode.equals(EmbedMode.PROGRAMMABLE)
                 && !PlayerWidgetFactory.get().isWMPProgrammableEmbedModeSupported()) {
             throw new PluginNotFoundException("'Media Player plugin for Firefox' is required");
@@ -116,7 +119,7 @@ public class WinMediaPlayer extends AbstractMediaPlayer implements PlaylistSuppo
             stateManager = GWT.create(WMPStateManager.class);
         }
 
-        playlistManager = new WMPPlaylistManager();
+        playlistManager = new WMPPlaylistManager(autoplay);
         loopManager = new LoopManager(new LoopManager.LoopCallback() {
 
             @Override
@@ -186,7 +189,7 @@ public class WinMediaPlayer extends AbstractMediaPlayer implements PlaylistSuppo
     public WinMediaPlayer(String mediaURL, final boolean autoplay, String height, String width,
             EmbedMode embedMode)
             throws LoadException, PluginNotFoundException, PluginVersionException {
-        this(embedMode);
+        this(embedMode, autoplay);
 
         _height = height;
         _width = width;
@@ -204,16 +207,6 @@ public class WinMediaPlayer extends AbstractMediaPlayer implements PlaylistSuppo
                     }
                 });
         panel.add(playerWidget);
-
-        autoplayCommand = new Command() {
-
-            @Override
-            public void execute() {
-                if (autoplay) {
-                    impl.play();
-                }
-            }
-        };
 
         isEmbedded = (height == null) || (width == null);
         if (!isEmbedded) {
@@ -250,7 +243,6 @@ public class WinMediaPlayer extends AbstractMediaPlayer implements PlaylistSuppo
         playerWidget.setSize(_width, _height);
         setWidth(_width);
 
-        fireDebug("Windows Media Player plugin");
         playlistManager.addToPlaylist(mediaURL);
     }
 
@@ -296,7 +288,7 @@ public class WinMediaPlayer extends AbstractMediaPlayer implements PlaylistSuppo
      */
     public WinMediaPlayer(String mediaURL) throws LoadException,
             PluginNotFoundException, PluginVersionException {
-        this(mediaURL, true, "50px", "100%");
+        this(mediaURL, true, DEFAULT_HEIGHT, "100%");
     }
 
     /**
@@ -315,7 +307,7 @@ public class WinMediaPlayer extends AbstractMediaPlayer implements PlaylistSuppo
      */
     public WinMediaPlayer(String mediaURL, boolean autoplay) throws LoadException,
             PluginNotFoundException, PluginVersionException {
-        this(mediaURL, autoplay, "50px", "100%");
+        this(mediaURL, autoplay, DEFAULT_HEIGHT, "100%");
     }
 
     /**
@@ -331,6 +323,7 @@ public class WinMediaPlayer extends AbstractMediaPlayer implements PlaylistSuppo
         }
 
         impl = WinMediaPlayerImpl.getPlayer(playerId);
+        impl.setAutoStart(false);
         stateManager.registerMediaStateHandlers(impl);
         eventProcessor.setEnabled(true);
         if (uiMode != null) {
@@ -343,11 +336,11 @@ public class WinMediaPlayer extends AbstractMediaPlayer implements PlaylistSuppo
      */
     @Override
     protected final void onLoad() {
+        fireDebug("Windows Media Player plugin");
         setupPlayer(false);
         fireDebug("Plugin Version : " + impl.getPlayerVersion());
         firePlayerStateEvent(PlayerStateEvent.State.Ready);
         playlistManager.load(0);
-//        autoplayCommand.execute();
     }
 
     @Override
@@ -513,8 +506,15 @@ public class WinMediaPlayer extends AbstractMediaPlayer implements PlaylistSuppo
                 // adjust to video size ...
                 _w = vidWidth + "px";
                 _h = vidHeight + "px";
-                fireDebug("Resizing Player : " + _w + " x " + _h);
+            } else {
+                _h = DEFAULT_HEIGHT;
             }
+            fireDebug("Resizing Player : " + _w + " x " + _h);
+        }
+
+        // TODO: disable resizing for non-IE browsers for now, unstable with playlists
+        if (stateManager.shouldRunResizeQuickFix()) {
+            return;
         }
 
         playerWidget.setSize(_w, _h);
@@ -522,7 +522,7 @@ public class WinMediaPlayer extends AbstractMediaPlayer implements PlaylistSuppo
 
         if (!_height.equals(_h) && !_width.equals(_w)) {
             if (stateManager.shouldRunResizeQuickFix()) {
-                // TODO check this properly 
+                // TODO check this properly for playlists ...
                 setupPlayer(true); // replace player ...
                 playlistManager.play(playlistManager.getPlaylistIndex());
             }
@@ -813,9 +813,10 @@ public class WinMediaPlayer extends AbstractMediaPlayer implements PlaylistSuppo
     private class WMPPlaylistManager extends DelegatePlaylistManager
             implements WMPStateManager.WMPEventCallback {
 
-        private boolean ready, playOnReady;
+        private boolean ready, _autoplay;
 
-        public WMPPlaylistManager() {
+        public WMPPlaylistManager(boolean autoplay) {
+            _autoplay = autoplay;
         }
 
         @Override
@@ -831,7 +832,7 @@ public class WinMediaPlayer extends AbstractMediaPlayer implements PlaylistSuppo
 
                 @Override
                 public void load(String url) {
-                    playOnReady = true;
+                    impl.setAutoStart(_autoplay);
                     impl.setURL(url);
                 }
 
@@ -864,17 +865,17 @@ public class WinMediaPlayer extends AbstractMediaPlayer implements PlaylistSuppo
 
         @Override
         public void onStop() {
-            firePlayStateEvent(PlayStateEvent.State.Stopped, 0);
+            firePlayStateEvent(PlayStateEvent.State.Stopped, getPlaylistIndex());
         }
 
         @Override
         public void onPlay() {
-            firePlayStateEvent(PlayStateEvent.State.Started, 0);
+            firePlayStateEvent(PlayStateEvent.State.Started, getPlaylistIndex());
         }
 
         @Override
         public void onPaused() {
-            firePlayStateEvent(PlayStateEvent.State.Paused, 0);
+            firePlayStateEvent(PlayStateEvent.State.Paused, getPlaylistIndex());
         }
 
         @Override
@@ -895,9 +896,14 @@ public class WinMediaPlayer extends AbstractMediaPlayer implements PlaylistSuppo
         @Override
         public void onReady() {
             ready = true;
-            if (playOnReady) {
-                impl.play();
-            }
+//            if (_autoplay) {
+            impl.play();
+//            }
+        }
+
+        @Override
+        public void onNativeEvent(NativeEvent event) {
+            DomEvent.fireNativeEvent(event, WinMediaPlayer.this);
         }
     }
 }

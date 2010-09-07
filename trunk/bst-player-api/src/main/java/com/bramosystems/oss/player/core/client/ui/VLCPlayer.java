@@ -244,13 +244,13 @@ public class VLCPlayer extends AbstractMediaPlayer implements PlaylistSupport {
 
                 @Override
                 public void onMediaInfoAvailable(MediaInfoEvent event) {
+                    logger.log(event.getMediaInfo().asHTMLString(), true);
                     MediaInfo info = event.getMediaInfo();
                     if (info.getAvailableItems().contains(MediaInfoKey.VideoHeight)
                             || info.getAvailableItems().contains(MediaInfoKey.VideoWidth)) {
                         checkVideoSize(Integer.parseInt(info.getItem(MediaInfoKey.VideoHeight)),
                                 Integer.parseInt(info.getItem(MediaInfoKey.VideoWidth)));
                     }
-                    logger.log(event.getMediaInfo().asHTMLString(), true);
                 }
             });
         } else {
@@ -258,7 +258,6 @@ public class VLCPlayer extends AbstractMediaPlayer implements PlaylistSupport {
             _width = "0px";
         }
 
-        fireDebug("VLC Media Player plugin");
         stateHandler.getPlaylistManager().addToPlaylist(mediaURL);
     }
 
@@ -300,6 +299,7 @@ public class VLCPlayer extends AbstractMediaPlayer implements PlaylistSupport {
      */
     @Override
     protected final void onLoad() {
+        fireDebug("VLC Media Player plugin");
         playerWidget.setSize(_width, _height);
         setWidth(_width);
 
@@ -485,7 +485,7 @@ public class VLCPlayer extends AbstractMediaPlayer implements PlaylistSupport {
     @Override
     public int getPlaylistSize() {
         checkAvailable();
-        return impl.getPlaylistCount();
+        return stateHandler.getPlaylistManager().getPlaylistSize();
     }
 
     /**
