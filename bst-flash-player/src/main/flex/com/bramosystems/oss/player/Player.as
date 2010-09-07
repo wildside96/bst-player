@@ -82,7 +82,11 @@ package com.bramosystems.oss.player {
 
         private function playlistAddComplete(event:PlaylistEvent):void {
             playlist.removeEventListener(PlaylistEvent.ADDED, playlistAddComplete);
-            var url:String = playlist.getNextURLEntry();
+            loadNext();
+        }
+
+        public function loadNext():void {
+            var url:String = playlist.getNext(false);
             _load(url);
         }
 
@@ -100,8 +104,21 @@ package com.bramosystems.oss.player {
         }
 
         public function playNext():Boolean {
-            if(playlist.hasNext()) {
-                _load(playlist.getNextURLEntry());
+            var url:String = playlist.getNext(true);
+            if(url != null) {
+                _load(url);
+                player.play();
+                return true;
+            } else {
+                state = STOPPED;
+                return false;
+            }
+        }
+
+        private function playNextLoop():Boolean {
+            var url:String = playlist.getNext(false);
+            if(url != null) {
+                _load(url);
                 player.play();
                 return true;
             } else {
@@ -111,8 +128,9 @@ package com.bramosystems.oss.player {
         }
 
         public function playPrev():Boolean {
-            if(playlist.hasPrev()) {
-                _load(playlist.getPrevURLEntry());
+            var url:String = playlist.getPrev(true);
+            if(url != null) {
+                _load(url);
                 player.play();
                 return true;
             } else {
@@ -150,7 +168,9 @@ package com.bramosystems.oss.player {
         }
 
         public function setPlayPosition(pos:Number):void {
-            player.setPlayPosition(pos);
+            if(state == PLAYING) {
+                player.setPlayPosition(pos);
+            }
         }
 
         public function close():void {
@@ -188,7 +208,7 @@ package com.bramosystems.oss.player {
         /*************************** PLAY STATE HANDLERS *********************/
         private function playFinished(event:PlayStateEvent):void {
             EventUtil.fireMediaStateChanged(9, playlist.getIndex());
-            if(!playNext()) {
+            if(!playNextLoop()) {
                 Log.info("Media playback finished");
                 EventUtil.fireMediaStateChanged(9);
                 state = FINISHED;

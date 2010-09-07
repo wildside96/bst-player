@@ -32,7 +32,8 @@ package com.bramosystems.oss.player.playlist {
         private var shuffleOn:Boolean;
         private var loopCount:int;
 
-        public function Playlist(setting:Setting) {
+        public function Playlist(_setting:Setting) {
+            setting = _setting;
             playlist = new Array();
             _usedIndices = new Array();
             _index = -1;
@@ -84,6 +85,7 @@ package com.bramosystems.oss.player.playlist {
         /************************ REPEAT SUPPORT *******************************/
         public function setRepeatMode(mode:String):void {
             repeatMode = RepeatMode.getMode(mode);
+            Log.info("Repeat Mode changed : '" + repeatMode.getName() + "'");
         }
 
         public function setRepeat(mode:RepeatMode):void {
@@ -95,139 +97,20 @@ package com.bramosystems.oss.player.playlist {
         }
 
         /************************ NEXT/PREV SUPPORT *******************************/
-        public function getNext():PlaylistEntry {
-            if(!computeIndex(true)) {
-                return playlist[_index];
+        public function getNext(ignoreLoopCount:Boolean):String {
+            if(!computeIndex(true, ignoreLoopCount)) {
+                return playlist[_index].getFileName();
             } else {
                 return null;
             }
         }
 
-        public function getNextURLEntry():String {
-            var entry:PlaylistEntry = getNext();
-            if(entry != null) {
-                return entry.getFileName();
+        public function getPrev(ignoreLoopCount:Boolean):String {
+            if(!computeIndex(false, ignoreLoopCount)) {
+                return playlist[_index].getFileName();
             } else {
                 return null;
             }
-        }
-
-        public function getPrev():PlaylistEntry {
-            if(!computeIndex(false)) {
-                return playlist[_index];
-            } else {
-                return null;
-            }
-        }
-
-        public function getPrevURLEntry():String {
-            var entry:PlaylistEntry = getPrev();
-            if(entry != null) {
-                return entry.getFileName();
-            } else {
-                return null;
-            }
-        }
-
-        public function hasNext():Boolean {
-            var has:Boolean = true;
-            switch(repeatMode) {
-                case RepeatMode.OFF:
-                    has = hasPlaylistNext();
-                    break;
-                case RepeatMode.ONE:
-                case RepeatMode.ALL:
-                    has = true;
-            }
-            return has;
-        }
-
-        public function hasPrev():Boolean {
-            var has:Boolean = true;
-            switch(repeatMode) {
-                case RepeatMode.OFF:
-                    has = hasPlaylistPrev();
-                    break;
-                case RepeatMode.ONE:
-                case RepeatMode.ALL:
-                    has = true;
-            }
-            return has;
-        }
-
-        private function computeIndex(up:Boolean):Boolean {
-            var endOfList:Boolean = false;
-            switch(repeatMode) {
-                case RepeatMode.OFF:
-                    endOfList = _suggestIndex(up, false);
-                    if(endOfList && (loopCount > 1)) {
-                        endOfList = _suggestIndex(up, true);
-                        loopCount--;
-                    }
-                    break;
-                case RepeatMode.ONE:
-                    if(loopCount > 1) {
-                        loopCount--;
-                    } else {
-                        endOfList = true;
-                    }
-                    break;
-                case RepeatMode.ALL:
-                    if(loopCount > 1) {
-                        endOfList = _suggestIndex(up, --loopCount > 1);
-                    } else {
-                        endOfList = _suggestIndex(up, true);
-                    }
-                    break;
-            }
-            return endOfList;
-        }
-
-        public function hasPlaylistNext():Boolean {
-            return _index < (size() - 1);
-        }
-
-        public function hasPlaylistPrev():Boolean {
-            return _index > 0;
-        }
-
-        private function _suggestIndex(up:Boolean, canRepeat:Boolean):Boolean {
-            if (_index < 0 && canRepeat) {  // prepare for another iteration ...
-                _usedIndices.splice(0);
-                _index = up ? 0 : size();
-            } else {
-                _index = _suggestIndexImpl(up);
-            }
-
-            if (shuffleOn) {
-                var _count:int = 0;
-                while (_usedIndices.indexOf(_index) >= 0) {
-                    _index = _suggestIndexImpl(up);
-                    _count++;
-                    if (_count == size()) {
-                        _index = -1;
-                        break;
-                    }
-                }
-            } else {
-                if (_index == size()) {
-                    _index = -1;
-                }
-            }
-
-            if (_index >= 0) { // keep the used index ...
-                _usedIndices.push(_index);
-                return false; // valid index
-            }
-            return true;  // end of list
-        }
-
-        private function _checkIndex(index:Number):Boolean {
-            return (index >= 0) && (index < size());
-        }
-
-        private function _suggestIndexImpl(up:Boolean):int {
-            return shuffleOn ? Math.round(Math.random() * size()) : (up ? ++_index : --_index);
         }
 
         /************************* EVENT HANDLERS ********************************/
@@ -237,13 +120,6 @@ package com.bramosystems.oss.player.playlist {
 
         private function updateLoopCount(event:SettingChangedEvent):void {
             loopCount = parseInt(event.newValue);
-//            if(loopCount < 0) {
-//                repeatMode = RepeatMode.REPEAT_ALL;
-//            } else if(loopCount == 1){
-//                repeatMode = RepeatMode.REPEAT_OFF;
-//            } else {
-//                repeatMode = RepeatMode.CUSTOM_REPEAT;
-//            }
         }
 
         /************************* M3U PLAYLIST SUPPORT ****************************/
@@ -287,6 +163,89 @@ package com.bramosystems.oss.player.playlist {
             } else {
                 Log.error(event.text);
             }
+        }
+
+        /************************* Loop Management *************************************/
+        private function computeIndex(up:Boolean, ignoreLoopCount:Boolean):Boolean {
+            if (setting.getLoopCount() < 0) {
+                repeatMode = RepeatMode.ALL;
+            }
+
+            var endOfList:Boolean = false;
+            switch(repeatMode) {
+                case RepeatMode.OFF:
+                    endOfList = _suggestIndex(up, false);
+                    break;
+                case RepeatMode.ONE:
+                    if(ignoreLoopCount) {
+                        loopCount = setting.getLoopCount() - 1;
+                        endOfList = _suggestIndex(up, false);
+                    } else {
+                        _index = _index < 0 ? 0 : _index;
+                        if(setting.getLoopCount() > 1) {
+                            if(loopCount-- == 0) {
+                                loopCount = setting.getLoopCount() - 1;
+                                endOfList = _suggestIndex(up, false);
+                            }
+                        }
+                    }
+                    break;
+                case RepeatMode.ALL:
+                    if(setting.getLoopCount() > 1) {
+                        endOfList = _suggestIndex(up, false);
+                        loopCount = endOfList ? loopCount - 1 : loopCount;
+                        endOfList = loopCount == 0;
+                        _index = !endOfList && (_index < 0) ? 0 : _index;
+                        if(endOfList && (loopCount == 0)) {
+                            loopCount = setting.getLoopCount();
+                            endOfList = true;
+                        }
+                    } else {
+                        endOfList = _suggestIndex(up, true);
+                    }
+                    break;
+            }
+            return endOfList;
+        }
+
+        private function _suggestIndex(up:Boolean, canRepeat:Boolean):Boolean {
+            if (_index < 0 && canRepeat) {  // prepare for another iteration ...
+                _usedIndices.splice(0);
+                _index = up ? 0 : size();
+            } else {
+                _index = _suggestIndexImpl(up);
+            }
+
+            if (shuffleOn) {
+                var _count:int = 0;
+                while ((_index < 0) || (_usedIndices.indexOf(_index) >= 0)) {
+                    _index = _suggestIndexImpl(up);
+                    _count++;
+                    if (_count == size() * 3) {
+                        _index = -1;
+                        break;
+                    }
+                }
+            }
+
+            if (_index == size()) {
+                _index = -1;
+            }
+
+            if (_index < 0 && canRepeat) {  // prepare for another iteration ...
+                _usedIndices.splice(0);
+                _index = up ? 0 : size();
+            }
+
+            if (_index >= 0) { // keep the used index ...
+                _usedIndices.push(_index);
+                return false; // valid index
+            }
+            return true;  // end of list
+        }
+
+        private function _suggestIndexImpl(up:Boolean):int {
+            return shuffleOn ? Math.round(Math.random() * size() - 1) : (up ? ++_index : --_index);
         }
     }
 }

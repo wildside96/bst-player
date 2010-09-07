@@ -22,6 +22,7 @@ package com.bramosystems.oss.player.control {
 
     import flash.display.*;
     import flash.events.*;
+    import flash.utils.Timer;
     import mx.core.*;
     import mx.containers.*;
     import mx.controls.*;
@@ -35,6 +36,7 @@ package com.bramosystems.oss.player.control {
         private var play:UIComponent, next:UIComponent;
         private var prev:UIComponent, toggler:UIComponent;
         private var playButtonShowPlay:Boolean = true, autoHideController:Boolean = false;
+        private var showController:Boolean = true;
 
         private var player:Player;
         private var playlist:Playlist;
@@ -43,6 +45,7 @@ package com.bramosystems.oss.player.control {
 
         private const _size:int = 18;
         private const _margin:int = 2;
+        private const _ahTimer:Timer = new Timer(1500);
 
         public function Controller(_player:Player, _setting:Setting, _playlist:Playlist) {
             player = _player;
@@ -57,6 +60,7 @@ package com.bramosystems.oss.player.control {
             setStyle("borderSides", "top");
             setStyle("borderStyle", "solid");
             setStyle("borderThickness", 1.5);
+            setStyle("backgroundColor", 0x000000);
             setStyle("bottom", 0);
 
             seekbar = new Seekbar();
@@ -74,11 +78,7 @@ package com.bramosystems.oss.player.control {
 
             Application.application.stage.addEventListener(FullScreenEvent.FULL_SCREEN, onFullScreen);
             updateDisplay(false);
-
-            var fade:Fade = new Fade();
-            fade.duration = 2000;
-            fade.startDelay = 2000;
-            setStyle('hideEffect', fade);
+            _attachEffect();
         }
 
         private function enableButton(button:UIComponent, enable:Boolean):void {
@@ -107,66 +107,70 @@ package com.bramosystems.oss.player.control {
         }
 */
         public function isControllerVisible():Boolean {
-            return visible;
+            return showController;
         }
 
         public function setControllerVisible(_visible:Boolean):void {
+            showController = _visible;
             visible = _visible;
         }
 
-        public function onAHMouseOver(evt:MouseEvent):void {
-            visible = true;
+        public function onAHMouseMove(evt:MouseEvent):void {
+            _triggerAutoHide();
         }
-        public function onAHMouseOut(evt:MouseEvent):void {
-            if(autoHideController) {
-                visible = false;
-            }
-        }
+
         public function setAutoHide(autoHide:Boolean):void {
             autoHideController = autoHide;
-            if(!autoHide && !visible) {
-                visible = true;
-            }
+            _triggerAutoHide();
         }
+
         public function isAutoHide():Boolean {
             return autoHideController;
         }
 
+        private function _triggerAutoHide():void {
+            if(autoHideController && showController) {
+                _ahTimer.reset();
+                visible = true;
+                _ahTimer.start();
+            }
+        }
+
         /********************** Events Callback Hooks *************************/
-        /**
-         * state IDs:
-         *  1: loading started...
-         *  2: play started...
-         *  3: play stopped...
-         *  4: play paused...
-         *  9: play finished...
-         * 10: loading complete ...
-         */
         public function onMediaStateChanged(state:int, listIndex:int):void {
             switch(state) {
-                case 1:
+                case 1: // loading started
                     onLoadingProgress(0.0);
                     break;
-                case 2:
+                case 2: // started
                     playButtonShowPlay = false;
                     break;
-                case 3:
+                case 3: // stopped
                     playButtonShowPlay = true;
                     break;
-                case 4:
+                case 4: // paused
                     playButtonShowPlay = true;
                     break;
-                case 9:
+                case 9: // finished
                     playButtonShowPlay = true;
                     onPlayingProgress(0);
                     break;
-                case 10:
+                case 10: // complete
                     onLoadingProgress(1.0);
                     break;
             }
 
-            enableButton(next, playlist.hasPlaylistNext());
-            enableButton(prev, playlist.hasPlaylistPrev());
+            switch(state) {
+                case 2: // started
+                case 4: // paused
+                    enableButton(next, listIndex < (playlist.size() - 1));
+                    enableButton(prev, listIndex > 0);
+                    break;
+                case 1: // loading started
+                case 9: // finished
+                    enableButton(next, false);
+                    enableButton(prev, false);
+            }
 
             renderPlay();
             renderPrev();
@@ -219,11 +223,15 @@ package com.bramosystems.oss.player.control {
 
         private function onFullScreen(event:FullScreenEvent):void {
             updateDisplay(event.fullScreen);
-            setAutoHide(event.fullScreen);
         }
 
         private function onSeekChanged(event:SeekChangedEvent):void {
             player.setPlayPosition(event.newValue);;
+        }
+
+        private function onAHTimer(event:TimerEvent):void {
+            visible = false;
+            _ahTimer.stop();
         }
 
         /********************** UI Stuffs *******************************/
@@ -261,6 +269,28 @@ package com.bramosystems.oss.player.control {
             prev.height = _size;
             prev.buttonMode = true;
             return prev;
+        }
+
+        private function _attachEffect():void {
+            var heffct:AnimateProperty = new AnimateProperty();
+            heffct.property = "bottom";
+            heffct.fromValue = 0;
+            heffct.toValue = -18;
+            heffct.roundValue = true;
+            heffct.isStyle = true;
+            heffct.duration = 2000;
+            heffct.startDelay = 2000;
+
+            var seffct:AnimateProperty = new AnimateProperty();
+            seffct.property = "bottom";
+            seffct.fromValue = -18;
+            seffct.toValue = 0;
+            seffct.isStyle = true;
+            seffct.duration = 2;
+
+            setStyle('hideEffect', heffct);
+            setStyle('showEffect', seffct);
+            _ahTimer.addEventListener(TimerEvent.TIMER, onAHTimer);
         }
 
         /******************** RENDERING METHODS ****************************/
