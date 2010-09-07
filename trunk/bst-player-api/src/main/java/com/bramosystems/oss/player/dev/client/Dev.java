@@ -16,13 +16,12 @@
 package com.bramosystems.oss.player.dev.client;
 
 import com.bramosystems.oss.player.core.client.AbstractMediaPlayer;
-import com.bramosystems.oss.player.core.client.ConfigParameter;
 import com.bramosystems.oss.player.core.client.LoadException;
 import com.bramosystems.oss.player.core.client.PlayerUtil;
+import com.bramosystems.oss.player.core.client.PlaylistSupport;
 import com.bramosystems.oss.player.core.client.Plugin;
 import com.bramosystems.oss.player.core.client.PluginNotFoundException;
 import com.bramosystems.oss.player.core.client.PluginVersionException;
-import com.bramosystems.oss.player.core.client.RepeatMode;
 import com.bramosystems.oss.player.core.client.ui.*;
 import com.bramosystems.oss.player.youtube.client.PlayerParameters;
 import com.bramosystems.oss.player.youtube.client.YouTubePlayer;
@@ -64,12 +63,12 @@ public class Dev extends VerticalPanel implements EntryPoint {
     public void onModuleLoad() {
 //        RootPanel.get().add(new ScrollPanel(this));
         RootPanel.get().add(this);
-//        addPlayer(Plugin.WinMediaPlayer);
+        addPlayer(Plugin.WinMediaPlayer);
 //        addPlayer(Plugin.DivXPlayer);
 //        addPlayer(Plugin.FlashPlayer);
 //        addPlayer(Plugin.QuickTimePlayer);
 //        addPlayer(Plugin.Native);
-        addPlayer(Plugin.VLCPlayer);
+//        addPlayer(Plugin.VLCPlayer);
 
 //        add(new MimeStuffs());
 //        addUTube();
@@ -98,29 +97,31 @@ public class Dev extends VerticalPanel implements EntryPoint {
                     }));
                     break;
                 case FlashPlayer:
-                    mmp = new FlashMediaPlayer(
-                            getURL("/local-video/big-buck-bunny.mp4"),
-                            //                            "http://localhost:8080/bst-media-server/stream?file=brandy-everything.mp3",
-                            false, "350px", "100%");
+                    mmp = new FlashMediaPlayer(getURL("/local-video/big-buck-bunny.mp4"), true, "350px", "100%");
+                    ((PlaylistSupport)mmp).addToPlaylist(getURL("/local-video/brandy-everything.mp3"));
+                    ((PlaylistSupport)mmp).addToPlaylist(getURL("/local-video/traffic.flv"));
                     break;
                 case QuickTimePlayer:
                     mmp = new QuickTimePlayer(getURL("/local-video/Sample.mov"), false, "250px", "100%");
-                    ((QuickTimePlayer) mmp).addToPlaylist(getURL("/local-video/01_Al_Fatihah.m4a"));
-                    ((QuickTimePlayer) mmp).addToPlaylist(getURL("/local-video/big-buck-bunny.mp4"));
+//                    ((PlaylistSupport) mmp).addToPlaylist(getURL("/local-video/01_Al_Fatihah.m4a"));
+                    ((PlaylistSupport) mmp).addToPlaylist(getURL("/local-video/big-buck-bunny.mp4"));
+//            mmp.setConfigParameter(ConfigParameter.QTScale, QuickTimePlayer.Scale.ToFit);
                     break;
                 case VLCPlayer:
                     mmp = new VLCPlayer(getURL("/local-video/divx7_postinstall.divx"), true, "250px", "100%");
 //                    mmp.setVolume(0.2);
-//                    ((VLCPlayer) mmp).addToPlaylist(getURL("/local-video/fireflies.flv"));
+                    ((PlaylistSupport) mmp).addToPlaylist(getURL("/local-video/fireflies.flv"));
 //                    mmp = new VLCPlayer(getURL("/local-video/big-buck-bunny.mp4"), true, "250px", "100%");
-//                    ((VLCPlayer) mmp).addToPlaylist(getURL("/local-video/divx7_postinstall.divx"));
-  //                  ((VLCPlayer) mmp).addToPlaylist(getURL("/local-video/traffic.flv"));
-                    ((VLCPlayer) mmp).addToPlaylist(getURL("/local-video/Sample.mov"));
+//                    ((PlaylistSupport) mmp).addToPlaylist(getURL("/local-video/divx7_postinstall.divx"));
+  //                  ((PlaylistSupport) mmp).addToPlaylist(getURL("/local-video/traffic.flv"));
+                    ((PlaylistSupport) mmp).addToPlaylist(getURL("/local-video/Sample.mov"));
                     break;
                 case WinMediaPlayer:
                     mmp = new WinMediaPlayer(getURL("/local-video/home-video.wmv"), false, "200px", "100%");
-                    ((WinMediaPlayer) mmp).addToPlaylist(getURL("/local-video/applause.mp3"));
-                    ((WinMediaPlayer) mmp).addToPlaylist(getURL("/local-video/o-na-som.mp3"));
+                    ((PlaylistSupport) mmp).addToPlaylist(getURL("/local-video/applause.mp3"));
+//                    ((PlaylistSupport) mmp).addToPlaylist(getURL("/local-video/o-na-som.mp3"));
+//                    mmp = new Capsule(Plugin.FlashPlayer, getURL("/local-video/applause.mp3"), false);
+                    ((PlaylistSupport) mmp).addToPlaylist(getURL("/local-video/o-na-som.mp3"));
                     break;
                 case Native:
                     ArrayList<String> urls = new ArrayList<String>();
@@ -130,9 +131,8 @@ public class Dev extends VerticalPanel implements EntryPoint {
                     mmp = new NativePlayer(urls, true, "450px", "100%");
 //                    ((NativePlayer) mmp).addToPlaylist(getURL("/local-video/big-buck-bunny.mp4"));
             }
-            mmp.setConfigParameter(ConfigParameter.QTScale, QuickTimePlayer.Scale.ToFit);
             mmp.showLogger(true);
-//            mmp.setResizeToVideoSize(true);
+            mmp.setResizeToVideoSize(true);
 //            mmp.setLoopCount(2);
 //            mmp.setRepeatMode(RepeatMode.REPEAT_ALL);
 //            ((PlaylistSupport) mmp).setShuffleEnabled(true);

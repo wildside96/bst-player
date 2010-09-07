@@ -24,6 +24,6 @@
 
     <entry-point class="com.bramosystems.oss.player.dev.client.Dev" />
 
-    <set-configuration-property name="bstplayer.media.mimeTypes"
-            value="/com/bramosystems/oss/player/dev/mime-types.properties" />
+    <!--set-configuration-property name="bstplayer.media.mimeTypes"
+            value="/com/bramosystems/oss/player/dev/mime-types.properties" /-->
 </module>

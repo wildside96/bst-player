@@ -137,15 +137,23 @@ public class MimeStuffs extends FlexTable {
     }
 
     private void doMimePool() {
-        setHTML(0, 0, "Plugin");
-        setHTML(0, 1, "Suffixes");
-
         MimePool pool = MimePool.instance;
         int row = 0;
+
+        setHTML(row, 0, "Plugin");
+        setHTML(row++, 1, "Suffixes");
         for (Plugin plug : Plugin.values()) {
             Set<String> suf = pool.getRegisteredExtensions(plug);
             setHTML(row, 0, plug.name());
             setHTML(row++, 1, suf != null ? suf.toString() : "-");
+        }
+
+        setHTML(row, 0, "Plugin");
+        setHTML(row++, 1, "Protocols");
+        for (Plugin plug : Plugin.values()) {
+            Set<String> prot = pool.getRegisteredProtocols(plug);
+            setHTML(row, 0, plug.name());
+            setHTML(row++, 1, prot != null ? prot.toString() : "-");
         }
     }
 
