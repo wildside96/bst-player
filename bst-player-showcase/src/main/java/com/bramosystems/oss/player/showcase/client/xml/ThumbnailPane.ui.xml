@@ -2,13 +2,35 @@
 Uncomment this for XHTML entities
 <!DOCTYPE ui:UiBinder SYSTEM "http://dl.google.com/gwt/DTD/xhtml.ent">
 -->
-<ui:UiBinder xmlns:ui="urn:ui:com.google.gwt.uibinder" xmlns:g="urn:import:com.google.gwt.user.client.ui">
+<ui:UiBinder xmlns:ui="urn:ui:com.google.gwt.uibinder" 
+    xmlns:g="urn:import:com.google.gwt.user.client.ui"
+    xmlns:w="urn:import:com.bramosystems.oss.player.showcase.client.widgets">
     <ui:style src="css/styles.css"/>
+    <ui:style field="p">
+        .wrapper {
+            height: 95%;
+            padding: 5px;
+            vertical-align: middle;
+            border: 1px solid blue;
+            -moz-border-radius: 5px;
+            -moz-border-shadow: grey;
+        }
+        .sample-nav-left {
+            border: none;
+        }
+        .sample-nav-right {
+            border: none;
+        }
+        .sample-thumbs {
+            overflow: hidden;
+            height: 80%;
+        }
+    </ui:style>
+    <ui:with field="x" type="com.bramosystems.oss.player.showcase.client.images.Bundle" />
 
-    <g:FlowPanel styleName='{style.samples}'>
-        <g:Button styleName='{style.sample-nav-left}' ui:field='navLeft'>lt;</g:Button>
-        <g:SimplePanel styleName='{style.sample-thumbs}' ui:field='thumbPanel'/>
-        <g:Button styleName='{style.sample-nav-right}' ui:field='navRight'>gt;</g:Button>
-        <g:SimplePanel styleName='{style.clear}'/>
+    <g:FlowPanel styleName='{p.wrapper}'>
+        <g:Label styleName='{x.css.navLeft}' ui:field='navLeft' />
+        <w:ThumbnailPanel styleName='{p.sample-thumbs}' ui:field='thumbPanel'/>
+        <g:Label styleName='{x.css.navRight}' ui:field='navRight' />
     </g:FlowPanel>
 </ui:UiBinder>

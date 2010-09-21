@@ -24,6 +24,7 @@ import com.bramosystems.oss.player.core.client.PlaylistSupport;
 import com.bramosystems.oss.player.core.client.Plugin;
 import com.bramosystems.oss.player.core.client.PluginNotFoundException;
 import com.bramosystems.oss.player.core.client.PluginVersionException;
+import com.bramosystems.oss.player.core.client.ui.NativePlayer;
 import com.bramosystems.oss.player.resources.sources.ResourceBundle;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
@@ -41,33 +42,45 @@ import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.user.client.ui.Widget;
+import java.util.List;
 
 /**
  *
  * @author Sikiru
  */
-public class PlayerPane extends Composite implements ValueChangeHandler<String> {
+public class PlayerPane extends Composite implements ValueChangeHandler<String>,
+        PlayerOptions.OptionsChangeHandler {
 
     private AbstractMediaPlayer player;
+    private PlaylistPane playlist;
 
     public PlayerPane() {
         initWidget(uiBinder.createAndBindUi(this));
         History.addValueChangeHandler(this);
     }
 
+    public void setPlaylist(PlaylistPane playlist) {
+        this.playlist = playlist;
+    }
+
     private void init(PlayOptions options) {
         try {
-            String[] urls = options.getUrl();
-            if (options.getHeight() == null) {
-                player = PlayerUtil.getPlayer(options.getPlugin(), urls[0], false);
-            } else {
-                player = PlayerUtil.getPlayer(options.getPlugin(), urls[0], false, options.getHeight(), "100%");
-            }
-            if (urls.length > 1) {
-                for (int i = 1; i < urls.length; i++) {
-                    ((PlaylistSupport) player).addToPlaylist(urls[i]);
+            List<List<String>> urls = playlist.getEntries();
+            player = PlayerUtil.getPlayer(options.getPlugin(), urls.get(0).get(0), false,
+                    "250px", "100%");
+
+            if (urls.size() > 1) {
+                for (int i = 1; i < urls.size(); i++) {
+                    switch (options.getPlugin()) {
+                        case Native:
+                            ((NativePlayer) player).addToPlaylist(urls.get(i).toArray(new String[0]));
+                            break;
+                        default:
+                            ((PlaylistSupport) player).addToPlaylist(urls.get(i).get(0));
+                    }
                 }
             }
+
             panel.setWidget(player);
             title.setText(options.getTitle());
         } catch (LoadException ex) {
@@ -109,7 +122,6 @@ public class PlayerPane extends Composite implements ValueChangeHandler<String> 
         } catch (Exception e) {
         }
 
-        AbstractCase c = null;
         switch (options) {
             case homeDocs:
                 init(ResourceBundle.bundle.homeDocs(), options.getTitle());
@@ -128,7 +140,7 @@ public class PlayerPane extends Composite implements ValueChangeHandler<String> 
             case homeMimePools:
                 panel.setWidget(new BrowserInfo(BrowserInfo.InfoType.mimePool));
                 title.setText(options.getTitle());
-                break;
+//                break;
 //            case dynAuto:
 //                c = DynaShowcase.instance;
 //                break;
@@ -141,37 +153,36 @@ public class PlayerPane extends Composite implements ValueChangeHandler<String> 
 //            case ytubeChrome:
 //                c = MiscShowcase.instance;
 //                break;
-            case listAuto:
-            case listSwf:
-            case listVlc:
-            case ntiveBasic:
-            case ntiveVideo:
-            case qtBasic:
-            case qtVideo:
-            case vlcBasic:
-            case vlcVideo:
-            case wmpBasic:
-            case wmpPlaylist:
-            case wmpVideo:
 //            case matrixBasic:
 //                c = MatrixShowcase.instance;
 //                break;
-            case swfBasic:
-            case swfPlaylist:
-            case swfVideo:
-            case divxBasic:
 //            case divxVideo:
                 init(options);
                 break;
         }
     }
+
+    @Override
+    public void onShowControls(boolean show) {
+        player.setControllerVisible(show);
+    }
+
+    @Override
+    public void onShowLogger(boolean show) {
+        player.showLogger(show);
+    }
+
+    @Override
+    public void onResizeToVideoSize(boolean resize) {
+        player.setResizeToVideoSize(resize);
+    }
     @UiField
     SimplePanel panel;
     @UiField
     Label title;
-    private static PlayerPaneUiBinder uiBinder = GWT.create(PlayerPaneUiBinder.class);
 
     @UiTemplate("xml/PlayerPane.ui.xml")
     interface PlayerPaneUiBinder extends UiBinder<Widget, PlayerPane> {
     }
+    private static PlayerPaneUiBinder uiBinder = GWT.create(PlayerPaneUiBinder.class);
 }
