@@ -1,0 +1,28 @@
+@sprite .navLeft {
+    gwt-image: 'navLeft';
+    background-position: center;
+    cursor: pointer;
+    padding-top: 10px;
+    border-bottom: 1px solid #dedede;
+    width: 100%;
+}
+@sprite .navLeftDisabled{
+    gwt-image: 'navLeftDisabled';
+    background-position: center;
+    cursor: default;
+    width: 100%;
+}
+@sprite .navRight {
+    gwt-image: 'navRight';
+    background-position: center;
+    cursor: pointer;
+    padding-bottom: 10px;
+    border-top: 1px solid #dedede;
+    width: 100%;
+}
+@sprite .navRightDisabled{
+    gwt-image: 'navRightDisabled';
+    background-position: center;
+    cursor: default;
+    width: 100%;
+}

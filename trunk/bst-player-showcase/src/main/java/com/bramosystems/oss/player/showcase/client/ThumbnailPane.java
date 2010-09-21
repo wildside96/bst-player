@@ -16,52 +16,44 @@
  */
 package com.bramosystems.oss.player.showcase.client;
 
-import com.bramosystems.oss.player.common.client.Links;
-import com.bramosystems.oss.player.common.client.MenuEntry;
+import com.bramosystems.oss.player.showcase.client.images.Bundle;
+import com.bramosystems.oss.player.showcase.client.widgets.ThumbnailPanel;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
-import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.uibinder.client.UiTemplate;
-import com.google.gwt.user.client.History;
-import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.Composite;
-import com.google.gwt.user.client.ui.DeckPanel;
-import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
-import com.google.gwt.user.client.ui.LazyPanel;
-import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.user.client.ui.Widget;
 
 /**
  *
  * @author Sikiru
  */
-public class ThumbnailPane extends Composite implements ValueChangeHandler<String>{
+public class ThumbnailPane extends Composite implements ValueChangeHandler<String> {
 
-    private DeckPanel dp;
-    private MenuEntry[] mes = MenuEntry.values();
-    private int index, size;
+//    private MenuEntry[] mes = MenuEntry.values();
 
     public ThumbnailPane() {
+        Bundle.bundle.css().ensureInjected();
         initWidget(uiBinder.createAndBindUi(this));
 
-        size = MenuEntry.values().length;
-        navRight.setEnabled(size > 1);
-        navLeft.setEnabled(false);
-        index = 0;
-
-        dp = new DeckPanel();
-        dp.setAnimationEnabled(true);
-        for (MenuEntry me : mes) {
-            dp.add(new ThumbPanel(me));
+//        for (MenuEntry me : mes) {
+        for (PlayOptions me : PlayOptions.values()) {
+                thumbPanel.addThumbnail(me.getTitle(), me.name());
+//            Links[] links = me.getLinks();
+//            for (Links link : links) {
+//                thumbPanel.addThumbnail(link.getTitle(), link.name());
+//            }
         }
-        thumbPanel.setWidget(dp);
-        History.addValueChangeHandler(this);
+
+        enableLeftNav(thumbPanel.hasMore(false));
+        enableRightNav(thumbPanel.hasMore(true));
+//        History.addValueChangeHandler(this);
     }
 
     @Override
@@ -72,7 +64,9 @@ public class ThumbnailPane extends Composite implements ValueChangeHandler<Strin
         } catch (Exception e) {
         }
 
-        switch(link) {
+        int index = link.ordinal();
+/*
+        switch (link) {
             case homeDocs:
             case homeIntro:
             case homeMimetypes:
@@ -95,7 +89,7 @@ public class ThumbnailPane extends Composite implements ValueChangeHandler<Strin
             case listAuto:
             case listSwf:
             case listVlc:
-                index = MenuEntry.list.ordinal();
+                              index = MenuEntry.list.ordinal();
                 break;
             case ntiveBasic:
             case ntiveVideo:
@@ -127,77 +121,56 @@ public class ThumbnailPane extends Composite implements ValueChangeHandler<Strin
                 index = MenuEntry.divx.ordinal();
                 break;
         }
-        dp.showWidget(index);
-        navRight.setEnabled(index < size - 1);
-        navLeft.setEnabled(index > 0);
+*/
+        thumbPanel.scrollTo(index);
+        enableLeftNav(thumbPanel.hasMore(false));
+        enableRightNav(thumbPanel.hasMore(true));
+    }
+
+    private void enableLeftNav(boolean enable) {
+        if (enable) {
+            navLeft.removeStyleName(Bundle.bundle.css().navLeftDisabled());
+        } else {
+            navLeft.addStyleName(Bundle.bundle.css().navLeftDisabled());
+        }
+        navLeft.setLayoutData(Boolean.valueOf(enable));
+    }
+
+    private void enableRightNav(boolean enable) {
+        if (enable) {
+            navRight.removeStyleName(Bundle.bundle.css().navRightDisabled());
+        } else {
+            navRight.addStyleName(Bundle.bundle.css().navRightDisabled());
+        }
+        navRight.setLayoutData(Boolean.valueOf(enable));
     }
 
     @UiHandler("navLeft")
     public void onLeftNav(ClickEvent ce) {
-        if (--index >= 0) {
-            dp.showWidget(index);
-            navLeft.setEnabled(index > 0);
-        } else {
-            navLeft.setEnabled(false);
+        if (!(Boolean) navLeft.getLayoutData()) {
+            return;
         }
-        navRight.setEnabled(index < size - 1);
+
+        thumbPanel.scrollToPrev();
+        enableLeftNav(thumbPanel.hasMore(false));
+        enableRightNav(thumbPanel.hasMore(true));
     }
 
     @UiHandler("navRight")
     public void onRightNav(ClickEvent ce) {
-        if (++index < size) {
-            dp.showWidget(index);
-            navRight.setEnabled(index < size - 1);
-        } else {
-            navRight.setEnabled(false);
+        if (!(Boolean) navRight.getLayoutData()) {
+            return;
         }
-        navLeft.setEnabled(index > 0);
+
+        thumbPanel.scrollToNext();
+        enableLeftNav(thumbPanel.hasMore(false));
+        enableRightNav(thumbPanel.hasMore(true));
     }
-    @UiField Button navRight, navLeft;
-    @UiField SimplePanel thumbPanel;
+
+    @UiField Label navRight, navLeft;
+    @UiField ThumbnailPanel thumbPanel;
 
     @UiTemplate("xml/ThumbnailPane.ui.xml")
     interface ThumbnailPaneUiBinder extends UiBinder<Widget, ThumbnailPane> {}
-    @UiTemplate("xml/Thumbnail.ui.xml")
-    interface ThumbnailBinder extends UiBinder<Label, ThumbPanel> {}
-    private static ThumbnailBinder thumbBinder = GWT.create(ThumbnailBinder.class);
     private static ThumbnailPaneUiBinder uiBinder = GWT.create(ThumbnailPaneUiBinder.class);
-
-
-    class ThumbPanel extends LazyPanel {
-
-        private MenuEntry entry;
-
-        public ThumbPanel(MenuEntry entry) {
-            this.entry = entry;
-        }
-
-        @Override
-        protected Widget createWidget() {
-            HorizontalPanel hp = new HorizontalPanel();
-            Links[] links = entry.getLinks();
-            for (Links link : links) {
-                hp.add(getThumbnail(link.getTitle(), link.name()));
-            }
-            return hp;
-        }
-
-        private Label getThumbnail(String text, final String link) {
-            Label thumb = thumbBinder.createAndBindUi(this);
-            thumb.setText(text);
-            thumb.addClickHandler(new ClickHandler() {
-
-                @Override
-                public void onClick(ClickEvent event) {
-                    History.newItem(link);
-                }
-            });
-            return thumb;
-        }
-
-        @Override
-        protected void onLoad() {
-            ensureWidget();
-        }
-    }
 }

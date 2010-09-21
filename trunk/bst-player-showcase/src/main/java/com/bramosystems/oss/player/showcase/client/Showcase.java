@@ -19,13 +19,13 @@ import com.bramosystems.oss.player.resources.sources.ResourceBundle;
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.uibinder.client.UiBinder;
+import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiTemplate;
 import com.google.gwt.user.client.History;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.DockLayoutPanel;
 import com.google.gwt.user.client.ui.RootLayoutPanel;
 import com.google.gwt.user.client.ui.RootPanel;
-import com.google.gwt.user.client.ui.Widget;
 
 /**
  *
@@ -35,14 +35,9 @@ public class Showcase extends Composite implements EntryPoint {
 
     public Showcase() {
         initWidget(uiBinder.createAndBindUi(this));
-        /*
-        HorizontalStackLayoutPanel sp = new HorizontalStackLayoutPanel(Unit.PX);
-        sp.setHeight("100%");
+        playerOptions.setOptionsChangeHandler(player);
 
-        for (MenuEntry me : MenuEntry.values()) {
-        sp.add(new SamplePanel(me), new Label(me.name()), 20);
-        }
-         */
+        player.setPlaylist(playlist);
     }
 
     @Override
@@ -54,6 +49,10 @@ public class Showcase extends Composite implements EntryPoint {
 
         History.fireCurrentHistoryState();
     }
+
+    @UiField PlayerPane player;
+    @UiField PlayerOptions playerOptions;
+    @UiField PlaylistPane playlist;
 
     private static ShowcaseUiBinder uiBinder = GWT.create(ShowcaseUiBinder.class);
 

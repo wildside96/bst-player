@@ -10,18 +10,6 @@
     height: 100%;
     vertical-align: middle;
 }
-.sample-nav-left {
-    float: left;
-}
-.sample-nav-right {
-    float: right;
-}
-.sample-thumbs {
-    height: 100%;
-    margin: auto;
-    float: left;
-    vertical-align: middle;
-}
 .clear {
     clear: both;
 }
@@ -29,11 +17,16 @@
     height: 70px;
     width: 70px;
     border: 2px ridge #ccc;
-    margin: 10px;
+    margin: 18px;
     padding: 5px;
     background-color: aliceblue;
     cursor: pointer;
+    float: left;
 }
 .player-options {
+    margin-top: 5px;
+}
+.playlist-panel {
+    height: 110px;
     margin-top: 5px;
 }

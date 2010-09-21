@@ -12,33 +12,33 @@ xmlns:showcase="urn:import:com.bramosystems.oss.player.showcase.client">
             </g:HTMLPanel>
         </g:north>
         
-        <g:east size="250">
-            <g:DockLayoutPanel unit="PCT">
-                <g:south size="50">
-                    <g:FlowPanel styleName='{style.panel}'>
-                        <g:Label styleName='{style.panel-title}'>Player Log</g:Label>
-                        <g:SimplePanel styleName='{style.samples}' />
-                    </g:FlowPanel>
-                </g:south>
-
-                <g:center>
-                    <g:FlowPanel styleName='{style.panel}'>
-                        <g:Label styleName='{style.panel-title}'>Player Options</g:Label>
-                        <showcase:PlayerOptions />
-                    </g:FlowPanel>
-                </g:center>
-            </g:DockLayoutPanel>
-        </g:east>
-
-        <g:south size="150">
+        <g:west size="150">
             <g:FlowPanel styleName='{style.panel}'>
                 <g:Label styleName='{style.panel-title}'>Samples</g:Label>
                 <showcase:ThumbnailPane />
             </g:FlowPanel>
+        </g:west>
+        
+        <g:south size="150">
+            <g:DockLayoutPanel unit="PCT">
+                <g:west size="30">
+                    <g:FlowPanel styleName='{style.panel}'>
+                        <g:Label styleName='{style.panel-title}'>Player Options</g:Label>
+                        <showcase:PlayerOptions ui:field='playerOptions' />
+                    </g:FlowPanel>
+                </g:west>
+
+                <g:center>
+                    <g:FlowPanel styleName='{style.panel}'>
+                        <g:Label styleName='{style.panel-title}'>Playlist</g:Label>
+                        <showcase:PlaylistPane ui:field='playlist' styleName='{style.playlist-panel}' />
+                    </g:FlowPanel>
+                </g:center>
+            </g:DockLayoutPanel>
         </g:south>
 
         <g:center>
-            <showcase:PlayerPane styleName='{style.panel}' />
+            <showcase:PlayerPane styleName='{style.panel}' ui:field='player' />
         </g:center>
     </g:DockLayoutPanel>
 </ui:UiBinder>
