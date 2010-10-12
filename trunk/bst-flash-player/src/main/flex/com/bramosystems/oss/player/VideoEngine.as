@@ -32,6 +32,7 @@ package com.bramosystems.oss.player {
                 addEventListener(VideoEvent.STATE_CHANGE, stateHandler);
                 addEventListener(VideoEvent.PLAYHEAD_UPDATE, playingProgressHandler);
                 playheadUpdateInterval = 500;
+                live = true; // needed to make live streams visible [- wankes2000]
             }
 
             /**************************** PLAYER IMPL ******************************/
