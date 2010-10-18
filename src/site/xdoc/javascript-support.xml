@@ -152,28 +152,32 @@
                         <th>Media Plugin</th>
                     </tr>
                     <tr>
-                        <td>WinMediaPlayer</td>
-                        <td>Windows Media Player plugin</td>
-                    </tr>
-                    <tr>
-                        <td>QuickTimePlayer</td>
-                        <td>QuickTime plugin</td>
+                        <td>DivXPlayer</td>
+                        <td>DivX(R) Web Player plugin</td>
                     </tr>
                     <tr>
                         <td>FlashPlayer</td>
                         <td>Adobe Flash plugin for playing Flash supported file formats</td>
                     </tr>
                     <tr>
-                        <td>VLCPlayer</td>
-                        <td>VLC Media Player plugin</td>
-                    </tr>
-                    <tr>
                         <td>Native</td>
                         <td>HTML 5 video handler in supported browsers</td>
                     </tr>
                     <tr>
+                        <td>QuickTimePlayer</td>
+                        <td>QuickTime plugin</td>
+                    </tr>
+                    <tr>
+                        <td>VLCPlayer</td>
+                        <td>VLC Media Player plugin</td>
+                    </tr>
+                    <tr>
+                        <td>WinMediaPlayer</td>
+                        <td>Windows Media Player plugin</td>
+                    </tr>
+                    <tr>
                         <td>Auto</td>
-                        <td>Any avaliable media plugins on the client</td>
+                        <td>Any avaliable media plugin on the client that supports the specified media URL</td>
                     </tr>
                     <tr>
                         <td>PlaylistSupport</td>
@@ -241,10 +245,6 @@
                         <td>onLoadingProgress</td>
                         <td>for LoadingProgressEvent events</td>
                     </tr>
-                    <tr>
-                        <td>onMediaInfo</td>
-                        <td>for MediaInfoEvent events</td>
-                    </tr>
                     <!--tr>
                         <td>onMediaInfo</td>
                         <td>for MediaInfoEvent events</td>
@@ -277,7 +277,7 @@
                 <p>
                     The function registered as an event listener is passed an event object containing
                     various properties describing the status of the event.  The following table lists
-                    the properties of each event object"
+                    the properties of each event object
                 </p>
                 <table>
                     <tr>
@@ -349,11 +349,11 @@
 
             <subsection name="Seekbar styling" >
                 <p>The seekbar consists of two indicators - loading and progress indicators.  The loading
-                indicator is placed directly under the playing indicator.  The loading indicator is used
-                to show the progress of a media loading operation while the playing indicator is used
-                to show the progress of media playback</p>
+                indicator is placed directly under the playing indicator.  The loading indicator shows the
+                progress of a media loading operation while the playing indicator shows the progress of
+                media playback</p>
 
-                <p>The seekbar has the following CSS style classes registered already and can thus be
+                <p>The seekbar has the following CSS style classes registered already and can be
                 used to change the apperance to taste</p>
 
                 <source>
