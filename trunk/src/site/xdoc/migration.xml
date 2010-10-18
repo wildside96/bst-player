@@ -11,6 +11,35 @@
         <meta name="description" content="Migrate from previous BST Player releases in simple steps" />
     </head>
     <body>
+        <section name="Migrating to version 1.2">
+            <p>
+                Version 1.2 introduce many enhancements that may affect existing code.
+            </p>
+
+            <subsection name="GWT 2.x dependency">
+                <p>
+                    The library now requires GWT 2.0 or later.  GWT has come a long way since version 1.6 so
+                    this may not be an issue, most GWT projects are based on 2.x already.
+                </p>
+            </subsection>
+
+            <subsection name="WinMediaPlayer and non-IE browsers">
+                <p>
+                    The WinMediaPlayer widget now requires the Windows Media Player plugin for Firefox in
+                    non-IE browsers to guarantee programmable control.  Since this may not always be
+                    required, two operating modes are defined - the programmable and
+                    embed-only modes, with programmable being the default.
+                </p>
+
+                <p>
+                    In embed-only mode, the widget is expected to be used for rendering only without
+                    any programmatic control.  Consequently method calls on the widget in this mode
+                    may fail and such errors/failures are suppressed.
+                </p>
+            </subsection>
+
+        </section>
+
         <section name="Migrating from version 0.6">
             <p>
                 The following improvements on version 0.6 may require minor tweaks to existing code.

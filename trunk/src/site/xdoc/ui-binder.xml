@@ -85,6 +85,10 @@
                         <td>Embeds media with HTML 5 video handler in supported browsers</td>
                     </tr>
                     <tr>
+                        <td>DivXPlayer</td>
+                        <td>Embeds DivX(R) Web Player plugin</td>
+                    </tr>
+                    <tr>
                         <td>YouTube</td>
                         <td>Embeds YouTube video</td>
                     </tr>

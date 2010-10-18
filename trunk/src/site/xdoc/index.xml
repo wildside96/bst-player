@@ -9,9 +9,9 @@
     
     <head>
         <meta name="description" content="BST Player provides a consistent API to add
-        Windows Media Player, QuickTime, VLC Media Player and Flash plugins to GWT applications.
-        It also feature a module to embed YouTube videos and classes to facilitate custom player
-        controls" />
+        Windows Media Player, QuickTime, VLC Media Player, DivX Web Player, Flash plugins and HTML 5 video
+        to GWT applications. It also feature a module to embed YouTube videos and classes to
+        facilitate custom player controls" />
     </head>
     <body>
         <section name="Overview">
@@ -21,9 +21,9 @@
                 </script>
             </div>
             <p>
-                The API makes Windows Media Player, QuickTime player, Flash player, VLC Media Player
-                plugins, HTML 5 video elements and YouTube videos available in GWT applications
-                like other GWT widgets.
+                The API makes Windows Media Player, QuickTime player, Flash player, VLC Media Player,
+                DivX Web Player plugins, HTML 5 video elements and YouTube videos available in
+                GWT applications like other GWT widgets.
             </p>
             <p>
                 The API feature sets of classes and interfaces that presents a consistent means of
@@ -58,7 +58,7 @@
 
             <subsection name="Questions">
                 <p>
-                    Please post all questions on the
+                    Post all questions on the
                     <a href="http://groups.google.com/group/bst-player">bst-player</a>
                     group, hopefully someone will try to provide answers as best as possible.
                 </p>

@@ -16,7 +16,7 @@
             <p>
                 This page contains information on the various released packages of the project.
             </p>
-
+<!--
             <subsection name=" - Version 1.2">
                 <p>
                     <b>New Features</b>
@@ -49,7 +49,7 @@
                     </li>
                 </ul>
             </subsection>
-
+-->
             <subsection name="08 February 2010 - Version 1.1">
                 <p>
                     <b>New Features</b>
