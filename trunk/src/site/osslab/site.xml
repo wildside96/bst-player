@@ -34,7 +34,7 @@
     </poweredBy>
     <skin>
         <groupId>com.bramosystems.sites</groupId>
-        <artifactId>maven-oss-site</artifactId>
+        <artifactId>oss-site-skin</artifactId>
         <version>1.0</version>
     </skin>
 </project>
