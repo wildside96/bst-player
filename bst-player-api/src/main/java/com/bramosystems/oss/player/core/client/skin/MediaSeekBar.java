@@ -131,6 +131,7 @@ public abstract class MediaSeekBar extends Composite implements MouseUpHandler, 
         }
     }
 
+    @Override
     public void onMouseUp(MouseUpEvent event) {
         double value = event.getX() / (double) getOffsetWidth();
         SeekChangeEvent.fire(this, value);
@@ -144,6 +145,7 @@ public abstract class MediaSeekBar extends Composite implements MouseUpHandler, 
      * @return the HandlerRegistration used to remove the handler
      * @see SeekChangeHandler
      */
+    @Override
     public final HandlerRegistration addSeekChangeHandler(SeekChangeHandler handler) {
         return addHandler(handler, SeekChangeEvent.TYPE);
     }

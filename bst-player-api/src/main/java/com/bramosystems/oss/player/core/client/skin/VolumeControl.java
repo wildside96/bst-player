@@ -22,7 +22,6 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.MouseUpEvent;
 import com.google.gwt.event.dom.client.MouseUpHandler;
-import com.google.gwt.event.shared.GwtEvent.Type;
 import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.user.client.ui.AbsolutePanel;
 import com.google.gwt.user.client.ui.Composite;
@@ -54,30 +53,14 @@ public class VolumeControl extends Composite implements MouseUpHandler, HasVolum
     private PopupPanel volumePanel;
     private AbsolutePanel seekTrack;
 
-    /**
-     * Constructs <code>VolumeControl</code>.  The control is displayed as the
-     * specified {@code icon}.  An horizontal slider of height {@code sliderHeight} is
-     * displayed when the {@code icon} is clicked on.
-     *
-     * <p>The slider popup panel has a fixed width of 50px.
-     *
-     * @param icon represents the volume control object.
-     * @param sliderHeight the height of the volume slider control.
-     */
-    @SuppressWarnings("LeakingThisInConstructor")
-    public VolumeControl(Image icon, int sliderHeight) {
-        icon.addClickHandler(new ClickHandler() {
+    private void initVolumeControl(int sliderHeight) {
+        addDomHandler(new ClickHandler() {
 
+            @Override
             public void onClick(ClickEvent event) {
-                volumePanel.setPopupPositionAndShow(new PopupPanel.PositionCallback() {
-
-                    public void setPosition(int offsetWidth, int offsetHeight) {
-                        volumePanel.setPopupPosition(getAbsoluteLeft(), getAbsoluteTop() + getOffsetHeight());
-                    }
-                });
+                showVolumeSlider();
             }
-        });
-        super.initWidget(icon);
+        }, ClickEvent.getType());
 
         volume = new Label();
         volume.addMouseUpHandler(this);
@@ -107,6 +90,36 @@ public class VolumeControl extends Composite implements MouseUpHandler, HasVolum
     }
 
     /**
+     * Constructs <code>VolumeControl</code>.  The control is displayed as the
+     * specified {@code icon}.  An horizontal slider of height {@code sliderHeight} is
+     * displayed when the {@code icon} is clicked on.
+     *
+     * <p>The slider popup panel has a fixed width of 50px.
+     *
+     * @param icon represents the volume control object.
+     * @param sliderHeight the height of the volume slider control.
+     */
+    public VolumeControl(Image icon, int sliderHeight) {
+        super.initWidget(icon);
+        initVolumeControl(sliderHeight);
+    }
+
+    /**
+     * Constructs <code>VolumeControl</code>.  This constructor is provided for complete CSS styling
+     * support.  An horizontal slider of height {@code sliderHeight} is
+     * displayed when this control is clicked on.
+     *
+     * <p>The slider popup panel has a fixed width of 50px.
+     *
+     * @param icon represents the volume control object.
+     * @param sliderHeight the height of the volume slider control.
+     */
+    public VolumeControl(int sliderHeight) {
+        super.initWidget(new Label());
+        initVolumeControl(sliderHeight);
+    }
+
+    /**
      * Sets the level of the volume slider control.
      *
      * <p><b>Note:</b> {@code VolumeChangeListener}s are not notified by this
@@ -122,6 +135,7 @@ public class VolumeControl extends Composite implements MouseUpHandler, HasVolum
         }
     }
 
+    @Override
     public void onMouseUp(MouseUpEvent event) {
         double vol = 0;
         vol = event.getX() / (double) seekTrack.getOffsetWidth();
@@ -145,6 +159,7 @@ public class VolumeControl extends Composite implements MouseUpHandler, HasVolum
      * @return the HandlerRegistration used to remove the handler
      * @see VolumeChangeHandler
      */
+    @Override
     public HandlerRegistration addVolumeChangeHandler(VolumeChangeHandler handler) {
         return addHandler(handler, VolumeChangeEvent.TYPE);
     }
@@ -156,5 +171,15 @@ public class VolumeControl extends Composite implements MouseUpHandler, HasVolum
      */
     public void setPopupStyleName(String styleName) {
         volumePanel.setStylePrimaryName(styleName);
+    }
+
+    private void showVolumeSlider() {
+                volumePanel.setPopupPositionAndShow(new PopupPanel.PositionCallback() {
+
+                    @Override
+                    public void setPosition(int offsetWidth, int offsetHeight) {
+                        volumePanel.setPopupPosition(getAbsoluteLeft(), getAbsoluteTop() + getOffsetHeight());
+                    }
+                });
     }
 }

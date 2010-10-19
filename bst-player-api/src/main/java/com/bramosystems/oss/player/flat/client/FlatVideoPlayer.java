@@ -90,12 +90,14 @@ public class FlatVideoPlayer extends CustomVideoPlayer {
         setPlayerControlWidget(vp);
         addDebugHandler(new DebugHandler() {
 
+            @Override
             public void onDebug(DebugEvent event) {
                 logger.log(event.getMessage(), false);
             }
         });
         addMediaInfoHandler(new MediaInfoHandler() {
 
+            @Override
             public void onMediaInfoAvailable(MediaInfoEvent event) {
                 logger.log(event.getMediaInfo().asHTMLString(), true);
             }
