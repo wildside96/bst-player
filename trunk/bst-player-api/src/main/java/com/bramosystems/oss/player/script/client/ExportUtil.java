@@ -25,6 +25,7 @@ import com.bramosystems.oss.player.core.client.PluginNotFoundException;
 import com.bramosystems.oss.player.core.client.PluginVersionException;
 import com.bramosystems.oss.player.core.client.TransparencyMode;
 import com.bramosystems.oss.player.core.client.skin.MediaSeekBar;
+import com.bramosystems.oss.player.core.client.ui.QuickTimePlayer.Scale;
 import com.bramosystems.oss.player.core.client.ui.WinMediaPlayer;
 import com.bramosystems.oss.player.core.event.client.DebugEvent;
 import com.bramosystems.oss.player.core.event.client.DebugHandler;
@@ -40,6 +41,7 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.Widget;
+import java.util.EnumMap;
 import java.util.HashMap;
 
 /**
@@ -61,7 +63,7 @@ public class ExportUtil {
      *
      * <p>This method should be called after all widgets have been exported</p>
      */
-    public static native final void signalAPIReady() /*-{
+    public static native void signalAPIReady() /*-{
     $wnd.onBSTPlayerReady();
     }-*/;
 
@@ -79,8 +81,9 @@ public class ExportUtil {
      * {@code addEventListener(eventName, function)} method, instead of the {@code addXXXHandler()}
      * methods.
      * </p>
+     * TODO: update playlist support of script player...
      */
-    public static native final void exportPlayer() /*-{
+    public static native void exportPlayer() /*-{
     if($wnd.bstplayer == null){
     $wnd.bstplayer = new Object();
     }
@@ -116,9 +119,6 @@ public class ExportUtil {
     this.pauseMedia = function() {
     _player.@com.bramosystems.oss.player.script.client.ExportUtil.ScriptPlayer::pauseMedia()();
     }
-//    this.close = function() {
-//    _player.@com.bramosystems.oss.player.script.client.ExportUtil.ScriptPlayer::close()();
-//    }
     this.getMediaDuration = function() {
     return _player.@com.bramosystems.oss.player.script.client.ExportUtil.ScriptPlayer::getMediaDurationImpl()();
     }
@@ -173,7 +173,7 @@ public class ExportUtil {
      * methods.
      * </p>
      */
-    public static native final void exportSeekBar() /*-{
+    public static native void exportSeekBar() /*-{
     if($wnd.bstplayer == null){
     $wnd.bstplayer = new Object();
     }
@@ -239,7 +239,7 @@ public class ExportUtil {
             onPlayerState, onPlayState, onLoadingProgress, onMediaInfo, onError, onDebug
         }
         private AbstractMediaPlayer player;
-        private HashMap<EventName, JavaScriptObject> eventHandlers;
+        private EnumMap<EventName, JavaScriptObject> eventHandlers;
 
         public ScriptPlayer(String plugin, String url, boolean autoplay, String width,
                 String height, JavaScriptObject options) {
@@ -262,6 +262,7 @@ public class ExportUtil {
 
                 player.addDebugHandler(new DebugHandler() {
 
+                    @Override
                     public void onDebug(DebugEvent event) {
                         switch (event.getMessageType()) {
                             case Info:
@@ -283,6 +284,7 @@ public class ExportUtil {
                 });
                 player.addPlayerStateHandler(new PlayerStateHandler() {
 
+                    @Override
                     public void onPlayerStateChanged(PlayerStateEvent event) {
                         JavaScriptObject evt = JavaScriptObject.createObject();
                         putEventValue(evt, "playerState", event.getPlayerState().name());
@@ -291,6 +293,7 @@ public class ExportUtil {
                 });
                 player.addPlayStateHandler(new PlayStateHandler() {
 
+                    @Override
                     public void onPlayStateChanged(PlayStateEvent event) {
                         JavaScriptObject evt = JavaScriptObject.createObject();
                         putEventValue(evt, "playState", event.getPlayState().name());
@@ -300,6 +303,7 @@ public class ExportUtil {
                 });
                 player.addLoadingProgressHandler(new LoadingProgressHandler() {
 
+                    @Override
                     public void onLoadingProgress(LoadingProgressEvent event) {
                         JavaScriptObject evt = JavaScriptObject.createObject();
                         putEventValue(evt, "progress", event.getProgress());
@@ -322,7 +326,7 @@ public class ExportUtil {
                 initWidget(provider.getMissingPluginWidget());
             }
 
-            eventHandlers = new HashMap<EventName, JavaScriptObject>();
+            eventHandlers = new EnumMap<EventName, JavaScriptObject>(EventName.class);
         }
 
         @Override
@@ -498,11 +502,20 @@ public class ExportUtil {
                         break;
                     case WMPUIMode:
                         player.setConfigParameter(cfg, WinMediaPlayer.UIMode.valueOf(value));
+                        break;
+                    case QTScale:
+                        try {
+                            player.setConfigParameter(cfg, Double.parseDouble(value));
+                        } catch (NumberFormatException nfe) {
+                            player.setConfigParameter(cfg, Scale.valueOf(value));
+                        }
+                        break;
                 }
             } catch (Exception e) {
             }
         }
 
+        @Override
         public void setShuffleEnabled(boolean enable) {
             if (player == null) {
                 return;
@@ -513,6 +526,7 @@ public class ExportUtil {
             }
         }
 
+        @Override
         public boolean isShuffleEnabled() {
             if (player == null) {
                 return false;
@@ -524,6 +538,7 @@ public class ExportUtil {
             return false;
         }
 
+        @Override
         public void addToPlaylist(String mediaURL) {
             if (player == null) {
                 return;
@@ -534,6 +549,7 @@ public class ExportUtil {
             }
         }
 
+        @Override
         public void removeFromPlaylist(int index) {
             if (player == null) {
                 return;
@@ -544,6 +560,7 @@ public class ExportUtil {
             }
         }
 
+        @Override
         public void clearPlaylist() {
             if (player == null) {
                 return;
@@ -554,6 +571,7 @@ public class ExportUtil {
             }
         }
 
+        @Override
         public void playNext() throws PlayException {
             if (player == null) {
                 return;
@@ -564,6 +582,7 @@ public class ExportUtil {
             }
         }
 
+        @Override
         public void playPrevious() throws PlayException {
             if (player == null) {
                 return;
@@ -574,6 +593,7 @@ public class ExportUtil {
             }
         }
 
+        @Override
         public void play(int index) throws IndexOutOfBoundsException {
             if (player == null) {
                 return;
@@ -584,6 +604,7 @@ public class ExportUtil {
             }
         }
 
+        @Override
         public int getPlaylistSize() {
             if (player == null) {
                 return 0;
@@ -611,6 +632,7 @@ public class ExportUtil {
 
             seek.addSeekChangeHandler(new SeekChangeHandler() {
 
+                @Override
                 public void onSeekChanged(SeekChangeEvent event) {
                     if (seekChangeHandler != null) {
                         JavaScriptObject evt = JavaScriptObject.createObject();

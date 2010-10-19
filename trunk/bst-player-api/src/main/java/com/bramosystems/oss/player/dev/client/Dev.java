@@ -46,6 +46,8 @@ import java.util.ArrayList;
  */
 public class Dev extends VerticalPanel implements EntryPoint {
 
+    private AbstractMediaPlayer mmp = null;
+
     public Dev() {
         setSpacing(20);
         setWidth("80%");
@@ -77,7 +79,14 @@ public class Dev extends VerticalPanel implements EntryPoint {
     }
 
     private void addPlayer(Plugin plugin) {
-        AbstractMediaPlayer mmp = null;
+        add(new Button("Show", new ClickHandler() {
+
+            @Override
+            public void onClick(ClickEvent event) {
+                mmp.setControllerVisible(!mmp.isControllerVisible());
+            }
+        }));
+
         try {
             switch (plugin) {
                 case DivXPlayer:
@@ -90,18 +99,11 @@ public class Dev extends VerticalPanel implements EntryPoint {
 //                    divx.setAllowContextMenu(false);
 //                    ((DivXPlayer) mmp).addToPlaylist(getURL("/local-video/divx7_postinstall.divx"));
                     ((DivXPlayer) mmp).addToPlaylist(getURL("/local-video/gi-joe-trailer.mkv"));
-                    add(new Button("Show", new ClickHandler() {
-
-                        @Override
-                        public void onClick(ClickEvent event) {
-                            //                           mmp.setControllerVisible(!mmp.isControllerVisible());
-                        }
-                    }));
                     break;
                 case FlashPlayer:
                     mmp = new FlashMediaPlayer(getURL("/local-video/big-buck-bunny.mp4"), true, "350px", "100%");
-                    ((PlaylistSupport)mmp).addToPlaylist(getURL("/local-video/brandy-everything.mp3"));
-                    ((PlaylistSupport)mmp).addToPlaylist(getURL("/local-video/traffic.flv"));
+                    ((PlaylistSupport) mmp).addToPlaylist(getURL("/local-video/brandy-everything.mp3"));
+                    ((PlaylistSupport) mmp).addToPlaylist(getURL("/local-video/traffic.flv"));
                     break;
                 case QuickTimePlayer:
                     mmp = new QuickTimePlayer(getURL("/local-video/Sample.mov"), false, "250px", "100%");
@@ -115,8 +117,8 @@ public class Dev extends VerticalPanel implements EntryPoint {
                     ((PlaylistSupport) mmp).addToPlaylist(getURL("/local-video/fireflies.flv"));
 //                    mmp = new VLCPlayer(getURL("/local-video/big-buck-bunny.mp4"), true, "250px", "100%");
 //                    ((PlaylistSupport) mmp).addToPlaylist(getURL("/local-video/divx7_postinstall.divx"));
-  //                  ((PlaylistSupport) mmp).addToPlaylist(getURL("/local-video/traffic.flv"));
-                    ((PlaylistSupport) mmp).addToPlaylist(getURL("/local-video/Sample.mov"));
+                    //                  ((PlaylistSupport) mmp).addToPlaylist(getURL("/local-video/traffic.flv"));
+//                    ((PlaylistSupport) mmp).addToPlaylist(getURL("/local-video/Sample.mov"));
                     break;
                 case WinMediaPlayer:
                     mmp = new WinMediaPlayer(getURL("/local-video/home-video.wmv"), false, "200px", "100%");

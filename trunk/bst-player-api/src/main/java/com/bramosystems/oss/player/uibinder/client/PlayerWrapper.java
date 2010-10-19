@@ -89,30 +89,35 @@ public abstract class PlayerWrapper<T extends AbstractMediaPlayer> extends Abstr
             _engine = initPlayerEngine(mediaURL, autoplay, height, width);
             _engine.addDebugHandler(new DebugHandler() {
 
+                @Override
                 public void onDebug(DebugEvent event) {
                     fireEvent(event);
                 }
             });
             _engine.addLoadingProgressHandler(new LoadingProgressHandler() {
 
+                @Override
                 public void onLoadingProgress(LoadingProgressEvent event) {
                     fireEvent(event);
                 }
             });
             _engine.addMediaInfoHandler(new MediaInfoHandler() {
 
+                @Override
                 public void onMediaInfoAvailable(MediaInfoEvent event) {
                     fireEvent(event);
                 }
             });
             _engine.addPlayStateHandler(new PlayStateHandler() {
 
+                @Override
                 public void onPlayStateChanged(PlayStateEvent event) {
                     fireEvent(event);
                 }
             });
             _engine.addPlayerStateHandler(new PlayerStateHandler() {
 
+                @Override
                 public void onPlayerStateChanged(PlayerStateEvent event) {
                     fireEvent(event);
                 }
@@ -154,6 +159,7 @@ public abstract class PlayerWrapper<T extends AbstractMediaPlayer> extends Abstr
     protected abstract T initPlayerEngine(String mediaURL, boolean autoplay, String height, String width)
             throws LoadException, PluginNotFoundException, PluginVersionException;
 
+    @Override
     public long getMediaDuration() {
         if (_engine == null) {
             return 0;
@@ -161,6 +167,7 @@ public abstract class PlayerWrapper<T extends AbstractMediaPlayer> extends Abstr
         return _engine.getMediaDuration();
     }
 
+    @Override
     public double getPlayPosition() {
         if (_engine == null) {
             return 0;
@@ -168,6 +175,7 @@ public abstract class PlayerWrapper<T extends AbstractMediaPlayer> extends Abstr
         return _engine.getPlayPosition();
     }
 
+    @Override
     public void setPlayPosition(double position) {
         if (_engine == null) {
             return;
@@ -175,6 +183,7 @@ public abstract class PlayerWrapper<T extends AbstractMediaPlayer> extends Abstr
         _engine.setPlayPosition(position);
     }
 
+    @Override
     public void loadMedia(String mediaURL) throws LoadException {
         if (_engine == null) {
             return;
@@ -182,6 +191,7 @@ public abstract class PlayerWrapper<T extends AbstractMediaPlayer> extends Abstr
         _engine.loadMedia(mediaURL);
     }
 
+    @Override
     public void pauseMedia() {
         if (_engine == null) {
             return;
@@ -189,6 +199,7 @@ public abstract class PlayerWrapper<T extends AbstractMediaPlayer> extends Abstr
         _engine.pauseMedia();
     }
 
+    @Override
     public void playMedia() throws PlayException {
         if (_engine == null) {
             return;
@@ -196,6 +207,7 @@ public abstract class PlayerWrapper<T extends AbstractMediaPlayer> extends Abstr
         _engine.playMedia();
     }
 
+    @Override
     public void stopMedia() {
         if (_engine == null) {
             return;
@@ -203,6 +215,7 @@ public abstract class PlayerWrapper<T extends AbstractMediaPlayer> extends Abstr
         _engine.stopMedia();
     }
 
+    @Override
     public double getVolume() {
         if (_engine == null) {
             return 0;
@@ -210,6 +223,7 @@ public abstract class PlayerWrapper<T extends AbstractMediaPlayer> extends Abstr
         return _engine.getVolume();
     }
 
+    @Override
     public void setVolume(double volume) {
         if (_engine == null) {
             return;
@@ -316,6 +330,7 @@ public abstract class PlayerWrapper<T extends AbstractMediaPlayer> extends Abstr
         _engine.setResizeToVideoSize(resize);
     }
 
+    @Override
     public void addToPlaylist(String mediaURL) {
         if (_engine == null) {
             return;
@@ -325,6 +340,7 @@ public abstract class PlayerWrapper<T extends AbstractMediaPlayer> extends Abstr
         }
     }
 
+    @Override
     public boolean isShuffleEnabled() {
         if (_engine == null) {
             return false;
@@ -335,6 +351,7 @@ public abstract class PlayerWrapper<T extends AbstractMediaPlayer> extends Abstr
         return false;
     }
 
+    @Override
     public void removeFromPlaylist(int index) {
         if (_engine == null) {
             return;
@@ -344,6 +361,7 @@ public abstract class PlayerWrapper<T extends AbstractMediaPlayer> extends Abstr
         }
     }
 
+    @Override
     public void setShuffleEnabled(boolean enable) {
         if (_engine == null) {
             return;
@@ -353,6 +371,7 @@ public abstract class PlayerWrapper<T extends AbstractMediaPlayer> extends Abstr
         }
     }
 
+    @Override
     public void clearPlaylist() {
         if (_engine == null) {
             return;
@@ -362,6 +381,7 @@ public abstract class PlayerWrapper<T extends AbstractMediaPlayer> extends Abstr
         }
     }
 
+    @Override
     public int getPlaylistSize() {
         if (_engine == null) {
             return 0;
@@ -372,6 +392,7 @@ public abstract class PlayerWrapper<T extends AbstractMediaPlayer> extends Abstr
         return 1;
     }
 
+    @Override
     public void play(int index) throws IndexOutOfBoundsException {
         if (_engine == null) {
             return;
@@ -381,6 +402,7 @@ public abstract class PlayerWrapper<T extends AbstractMediaPlayer> extends Abstr
         }
     }
 
+    @Override
     public void playNext() throws PlayException {
         if (_engine == null) {
             return;
@@ -390,6 +412,7 @@ public abstract class PlayerWrapper<T extends AbstractMediaPlayer> extends Abstr
         }
     }
 
+    @Override
     public void playPrevious() throws PlayException {
         if (_engine == null) {
             return;
@@ -399,6 +422,7 @@ public abstract class PlayerWrapper<T extends AbstractMediaPlayer> extends Abstr
         }
     }
 
+    @Override
     public void setMatrix(TransformationMatrix matrix) {
         if (_engine == null) {
             return;
@@ -408,6 +432,7 @@ public abstract class PlayerWrapper<T extends AbstractMediaPlayer> extends Abstr
         }
     }
 
+    @Override
     public TransformationMatrix getMatrix() {
         if (_engine == null) {
             return null;

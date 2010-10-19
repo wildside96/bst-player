@@ -21,6 +21,7 @@ import com.bramosystems.oss.player.core.event.client.PlayerStateEvent;
 import com.bramosystems.oss.player.core.event.client.PlayerStateHandler;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 /**
  * Provides Playlist emulation support for media plugins
@@ -134,7 +135,7 @@ public class DelegatePlaylistManager implements PlaylistSupport {
         _debug("Added to playlist - '" + mediaURLs + "'");
     }
 
-    public void addToPlaylist(ArrayList<String> mediaURLs) {
+    public void addToPlaylist(List<String> mediaURLs) {
         MRL mrl = new MRL();
         mrl.addAll(mediaURLs);
         urls.add(mrl);

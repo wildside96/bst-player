@@ -24,4 +24,15 @@
                 <activatedProfile>dev-mode</activatedProfile>
             </activatedProfiles>
         </action>
+        <action>
+            <actionName>CUSTOM-snapshot-deploy</actionName>
+            <displayName>snapshot-deploy</displayName>
+            <goals>
+                <goal>clean</goal>
+                <goal>deploy:deploy</goal>
+            </goals>
+            <activatedProfiles>
+                <activatedProfile>dev-mode</activatedProfile>
+            </activatedProfiles>
+        </action>
     </actions>
