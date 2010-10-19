@@ -110,7 +110,7 @@ public class MyExporter implements EntryPoint {
 
                 <p>
                     But for the <code>ExportUtil</code> to succeed, it needs to know the export provider
-                    implementation.  This is archieved using GWTs' type-replacement feature,
+                    implementation.  This is achieved using GWTs' type-replacement feature,
                     that is the following line should be in your module XML file:
                 </p>
 

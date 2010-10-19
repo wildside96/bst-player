@@ -10,23 +10,21 @@
     <properties>
         <title>Release Note</title>
     </properties>
-    
+
     <body>
         <section name="Release Notes">
             <p>
                 This page contains information on the various released packages of the project.
             </p>
-<!--
-            <subsection name=" - Version 1.2">
+
+            <!--subsection name=" - Version 1.2">
                 <p>
                     <b>New Features</b>
                 </p>
-
                 <ul>
-                    <li>Adds DivXPlayer widget to embed DivX Web Player plugin.</li>
-                    <li>FlashMediaPlayer implements native player controls</li>
+                    <li>Introduces DivXPlayer widget to embed DivX Web Player plugin.</li>
                     <li>Adds fullscreen support to FlashMediaPlayer</li>
-                    <li></li>
+                    <li>Introduces playlist repeat modes</li>
                     <li></li>
                     <li></li>
                 </ul>
@@ -35,8 +33,10 @@
                     <b>Improvements</b>
                 </p>
                 <ul>
+                    <li>FlashMediaPlayer implements native player controls</li>
+                    <li>Adds playlist support to all core player widgets</li>
                     <li>WinMediaPlayer requires Media Player Plugin for Firefox in non-IE browsers</li>
-                    <li>Adds API tunning features to improve performance</li>
+                    <li>API internals reworked to improve performance</li>
                 </ul>
 
                 <p>
@@ -48,8 +48,19 @@
                     Continous playback with WinMediaPlayer fixed
                     </li>
                 </ul>
-            </subsection>
--->
+
+                <p>
+                    <b>Known Issue</b>
+                </p>
+                <ul >
+                    <li>
+                        Resizing <code>WinMediaPlayer</code> widget is not supported for non-IE browsers.
+                        This is due to unpredictable rendering behaviour when using playlists.  However, this
+                        feature works fine in IE browsers.
+                    </li>
+                </ul>
+            </subsection-->
+
             <subsection name="08 February 2010 - Version 1.1">
                 <p>
                     <b>New Features</b>

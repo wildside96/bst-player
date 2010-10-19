@@ -13,28 +13,32 @@
     <body>
         <section name="Migrating to version 1.2">
             <p>
-                Version 1.2 introduce many enhancements that may affect existing code.
+                Version 1.2 introduce many enhancements that may affect existing code.  The
+                effect may not be much but it is worth taking note of.
             </p>
 
             <subsection name="GWT 2.x dependency">
                 <p>
                     The library now requires GWT 2.0 or later.  GWT has come a long way since version 1.6 so
-                    this may not be an issue, most GWT projects are based on 2.x already.
+                    this may not be an issue, as most GWT projects are based on 2.x already.
                 </p>
             </subsection>
 
             <subsection name="WinMediaPlayer and non-IE browsers">
                 <p>
-                    The WinMediaPlayer widget now requires the Windows Media Player plugin for Firefox in
-                    non-IE browsers to guarantee programmable control.  Since this may not always be
-                    required, two operating modes are defined - the programmable and
-                    embed-only modes, with programmable being the default.
+                    <code>WinMediaPlayer</code> widget now requires the Windows Media Player plugin for
+                    Firefox in non-IE browsers to guarantee programmable control.  Since this may not
+                    always be required, two operating modes are defined - the embed-only and
+                    programmable modes.
                 </p>
-
                 <p>
                     In embed-only mode, the widget is expected to be used for rendering only without
                     any programmatic control.  Consequently method calls on the widget in this mode
                     may fail and such errors/failures are suppressed.
+                </p>
+                <p>
+                    In programmable mode - the default, the widget throws <code>PluginNotFoundException</code>
+                    in non-IE browsers without the Windows Media Player plugin for Firefox.
                 </p>
             </subsection>
 
@@ -132,8 +136,7 @@
                 <source>
 player.addMediaStateListener{ new MediaStateListener() {
 ...
-}};
-                </source>
+}};</source>
                 
                 <p>
                     will now need to do:
@@ -147,8 +150,7 @@ player.addPlayStateHandler { new PlayStateHandler() {
     // if interested in play state changes
 }};
 
-etc...
-                </source>
+etc...     </source>
 
                 <p>
                     Please check the
