@@ -15,6 +15,7 @@
  */
 package com.bramosystems.oss.player.dev.client;
 
+import com.bramosystems.oss.player.capsule.client.Capsule;
 import com.bramosystems.oss.player.core.client.AbstractMediaPlayer;
 import com.bramosystems.oss.player.core.client.LoadException;
 import com.bramosystems.oss.player.core.client.PlayerUtil;
@@ -112,9 +113,10 @@ public class Dev extends VerticalPanel implements EntryPoint {
 //            mmp.setConfigParameter(ConfigParameter.QTScale, QuickTimePlayer.Scale.ToFit);
                     break;
                 case VLCPlayer:
-                    mmp = new VLCPlayer(getURL("/local-video/divx7_postinstall.divx"), true, "250px", "100%");
+                    mmp = new Capsule(Plugin.FlashPlayer, getURL("/local-video/fireflies.flv"), false);
+//                    mmp = new VLCPlayer(getURL("/local-video/divx7_postinstall.divx"), true, "250px", "100%");
 //                    mmp.setVolume(0.2);
-                    ((PlaylistSupport) mmp).addToPlaylist(getURL("/local-video/fireflies.flv"));
+//                    ((PlaylistSupport) mmp).addToPlaylist(getURL("/local-video/fireflies.flv"));
 //                    mmp = new VLCPlayer(getURL("/local-video/big-buck-bunny.mp4"), true, "250px", "100%");
 //                    ((PlaylistSupport) mmp).addToPlaylist(getURL("/local-video/divx7_postinstall.divx"));
                     //                  ((PlaylistSupport) mmp).addToPlaylist(getURL("/local-video/traffic.flv"));

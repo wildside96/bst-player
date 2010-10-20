@@ -77,8 +77,7 @@
                 <artifactId>maven-jar-plugin</artifactId>
                 <configuration>
                     <excludes>
-                    <!--exclude>**/dev/**/*.*</exclude-->
-                        <exclude>*.*</exclude>
+                        <exclude>**/dev/**</exclude>
                     </excludes>
                 </configuration>
             </plugin>

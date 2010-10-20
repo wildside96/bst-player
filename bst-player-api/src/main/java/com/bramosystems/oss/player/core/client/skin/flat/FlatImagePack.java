@@ -1,14 +1,20 @@
 package com.bramosystems.oss.player.core.client.skin.flat;
 
-import com.bramosystems.oss.player.core.client.skin.ImagePack;
+import com.bramosystems.oss.player.core.client.skin.CustomPlayerControl.UIStyleResource;
 import com.google.gwt.resources.client.ClientBundle;
 import com.google.gwt.resources.client.ImageResource;
 
 /**
- * Simple Image Pack with flat blue images.
+ * Simple ImageBundle definition for the CustomPlayerControl class.
+ *
+ * @since 1.2
+ * @author Berger Max
  */
-public interface FlatImagePack extends ImagePack, ClientBundle {
-    @Override
+public interface FlatImagePack extends ClientBundle {
+
+    @Source("flat-control-style.css")
+    public UIStyleResource css();
+
     public ImageResource pause();
 
     public ImageResource pauseHover();
@@ -25,7 +31,7 @@ public interface FlatImagePack extends ImagePack, ClientBundle {
 
     public ImageResource stopHover();
 
-    public ImageResource spk();
+    public ImageResource volume();
 
     public ImageResource prev();
 
@@ -38,8 +44,4 @@ public interface FlatImagePack extends ImagePack, ClientBundle {
     public ImageResource nextDisabled();
 
     public ImageResource nextHover();
-
-    public ImageResource lEdge();
-
-    public ImageResource rEdge();
 }
