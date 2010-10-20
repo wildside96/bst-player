@@ -29,7 +29,7 @@
             <displayName>snapshot-deploy</displayName>
             <goals>
                 <goal>clean</goal>
-                <goal>deploy:deploy</goal>
+                <goal>deploy</goal>
             </goals>
             <activatedProfiles>
                 <activatedProfile>dev-mode</activatedProfile>

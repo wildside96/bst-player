@@ -113,6 +113,7 @@ public class VolumeControl extends Composite implements MouseUpHandler, HasVolum
      *
      * @param icon represents the volume control object.
      * @param sliderHeight the height of the volume slider control.
+     * @since 1.2
      */
     public VolumeControl(int sliderHeight) {
         super.initWidget(new Label());
