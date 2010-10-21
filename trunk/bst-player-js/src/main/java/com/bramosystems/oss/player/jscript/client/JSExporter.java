@@ -31,6 +31,7 @@ public class JSExporter extends Composite implements EntryPoint {
         ExportUtil.exportSeekBar();
     }
 
+    @Override
     public void onModuleLoad() {
         ExportUtil.signalAPIReady();
     }
