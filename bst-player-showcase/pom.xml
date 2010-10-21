@@ -24,7 +24,7 @@
                     <disableCastChecking>true</disableCastChecking>
                     <disableClassMetadata>true</disableClassMetadata>
                     <soyc>false</soyc>
-                    <runTarget>javacode.html</runTarget>
+                    <runTarget>index.html</runTarget>
                     <hostedWebapp>${project.build.directory}/${project.build.finalName}</hostedWebapp>
                     <copyWebapp>true</copyWebapp>
                 </configuration>
@@ -53,4 +53,7 @@
             <scope>provided</scope>
         </dependency>
     </dependencies>
+    <properties>
+        <netbeans.hint.deploy.server>Tomcat60</netbeans.hint.deploy.server>
+    </properties>
 </project>
