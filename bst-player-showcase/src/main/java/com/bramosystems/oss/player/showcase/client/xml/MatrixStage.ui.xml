@@ -1,0 +1,50 @@
+<!--
+Uncomment this for XHTML entities
+<!DOCTYPE ui:UiBinder SYSTEM "http://dl.google.com/gwt/DTD/xhtml.ent">
+-->
+<ui:UiBinder xmlns:ui="urn:ui:com.google.gwt.uibinder"
+	xmlns:g="urn:import:com.google.gwt.user.client.ui">
+    <ui:style src="css/styles.css"/>
+    <ui:style field='x'>
+        .left {
+            width: 50%;
+            float: left;
+        }
+        .right {
+            width: 47%;
+            float: right;
+        }
+        .options {
+            margin: 1em;
+        }
+    </ui:style>
+
+    <g:HTMLPanel>
+        <g:SimplePanel styleName='{x.left}' ui:field='video'></g:SimplePanel>
+        <div class='{x.right}'>
+            <div>Transform Options</div>
+            <div class='{x.options}'>
+                <div class='{x.left}'>Scale</div>
+                <g:ListBox styleName='{x.right}' ui:field='scale'></g:ListBox>
+                <div class='{style.clear}'></div>
+            </div>
+            <div class='{x.options}'>
+                <div class='{x.left}'>Translate</div>
+                <g:ListBox styleName='{x.right}' ui:field='xlate'></g:ListBox>
+                <div class='{style.clear}'></div>
+            </div>
+            <div class='{x.options}'>
+                <div class='{x.left}'>Rotate</div>
+                <g:ListBox styleName='{x.right}' ui:field='rotate'></g:ListBox>
+                <div class='{style.clear}'></div>
+            </div>
+            <div class='{x.options}'>
+                <div class='{x.left}'>Skew</div>
+                <g:ListBox styleName='{x.right}' ui:field='skew'></g:ListBox>
+                <div class='{style.clear}'></div>
+            </div>
+            <g:Button ui:field='xforms'>Clear Transforms</g:Button>
+        </div>
+        <div class='{style.clear}'></div>
+    </g:HTMLPanel>
+</ui:UiBinder>

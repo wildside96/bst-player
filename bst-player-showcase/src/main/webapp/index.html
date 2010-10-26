@@ -4,8 +4,9 @@
     Author     : Sikirulai Braheem <sbraheem at gmail.com>
 -->
 
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
-    "http://www.w3.org/TR/html4/loose.dtd">
+<!doctype html>
+<!--DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+    "http://www.w3.org/TR/html4/loose.dtd"-->
 <html>
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
@@ -16,14 +17,28 @@
         <link href="styles.css" type="text/css" rel="stylesheet" />
     </head>
     <body>
-        <p>
-            <a href="javacode.html">Showcase App - with regular GWT code</a>
-        </p>
-        <p>
-            <a href="uibinder.html">Showcase App - with UiBinder</a>
-        </p>
+        <script type="text/javascript" language="javascript" src="showcase/showcase.nocache.js"></script>
+
+        <div class="wrappper">
+            <div class='mast-head'>
+                <div class='app-banner'>BST Player Showcase</div>
+                <div class='app-version'>Version 1.1-SNAPSHOT</div>
+            </div>
 
 
+            <div id="loading">
+                Loading, please wait ...
+            </div>
+            <div id="app-pane">
+            </div>
+
+            <div class='footer'>
+                <div>Copyright &copy; 2009 - 2010 Sikiru Braheem</div>
+                <div>All logo, tradenames, brandnames are copyright of their respective owners.</div>
+            </div>
+        </div>
+
+        <iframe src="javascript:''" id="__gwt_historyFrame" style="width:0px;height:0px;border:0px"></iframe>
         <script type="text/javascript">
             var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
             document.write(unescape("%3Cscript src='" + gaJsHost +
@@ -32,6 +47,7 @@
         <script type="text/javascript">
             try {
                 var pageTracker = _gat._getTracker("UA-7535603-3");
+                //                var pageTracker = _gat._getTracker("UA-7535603-1");
                 pageTracker._trackPageview();
             } catch(err) {}
         </script>

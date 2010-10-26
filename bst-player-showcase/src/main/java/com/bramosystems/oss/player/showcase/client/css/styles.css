@@ -13,20 +13,10 @@
 .clear {
     clear: both;
 }
-.thumbnail {
-    height: 70px;
-    width: 70px;
-    border: 2px ridge #ccc;
-    margin: 18px;
-    padding: 5px;
-    background-color: aliceblue;
-    cursor: pointer;
-    float: left;
-}
 .player-options {
     margin-top: 5px;
 }
-.playlist-panel {
+.list-panel {
     height: 110px;
     margin-top: 5px;
 }

@@ -25,10 +25,19 @@ import com.google.gwt.resources.client.CssResource;
 public interface ShowcaseStyles extends CssResource {
 
     public String link();
-
     public String header();
 
     public String content();
-
     public String menuPanel();
+
+    public String pct50();
+    public String pct20();
+    public String pct80();
+
+    public String pct30();
+    public String pct40();
+    public String clear();
+    public String spacedPanel();
+
+    public String stage();
 }

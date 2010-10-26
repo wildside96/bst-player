@@ -6,9 +6,11 @@ Uncomment this for XHTML entities
 	xmlns:g="urn:import:com.google.gwt.user.client.ui">
     <ui:style src="css/styles.css"/>
 
-    <g:VerticalPanel styleName='{style.player-options}'>
+    <g:HTMLPanel styleName='{style.player-options}'>
         <g:CheckBox ui:field='controls'>Show Controls</g:CheckBox>
+        <br/>
         <g:CheckBox ui:field='logger'>Show Logger</g:CheckBox>
+        <br/>
         <g:CheckBox ui:field='resizeToVideo'>Resize to Video Size</g:CheckBox>
-    </g:VerticalPanel>
+    </g:HTMLPanel>
 </ui:UiBinder>
