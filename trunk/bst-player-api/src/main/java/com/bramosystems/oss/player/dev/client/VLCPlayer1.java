@@ -64,7 +64,6 @@ import java.util.ArrayList;
  * </pre></code>
  *
  * @author Sikirulai Braheem
- * TODO: fix memory leak, timer related ...
  */
 public class VLCPlayer1 extends AbstractMediaPlayer implements PlaylistSupport {
 
@@ -560,7 +559,6 @@ public class VLCPlayer1 extends AbstractMediaPlayer implements PlaylistSupport {
     }
 
     /*
-     * TODO:// check up aspect ratio later...
     public AspectRatio getAspectRatio() {
     checkAvailable();
     if (impl.hasVideo(playerId)) {

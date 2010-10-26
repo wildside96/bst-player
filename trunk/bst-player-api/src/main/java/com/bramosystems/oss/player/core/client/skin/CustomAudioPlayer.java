@@ -46,7 +46,7 @@ import com.google.gwt.user.client.ui.Widget;
 public abstract class CustomAudioPlayer extends AbstractMediaPlayer implements PlaylistSupport {
 
     private AbstractMediaPlayer engine;
-    private SimplePanel container;
+    private SimplePanel controller;
     /**
      * The Logger widget attached to this player
      */
@@ -133,15 +133,15 @@ public abstract class CustomAudioPlayer extends AbstractMediaPlayer implements P
             }
         });
 
-        container = new SimplePanel();
-        container.setWidth("100%");
+        controller = new SimplePanel();
+        controller.setWidth("100%");
 
         logger.setVisible(false);
 
         AbsolutePanel hp = new AbsolutePanel();
         hp.setSize(width, height);
         hp.add(engine, 0, 0);
-        hp.add(container, 0, 0);
+        hp.add(controller, 0, 0);
 
         DockPanel vp = new DockPanel();
         vp.setVerticalAlignment(VerticalPanel.ALIGN_MIDDLE);
@@ -170,7 +170,7 @@ public abstract class CustomAudioPlayer extends AbstractMediaPlayer implements P
      * @param widget the player control widget
      */
     protected final void setPlayerControlWidget(Widget widget) {
-        container.setWidget(widget);
+        controller.setWidget(widget);
     }
 
     @Override
@@ -303,5 +303,35 @@ public abstract class CustomAudioPlayer extends AbstractMediaPlayer implements P
         if (engine instanceof PlaylistSupport) {
             ((PlaylistSupport) engine).playPrevious();
         }
+    }
+
+    @Override
+    public double getRate() {
+        return engine.getRate();
+    }
+
+    @Override
+    public RepeatMode getRepeatMode() {
+        return engine.getRepeatMode();
+    }
+
+    @Override
+    public <T extends ConfigValue> void setConfigParameter(ConfigParameter param, T value) {
+        engine.setConfigParameter(param, value);
+    }
+
+    @Override
+    public void setConfigParameter(ConfigParameter param, Number value) {
+        engine.setConfigParameter(param, value);
+    }
+
+    @Override
+    public void setRate(double rate) {
+        engine.setRate(rate);
+    }
+
+    @Override
+    public void setRepeatMode(RepeatMode mode) {
+        engine.setRepeatMode(mode);
     }
 }

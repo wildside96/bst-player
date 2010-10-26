@@ -47,7 +47,7 @@ public class PlayStateEvent extends GwtEvent<PlayStateHandler> {
      * @param state the new state of the media
      * @param itemIndex the playlist index of the media
      */
-    public static void fire(HasMediaStateHandlers source, State state, int itemIndex) {
+    public static void fire(HasPlayStateHandlers source, State state, int itemIndex) {
         source.fireEvent(new PlayStateEvent(state, itemIndex));
     }
 

@@ -13,7 +13,7 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-package com.bramosystems.oss.player.core.client.impl;
+package com.bramosystems.oss.player.dev.client;
 
 import com.bramosystems.oss.player.core.client.*;
 import com.bramosystems.oss.player.core.client.geom.MatrixSupport;

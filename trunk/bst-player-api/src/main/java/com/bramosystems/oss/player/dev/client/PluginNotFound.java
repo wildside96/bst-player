@@ -15,7 +15,7 @@
  *  under the License.
  */
 
-package com.bramosystems.oss.player.core.client.impl;
+package com.bramosystems.oss.player.dev.client;
 
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.user.client.ui.HTML;

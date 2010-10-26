@@ -46,7 +46,7 @@ public class MediaInfoEvent extends GwtEvent<MediaInfoHandler> {
      * @param source the source of the event
      * @param info the metadata of the media
      */
-    public static void fire(HasMediaStateHandlers source, MediaInfo info) {
+    public static void fire(HasMediaMessageHandlers source, MediaInfo info) {
         source.fireEvent(new MediaInfoEvent(info));
     }
 
