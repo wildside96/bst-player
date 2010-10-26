@@ -2,43 +2,39 @@
 
 <ui:UiBinder xmlns:ui="urn:ui:com.google.gwt.uibinder" xmlns:g="urn:import:com.google.gwt.user.client.ui"
 xmlns:showcase="urn:import:com.bramosystems.oss.player.showcase.client">
-    <ui:style src="css/styles.css"/>
+    <ui:style field='x'>
+        .stage {
+            line-height: 1.5em;
+            margin: 2px;
+            padding: 3px;
+        }
+        .west {
+            width: 150px;
+            float: left;
+        }
+        .east {
+            margin-left: 165px;
+            border-left: 1px solid #1047b5;
+            padding-bottom: 20px;
+        }
+        .options {
+            bottom: 0px;
+            position: fixed;
+            background-color: #ffffff;
+            width: 950px;
+            margin: auto;
+            border-left: 1px solid #1047b5;
+            border-right: 1px solid #1047b5;
+        }
+        .menu {
+            margin: 2px;
+            padding: 3px;
+        }
+    </ui:style>
 
-    <g:DockLayoutPanel unit="PX">
-        <g:north size="50">
-            <g:HTMLPanel>
-                <div class='app-banner'>BST Player Showcase</div>
-                <div class='app-version'>Version 1.1-SNAPSHOT</div>
-            </g:HTMLPanel>
-        </g:north>
-        
-        <g:west size="150">
-            <g:FlowPanel styleName='{style.panel}'>
-                <g:Label styleName='{style.panel-title}'>Samples</g:Label>
-                <showcase:ThumbnailPane />
-            </g:FlowPanel>
-        </g:west>
-        
-        <g:south size="150">
-            <g:DockLayoutPanel unit="PCT">
-                <g:west size="30">
-                    <g:FlowPanel styleName='{style.panel}'>
-                        <g:Label styleName='{style.panel-title}'>Player Options</g:Label>
-                        <showcase:PlayerOptions ui:field='playerOptions' />
-                    </g:FlowPanel>
-                </g:west>
-
-                <g:center>
-                    <g:FlowPanel styleName='{style.panel}'>
-                        <g:Label styleName='{style.panel-title}'>Playlist</g:Label>
-                        <showcase:PlaylistPane ui:field='playlist' styleName='{style.playlist-panel}' />
-                    </g:FlowPanel>
-                </g:center>
-            </g:DockLayoutPanel>
-        </g:south>
-
-        <g:center>
-            <showcase:PlayerPane styleName='{style.panel}' ui:field='player' />
-        </g:center>
-    </g:DockLayoutPanel>
+    <g:HTMLPanel>
+        <showcase:MenuController styleName='{x.west} {x.menu}' ui:field='menu' />
+        <showcase:StageController styleName='{x.east} {x.stage}' ui:field='stage' />
+        <showcase:ControlPane styleName='{x.options}' ui:field='controlPane' />
+    </g:HTMLPanel>
 </ui:UiBinder>

@@ -47,15 +47,28 @@ public interface Bundle extends ClientBundle {
     @Source("nav-left-hover.png")
     public ImageResource navLeftHover();
 
+    @Source("vlc-cone.png")
+    public ImageResource vlcCone();
+
     @Source("styles.css")
     public Styles css();
 
     public interface Styles extends CssResource {
 
         public String navLeft();
+
         public String navLeftDisabled();
 
         public String navRight();
-       public String navRightDisabled();
+
+        public String navRightDisabled();
+
+        public String pluginBox();
+
+        public String vlcPlugin();
+
+        public String disabledPlugin();
+        public String navItem();
+        public String navItemSelected();
     }
 }

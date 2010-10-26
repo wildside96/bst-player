@@ -7,8 +7,8 @@ Purpose of the stylesheet follows.
 */
 
 @external case-code, ui-case-code, pre, code, media-desc, section-desc, content-wrapper;
-@external case-header, case-content, app-wrapper, app-footer, app-banner, app-version;
-@external player-MissingPlugin, player-MissingPlugin-title, player-MissingPlugin-message, body;
+@external case-header, case-content, app-wrapper, app-footer;
+@external player-MissingPlugin, player-MissingPlugin-title, player-MissingPlugin-message;
 
 .case-code {
     background-color: #f5f5f5;
@@ -29,11 +29,11 @@ Purpose of the stylesheet follows.
 @if !user.agent ie6 ie8 opera {
     pre, code {
     font-size: 120%;
-    }
+}
 } @else {
     pre, code {
     font-size: 90%;
-    }
+}
 }
 
 .content-wrapper {
@@ -59,17 +59,6 @@ Purpose of the stylesheet follows.
     margin-top: 5px;
     padding-top: 5px;
 }
-.app-banner {
-    margin-bottom: 0px;
-    font-size: 180%;
-    font-weight: bold;
-}
-.app-version {
-    margin-bottom: 10px;
-    font-weight: bold;
-    font-style:italic;
-}
-
 .link {
     padding: 5px;
 }
@@ -124,5 +113,34 @@ Purpose of the stylesheet follows.
     padding: 5px;
 }
 
-body {
+.clear {
+    clear: both;
 }
+.pct50 {
+    width: 49%;
+    float: left;
+}
+.pct20 {
+    width: 20%;
+    float: left;
+}
+.pct80 {
+    width: 80%;
+    float: left;
+}
+.pct30 {
+    width: 30%;
+    float: left;
+}
+.pct40 {
+    width: 40%;
+    float: left;
+}
+.spacedPanel {
+    margin-bottom: 0.5em;
+}
+.stage {
+    margin-top: 10px;
+    padding: 0.5em;
+}
+

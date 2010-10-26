@@ -29,8 +29,8 @@ public interface ResourceBundle extends ClientBundle {
 
     @Source("index.html")
     public ExternalTextResource home();
-    @Source("index-docs.html")
-    public ExternalTextResource homeDocs();
+//    @Source("index-docs.html")
+//    public ExternalTextResource homeDocs();
 
     @Source("wmp-basic.html")
     public ExternalTextResource wmpBasic();
