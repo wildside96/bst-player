@@ -32,6 +32,7 @@ import com.google.gwt.user.client.ui.Widget;
  * @param <T> the player implementation type
  * @since 1.1
  */
+//TODO: find a way of enhancing this via UIBinderWriter
 public abstract class PlayerWrapper<T extends AbstractMediaPlayer> extends AbstractMediaPlayer
         implements MatrixSupport, com.bramosystems.oss.player.core.client.PlaylistSupport {
 

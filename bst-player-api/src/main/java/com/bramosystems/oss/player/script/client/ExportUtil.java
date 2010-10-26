@@ -23,6 +23,7 @@ import com.bramosystems.oss.player.core.client.PlaylistSupport;
 import com.bramosystems.oss.player.core.client.Plugin;
 import com.bramosystems.oss.player.core.client.PluginNotFoundException;
 import com.bramosystems.oss.player.core.client.PluginVersionException;
+import com.bramosystems.oss.player.core.client.RepeatMode;
 import com.bramosystems.oss.player.core.client.TransparencyMode;
 import com.bramosystems.oss.player.core.client.skin.MediaSeekBar;
 import com.bramosystems.oss.player.core.client.ui.QuickTimePlayer.Scale;
@@ -73,7 +74,7 @@ public class ExportUtil {
      * <p>
      * The player is made available as a <code>bstplayer.Player</code> Javascript
      * object. The object supports all the public methods defined in the
-     * {@linkplain AbstractMediaPlayer} class.
+     * {@linkplain AbstractMediaPlayer} and {@linkplain PlaylistSupport}.
      * </p>
      *
      * <p>
@@ -81,7 +82,6 @@ public class ExportUtil {
      * {@code addEventListener(eventName, function)} method, instead of the {@code addXXXHandler()}
      * methods.
      * </p>
-     * TODO: update playlist support of script player...
      */
     public static native void exportPlayer() /*-{
     if($wnd.bstplayer == null){
@@ -111,7 +111,9 @@ public class ExportUtil {
     _player.@com.bramosystems.oss.player.script.client.ExportUtil.ScriptPlayer::loadMedia(Ljava/lang/String;)(mediaURL);
     }
     this.playMedia = function() {
+    try {
     _player.@com.bramosystems.oss.player.script.client.ExportUtil.ScriptPlayer::playMedia()();
+    }catch(e){throw e;}
     }
     this.stopMedia = function() {
     _player.@com.bramosystems.oss.player.script.client.ExportUtil.ScriptPlayer::stopMedia()();
@@ -154,6 +156,45 @@ public class ExportUtil {
     }
     this.setConfigParameter = function(param, value) {
     _player.@com.bramosystems.oss.player.script.client.ExportUtil.ScriptPlayer::setConfigParameter(Ljava/lang/String;Ljava/lang/String;)(param,value);
+    }
+    this.setShuffleEnabled = function(enable) {
+    _player.@com.bramosystems.oss.player.script.client.ExportUtil.ScriptPlayer::setShuffleEnabled(Z)(enable);
+    }
+    this.isShuffleEnabled = function() {
+    return _player.@com.bramosystems.oss.player.script.client.ExportUtil.ScriptPlayer::isShuffleEnabled()();
+    }
+    this.addToPlaylist = function(mediaURL) {
+    _player.@com.bramosystems.oss.player.script.client.ExportUtil.ScriptPlayer::addToPlaylist(Ljava/lang/String;)(mediaURL);
+    }
+    this.removeFromPlaylist = function(index) {
+    _player.@com.bramosystems.oss.player.script.client.ExportUtil.ScriptPlayer::removeFromPlaylist(I)(index);
+    }
+    this.clearPlaylist = function() {
+    _player.@com.bramosystems.oss.player.script.client.ExportUtil.ScriptPlayer::clearPlaylist()();
+    }
+    this.playNext = function() {
+    _player.@com.bramosystems.oss.player.script.client.ExportUtil.ScriptPlayer::playNext()();
+    }
+    this.playPrevious = function() {
+    _player.@com.bramosystems.oss.player.script.client.ExportUtil.ScriptPlayer::playPrevious()();
+    }
+    this.play = function(index) {
+    _player.@com.bramosystems.oss.player.script.client.ExportUtil.ScriptPlayer::play(I)(index);
+    }
+    this.getPlaylistSize = function() {
+    return _player.@com.bramosystems.oss.player.script.client.ExportUtil.ScriptPlayer::getPlaylistSize()();
+    }
+    this.getRate = function() {
+    return _player.@com.bramosystems.oss.player.script.client.ExportUtil.ScriptPlayer::getRate()();
+    }
+    this.getRepeatMode = function() {
+    return _player.@com.bramosystems.oss.player.script.client.ExportUtil.ScriptPlayer::_getRepeatMode()();
+    }
+    this.setRate = function(rate) {
+    _player.@com.bramosystems.oss.player.script.client.ExportUtil.ScriptPlayer::setRate(D)(rate);
+    }
+    this.setRepeatMode = function(mode) {
+    _player.@com.bramosystems.oss.player.script.client.ExportUtil.ScriptPlayer::setRepeatMode(Ljava/lang/String;)(mode);
     }
     }
     }-*/;
@@ -310,175 +351,163 @@ public class ExportUtil {
                         runCallback(eventHandlers.get(EventName.onLoadingProgress), evt);
                     }
                 });
-/*                player.addMediaInfoHandler(new MediaInfoHandler() {
+                /*                player.addMediaInfoHandler(new MediaInfoHandler() {
 
-                    public void onMediaInfoAvailable(MediaInfoEvent event) {
-                        JavaScriptObject evt = JavaScriptObject.createObject();
-//                        putEventValue(evt, "playState", event.getMediaInfo().name());
-                        runCallback(eventHandlers.get(EventName.onMediaInfo), evt);
-                    }
+                public void onMediaInfoAvailable(MediaInfoEvent event) {
+                JavaScriptObject evt = JavaScriptObject.createObject();
+                //                        putEventValue(evt, "playState", event.getMediaInfo().name());
+                runCallback(eventHandlers.get(EventName.onMediaInfo), evt);
+                }
                 });
-*/
+                 */
             } catch (LoadException ex) {
             } catch (PluginNotFoundException ex) {
                 initWidget(provider.getMissingPluginWidget());
             } catch (PluginVersionException ex) {
                 initWidget(provider.getMissingPluginWidget());
             }
-
             eventHandlers = new EnumMap<EventName, JavaScriptObject>(EventName.class);
         }
 
         @Override
         public void loadMedia(String mediaURL) throws LoadException {
-            if (player == null) {
-                return;
+            if (player != null) {
+                player.loadMedia(mediaURL);
             }
-            player.loadMedia(mediaURL);
         }
 
         @Override
         public void playMedia() throws PlayException {
-            if (player == null) {
-                return;
+            if (player != null) {
+                player.playMedia();
             }
-            player.playMedia();
         }
 
         @Override
         public void stopMedia() {
-            if (player == null) {
-                return;
+            if (player != null) {
+                player.stopMedia();
             }
-            player.stopMedia();
         }
 
         @Override
         public void pauseMedia() {
-            if (player == null) {
-                return;
+            if (player != null) {
+                player.pauseMedia();
             }
-            player.pauseMedia();
         }
 
         @Override
         public long getMediaDuration() {
-            if (player == null) {
-                return 0;
+            if (player != null) {
+                return player.getMediaDuration();
             }
-            return player.getMediaDuration();
+            return 0;
         }
 
         public double getMediaDurationImpl() {
-            if (player == null) {
-                return 0;
+            if (player != null) {
+                return player.getMediaDuration();
             }
-            return player.getMediaDuration();
+            return 0;
         }
 
         @Override
         public double getPlayPosition() {
-            if (player == null) {
-                return 0;
+            if (player != null) {
+                return player.getPlayPosition();
             }
-            return player.getPlayPosition();
+            return 0;
         }
 
         @Override
         public void setPlayPosition(double position) {
-            if (player == null) {
-                return;
+            if (player != null) {
+                player.setPlayPosition(position);
             }
-            player.setPlayPosition(position);
         }
 
         @Override
         public double getVolume() {
-            if (player == null) {
-                return 0;
+            if (player != null) {
+                return player.getVolume();
             }
-            return player.getVolume();
+            return 0;
         }
 
         @Override
         public void setVolume(double volume) {
-            if (player == null) {
-                return;
+            if (player != null) {
+                player.setVolume(volume);
             }
-            player.setVolume(volume);
         }
 
         @Override
         public int getLoopCount() {
-            if (player == null) {
-                return 0;
+            if (player != null) {
+                return player.getLoopCount();
             }
-            return player.getLoopCount();
-
+            return 0;
         }
 
         @Override
         public int getVideoHeight() {
-            if (player == null) {
-                return 0;
+            if (player != null) {
+                return player.getVideoHeight();
             }
-            return player.getVideoHeight();
+            return 0;
         }
 
         @Override
         public int getVideoWidth() {
-            if (player == null) {
-                return 0;
+            if (player != null) {
+                return player.getVideoWidth();
             }
-            return player.getVideoWidth();
+            return 0;
         }
 
         @Override
         public boolean isControllerVisible() {
-            if (player == null) {
-                return false;
+            if (player != null) {
+                return player.isControllerVisible();
             }
-            return player.isControllerVisible();
+            return false;
         }
 
         @Override
         public boolean isResizeToVideoSize() {
-            if (player == null) {
-                return false;
+            if (player != null) {
+                return player.isResizeToVideoSize();
             }
-            return player.isResizeToVideoSize();
+            return false;
         }
 
         @Override
         public void setControllerVisible(boolean show) {
-            if (player == null) {
-                return;
+            if (player != null) {
+                player.setControllerVisible(show);
             }
-            player.setControllerVisible(show);
         }
 
         @Override
         public void setLoopCount(int loop) {
-            if (player == null) {
-                return;
+            if (player != null) {
+                player.setLoopCount(loop);
             }
-            player.setLoopCount(loop);
         }
 
         @Override
         public void setResizeToVideoSize(boolean resize) {
-            if (player == null) {
-                return;
+            if (player != null) {
+                player.setResizeToVideoSize(resize);
             }
-            player.setResizeToVideoSize(resize);
         }
 
         @Override
         public void showLogger(boolean show) {
-            if (player == null) {
-                return;
+            if (player != null) {
+                player.showLogger(show);
             }
-            player.showLogger(show);
         }
 
         public void addEventListener(String eventName, JavaScriptObject callback) {
@@ -490,49 +519,39 @@ public class ExportUtil {
         }
 
         public void setConfigParameter(String param, String value) {
-            if (player == null) {
-                return;
-            }
-
-            try {
-                ConfigParameter cfg = ConfigParameter.valueOf(param);
-                switch (cfg) {
-                    case TransparencyMode:
-                        player.setConfigParameter(cfg, TransparencyMode.valueOf(value));
-                        break;
-                    case WMPUIMode:
-                        player.setConfigParameter(cfg, WinMediaPlayer.UIMode.valueOf(value));
-                        break;
-                    case QTScale:
-                        try {
-                            player.setConfigParameter(cfg, Double.parseDouble(value));
-                        } catch (NumberFormatException nfe) {
-                            player.setConfigParameter(cfg, Scale.valueOf(value));
-                        }
-                        break;
+            if (player != null) {
+                try {
+                    ConfigParameter cfg = ConfigParameter.valueOf(param);
+                    switch (cfg) {
+                        case TransparencyMode:
+                            player.setConfigParameter(cfg, TransparencyMode.valueOf(value));
+                            break;
+                        case WMPUIMode:
+                            player.setConfigParameter(cfg, WinMediaPlayer.UIMode.valueOf(value));
+                            break;
+                        case QTScale:
+                            try {
+                                player.setConfigParameter(cfg, Double.parseDouble(value));
+                            } catch (NumberFormatException nfe) {
+                                player.setConfigParameter(cfg, Scale.valueOf(value));
+                            }
+                            break;
+                    }
+                } catch (Exception e) {
                 }
-            } catch (Exception e) {
             }
         }
 
         @Override
         public void setShuffleEnabled(boolean enable) {
-            if (player == null) {
-                return;
-            }
-
-            if (player instanceof PlaylistSupport) {
+            if ((player != null) && (player instanceof PlaylistSupport)) {
                 ((PlaylistSupport) player).setShuffleEnabled(enable);
             }
         }
 
         @Override
         public boolean isShuffleEnabled() {
-            if (player == null) {
-                return false;
-            }
-
-            if (player instanceof PlaylistSupport) {
+            if ((player != null) && (player instanceof PlaylistSupport)) {
                 return ((PlaylistSupport) player).isShuffleEnabled();
             }
             return false;
@@ -540,81 +559,80 @@ public class ExportUtil {
 
         @Override
         public void addToPlaylist(String mediaURL) {
-            if (player == null) {
-                return;
-            }
-
-            if (player instanceof PlaylistSupport) {
+            if ((player != null) && (player instanceof PlaylistSupport)) {
                 ((PlaylistSupport) player).addToPlaylist(mediaURL);
             }
         }
 
         @Override
         public void removeFromPlaylist(int index) {
-            if (player == null) {
-                return;
-            }
-
-            if (player instanceof PlaylistSupport) {
+            if ((player != null) && (player instanceof PlaylistSupport)) {
                 ((PlaylistSupport) player).removeFromPlaylist(index);
             }
         }
 
         @Override
         public void clearPlaylist() {
-            if (player == null) {
-                return;
-            }
-
-            if (player instanceof PlaylistSupport) {
+            if ((player != null) && (player instanceof PlaylistSupport)) {
                 ((PlaylistSupport) player).clearPlaylist();
             }
         }
 
         @Override
         public void playNext() throws PlayException {
-            if (player == null) {
-                return;
-            }
-
-            if (player instanceof PlaylistSupport) {
+            if ((player != null) && (player instanceof PlaylistSupport)) {
                 ((PlaylistSupport) player).playNext();
             }
         }
 
         @Override
         public void playPrevious() throws PlayException {
-            if (player == null) {
-                return;
-            }
-
-            if (player instanceof PlaylistSupport) {
+            if ((player != null) && (player instanceof PlaylistSupport)) {
                 ((PlaylistSupport) player).playPrevious();
             }
         }
 
         @Override
-        public void play(int index) throws IndexOutOfBoundsException {
-            if (player == null) {
-                return;
-            }
-
-            if (player instanceof PlaylistSupport) {
+        public void play(int index) {
+            if ((player != null) && (player instanceof PlaylistSupport)) {
                 ((PlaylistSupport) player).play(index);
             }
         }
 
         @Override
         public int getPlaylistSize() {
-            if (player == null) {
-                return 0;
-            }
-
-            if (player instanceof PlaylistSupport) {
+            if ((player != null) && (player instanceof PlaylistSupport)) {
                 return ((PlaylistSupport) player).getPlaylistSize();
             }
-
             return 0;
+        }
+
+        @Override
+        public double getRate() {
+            if (player != null) {
+                return player.getRate();
+            }
+            return 0;
+        }
+
+        public String _getRepeatMode() {
+            if (player != null) {
+                return player.getRepeatMode().name();
+            }
+            return RepeatMode.REPEAT_OFF.name();
+        }
+
+        @Override
+        public void setRate(double rate) {
+            if (player != null) {
+                player.setRate(rate);
+            }
+        }
+
+        public void setRepeatMode(String mode) {
+            if (player != null) {
+                player.setRepeatMode(RepeatMode.valueOf(mode));
+            }
         }
     }
 

@@ -291,7 +291,7 @@ public class QuickTimePlayer extends AbstractMediaPlayer implements MatrixSuppor
     @Override
     protected final void onLoad() {
         fireDebug("QuickTime Player plugin");
-        playerWidget.setSize(_width, _height);
+        playerWidget.setSize("100%", _height);
         setWidth(_width);
 
         Timer tt = new Timer() {
@@ -563,7 +563,7 @@ public class QuickTimePlayer extends AbstractMediaPlayer implements MatrixSuppor
             }
         }
 
-        playerWidget.setSize(_w, _h);
+        playerWidget.setSize("100%", _h);
         setWidth(_w);
 
         if (!_height.equals(_h) && !_width.equals(_w)) {

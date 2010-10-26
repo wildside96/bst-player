@@ -240,7 +240,7 @@ public class WinMediaPlayer extends AbstractMediaPlayer implements PlaylistSuppo
             _height = "1px";
             setConfigParameter(ConfigParameter.WMPUIMode, UIMode.INVISIBLE);
         }
-        playerWidget.setSize(_width, _height);
+        playerWidget.setSize("100%", _height);
         setWidth(_width);
 
         playlistManager.addToPlaylist(mediaURL);

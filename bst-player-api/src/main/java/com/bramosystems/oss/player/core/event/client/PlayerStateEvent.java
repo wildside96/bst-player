@@ -43,7 +43,7 @@ public class PlayerStateEvent extends GwtEvent<PlayerStateHandler> {
      * @param source the source the event
      * @param state the new player state
      */
-    public static void fire(HasMediaStateHandlers source, State state) {
+    public static void fire(HasPlayStateHandlers source, State state) {
         source.fireEvent(new PlayerStateEvent(state));
     }
 

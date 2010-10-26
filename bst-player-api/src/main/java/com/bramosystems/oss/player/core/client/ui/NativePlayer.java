@@ -327,7 +327,7 @@ public class NativePlayer extends AbstractMediaPlayer implements PlaylistSupport
     @Override
     protected void onLoad() {
         fireDebug("HTML5 Native Player");
-        playerWidget.setSize(_width, _height);
+        playerWidget.setSize("100%", _height);
         setWidth(_width);
 
         impl = NativePlayerImpl.getPlayer(playerId);
@@ -485,7 +485,7 @@ public class NativePlayer extends AbstractMediaPlayer implements PlaylistSupport
             }
         }
 
-        playerWidget.setSize(_w, _h);
+        playerWidget.setSize("100%", _h);
         setWidth(_w);
 
         if (!_height.equals(_h) && !_width.equals(_w)) {

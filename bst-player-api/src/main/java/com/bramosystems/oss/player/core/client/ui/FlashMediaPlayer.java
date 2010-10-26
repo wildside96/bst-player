@@ -335,7 +335,7 @@ public class FlashMediaPlayer extends AbstractMediaPlayer implements PlaylistSup
             }
         }
 
-        swf.setSize(_w, _h);
+        swf.setSize("100%", _h);
         setWidth(_w);
 
         if (!_height.equals(_h) && !_width.equals(_w)) {
@@ -356,7 +356,7 @@ public class FlashMediaPlayer extends AbstractMediaPlayer implements PlaylistSup
      */
     @Override
     protected void onLoad() {
-        swf.setSize(_width, _height);
+        swf.setSize("100%", _height);
         setWidth(_width);
     }
 

@@ -300,7 +300,7 @@ public class VLCPlayer extends AbstractMediaPlayer implements PlaylistSupport {
     @Override
     protected final void onLoad() {
         fireDebug("VLC Media Player plugin");
-        playerWidget.setSize(_width, _height);
+        playerWidget.setSize("100%", _height);
         setWidth(_width);
 
         impl = VLCPlayerImpl.getPlayer(playerId);
@@ -611,7 +611,7 @@ public class VLCPlayer extends AbstractMediaPlayer implements PlaylistSupport {
             }
         }
 
-        playerWidget.setSize(_w, _h);
+        playerWidget.setSize("100%", _h);
         setWidth(_w);
 
         if (!_height.equals(_h) && !_width.equals(_w)) {

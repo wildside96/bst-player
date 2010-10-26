@@ -5,7 +5,7 @@ import com.google.gwt.resources.client.ClientBundle;
 import com.google.gwt.resources.client.ImageResource;
 
 /**
- * Simple ImageBundle definition for the CustomPlayerControl class.
+ * Simple ImageBundle definition for the {@link CustomPlayerControl} widget.
  *
  * @since 1.2
  * @author Berger Max

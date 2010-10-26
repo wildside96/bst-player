@@ -333,7 +333,7 @@ public class DivXPlayer extends AbstractMediaPlayer implements PlaylistSupport {
             }
         }
 
-        playerWidget.setSize(_w, _h);
+        playerWidget.setSize("100%", _h);
 //        impl.setSize(playerWidget.getOffsetWidth(), playerWidget.getOffsetHeight());
         setSize(_w, _h);
 
@@ -348,7 +348,7 @@ public class DivXPlayer extends AbstractMediaPlayer implements PlaylistSupport {
     @Override
     protected final void onLoad() {
         fireDebug("DivX Web Player plugin");
-        playerWidget.setSize(_width, _height);
+        playerWidget.setSize("100%", _height);
         impl = DivXPlayerImpl.getPlayer(playerId);
         fireDebug("Plugin Version : " + impl.getPluginVersion());
         setWidth(_width);

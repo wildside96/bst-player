@@ -47,7 +47,7 @@ public class DebugEvent extends GwtEvent<DebugHandler> {
      * @param type the type of message
      * @param message the message
      */
-    public static void fire(HasMediaStateHandlers source, MessageType type, String message) {
+    public static void fire(HasMediaMessageHandlers source, MessageType type, String message) {
         source.fireEvent(new DebugEvent(type, message));
     }
 
