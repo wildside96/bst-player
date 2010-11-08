@@ -15,7 +15,6 @@
  */
 package com.bramosystems.oss.player.showcase.client;
 
-import com.bramosystems.oss.player.resources.sources.ResourceBundle;
 import com.bramosystems.oss.player.showcase.client.images.Bundle;
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
@@ -40,7 +39,6 @@ public class Showcase implements EntryPoint {
 
     @Override
     public void onModuleLoad() {
-        ResourceBundle.bundle.styles().ensureInjected();
         Bundle.bundle.css().ensureInjected();
 
         RootPanel.get("loading").setVisible(false);

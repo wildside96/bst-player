@@ -31,9 +31,9 @@ public interface ShowcaseStyles extends CssResource {
     public String menuPanel();
 
     public String pct50();
+
     public String pct20();
     public String pct80();
-
     public String pct30();
     public String pct40();
     public String clear();

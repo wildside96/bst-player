@@ -4,18 +4,19 @@
 xmlns:showcase="urn:import:com.bramosystems.oss.player.showcase.client">
     <ui:style field='x'>
         .stage {
-            line-height: 1.5em;
+            line-height: 1.5;
             margin: 2px;
-            padding: 3px;
+            padding: 2px 5px;
         }
         .west {
             width: 150px;
             float: left;
         }
         .east {
-            margin-left: 165px;
-            border-left: 1px solid #1047b5;
+            border-left: 1px solid #a5a5a5;
             padding-bottom: 20px;
+            width: 775px;
+            float: right;
         }
         .options {
             bottom: 0px;
@@ -23,8 +24,8 @@ xmlns:showcase="urn:import:com.bramosystems.oss.player.showcase.client">
             background-color: #ffffff;
             width: 950px;
             margin: auto;
-            border-left: 1px solid #1047b5;
-            border-right: 1px solid #1047b5;
+            border-left: 1px solid #4b4b93;
+            border-right: 1px solid #4b4b93;
         }
         .menu {
             margin: 2px;

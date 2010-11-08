@@ -29,46 +29,54 @@ public interface Bundle extends ClientBundle {
 
     Bundle bundle = GWT.create(Bundle.class);
 
-    @Source("nav-right.png")
-    public ImageResource navRight();
+    public ImageResource tick();
+    
+    public ImageResource error();
 
-    @Source("nav-right-disabled.png")
-    public ImageResource navRightDisabled();
+    public ImageResource cross();
 
-    @Source("nav-right-hover.png")
-    public ImageResource navRightHover();
-
-    @Source("nav-left.png")
-    public ImageResource navLeft();
-
-    @Source("nav-left-disabled.png")
-    public ImageResource navLeftDisabled();
-
-    @Source("nav-left-hover.png")
-    public ImageResource navLeftHover();
-
-    @Source("vlc-cone.png")
-    public ImageResource vlcCone();
+    public ImageResource music();
 
     @Source("styles.css")
     public Styles css();
 
     public interface Styles extends CssResource {
 
-        public String navLeft();
-
-        public String navLeftDisabled();
-
-        public String navRight();
-
-        public String navRightDisabled();
-
         public String pluginBox();
 
-        public String vlcPlugin();
+        public String pluginOptions();
+        public String pluginOption();
 
         public String disabledPlugin();
+
         public String navItem();
+
         public String navItemSelected();
+
+        public String pct20();
+
+        public String pct60();
+
+        public String pct30();
+
+        public String pct40();
+
+        public String clear();
+
+        public String spacedPanel();
+
+        public String headerRow();
+
+        public String evenRow();
+
+        public String oddRow();
+
+        public String yes();
+
+        public String no();
+        
+        public String error();
+
+        public String playlistItem();
     }
 }

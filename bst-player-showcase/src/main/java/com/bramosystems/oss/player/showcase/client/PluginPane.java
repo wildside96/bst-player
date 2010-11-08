@@ -14,22 +14,22 @@
  *  limitations under the License.
  *  under the License.
  */
-package com.bramosystems.oss.player.showcase.client.panes;
+package com.bramosystems.oss.player.showcase.client;
 
 import com.bramosystems.oss.player.core.client.PlayerUtil;
 import com.bramosystems.oss.player.core.client.Plugin;
 import com.bramosystems.oss.player.core.client.PluginNotFoundException;
 import com.bramosystems.oss.player.core.client.PluginVersion;
-import com.bramosystems.oss.player.resources.sources.ResourceBundle;
-import com.bramosystems.oss.player.showcase.client.AppOptions;
 import com.bramosystems.oss.player.showcase.client.event.PluginChangeEvent;
 import com.bramosystems.oss.player.showcase.client.event.PluginChangeHandler;
-import com.bramosystems.oss.player.showcase.client.images.Bundle;
-import com.google.gwt.event.dom.client.ClickEvent;
-import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.event.shared.HandlerRegistration;
+import com.google.gwt.uibinder.client.UiBinder;
+import com.google.gwt.uibinder.client.UiField;
+import com.google.gwt.uibinder.client.UiHandler;
+import com.google.gwt.uibinder.client.UiTemplate;
 import com.google.gwt.user.client.History;
 import com.google.gwt.user.client.ui.*;
 
@@ -37,18 +37,10 @@ import com.google.gwt.user.client.ui.*;
  *
  * @author Sikiru
  */
-public class PluginPane extends FlowPanel implements ValueChangeHandler<String> {
+public class PluginPane extends Composite implements ValueChangeHandler<String> {
 
     public PluginPane() {
-        add(new PPanel(Plugin.FlashPlayer));
-        add(new PPanel(Plugin.QuickTimePlayer));
-        add(new PPanel(Plugin.WinMediaPlayer));
-        add(new PPanel(Plugin.VLCPlayer));
-        add(new PPanel(Plugin.Native));
-        add(new PPanel(Plugin.DivXPlayer));
-
-        Label l = new Label();
-        l.setStyleName(ResourceBundle.bundle.styles().clear());
+        initWidget(pp.createAndBindUi(this));
         History.addValueChangeHandler(this);
     }
 
@@ -73,22 +65,34 @@ public class PluginPane extends FlowPanel implements ValueChangeHandler<String> 
             case capsule:
             case core:
             case flat:
-                for (int i = 0; i < getWidgetCount(); i++) {
-                    PPanel pp = ((PPanel) getWidget(i));
-                    pp.setEnabled(hasPlugin(pp.plugin));
-                }
-                break;
-            case home:
+                auto.setEnabled(true);
+                divx.setEnabled(hasPlugin(Plugin.DivXPlayer));
+                flash.setEnabled(hasPlugin(Plugin.FlashPlayer));
+                html5.setEnabled(hasPlugin(Plugin.Native));
+                qt.setEnabled(hasPlugin(Plugin.QuickTimePlayer));
+                vlc.setEnabled(hasPlugin(Plugin.VLCPlayer));
+                wmp.setEnabled(hasPlugin(Plugin.WinMediaPlayer));
                 break;
             case matrix:
-                for (int i = 0; i < getWidgetCount(); i++) {
-                    PPanel pp = ((PPanel) getWidget(i));
-                    pp.setEnabled(hasMatrixSupport(pp.plugin));
-                }
+                auto.setEnabled(true);
+                divx.setEnabled(hasMatrixSupport(Plugin.DivXPlayer));
+                flash.setEnabled(hasMatrixSupport(Plugin.FlashPlayer));
+                html5.setEnabled(hasMatrixSupport(Plugin.Native));
+                qt.setEnabled(hasMatrixSupport(Plugin.QuickTimePlayer));
+                vlc.setEnabled(hasMatrixSupport(Plugin.VLCPlayer));
+                wmp.setEnabled(hasMatrixSupport(Plugin.WinMediaPlayer));
                 break;
-//            case mimes:
+            case home:
             case plugins:
             case pool:
+            default:
+                auto.setEnabled(false);
+                divx.setEnabled(false);
+                flash.setEnabled(false);
+                html5.setEnabled(false);
+                qt.setEnabled(false);
+                vlc.setEnabled(false);
+                wmp.setEnabled(false);
         }
     }
 
@@ -133,39 +137,59 @@ public class PluginPane extends FlowPanel implements ValueChangeHandler<String> 
         }
     }
 
-    private class PPanel extends Label {
-
-        private boolean enabled;
-        private Plugin plugin;
-
-        public PPanel(final Plugin p) {
-            plugin = p;
-            setText(p.name());
-            switch (plugin) {
-                case VLCPlayer:
-                    setStylePrimaryName(Bundle.bundle.css().vlcPlugin());
-                    break;
-                default:
-                    setStylePrimaryName(Bundle.bundle.css().pluginBox());
-            }
-            addClickHandler(new ClickHandler() {
-
-                @Override
-                public void onClick(ClickEvent event) {
-                    if (enabled) {
-                        PluginPane.this.fireEvent(new PluginChangeEvent(p));
-                    }
-                }
-            });
+    @UiHandler("html5")
+    void onhtml5(ValueChangeEvent<Boolean> event) {
+        if (event.getValue()) {
+            fireEvent(new PluginChangeEvent(Plugin.Native));
         }
+    }
 
-        public final void setEnabled(boolean enabled) {
-            this.enabled = enabled;
-            if (enabled) {
-                removeStyleName(Bundle.bundle.css().disabledPlugin());
-            } else {
-                addStyleName(Bundle.bundle.css().disabledPlugin());
-            }
+    @UiHandler("wmp")
+    void onwmp(ValueChangeEvent<Boolean> event) {
+        if (event.getValue()) {
+            fireEvent(new PluginChangeEvent(Plugin.WinMediaPlayer));
         }
+    }
+
+    @UiHandler("vlc")
+    void onvlc(ValueChangeEvent<Boolean> event) {
+        if (event.getValue()) {
+            fireEvent(new PluginChangeEvent(Plugin.VLCPlayer));
+        }
+    }
+
+    @UiHandler("divx")
+    void ondivx(ValueChangeEvent<Boolean> event) {
+        if (event.getValue()) {
+            fireEvent(new PluginChangeEvent(Plugin.DivXPlayer));
+        }
+    }
+
+    @UiHandler("flash")
+    void onflash(ValueChangeEvent<Boolean> event) {
+        if (event.getValue()) {
+            fireEvent(new PluginChangeEvent(Plugin.FlashPlayer));
+        }
+    }
+
+    @UiHandler("qt")
+    void onqt(ValueChangeEvent<Boolean> event) {
+        if (event.getValue()) {
+            fireEvent(new PluginChangeEvent(Plugin.QuickTimePlayer));
+        }
+    }
+
+    @UiHandler("auto")
+    void onauto(ValueChangeEvent<Boolean> event) {
+        if (event.getValue()) {
+            fireEvent(new PluginChangeEvent(Plugin.Auto));
+        }
+    }
+    PPaneBinder pp = GWT.create(PPaneBinder.class);
+    @UiField
+    RadioButton html5, wmp, vlc, divx, flash, qt, auto;
+
+    @UiTemplate("xml/PluginPane.ui.xml")
+    interface PPaneBinder extends UiBinder<Widget, PluginPane> {
     }
 }

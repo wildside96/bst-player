@@ -1,11 +1,21 @@
-@external gwt-TabBar, gwt-TabBarItem, gwt-TabBarItem-selected, gwt-TabPanelBottom, a;
-@external body;
+@external gwt-TabBar, gwt-TabBarItem, gwt-TabBarItem-selected, gwt-TabPanelBottom, gwt-Button;
 
 body {
     padding: 0px 0px 160px 0px;
 }
+code {
+    font-size: 120%;
+}
+.gwt-Button {
+    border: 1px solid #cccccc;
+    background-color: #e7e7e7;
+    cursor: pointer;
+}
+.gwt-Button:hover {
+    background-color: #d7d7d7;
+}
 .gwt-TabBar {
-    background-color: #1047b5;
+    background-color: #4b4b93;
     padding-top: 2px;
 }
 .gwt-TabBar .gwt-TabBarItem {
@@ -18,49 +28,28 @@ body {
     background-color: white;
     -moz-border-radius: 5px 5px 0px 0px;
     color: black;
-
--moz-box-shadow: 10px 5px 5px black;
--webkit-box-shadow: 10px 5px 5px black;
-        box-shadow: 10px 5px 5px black;
-filter:
-    progid:DXImageTransform.Microsoft.Shadow(color=#0000FF,direction=45);
-
 }
 
-@sprite .navLeft {
-    gwt-image: 'navLeft';
-    background-position: center;
-    cursor: pointer;
-    padding-top: 10px;
-    border-bottom: 1px solid #dedede;
-    width: 100%;
+@sprite .yes {
+    gwt-image: 'tick';
 }
-@sprite .navLeftDisabled{
-    gwt-image: 'navLeftDisabled';
-    background-position: center;
-    cursor: default;
-    width: 100%;
+@sprite .no {
+    gwt-image: 'cross';
 }
-@sprite .navRight {
-    gwt-image: 'navRight';
-    background-position: center;
-    cursor: pointer;
-    padding-bottom: 10px;
-    border-top: 1px solid #dedede;
-    width: 100%;
+@sprite .error {
+    gwt-image: 'error';
 }
-@sprite .navRightDisabled{
-    gwt-image: 'navRightDisabled';
-    background-position: center;
-    cursor: default;
-    width: 100%;
+@sprite .playlistItem {
+    gwt-image: 'music';
 }
 
-@sprite .vlcPlugin {
-    gwt-image: 'vlcCone';
+.yes, .no, .error {
+    padding-left: 20px;
+    background-position: left top;
+    height: auto;
 }
 
-.pluginBox, .vlcPlugin {
+.pluginBox {
     width: 90px;
     height: 90px;
     float: left;
@@ -68,16 +57,27 @@ filter:
     margin: 1em;
     background-repeat: no-repeat;
     background-position: center;
-    -moz-border-radius: 5px;
-    -moz-box-shadow: #ccc 5px solid;
     cursor: pointer;
     text-align: center;
-    font-size: 95%;
+    font-family: Calibri,Georgia,serif;
+    font-weight: bold;
+    font-size: 20pt;
+
+    -moz-border-radius: 5px;
+    -moz-box-shadow: #ccc 5px solid;
 }
 
 .disabledPlugin {
     background-color: #ddd;
     cursor: default;
+}
+
+.playlistItem {
+    background-position: left center;
+    width: auto;
+    height: auto;
+    padding-left: 15px;
+    margin: 5px 0px 0px 5px;
 }
 
 .navItem {
@@ -87,11 +87,57 @@ filter:
 }
 .navItem:hover {
     color: white;
-    background-color: #e9e9e9;
+    background-color: #efefef;
 }
 .navItem a {
     text-decoration: none;
 }
 .navItemSelected {
-    border-left-color: #1047b5;
+    border-left-color: #4b4b93;
+    background-color: #f5f5f5;
+}
+.pct20, .yes, .no, .error {
+    width: 20%;
+    float: left;
+}
+.pct60 {
+    width: 55%;
+    float: left;
+    padding-left: 5px;
+}
+.pct30 {
+    width: 30%;
+    float: left;
+}
+.pct40 {
+    width: 40%;
+    float: left;
+}
+.clear {
+    clear: both;
+}
+.spacedPanel {
+    margin-bottom: 0.5em;
+    padding: 2px;
+}
+.headerRow {
+    background-color: #8f8fbb;
+    font-weight: bold;
+    color: white;
+    padding: 4px;
+    text-align: center;
+}
+.evenRow {
+}
+.oddRow {
+    background-color: #f5f5f5;
+}
+
+
+.pluginOptions {
+    padding: 5px;
+}
+.pluginOption {
+    width: 25%;
+    display:inline-block;
 }

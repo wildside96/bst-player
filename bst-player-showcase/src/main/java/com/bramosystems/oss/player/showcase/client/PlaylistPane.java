@@ -14,11 +14,15 @@
  *  limitations under the License.
  *  under the License.
  */
-package com.bramosystems.oss.player.showcase.client.panes;
+package com.bramosystems.oss.player.showcase.client;
 
-import com.bramosystems.oss.player.showcase.client.MRL;
 import com.bramosystems.oss.player.showcase.client.event.PlaylistChangeEvent;
 import com.bramosystems.oss.player.showcase.client.event.PlaylistChangeHandler;
+import com.bramosystems.oss.player.showcase.client.images.Bundle;
+import com.google.gwt.core.client.GWT;
+import com.google.gwt.uibinder.client.UiBinder;
+import com.google.gwt.uibinder.client.UiField;
+import com.google.gwt.uibinder.client.UiTemplate;
 import com.google.gwt.user.client.ui.*;
 import java.util.*;
 
@@ -26,15 +30,13 @@ import java.util.*;
  *
  * @author Sikiru
  */
-public class PlaylistPane extends ScrollPanel {
+public class PlaylistPane extends Composite {
 
     public static String baseURL = "http://localhost:8080/local-video/";
-    private FlowPanel panel;
     private ArrayList<MRL> entries;
 
     public PlaylistPane() {
-        panel = new FlowPanel();
-        setWidget(panel);
+        initWidget(bb.createAndBindUi(this));
 
         entries = new ArrayList<MRL>();
 
@@ -69,7 +71,7 @@ public class PlaylistPane extends ScrollPanel {
     }
 
     private void refreshView() {
-        panel.clear();
+        list.clear();
         for (MRL entry : entries) {
             StringBuilder sb = new StringBuilder();
             for (String e : entry) {
@@ -77,9 +79,9 @@ public class PlaylistPane extends ScrollPanel {
             }
             sb.deleteCharAt(sb.lastIndexOf("; "));
 
-            Label l = new Label("+ " + sb.toString());
-            l.setWordWrap(true);
-            panel.add(l);
+            Label l = new Label(sb.toString(), true);
+            l.setStyleName(Bundle.bundle.css().playlistItem());
+            list.add(l);
         }
     }
 
@@ -90,4 +92,11 @@ public class PlaylistPane extends ScrollPanel {
         }
         refreshView();
     }
+
+
+    @UiField FlowPanel list;
+
+    @UiTemplate("xml/PlaylistPane.ui.xml")
+    interface Binder extends UiBinder<Widget, PlaylistPane>{}
+    Binder bb = GWT.create(Binder.class);
 }

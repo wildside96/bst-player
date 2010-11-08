@@ -19,11 +19,11 @@
 
 <module rename-to="showcase">
     <inherits name="com.google.gwt.i18n.I18N"/>
-    
+
     <inherits name="com.bramosystems.oss.player.capsule.Capsule"/>
     <inherits name="com.bramosystems.oss.player.flat.FlatVideoPlayer"/>
     <inherits name="com.bramosystems.oss.player.youtube.YouTube"/>
-    <inherits name="com.bramosystems.oss.player.common.Common"/>
+    <inherits name="com.bramosystems.oss.player.resources.Sources"/>
 
     <entry-point class="com.bramosystems.oss.player.showcase.client.Showcase" />
 </module>

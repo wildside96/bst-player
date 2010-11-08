@@ -16,8 +16,6 @@
  */
 package com.bramosystems.oss.player.showcase.client;
 
-import com.bramosystems.oss.player.showcase.client.panes.PluginPane;
-import com.bramosystems.oss.player.showcase.client.panes.PlaylistPane;
 import com.bramosystems.oss.player.showcase.client.panes.PlayerLogPane;
 import com.google.gwt.animation.client.Animation;
 import com.google.gwt.event.logical.shared.BeforeSelectionEvent;
@@ -56,7 +54,6 @@ public class ControlPane extends Composite {
         playerLog = new PlayerLogPane();
 
         tp = new TabPanel();
-//        tp.setAnimationEnabled(true);
         tp.add(pluginPane, "Plugin");
         tp.add(playlistPane, "Playlist");
         tp.add(optionPane, "Player Options");
