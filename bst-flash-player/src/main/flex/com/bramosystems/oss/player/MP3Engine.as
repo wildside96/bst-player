@@ -187,6 +187,7 @@ package com.bramosystems.oss.player {
                 if(txt.search("2032") >= 0) {
                     Log.error("Error loading media at " + mediaUrl +
                         ".  The stream could not be opened, please check your network connection.");
+                    dispatchEvent(new PlayStateEvent(PlayStateEvent.PLAY_FINISHED));
                 } else {
                     Log.error(event.text);
                 }

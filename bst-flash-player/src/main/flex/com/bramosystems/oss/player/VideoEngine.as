@@ -165,6 +165,7 @@ package com.bramosystems.oss.player {
 //                        break;
                     case VideoEvent.CONNECTION_ERROR:
                         Log.error("Connection cannot be established!");
+                        dispatchEvent(new PlayStateEvent(PlayStateEvent.PLAY_FINISHED));
                         break;
                 }
             }
