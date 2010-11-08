@@ -21,23 +21,28 @@ package com.bramosystems.oss.player.showcase.client;
  * @author Sikiru
  */
 public enum AppOptions {
-    home("Introduction"),
-    plugins("Browser Plugins"),
-//    mimes("Plugin/Registered Mime Types"),
-    pool("Registered Mime Types"),
-    core("Core Player Widgets"),
-    capsule("Custom Audio Player"),
-    flat("Custom Video Player"),
-    matrix("Matrix Transforms"),
-    ytube("YouTube Videos");
+    home("Introduction", "Introduction"),
+    plugins("Browser Plugins", "All installed plug-ins"),
+    pool("Registered Mime Types", "Player widget mime-type/extension mapping"),
+    core("Core Player Widgets", "Core Player Widgets"),
+    capsule("Custom Audio Player", "Custom audio player controls"),
+    flat("Custom Video Player", "Custom video player control"),
+    matrix("Matrix Transforms", "Transforming videos with matrices"),
+    ytube("YouTube Videos", "Embedding YouTube videos");
 
-    private AppOptions(String title) {
+    private AppOptions(String title, String desc) {
         this.title = title;
+        this.desc = desc;
     }
 
     public String getTitle() {
         return title;
     }
 
-    private String title;
+    @Override
+    public String toString() {
+        return desc;
+    }
+    
+    private String title, desc;
 }

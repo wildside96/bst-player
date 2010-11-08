@@ -37,6 +37,7 @@ import com.bramosystems.oss.player.showcase.client.event.PlaylistChangeEvent;
 import com.bramosystems.oss.player.showcase.client.event.PlaylistChangeHandler;
 import com.bramosystems.oss.player.showcase.client.event.PluginChangeEvent;
 import com.bramosystems.oss.player.showcase.client.event.PluginChangeHandler;
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.event.shared.HandlerRegistration;
@@ -44,6 +45,9 @@ import com.google.gwt.resources.client.ExternalTextResource;
 import com.google.gwt.resources.client.ResourceCallback;
 import com.google.gwt.resources.client.ResourceException;
 import com.google.gwt.resources.client.TextResource;
+import com.google.gwt.uibinder.client.UiBinder;
+import com.google.gwt.uibinder.client.UiField;
+import com.google.gwt.uibinder.client.UiTemplate;
 import com.google.gwt.user.client.ui.*;
 import java.util.ArrayList;
 
@@ -62,20 +66,10 @@ public class StageController extends Composite implements ValueChangeHandler<Str
     private HTML docPane;
     private AppOptions loadedOption;
     private Plugin plugin;
-    private Label title;
-    private SimplePanel panel;
     private MatrixStagePane matrix;
 
     public StageController() {
-        title = new Label();
-        panel = new SimplePanel();
-        panel.setStyleName(ResourceBundle.bundle.styles().stage());
-
-        FlowPanel fp = new FlowPanel();
-        fp.add(title);
-        fp.add(panel);
-        initWidget(fp);
-
+        initWidget(sb.createAndBindUi(this));
         info = new BrowserInfo();
         docPane = new HTML();
         playlist = new ArrayList<MRL>();
@@ -149,7 +143,6 @@ public class StageController extends Composite implements ValueChangeHandler<Str
                 loadDoc(ResourceBundle.bundle.home());
                 break;
             case plugins:
- //           case mimes:
             case pool:
                 loadInfo(loadedOption);
                 break;
@@ -161,7 +154,7 @@ public class StageController extends Composite implements ValueChangeHandler<Str
             case matrix:
                 loadMatrix();
         }
-        title.setText(loadedOption.getTitle());
+        title.setText(loadedOption.toString());
     }
 
     private void loadPlayer(AppOptions options) {
@@ -266,4 +259,11 @@ public class StageController extends Composite implements ValueChangeHandler<Str
             panel.setWidget(PlayerUtil.getMissingPluginNotice(ex.getPlugin()));
         }
     }
+    
+    @UiField Label title;
+    @UiField SimplePanel panel;
+
+    StageBinder sb = GWT.create(StageBinder.class);
+    @UiTemplate("xml/Stage.ui.xml")
+    interface StageBinder extends UiBinder<Widget, StageController>{}
 }

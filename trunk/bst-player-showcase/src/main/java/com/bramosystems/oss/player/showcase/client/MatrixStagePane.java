@@ -20,7 +20,6 @@ import com.bramosystems.oss.player.core.client.geom.MatrixSupport;
 import com.bramosystems.oss.player.core.client.geom.TransformationMatrix;
 import com.bramosystems.oss.player.core.client.ui.QuickTimePlayer.Scale;
 import com.bramosystems.oss.player.core.event.client.*;
-import com.bramosystems.oss.player.showcase.client.panes.PlaylistPane;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
