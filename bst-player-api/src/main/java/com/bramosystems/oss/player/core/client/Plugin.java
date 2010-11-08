@@ -32,7 +32,7 @@ public enum Plugin {
      *
      * @see PlayerUtil#getPlayer(java.lang.String, boolean, java.lang.String, java.lang.String)
      */
-    Auto("", 0,0,0),
+    Auto("", 0, 0, 0),
 
     /**
      * Specifies the browsers' native media handler.  HTML 5 compliant browsers
@@ -41,10 +41,10 @@ public enum Plugin {
      *
      * @since 1.1
      */
-    Native("", 0,0,0),
+    Native("", 0, 0, 0),
 
     /**
-     * Specifies the QuickTime&trade; Player plugin
+     * Specifies the QuickTime Player plugin
      */
     QuickTimePlayer("http://www.apple.com/quicktime/download", 7, 2, 1),
 
@@ -68,7 +68,7 @@ public enum Plugin {
      * Specifies the DivX Web Player plugin
      * @since 1.2
      */
-    DivXPlayer("http://go.divx.com/plugin/download", 2, 0, 1),
+    DivXPlayer("http://go.divx.com/plugin/download", 2, 1, 0),
 
     /**
      * Similar to {@linkplain #Auto}, specifies any media player plugin that supports
@@ -119,4 +119,4 @@ public enum Plugin {
     public PluginVersion getVersion() {
         return version;
     }
-    }
+}

@@ -25,7 +25,7 @@ import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.ui.FlowPanel;
 
 /**
- * Widget to embed DivX Web Player&trade; plugin.
+ * Widget to embed DivX&reg; Web Player plugin.
  *
  * <h3>Usage Example</h3>
  *
@@ -208,8 +208,8 @@ public class DivXPlayer extends AbstractMediaPlayer implements PlaylistSupport {
      * @param width the width of the player.
      *
      * @throws LoadException if an error occurs while loading the media.
-     * @throws PluginVersionException if the required DivX Web Player plugin version is not installed on the client.
-     * @throws PluginNotFoundException if DivX Web Player plugin is not installed on the client.
+     * @throws PluginVersionException if the required DivX&reg; Web Player plugin version is not installed on the client.
+     * @throws PluginNotFoundException if DivX&reg; Web Player plugin is not installed on the client.
      */
     public DivXPlayer(String mediaURL, boolean autoplay, String height, String width)
             throws LoadException, PluginNotFoundException, PluginVersionException {
@@ -289,8 +289,8 @@ public class DivXPlayer extends AbstractMediaPlayer implements PlaylistSupport {
      * @param autoplay {@code true} to play playing automatically, {@code false} otherwise
      *
      * @throws LoadException if an error occurs while loading the media.
-     * @throws PluginVersionException if the required DivX Web Player plugin version is not installed on the client.
-     * @throws PluginNotFoundException if DivX Web Player plugin is not installed on the client.
+     * @throws PluginVersionException if the required DivX&reg; Web Player plugin version is not installed on the client.
+     * @throws PluginNotFoundException if DivX&reg; Web Player plugin is not installed on the client.
      */
     public DivXPlayer(String mediaURL, boolean autoplay) throws
             LoadException, PluginNotFoundException, PluginVersionException {
@@ -306,8 +306,8 @@ public class DivXPlayer extends AbstractMediaPlayer implements PlaylistSupport {
      * @param mediaURL the URL of the media to playback
      *
      * @throws LoadException if an error occurs while loading the media.
-     * @throws PluginVersionException if the required DivX Web Player plugin version is not installed on the client.
-     * @throws PluginNotFoundException if DivX Web Player plugin is not installed on the client.
+     * @throws PluginVersionException if the required DivX&reg; Web Player plugin version is not installed on the client.
+     * @throws PluginNotFoundException if DivX&reg; Web Player plugin is not installed on the client.
      */
     public DivXPlayer(String mediaURL) throws LoadException,
             PluginNotFoundException, PluginVersionException {
@@ -592,7 +592,7 @@ public class DivXPlayer extends AbstractMediaPlayer implements PlaylistSupport {
      * Specifies an image, text and text size to use as a preview for the video. 
      * 
      * <p>The image file which should be in PNG, JPEG or GIF format is used as a preview
-     * image and is displayed in place of the DivX "X" logo.  The <code>message</code> is
+     * image and is displayed in place of the DivX&reg; logo.  The <code>message</code> is
      * displayed on top of the image at the size specified by <code>messageFontSize</code>.
      *
      * <p>Note: <code>autoplay</code> should be set to <code>false</code> for this method to
