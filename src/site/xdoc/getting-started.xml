@@ -130,12 +130,12 @@ player.setVolume(0.8); // sets the playback volume to 80% of maximum</source>
                     </tr>
                     <tr>
                         <td>DivXPlayer</td>
-                        <td>DivX&reg; Web Player plugin</td>
+                        <td>DivX&#174; Web Player plugin</td>
                         <td>2.0.1</td>
                     </tr>
                     <tr>
                         <td>FlashMediaPlayer</td>
-                        <td>Flash Player plugin</td>
+                        <td>Flash&#174; Player plugin</td>
                         <td>9.0</td>
                     </tr>
                     <tr>

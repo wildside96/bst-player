@@ -17,8 +17,6 @@
                 <ul>
                     <li><a href='http://java.sun.com'>JDK</a> 1.6 or higher</li>
                     <li><a href='http://maven.apache.org'>Apache Maven</a> 2.0 or higher</li>
-                    <li><a href='http://www.adobe.com/go/flex3_product'>Adobe Flex</a> 3.0 or higher
-                    (if building the BST Flash Player component)</li>
                     <li>The source files</li>
                 </ul>
             </p>
@@ -40,25 +38,7 @@
                         interest</p>
             </subsection>
 
-            <subsection name="Before building the source files">
-                <div style="margin: 5px 3em;padding:0.8em;background-color: #ffffcc;border:1px solid red">
-                Skip this step if not building the BST Flash Player module
-                </div>
-
-                <p>Define the <code>flex-home</code> property for Maven.  This is best placed
-                in your <code>settings.xml</code> file as below:
-                </p>
-                <source>
-&lt;profile&gt;
-  &lt;id&gt;an-active-profile&lt;/id&gt;
-
-  &lt;properties&gt;
-    &lt;flex.home&gt;A:/foo-folder/flex-sdk-3&lt;/flex.home&gt;
-  &lt;/properties&gt;
-&lt;/profile&gt;</source>
-            </subsection>
-
-            <subsection name="Run the build">
+             <subsection name="Run the build">
                 <p>With all requirements met, run the Maven <code>install</code> command with
                 the <code>dev-mode</code> profile active.  This is as simple as:
                 </p>
