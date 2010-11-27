@@ -78,7 +78,7 @@ public class FlatVideoPlayer extends CustomVideoPlayer {
      */
     public FlatVideoPlayer(Plugin plugin, String mediaURL, boolean autoplay, String height, String width)
             throws PluginNotFoundException, PluginVersionException, LoadException {
-        super(plugin, mediaURL, autoplay, height, width);
+        super(plugin, mediaURL, autoplay, height, "100%");
 
         logger = new Logger();
         logger.setVisible(false);

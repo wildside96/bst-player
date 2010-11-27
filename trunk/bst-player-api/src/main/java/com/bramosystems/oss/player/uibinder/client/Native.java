@@ -21,6 +21,7 @@ import com.bramosystems.oss.player.core.client.PluginVersionException;
 import com.bramosystems.oss.player.core.client.ui.NativePlayer;
 import com.google.gwt.uibinder.client.UiConstructor;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 /**
  * Wrapper class for {@link com.bramosystems.oss.player.core.client.ui.NativePlayer}
@@ -62,12 +63,7 @@ public class Native extends PlayerWrapper<NativePlayer> {
     protected NativePlayer initPlayerEngine(String mediaURL, boolean autoplay, String height, String width)
             throws LoadException, PluginNotFoundException, PluginVersionException {
         if (mediaURL.contains(",")) {
-            String[] murls = mediaURL.split(",");
-            ArrayList<String> _urls = new ArrayList<String>();
-            for (String url : murls) {
-                _urls.add(url);
-            }
-            return new NativePlayer(_urls, autoplay, height, width);
+            return new NativePlayer(new ArrayList<String>(Arrays.asList(mediaURL.split(","))), autoplay, height, width);
         } else {
             return new NativePlayer(mediaURL, autoplay, height, width);
         }

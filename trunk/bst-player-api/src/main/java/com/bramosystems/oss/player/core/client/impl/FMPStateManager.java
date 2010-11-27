@@ -60,6 +60,9 @@ public class FMPStateManager {
     swf[playerId].onMetadata = function(id3){
     callback.@com.bramosystems.oss.player.core.client.impl.FMPStateManager.FMPStateCallback::onMediaInfo(Ljava/lang/String;)(id3);
     }
+    swf[playerId].onFullscreen = function(fs){
+    callback.@com.bramosystems.oss.player.core.client.impl.FMPStateManager.FMPStateCallback::onFullScreen(Z)(fs);
+    }
     }-*/;
 
     public native void fillMediaInfoImpl(String infoCSV, MediaInfo mData) /*-{
@@ -100,5 +103,7 @@ public class FMPStateManager {
                 boolean shift, boolean cmd, int stageX, int stageY);
 
         public void onStateChanged(int stateId, int listIndex);
+
+        public void onFullScreen(boolean fullscreen);
     }
 }

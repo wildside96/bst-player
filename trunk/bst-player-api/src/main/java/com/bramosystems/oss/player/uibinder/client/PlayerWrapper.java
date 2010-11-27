@@ -22,7 +22,7 @@ import com.bramosystems.oss.player.core.event.client.*;
 import com.bramosystems.oss.player.util.client.RegExp;
 import com.bramosystems.oss.player.util.client.RegExp.RegexException;
 import com.google.gwt.core.client.GWT;
-import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.user.client.ui.Widget;
 
 /**
@@ -32,12 +32,15 @@ import com.google.gwt.user.client.ui.Widget;
  * @param <T> the player implementation type
  * @since 1.1
  */
-//TODO: find a way of enhancing this via UIBinderWriter
 public abstract class PlayerWrapper<T extends AbstractMediaPlayer> extends AbstractMediaPlayer
         implements MatrixSupport, com.bramosystems.oss.player.core.client.PlaylistSupport {
 
     private T _engine;
     private static String GWT_HOST_URL_ID = "(gwt-host::)\\S", GWT_MODULE_URL_ID = "(gwt-module::)\\S";
+    protected Widget missingPluginNotice, missingPluginVersionNotice;
+    private String _url, _height, _width;
+    private boolean _autoplay;
+    private SimplePanel _panel;
 
     /**
      * Parses the {@code mediaURL} for {@code gwt-host::} and {@code gwt-module::} keywords.
@@ -83,11 +86,17 @@ public abstract class PlayerWrapper<T extends AbstractMediaPlayer> extends Abstr
      * @param width the width of the player (in CSS units)
      */
     protected PlayerWrapper(String mediaURL, boolean autoplay, String height, String width) {
-        Widget player = null;
-        try {
-            mediaURL = resolveMediaURL(mediaURL);
+        initWidget(_panel = new SimplePanel());
+        _url = resolveMediaURL(mediaURL);
+        _height = height;
+        _width = width;
+        _autoplay = autoplay;
+    }
 
-            _engine = initPlayerEngine(mediaURL, autoplay, height, width);
+    @Override
+    public void onLoad() {
+        try {
+            _engine = initPlayerEngine(_url, _autoplay, _height, _width);
             _engine.addDebugHandler(new DebugHandler() {
 
                 @Override
@@ -123,15 +132,14 @@ public abstract class PlayerWrapper<T extends AbstractMediaPlayer> extends Abstr
                     fireEvent(event);
                 }
             });
-            player = _engine;
+            _panel.setWidget(_engine);
         } catch (LoadException ex) {
-            player = new Label("A load exception has occured!");
         } catch (PluginNotFoundException ex) {
-            player = PlayerUtil.getMissingPluginNotice(ex.getPlugin());
+            _panel.setWidget(missingPluginNotice == null ? PlayerUtil.getMissingPluginNotice(ex.getPlugin()) : missingPluginNotice);
         } catch (PluginVersionException ex) {
-            player = PlayerUtil.getMissingPluginNotice(ex.getPlugin());
+            _panel.setWidget(missingPluginVersionNotice == null
+                    ? PlayerUtil.getMissingPluginNotice(ex.getPlugin(), ex.getRequiredVersion()) : missingPluginVersionNotice);
         }
-        initWidget(player);
     }
 
     /**

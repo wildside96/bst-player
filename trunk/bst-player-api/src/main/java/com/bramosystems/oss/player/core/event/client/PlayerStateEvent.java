@@ -90,6 +90,20 @@ public class PlayerStateEvent extends GwtEvent<PlayerStateHandler> {
          * <p>This state is raised when the dimension of the player changes to match the
          * size of the current media (especially video).
          */
-        DimensionChangedOnVideo
+        DimensionChangedOnVideo,
+
+        /**
+         * The player has entered fullscreen display mode
+         *
+         * @since 1.2
+         */
+        FullScreenStarted,
+
+        /**
+         * The player has exited fullscreen display mode
+         *
+         * @since 1.2
+         */
+        FullScreenFinished
     }
 }

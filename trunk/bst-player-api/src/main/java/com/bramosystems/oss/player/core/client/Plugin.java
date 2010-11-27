@@ -32,7 +32,7 @@ public enum Plugin {
      *
      * @see PlayerUtil#getPlayer(java.lang.String, boolean, java.lang.String, java.lang.String)
      */
-    Auto("", 0, 0, 0),
+    Auto("", 0, 0, 0, "Auto-select"),
 
     /**
      * Specifies the browsers' native media handler.  HTML 5 compliant browsers
@@ -41,34 +41,34 @@ public enum Plugin {
      *
      * @since 1.1
      */
-    Native("", 0, 0, 0),
+    Native("", 0, 0, 0, "HTML5 Media Player"),
 
     /**
      * Specifies the QuickTime Player plugin
      */
-    QuickTimePlayer("http://www.apple.com/quicktime/download", 7, 2, 1),
+    QuickTimePlayer("http://www.apple.com/quicktime/download", 7, 2, 1, "QuickTime Player"),
 
     /**
      * Specifies the Flash Player plugin
      */
-    FlashPlayer("http://www.adobe.com/go/getflash", 9, 0, 0),
+    FlashPlayer("http://www.adobe.com/go/getflash", 9, 0, 0, "Flash Player (BST Flash Player)"),
 
     /**
      * Specifies the Window Media Player&trade; plugin
      */
-    WinMediaPlayer("http://www.microsoft.com/windowsmedia", 1, 1, 1),
+    WinMediaPlayer("http://www.microsoft.com/windowsmedia", 1, 1, 1, "Windows Media Player"),
 
     /**
      * Specifies the VLC Media Player plugin
      * @since 1.0
      */
-    VLCPlayer("http://www.videolan.org", 1, 0, 0),
+    VLCPlayer("http://www.videolan.org", 1, 0, 0, "VLC Media Player"),
 
     /**
      * Specifies the DivX Web Player plugin
      * @since 1.2
      */
-    DivXPlayer("http://go.divx.com/plugin/download", 2, 1, 0),
+    DivXPlayer("http://go.divx.com/plugin/download", 2, 1, 0, "DivX Web Player"),
 
     /**
      * Similar to {@linkplain #Auto}, specifies any media player plugin that supports
@@ -79,7 +79,7 @@ public enum Plugin {
      * @see PlaylistSupport
      * @since 1.0
      */
-    PlaylistSupport("", 0, 0, 0),
+    PlaylistSupport("", 0, 0, 0, "Playlist Support"),
 
     /**
      * Similar to {@linkplain #Auto}, specifies any media player plugin that supports
@@ -90,14 +90,15 @@ public enum Plugin {
      * @see MatrixSupport
      * @since 1.1
      */
-    MatrixSupport("", 0, 0, 0);
+    MatrixSupport("", 0, 0, 0, "Matrix Support");
 
-    private String downloadURL;
+    private String downloadURL, desc;
     private PluginVersion version;
 
-    Plugin(String downloadURL, int majorVersion, int minorVersion, int revision) {
+    Plugin(String downloadURL, int majorVersion, int minorVersion, int revision, String desc) {
         this.downloadURL = downloadURL;
         version = PluginVersion.get(majorVersion, minorVersion, revision);
+        this.desc = desc;
     }
 
     /**
@@ -118,5 +119,10 @@ public enum Plugin {
      */
     public PluginVersion getVersion() {
         return version;
+    }
+
+    @Override
+    public String toString() {
+        return desc;
     }
 }

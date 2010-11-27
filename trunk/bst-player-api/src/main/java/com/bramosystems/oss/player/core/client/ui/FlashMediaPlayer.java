@@ -197,6 +197,11 @@ public class FlashMediaPlayer extends AbstractMediaPlayer implements PlaylistSup
                         break;
                 }
             }
+
+            @Override
+            public void onFullScreen(boolean fullscreen) {
+                firePlayerStateEvent(fullscreen ? PlayerStateEvent.State.FullScreenStarted : PlayerStateEvent.State.FullScreenFinished);
+            }
         });
     }
 

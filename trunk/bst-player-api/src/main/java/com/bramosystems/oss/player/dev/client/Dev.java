@@ -24,6 +24,7 @@ import com.bramosystems.oss.player.core.client.Plugin;
 import com.bramosystems.oss.player.core.client.PluginNotFoundException;
 import com.bramosystems.oss.player.core.client.PluginVersionException;
 import com.bramosystems.oss.player.core.client.ui.*;
+import com.bramosystems.oss.player.flat.client.FlatVideoPlayer;
 import com.bramosystems.oss.player.youtube.client.PlayerParameters;
 import com.bramosystems.oss.player.youtube.client.YouTubePlayer;
 import com.google.gwt.core.client.EntryPoint;
@@ -32,6 +33,8 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.MouseMoveEvent;
 import com.google.gwt.event.dom.client.MouseMoveHandler;
+import com.google.gwt.uibinder.client.UiBinder;
+import com.google.gwt.uibinder.client.UiTemplate;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.Window.Location;
@@ -39,6 +42,7 @@ import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
+import com.google.gwt.user.client.ui.Widget;
 import java.util.ArrayList;
 
 /**
@@ -73,10 +77,12 @@ public class Dev extends VerticalPanel implements EntryPoint {
 //        addPlayer(Plugin.FlashPlayer);
 //        addPlayer(Plugin.QuickTimePlayer);
 //        addPlayer(Plugin.Native);
-        addPlayer(Plugin.VLCPlayer);
+//        addPlayer(Plugin.VLCPlayer);
 
 //        add(new MimeStuffs());
 //        addUTube();
+
+//        add(pb.createAndBindUi(this)); TODO: requires GWT 2.1
     }
 
     private void addPlayer(Plugin plugin) {
@@ -91,23 +97,23 @@ public class Dev extends VerticalPanel implements EntryPoint {
         try {
             switch (plugin) {
                 case DivXPlayer:
-//                    mmp = new FlatVideoPlayer(Plugin.DivXPlayer,
-                    mmp = new DivXPlayer(
-                            getURL("/local-video/divx7_postinstall.divx"),
+                    mmp = new FlatVideoPlayer(Plugin.DivXPlayer,
+//                    mmp = new DivXPlayer(
+                            GWT.getModuleBaseURL() + "big-buck-bunny.mp4",
                             false, "350px", "100%");
 //                    divx.setBannerEnabled(false);
 //                    divx.setDisplayMode(DivXPlayer.DisplayMode.LARGE);
 //                    divx.setAllowContextMenu(false);
 //                    ((DivXPlayer) mmp).addToPlaylist(getURL("/local-video/divx7_postinstall.divx"));
-                    ((DivXPlayer) mmp).addToPlaylist(getURL("/local-video/gi-joe-trailer.mkv"));
+//                   ((DivXPlayer) mmp).addToPlaylist(getURL("/local-video/gi-joe-trailer.mkv"));
                     break;
                 case FlashPlayer:
-                    mmp = new FlashMediaPlayer(getURL("/local-video/big-buck-bunny.mp4"), true, "350px", "100%");
-                    ((PlaylistSupport) mmp).addToPlaylist(getURL("/local-video/brandy-everything.mp3"));
-                    ((PlaylistSupport) mmp).addToPlaylist(getURL("/local-video/traffic.flv"));
+                    mmp = new FlashMediaPlayer(GWT.getModuleBaseURL() + "applause.mp3", true, "350px", "100%");
+                    //                   ((PlaylistSupport) mmp).addToPlaylist(getURL("/local-video/brandy-everything.mp3"));
+                    //                   ((PlaylistSupport) mmp).addToPlaylist(getURL("/local-video/traffic.flv"));
                     break;
                 case QuickTimePlayer:
-                    mmp = new QuickTimePlayer(getURL("/local-video/Sample.mov"), false, "250px", "100%");
+                    mmp = new QuickTimePlayer(GWT.getModuleBaseURL() + "big-buck-bunny.mp4", false, "250px", "100%");
 //                    ((PlaylistSupport) mmp).addToPlaylist(getURL("/local-video/01_Al_Fatihah.m4a"));
                     ((PlaylistSupport) mmp).addToPlaylist(getURL("/local-video/big-buck-bunny.mp4"));
 //            mmp.setConfigParameter(ConfigParameter.QTScale, QuickTimePlayer.Scale.ToFit);
@@ -201,4 +207,9 @@ public class Dev extends VerticalPanel implements EntryPoint {
     private String getURL(String path) {
         return Location.createUrlBuilder().setPort(8080).setPath(path).buildString();
     }
+
+    @UiTemplate("Player.ui.xml")
+    interface PlayerBinder extends UiBinder<Widget, Dev>{}
+    PlayerBinder pb = GWT.create(PlayerBinder.class);
+
 }
