@@ -1,5 +1,6 @@
 package com.bramosystems.oss.player.core.client.skin.flat;
 
+import com.bramosystems.oss.player.core.client.skin.CustomPlayerControl;
 import com.bramosystems.oss.player.core.client.skin.CustomPlayerControl.UIStyleResource;
 import com.google.gwt.resources.client.ClientBundle;
 import com.google.gwt.resources.client.ImageResource;

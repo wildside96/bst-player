@@ -45,7 +45,7 @@ public class LoopManager {
     /**
      * Returns loop count
      *
-     * @return
+     * @return loop count
      */
     public int getLoopCount() {
         return loopCount;

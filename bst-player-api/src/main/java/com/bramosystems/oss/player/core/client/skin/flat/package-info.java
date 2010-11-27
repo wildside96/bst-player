@@ -16,6 +16,6 @@
  */
 
 /**
- * Provides resource bundles for the {@link CustomPlayerControl} widget
+ * Provides resource bundles for the CustomPlayerControl widget
  */
 package com.bramosystems.oss.player.core.client.skin.flat;

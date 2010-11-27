@@ -16,6 +16,6 @@
  */
 
 /**
- * Provides resource bundles for the {@link Capsule} widget
+ * Provides resource bundles for the Capsule widget
  */
 package com.bramosystems.oss.player.capsule.client.skin;
