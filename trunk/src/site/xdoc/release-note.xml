@@ -17,16 +17,15 @@
                 This page contains information on the various released packages of the project.
             </p>
 
-            <!--subsection name=" - Version 1.2">
+            <subsection name="27 November 2010 - Version 1.2">
                 <p>
                     <b>New Features</b>
                 </p>
                 <ul>
-                    <li>Introduces DivXPlayer widget to embed DivX&reg; Web Player plugin.</li>
-                    <li>Adds fullscreen support to FlashMediaPlayer</li>
+                    <li>Introduces DivXPlayer widget to embed DivX&#174; Web Player plugin.</li>
+                    <li>Adds support for fullscreen events</li>
+                    <li>Adds fullscreen support to FlashMediaPlayer widget</li>
                     <li>Introduces playlist repeat modes</li>
-                    <li></li>
-                    <li></li>
                 </ul>
 
                 <p>
@@ -35,7 +34,6 @@
                 <ul>
                     <li>FlashMediaPlayer implements native player controls</li>
                     <li>Adds playlist support to all core player widgets</li>
-                    <li>WinMediaPlayer requires Media Player Plugin for Firefox in non-IE browsers</li>
                     <li>API internals reworked to improve performance</li>
                 </ul>
 
@@ -44,8 +42,40 @@
                 </p>
                 <ul>
                     <li>
+                        <a href="http://code.google.com/p/bst-player/issues/detail?id=18">Issue #18</a> -
+                        Fixed autoplay for Chromeless YouTube player
+                    </li>
+                    <li>
+                        <a href="http://code.google.com/p/bst-player/issues/detail?id=20">Issue #20</a> -
+                        Playlist support for custom player widgets
+                    </li>
+                    <li>
+                        <a href="http://code.google.com/p/bst-player/issues/detail?id=23">Issue #23</a> -
+                        Memory leaks on each repeat
+                    </li>
+                    <li>
                         <a href="http://code.google.com/p/bst-player/issues/detail?id=24">Issue #24</a> -
-                    Continous playback with WinMediaPlayer fixed
+                        Continous playback with WinMediaPlayer
+                    </li>
+                    <li>
+                        <a href="http://code.google.com/p/bst-player/issues/detail?id=26">Issue #26</a> -
+                    	NativePlayerImpl$setTime should return 0 on Exception
+                    </li>
+                    <li>
+                        <a href="http://code.google.com/p/bst-player/issues/detail?id=27">Issue #27</a> -
+                    	LoadingProgressHandler not working in IE
+                    </li>
+                    <li>
+                        <a href="http://code.google.com/p/bst-player/issues/detail?id=28">Issue #28</a> -
+                    	QuickTimePlayer widget surrounded by padding in IE
+                    </li>
+                    <li>
+                        <a href="http://code.google.com/p/bst-player/issues/detail?id=29">Issue #29</a> -
+                        getPlayPosition() and getMediaDuration() always returning 0.0 on YouTube videos
+                    </li>
+                    <li>
+                        <a href="http://code.google.com/p/bst-player/issues/detail?id=30">Issue #30</a> -
+                        Loop forever a flash video do not work
                     </li>
                 </ul>
 
@@ -54,12 +84,13 @@
                 </p>
                 <ul >
                     <li>
-                        Resizing <code>WinMediaPlayer</code> widget is not supported for non-IE browsers.
+                        Resizing
+                        <code>WinMediaPlayer</code> widget is not supported for non-IE browsers.
                         This is due to unpredictable rendering behaviour when using playlists.  However, this
                         feature works fine in IE browsers.
                     </li>
                 </ul>
-            </subsection-->
+            </subsection>
 
             <subsection name="08 February 2010 - Version 1.1">
                 <p>
@@ -69,9 +100,14 @@
                 <ul>
                     <li>Adds NativePlayer widget to embed media using HTML 5 video elements.</li>
                     <li>Introduces YouTube module to wrap YouTube player as GWT widget</li>
-                    <li>Adds GWT 2.0's <a href="ui-binder.html">UiBinder support</a></li>
-                    <li>Adds module to export the player widgets as <a href="javascript-support.html">
-                        Javascript object</a></li>
+                    <li>Adds GWT 2.0's
+                        <a href="ui-binder.html">UiBinder support</a>
+                    </li>
+                    <li>Adds module to export the player widgets as
+                        <a href="javascript-support.html">
+                        Javascript object
+                        </a>
+                    </li>
                     <li>Adds matrix transformation feature support</li>
                 </ul>
 

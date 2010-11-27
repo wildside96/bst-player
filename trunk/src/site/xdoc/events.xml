@@ -47,6 +47,16 @@
                     <td>the dimension of the player has changed to match the size of the
                     current media, especially video</td>
                 </tr>
+                <tr>
+                    <td></td>
+                    <td><code>PlayerStateEvent.State.FullScreenStarted</code></td>
+                    <td>the player has entered into fullscreen display mode</td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td><code>PlayerStateEvent.State.FullScreenFinished</code></td>
+                    <td>the player has entered normal display mode from fullscreen</td>
+                </tr>
 
                 <tr>
                     <td>PlayStateHandler</td>
