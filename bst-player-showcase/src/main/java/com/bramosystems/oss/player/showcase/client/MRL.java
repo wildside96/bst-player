@@ -14,7 +14,6 @@
  *  limitations under the License.
  *  under the License.
  */
-
 package com.bramosystems.oss.player.showcase.client;
 
 import java.util.ArrayList;
@@ -26,7 +25,7 @@ import java.util.Arrays;
  */
 public class MRL extends ArrayList<String> {
 
-    public MRL(String ... url) {
+    public MRL(String... url) {
         addAll(Arrays.asList(url));
     }
 }

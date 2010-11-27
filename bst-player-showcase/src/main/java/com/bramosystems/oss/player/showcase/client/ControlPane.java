@@ -16,10 +16,10 @@
  */
 package com.bramosystems.oss.player.showcase.client;
 
-import com.bramosystems.oss.player.showcase.client.panes.PlayerLogPane;
 import com.google.gwt.animation.client.Animation;
 import com.google.gwt.event.logical.shared.BeforeSelectionEvent;
 import com.google.gwt.event.logical.shared.BeforeSelectionHandler;
+import com.google.gwt.user.client.History;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.TabPanel;
 
@@ -49,12 +49,15 @@ public class ControlPane extends Composite {
         };
 
         pluginPane = new PluginPane();
-        optionPane = new PlayerOptionsPane();
-        playlistPane = new PlaylistPane();
+        optionPane = PlayerOptionsPane.singleton;
+        playlistPane = PlaylistPane.singleton;
         playerLog = new PlayerLogPane();
 
+        History.addValueChangeHandler(pluginPane);
+        History.addValueChangeHandler(playlistPane);
+
         tp = new TabPanel();
-        tp.add(pluginPane, "Plugin");
+        tp.add(pluginPane, "Plug-in");
         tp.add(playlistPane, "Playlist");
         tp.add(optionPane, "Player Options");
         tp.add(playerLog, "Player Log");

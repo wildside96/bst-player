@@ -52,7 +52,7 @@ public class MatrixStagePane extends Composite implements HasMediaMessageHandler
         String url = null;
         switch (plugin) {
             case QuickTimePlayer:
-                url = PlaylistPane.baseURL + "traffic.mp4";
+                url = PlaylistPane.baseURL + "big-buck-bunny.mp4";
                 break;
             case FlashPlayer:
                 url = PlaylistPane.baseURL + "traffic.flv";

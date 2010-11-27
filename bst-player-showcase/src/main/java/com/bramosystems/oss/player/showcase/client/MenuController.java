@@ -16,7 +16,7 @@
  */
 package com.bramosystems.oss.player.showcase.client;
 
-import com.bramosystems.oss.player.showcase.client.images.Bundle;
+import com.bramosystems.oss.player.showcase.client.res.Bundle;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.user.client.ui.*;

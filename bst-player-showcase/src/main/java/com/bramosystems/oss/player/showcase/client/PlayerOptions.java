@@ -16,16 +16,28 @@
  */
 package com.bramosystems.oss.player.showcase.client;
 
+import com.bramosystems.oss.player.core.client.RepeatMode;
+
 /**
  *
  * @author Sikiru
  */
 public class PlayerOptions {
 
-    private boolean showControls, resizeToVideo, showLogger;
+    private boolean showControls, resizeToVideo, showLogger, shuffleOn;
+    private RepeatMode repeatMode;
 
     public PlayerOptions() {
         showControls = true;
+        repeatMode = RepeatMode.REPEAT_OFF;
+    }
+
+    public boolean isShuffleOn() {
+        return shuffleOn;
+    }
+
+    public void setShuffleOn(boolean shuffleOn) {
+        this.shuffleOn = shuffleOn;
     }
 
     public boolean isResizeToVideo() {
@@ -46,6 +58,14 @@ public class PlayerOptions {
 
     public boolean isShowLogger() {
         return showLogger;
+    }
+
+    public RepeatMode getRepeatMode() {
+        return repeatMode;
+    }
+
+    public void setRepeatMode(RepeatMode repeatMode) {
+        this.repeatMode = repeatMode;
     }
 
     public void setShowLogger(boolean showLogger) {

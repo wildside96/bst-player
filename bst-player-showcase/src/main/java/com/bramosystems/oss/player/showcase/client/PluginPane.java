@@ -30,7 +30,6 @@ import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.uibinder.client.UiTemplate;
-import com.google.gwt.user.client.History;
 import com.google.gwt.user.client.ui.*;
 
 /**
@@ -41,16 +40,10 @@ public class PluginPane extends Composite implements ValueChangeHandler<String> 
 
     public PluginPane() {
         initWidget(pp.createAndBindUi(this));
-        History.addValueChangeHandler(this);
     }
 
     public HandlerRegistration addChangeHandler(PluginChangeHandler handler) {
         return addHandler(handler, PluginChangeEvent.TYPE);
-    }
-
-    @Override
-    protected void onLoad() {
-        fireEvent(new PluginChangeEvent(Plugin.Auto));
     }
 
     @Override
@@ -61,6 +54,7 @@ public class PluginPane extends Composite implements ValueChangeHandler<String> 
         } catch (Exception e) {
         }
 
+        auto.setValue(true);
         switch (option) {
             case capsule:
             case core:
@@ -72,6 +66,8 @@ public class PluginPane extends Composite implements ValueChangeHandler<String> 
                 qt.setEnabled(hasPlugin(Plugin.QuickTimePlayer));
                 vlc.setEnabled(hasPlugin(Plugin.VLCPlayer));
                 wmp.setEnabled(hasPlugin(Plugin.WinMediaPlayer));
+                uTube.setEnabled(false);
+                uChrome.setEnabled(false);
                 break;
             case matrix:
                 auto.setEnabled(true);
@@ -81,10 +77,24 @@ public class PluginPane extends Composite implements ValueChangeHandler<String> 
                 qt.setEnabled(hasMatrixSupport(Plugin.QuickTimePlayer));
                 vlc.setEnabled(hasMatrixSupport(Plugin.VLCPlayer));
                 wmp.setEnabled(hasMatrixSupport(Plugin.WinMediaPlayer));
+                uTube.setEnabled(false);
+                uChrome.setEnabled(false);
+                break;
+            case ytube:
+                auto.setEnabled(false);
+                divx.setEnabled(false);
+                flash.setEnabled(false);
+                html5.setEnabled(false);
+                qt.setEnabled(false);
+                vlc.setEnabled(false);
+                wmp.setEnabled(false);
+                uTube.setEnabled(hasPlugin(Plugin.FlashPlayer));
+                uChrome.setEnabled(hasPlugin(Plugin.FlashPlayer));
+                uTube.setValue(hasPlugin(Plugin.FlashPlayer) && true);
                 break;
             case home:
             case plugins:
-            case pool:
+            case mimes:
             default:
                 auto.setEnabled(false);
                 divx.setEnabled(false);
@@ -93,6 +103,8 @@ public class PluginPane extends Composite implements ValueChangeHandler<String> 
                 qt.setEnabled(false);
                 vlc.setEnabled(false);
                 wmp.setEnabled(false);
+                uTube.setEnabled(false);
+                uChrome.setEnabled(false);
         }
     }
 
@@ -185,9 +197,21 @@ public class PluginPane extends Composite implements ValueChangeHandler<String> 
             fireEvent(new PluginChangeEvent(Plugin.Auto));
         }
     }
+    @UiHandler("uTube")
+    void onutube(ValueChangeEvent<Boolean> event) {
+        if (event.getValue()) {
+            fireEvent(new PluginChangeEvent(Plugin.Auto));
+        }
+    }
+    @UiHandler("uChrome")
+    void onuchrome(ValueChangeEvent<Boolean> event) {
+        if (event.getValue()) {
+            fireEvent(new PluginChangeEvent(Plugin.Native));
+        }
+    }
     PPaneBinder pp = GWT.create(PPaneBinder.class);
     @UiField
-    RadioButton html5, wmp, vlc, divx, flash, qt, auto;
+    RadioButton html5, wmp, vlc, divx, flash, qt, auto, uTube, uChrome;
 
     @UiTemplate("xml/PluginPane.ui.xml")
     interface PPaneBinder extends UiBinder<Widget, PluginPane> {
