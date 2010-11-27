@@ -195,8 +195,6 @@ public class DelegatePlaylistManager implements PlaylistSupport {
 
     /**
      * Play another alternative URL for the current resource index ...
-     * @param index
-     * @throws IndexOutOfBoundsException
      */
     public void loadAlternative() throws LoadException {
         try {

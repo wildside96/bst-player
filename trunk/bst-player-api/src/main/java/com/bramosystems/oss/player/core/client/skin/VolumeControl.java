@@ -111,7 +111,6 @@ public class VolumeControl extends Composite implements MouseUpHandler, HasVolum
      *
      * <p>The slider popup panel has a fixed width of 50px.
      *
-     * @param icon represents the volume control object.
      * @param sliderHeight the height of the volume slider control.
      * @since 1.2
      */

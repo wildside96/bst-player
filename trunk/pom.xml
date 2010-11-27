@@ -204,21 +204,6 @@
 
     <profiles>
         <profile>
-            <id>oss-lab-site</id>
-            <reporting>
-                <plugins>
-                    <plugin>
-                        <artifactId>maven-site-plugin</artifactId>
-                        <version>2.1</version>
-                        <configuration>
-                            <siteDirectory>src/site/osslab</siteDirectory>
-                            <xdocDirectory>src/site/xdoc</xdocDirectory>
-                        </configuration>
-                    </plugin>
-                </plugins>
-            </reporting>
-        </profile>
-        <profile>
             <id>dev-mode</id>
             <activation>
                 <activeByDefault>false</activeByDefault>
@@ -244,6 +229,84 @@
                     <url>http://google-web-toolkit.googlecode.com/svn/2.1.0/gwt/maven</url>
                 </pluginRepository>
             </pluginRepositories>
+        </profile>
+        <profile>
+            <id>m3-build</id>
+            <build>
+                <pluginManagement>
+                    <plugins>
+                        <plugin>
+                            <groupId>org.apache.maven.plugins</groupId>
+                            <artifactId>maven-site-plugin</artifactId>
+                            <version>3.0-beta-3</version>
+                            <configuration>
+                                <reportPlugins>
+                                    <plugin>
+                                        <groupId>org.apache.maven.plugins</groupId>
+                                        <artifactId>maven-project-info-reports-plugin</artifactId>
+                                        <version>2.2</version>
+                                        <configuration>
+                                            <dependencyDetailsEnabled>false</dependencyDetailsEnabled>
+                                            <dependencyLocationsEnabled>false</dependencyLocationsEnabled>
+                                        </configuration>
+                                        <reports>
+                                            <report>index</report>
+                                            <report>dependencies</report>
+                                            <report>issue-tracking</report>
+                                            <report>license</report>
+                                            <report>mailing-list</report>
+                                            <report>project-team</report>
+                                            <report>scm</report>
+                                            <report>summary</report>
+                                        </reports>
+                                    </plugin>
+                                    <plugin>
+                                        <groupId>org.apache.maven.plugins</groupId>
+                                        <artifactId>maven-javadoc-plugin</artifactId>
+                                        <version>2.7</version>
+                                        <configuration>
+                                            <excludePackageNames>*.impl;*.dev.*;*.video;*.rebind</excludePackageNames>
+                                            <doctitle>${project.name} ${project.version}</doctitle>
+                                            <windowtitle>${project.name} ${project.version}</windowtitle>
+                                        </configuration>
+                                        <reports>
+                                            <report>javadoc</report>
+                                        </reports>
+                                    </plugin>
+                                </reportPlugins>
+                            </configuration>
+                        </plugin>
+                    </plugins>
+                </pluginManagement>
+            </build>
+        </profile>
+        <profile>
+            <id>oss-lab-site</id>
+            <reporting>
+                <plugins>
+                    <plugin>
+                        <artifactId>maven-site-plugin</artifactId>
+                        <configuration>
+                            <siteDirectory>src/site/osslab</siteDirectory>
+                            <xdocDirectory>src/site/xdoc</xdocDirectory>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </reporting>
+        </profile>
+        <profile>
+            <id>oss-lab-site-m3</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <artifactId>maven-site-plugin</artifactId>
+                        <configuration>
+                            <siteDirectory>src/site/osslab</siteDirectory>
+                            <xdocDirectory>src/site/xdoc</xdocDirectory>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
         </profile>
     </profiles>
 </project>

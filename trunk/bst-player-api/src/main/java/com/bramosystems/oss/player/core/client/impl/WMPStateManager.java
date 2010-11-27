@@ -49,7 +49,7 @@ public class WMPStateManager {
      * Provided for deferred binding enhancements. Resize fix required for
      * non-IE browsers only
      *
-     * @return
+     * @return quick
      */
     public boolean shouldRunResizeQuickFix() {
         return true;
