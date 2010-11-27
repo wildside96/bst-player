@@ -26,7 +26,6 @@ body {
 }
 
 .mast-head {
-    border-bottom: 1px solid #a5a5a5;
     padding-top: 5px;
 }
 .app-banner {
@@ -34,10 +33,23 @@ body {
     font-weight: bold;
 }
 .app-version {
-    margin-bottom: 10px;
     font-weight: bold;
     font-style:italic;
-    font-family: Calibri,Geneva,Helvetica,sans-serif;
+    width: 45%;
+    float: left;
+}
+
+.app-links {
+    width: 45%;
+    text-align: right;
+    float: right;
+}
+.app-version, .app-links {
+    margin-bottom: 5px;
+}
+.sep {
+    border-top: 1px solid #a5a5a5;
+    clear: both;
 }
 .footer {
     clear: both;

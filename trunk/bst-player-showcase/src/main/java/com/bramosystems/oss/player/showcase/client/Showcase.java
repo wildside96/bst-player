@@ -15,7 +15,7 @@
  */
 package com.bramosystems.oss.player.showcase.client;
 
-import com.bramosystems.oss.player.showcase.client.images.Bundle;
+import com.bramosystems.oss.player.showcase.client.res.Bundle;
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.uibinder.client.UiBinder;

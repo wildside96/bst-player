@@ -30,10 +30,12 @@ public class PlaylistChangeEvent extends GwtEvent<PlaylistChangeHandler> {
     public static Type<PlaylistChangeHandler> TYPE = new Type<PlaylistChangeHandler>();
     private MRL playlistItem;
     private boolean added;
+    private int index;
 
-    public PlaylistChangeEvent(MRL playlistItem, boolean added) {
+    public PlaylistChangeEvent(MRL playlistItem, int index, boolean added) {
         this.playlistItem = playlistItem;
         this.added = added;
+        this.index = index;
     }
 
     public void setPlaylistItem(MRL playlistItem) {
@@ -46,6 +48,10 @@ public class PlaylistChangeEvent extends GwtEvent<PlaylistChangeHandler> {
 
     public boolean isAdded() {
         return added;
+    }
+
+    public int getIndex() {
+        return index;
     }
 
     @Override

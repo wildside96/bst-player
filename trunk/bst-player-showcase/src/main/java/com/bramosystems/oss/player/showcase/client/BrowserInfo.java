@@ -21,10 +21,13 @@ import com.bramosystems.oss.player.core.client.PluginNotFoundException;
 import com.bramosystems.oss.player.core.client.MimePool;
 import com.bramosystems.oss.player.core.client.PlayerUtil;
 import com.bramosystems.oss.player.core.client.PluginVersion;
-import com.bramosystems.oss.player.showcase.client.images.Bundle;
+import com.bramosystems.oss.player.showcase.client.res.Bundle;
 import com.bramosystems.oss.player.util.client.BrowserPlugin;
 import com.bramosystems.oss.player.util.client.MimeType;
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.JsArray;
+import com.google.gwt.uibinder.client.UiBinder;
+import com.google.gwt.uibinder.client.UiTemplate;
 import com.google.gwt.user.client.ui.*;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -44,7 +47,7 @@ public class BrowserInfo extends FlowPanel {
     public void update(AppOptions option) {
         clear();
         switch (option) {
-            case pool:
+            case mimes:
                 doMimePool();
                 break;
             case plugins:
@@ -97,7 +100,7 @@ public class BrowserInfo extends FlowPanel {
     }
 
     private void doMimePool() {
-        addPoolRow("Player Widget", "Plugin Status", false, "Supported Filename Suffixes", EntryType.header);
+        addPoolRow("Player Widget", "Plugin", "Plugin Version", false, "Supported Filename Suffixes", EntryType.header);
         MimePool pool = MimePool.instance;
         ArrayList<Plugin> plugs = new ArrayList<Plugin>(Arrays.asList(Plugin.values()));
         plugs.remove(Plugin.Auto);
@@ -106,53 +109,54 @@ public class BrowserInfo extends FlowPanel {
         int row = 0;
         for (Plugin plug : plugs) {
             Boolean isSupported = null;
-            String name = plug.name(), ver = null;
+            String player = plug.name(), plugName = plug.name(), ver = "-";
             PluginVersion pv = null;
             try {
                 switch (plug) {
                     case DivXPlayer:
-                        ver = "DivX Web Player ";
+                        plugName = "DivX Web Player";
                         pv = PlayerUtil.getDivXPlayerPluginVersion();
-                        ver += pv.toString();
-                        isSupported = pv.compareTo(plug.getVersion()) >= 0;                        
+                        ver = pv.toString();
+                        isSupported = pv.compareTo(plug.getVersion()) >= 0;
                         break;
                     case QuickTimePlayer:
-                        ver = "QuickTime Plug-in ";
+                        plugName = "QuickTime Player";
                         pv = PlayerUtil.getQuickTimePluginVersion();
-                        ver += pv.toString();
+                        ver = pv.toString();
                         isSupported = pv.compareTo(plug.getVersion()) >= 0;
                         break;
                     case VLCPlayer:
-                        ver = "VLC Multimedia Plug-in ";
+                        plugName = "VLC Multimedia Player";
                         pv = PlayerUtil.getVLCPlayerPluginVersion();
-                        ver += pv.toString();
+                        ver = pv.toString();
                         isSupported = pv.compareTo(plug.getVersion()) >= 0;
                         break;
                     case FlashPlayer:
-                        name = "FlashMediaPlayer";
-                        ver = "Shockwave Flash ";
+                        player = "FlashMediaPlayer";
+                        plugName = "Adobe Flash Player";
                         pv = PlayerUtil.getFlashPlayerVersion();
                         isSupported = pv.compareTo(plug.getVersion()) >= 0;
-                        ver += pv.toString();
+                        ver = pv.toString();
                         break;
                     case WinMediaPlayer:
-                        ver = "Windows Media Player Plugin";
+                        plugName = "Windows Media Player";
                         pv = PlayerUtil.getWindowsMediaPlayerPluginVersion();
                         isSupported = pv.compareTo(plug.getVersion()) >= 0;
                         break;
                     case Native:
-                        ver = "HTML5 <code>&lt;video&gt;</code>";
+                        plugName = "HTML5 <code>&lt;video&gt;</code>";
                         isSupported = PlayerUtil.isHTML5CompliantClient() ? true : null;
-                        name = "NativePlayer";
+                        player = "NativePlayer";
                         break;
                 }
             } catch (PluginNotFoundException ex) {
             }
 
             Set<String> suf = pool.getRegisteredExtensions(plug);
-            addPoolRow(name, ver, isSupported,
-                    suf != null ? suf.toString() : "-", row++ % 2 != 0 ? EntryType.even : EntryType.odd);
+            addPoolRow(player, plugName, ver, isSupported,
+                    (isSupported != null) && isSupported && (suf != null) ? suf.toString() : "-", row++ % 2 != 0 ? EntryType.even : EntryType.odd);
         }
+        add(lb.createAndBindUi(null));
     }
 
     private void addPluginRow(String name, String filename, String desc, EntryType type) {
@@ -174,23 +178,22 @@ public class BrowserInfo extends FlowPanel {
         add(fp);
     }
 
-    private void addPoolRow(String plugin, String version, Boolean isSupted, String suffs, EntryType type) {
+    private void addPoolRow(String player, String plugin, String version, Boolean isSupted, String suffs, EntryType type) {
         FlowPanel fp = new FPanel(type);
-        fp.add(new XLabel(plugin, Bundle.bundle.css().pct20()));
         if (type.equals(EntryType.header)) {
-            fp.add(new XLabel(version, Bundle.bundle.css().pct20()));
+            fp.add(new XLabel(player, Bundle.bundle.css().pct20()));
         } else {
-            XLabel lbl = new XLabel(version, "");
+            XLabel lbl = new XLabel(player, "");
             if (isSupted == null) {
                 lbl.setStyleName(Bundle.bundle.css().no());
-                lbl.setTitle("Required plugin not found");
             } else {
                 lbl.setStyleName(isSupted ? Bundle.bundle.css().yes() : Bundle.bundle.css().error());
-                lbl.setTitle(isSupted ? "Installed plugin version" : "Installed plugin version not supported");
             }
             fp.add(lbl);
         }
-        fp.add(new XLabel(suffs, Bundle.bundle.css().pct60()));
+        fp.add(new XLabel(plugin, Bundle.bundle.css().pct20()));
+        fp.add(new XLabel(version, Bundle.bundle.css().pct20()));
+        fp.add(new XLabel(suffs, Bundle.bundle.css().pct40()));
         fp.add(new XLabel(Bundle.bundle.css().clear()));
         add(fp);
     }
@@ -277,4 +280,8 @@ public class BrowserInfo extends FlowPanel {
             return name;
         }
     }
+
+    @UiTemplate("xml/BrowserInfoLegend.ui.xml")
+    interface LegendBinder extends UiBinder<Widget, Void>{};
+    LegendBinder lb = GWT.create(LegendBinder.class);
 }

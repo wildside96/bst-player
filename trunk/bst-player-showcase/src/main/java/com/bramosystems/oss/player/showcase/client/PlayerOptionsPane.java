@@ -16,17 +16,21 @@
  */
 package com.bramosystems.oss.player.showcase.client;
 
+import com.bramosystems.oss.player.core.client.RepeatMode;
 import com.bramosystems.oss.player.showcase.client.event.PlayerOptionsChangeEvent;
 import com.bramosystems.oss.player.showcase.client.event.PlayerOptionsChangeHandler;
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.uibinder.client.UiTemplate;
+import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.Composite;
+import com.google.gwt.user.client.ui.RadioButton;
 import com.google.gwt.user.client.ui.Widget;
 
 /**
@@ -36,24 +40,21 @@ import com.google.gwt.user.client.ui.Widget;
 public class PlayerOptionsPane extends Composite {
 
     private static PlayerOptionsUiBinder uiBinder = GWT.create(PlayerOptionsUiBinder.class);
+    public static PlayerOptionsPane singleton = new PlayerOptionsPane();
 
     @UiTemplate("xml/PlayerOptions.ui.xml")
-    interface PlayerOptionsUiBinder extends UiBinder<Widget, PlayerOptionsPane> {
-    }
+    interface PlayerOptionsUiBinder extends UiBinder<Widget, PlayerOptionsPane> {}
     private PlayerOptions options;
 
-    public PlayerOptionsPane() {
+    private PlayerOptionsPane() {
         initWidget(uiBinder.createAndBindUi(this));
         options = new PlayerOptions();
-        controls.setValue(options.isShowControls(), false);
-        logger.setValue(options.isShowLogger(), false);
-        resizeToVideo.setValue(options.isResizeToVideo(), false);
+        controls.setValue(true, false);
+        repeatOff.setValue(true, false);
     }
 
-    @Override
-    protected void onLoad() {
-        super.onLoad();
-        fireEvent(new PlayerOptionsChangeEvent(options));
+    public PlayerOptions getOptions() {
+        return options;
     }
 
     public HandlerRegistration addChangeHandler(PlayerOptionsChangeHandler handler) {
@@ -61,22 +62,53 @@ public class PlayerOptionsPane extends Composite {
     }
 
     @UiHandler("controls")
-    public void onControlsChange(ValueChangeEvent<Boolean> event) {
+    void onControlsChange(ValueChangeEvent<Boolean> event) {
         options.setShowControls(event.getValue());
         fireEvent(new PlayerOptionsChangeEvent(options));
     }
 
     @UiHandler("logger")
-    public void onLoggerChange(ValueChangeEvent<Boolean> event) {
+    void onLoggerChange(ValueChangeEvent<Boolean> event) {
         options.setShowLogger(event.getValue());
         fireEvent(new PlayerOptionsChangeEvent(options));
     }
-    
+
     @UiHandler("resizeToVideo")
-    public void onResizeChange(ValueChangeEvent<Boolean> event) {
+    void onResizeChange(ValueChangeEvent<Boolean> event) {
         options.setResizeToVideo(event.getValue());
         fireEvent(new PlayerOptionsChangeEvent(options));
     }
+
+    @UiHandler("relButton")
+    void onReloadPlayer(ClickEvent event) {
+        fireEvent(new PlayerOptionsChangeEvent(options, true));
+    }
+
+    @UiHandler("shuffle")
+    void onShuffle(ValueChangeEvent<Boolean> event) {
+        options.setShuffleOn(event.getValue());
+        fireEvent(new PlayerOptionsChangeEvent(options));
+    }
+
+    @UiHandler("repeatOff")
+     void onRepeatOff(ValueChangeEvent<Boolean> event) {
+        options.setRepeatMode(RepeatMode.REPEAT_OFF);
+        fireEvent(new PlayerOptionsChangeEvent(options));
+    }
+
+    @UiHandler("repeatOne")
+     void onRepeatOne(ValueChangeEvent<Boolean> event) {
+        options.setRepeatMode(RepeatMode.REPEAT_ONE);
+        fireEvent(new PlayerOptionsChangeEvent(options));
+    }
+
+    @UiHandler("repeatAll")
+     void onRepeatAll(ValueChangeEvent<Boolean> event) {
+        options.setRepeatMode(RepeatMode.REPEAT_ALL);
+        fireEvent(new PlayerOptionsChangeEvent(options));
+    }
     
-    @UiField CheckBox controls, resizeToVideo, logger;
+    @UiField CheckBox controls, resizeToVideo, logger, shuffle;
+    @UiField Button relButton;
+    @UiField RadioButton repeatOff, repeatOne, repeatAll;
 }

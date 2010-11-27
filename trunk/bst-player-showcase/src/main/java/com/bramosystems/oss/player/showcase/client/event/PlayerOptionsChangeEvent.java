@@ -29,13 +29,23 @@ public class PlayerOptionsChangeEvent extends GwtEvent<PlayerOptionsChangeHandle
 
     public static Type<PlayerOptionsChangeHandler> TYPE = new Type<PlayerOptionsChangeHandler>();
     private PlayerOptions playerOptions;
+    private boolean forceReloadPlayer;
 
     public PlayerOptionsChangeEvent(PlayerOptions playerOptions) {
+        this(playerOptions, false);
+    }
+
+    public PlayerOptionsChangeEvent(PlayerOptions playerOptions, boolean forceReloadPlayer) {
         this.playerOptions = playerOptions;
+        this.forceReloadPlayer = forceReloadPlayer;
     }
 
     public PlayerOptions getPlayerOptions() {
         return playerOptions;
+    }
+
+    public boolean isForceReloadPlayer() {
+        return forceReloadPlayer;
     }
 
     @Override

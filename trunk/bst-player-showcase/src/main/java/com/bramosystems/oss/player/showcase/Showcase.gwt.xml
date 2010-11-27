@@ -23,7 +23,6 @@
     <inherits name="com.bramosystems.oss.player.capsule.Capsule"/>
     <inherits name="com.bramosystems.oss.player.flat.FlatVideoPlayer"/>
     <inherits name="com.bramosystems.oss.player.youtube.YouTube"/>
-    <inherits name="com.bramosystems.oss.player.resources.Sources"/>
 
     <entry-point class="com.bramosystems.oss.player.showcase.client.Showcase" />
 </module>
