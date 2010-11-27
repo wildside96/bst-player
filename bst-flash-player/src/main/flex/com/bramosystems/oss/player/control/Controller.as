@@ -79,6 +79,7 @@ package com.bramosystems.oss.player.control {
             Application.application.stage.addEventListener(FullScreenEvent.FULL_SCREEN, onFullScreen);
             updateDisplay(false);
             _attachEffect();
+            _ahTimer.addEventListener(TimerEvent.TIMER, onAHTimer);
         }
 
         private function enableButton(button:UIComponent, enable:Boolean):void {
@@ -112,6 +113,12 @@ package com.bramosystems.oss.player.control {
 
         public function setControllerVisible(_visible:Boolean):void {
             showController = _visible;
+            if(_visible) {
+                _attachEffect();
+            } else {
+                clearStyle('hideEffect');
+                clearStyle('showEffect');
+            }
             visible = _visible;
         }
 
@@ -290,7 +297,6 @@ package com.bramosystems.oss.player.control {
 
             setStyle('hideEffect', heffct);
             setStyle('showEffect', seffct);
-            _ahTimer.addEventListener(TimerEvent.TIMER, onAHTimer);
         }
 
         /******************** RENDERING METHODS ****************************/
