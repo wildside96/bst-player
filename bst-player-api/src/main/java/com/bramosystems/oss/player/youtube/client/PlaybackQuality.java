@@ -53,5 +53,20 @@ public enum PlaybackQuality {
     /**
      * Quality level for minimum player resolution of 1280px by 720px.
      */
-    hd720
+    hd720,
+
+    /**
+     * Quality level for minimum player height of 1080px i.e. player dimensions are 1920px by 1080px (for 16:9 aspect ratio) or
+     * 1440px by 1080px (for 4:3 aspect ratio)
+     *
+     * @since 1.2
+     */
+    hd1080,
+
+    /**
+     * Quality level for player resolution greater than 1920px by 1080px
+     *
+     * @since 1.2
+     */
+    highres
 }

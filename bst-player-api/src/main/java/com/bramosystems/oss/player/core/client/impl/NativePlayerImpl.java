@@ -162,12 +162,12 @@ public class NativePlayerImpl extends JavaScriptObject {
     this.playbackRate = rate;
     }-*/;
 
-    public final native String getVideoWidth() /*-{
+    public final native int getVideoWidth() /*-{
     return this.videoWidth;
     }-*/;
 
-    public final native String getVideoHeight() /*-{
-    return this.videoHeight;
+    public final native int getVideoHeight() /*-{
+     return this.videoHeight;
     }-*/;
 
     public final native String getPoster() /*-{

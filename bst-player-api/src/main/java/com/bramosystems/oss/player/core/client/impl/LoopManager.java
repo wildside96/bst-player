@@ -62,7 +62,7 @@ public class LoopManager {
     }
 
     /**
-     * notifies this manager that the player just finished current loop
+     * notifies this manager that the player just finished current playback
      */
     public void notifyPlayFinished() {
         if (loopCount < 0) {

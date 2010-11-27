@@ -74,7 +74,7 @@ public class NativePlayer extends AbstractMediaPlayer implements PlaylistSupport
     private NativePlayerImpl impl;
     private String playerId, _height, _width;
     private PlayerWidget playerWidget;
-    private boolean adjustToVideoSize, isEmbedded;
+    private boolean adjustToVideoSize, isEmbedded, isWasPlaying;
     private Logger logger;
     private LoopManager loopManager;
     private DelegatePlaylistManager playlistManager;
@@ -97,6 +97,7 @@ public class NativePlayer extends AbstractMediaPlayer implements PlaylistSupport
 
             @Override
             public void onLoopFinished() {
+                isWasPlaying = false;
                 fireDebug("Play finished - " + playlistManager.getPlaylistIndex());
                 firePlayStateEvent(PlayStateEvent.State.Finished,
                         playlistManager.getPlaylistIndex());
@@ -127,6 +128,7 @@ public class NativePlayer extends AbstractMediaPlayer implements PlaylistSupport
             public void onStateChanged(int code) {
                 switch (code) {
                     case 1: // play started
+                        isWasPlaying = true;
                         fireDebug("Play started");
                         firePlayStateEvent(PlayStateEvent.State.Started, playlistManager.getPlaylistIndex());
                         fireDebug("Playing media at '" + impl.getMediaURL() + "'");
@@ -186,7 +188,12 @@ public class NativePlayer extends AbstractMediaPlayer implements PlaylistSupport
                                 try {
                                     playlistManager.loadAlternative();
                                 } catch (LoadException ex) {
-                                    fireError("ERROR: No alternative media supported!");
+                                    fireError("ERROR: No alternative media available!");
+                                    if (isWasPlaying) {
+                                        loopManager.notifyPlayFinished();
+                                    } else {
+                                        playlistManager.loadNext();
+                                    }
                                 }
                                 break;
                         }
@@ -402,13 +409,13 @@ public class NativePlayer extends AbstractMediaPlayer implements PlaylistSupport
     @Override
     public int getVideoHeight() {
         checkAvailable();
-        return Integer.parseInt(impl.getVideoHeight());
+        return impl.getVideoHeight();
     }
 
     @Override
     public int getVideoWidth() {
         checkAvailable();
-        return Integer.parseInt(impl.getVideoWidth());
+        return impl.getVideoWidth();
     }
 
     @Override

@@ -22,7 +22,7 @@ import com.bramosystems.oss.player.core.event.client.*;
 import com.bramosystems.oss.player.util.client.RegExp;
 import com.bramosystems.oss.player.util.client.RegExp.RegexException;
 import com.google.gwt.core.client.GWT;
-import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.user.client.ui.Widget;
 
 /**
@@ -32,11 +32,16 @@ import com.google.gwt.user.client.ui.Widget;
  * @param <T> the player implementation type
  * @since 1.1
  */
+//TODO: find a way of enhancing this via UIBinderWriter
 public abstract class PlayerWrapper1<T extends AbstractMediaPlayer> extends AbstractMediaPlayer
         implements MatrixSupport, com.bramosystems.oss.player.core.client.PlaylistSupport {
 
     private T _engine;
     private static String GWT_HOST_URL_ID = "(gwt-host::)\\S", GWT_MODULE_URL_ID = "(gwt-module::)\\S";
+    protected Widget missingPluginNotice, missingPluginVersionNotice;
+    private String _url, _height, _width;
+    private boolean _autoplay;
+    private SimplePanel _panel;
 
     /**
      * Parses the {@code mediaURL} for {@code gwt-host::} and {@code gwt-module::} keywords.
@@ -46,7 +51,7 @@ public abstract class PlayerWrapper1<T extends AbstractMediaPlayer> extends Abst
      * {@code gwt-host::} is replaced with {@code GWT.getHostPageBaseURL()} while {@code gwt-module::}
      * is replaced with {@code GWT.getModuleBaseURL()}
      * </p>
-     * 
+     *
      * @param mediaURL the mediaURL
      * @return the resulting absolute URL
      */
@@ -82,50 +87,60 @@ public abstract class PlayerWrapper1<T extends AbstractMediaPlayer> extends Abst
      * @param width the width of the player (in CSS units)
      */
     protected PlayerWrapper1(String mediaURL, boolean autoplay, String height, String width) {
-        Widget player = null;
-        try {
-            mediaURL = resolveMediaURL(mediaURL);
+        initWidget(_panel = new SimplePanel());
+        _url = resolveMediaURL(mediaURL);
+        _height = height;
+        _width = width;
+        _autoplay = autoplay;
+    }
 
-            _engine = initPlayerEngine(mediaURL, autoplay, height, width);
+    @Override
+    public void onLoad() {
+        try {
+            _engine = initPlayerEngine(_url, _autoplay, _height, _width);
             _engine.addDebugHandler(new DebugHandler() {
 
+                @Override
                 public void onDebug(DebugEvent event) {
                     fireEvent(event);
                 }
             });
             _engine.addLoadingProgressHandler(new LoadingProgressHandler() {
 
+                @Override
                 public void onLoadingProgress(LoadingProgressEvent event) {
                     fireEvent(event);
                 }
             });
             _engine.addMediaInfoHandler(new MediaInfoHandler() {
 
+                @Override
                 public void onMediaInfoAvailable(MediaInfoEvent event) {
                     fireEvent(event);
                 }
             });
             _engine.addPlayStateHandler(new PlayStateHandler() {
 
+                @Override
                 public void onPlayStateChanged(PlayStateEvent event) {
                     fireEvent(event);
                 }
             });
             _engine.addPlayerStateHandler(new PlayerStateHandler() {
 
+                @Override
                 public void onPlayerStateChanged(PlayerStateEvent event) {
                     fireEvent(event);
                 }
             });
-            player = _engine;
+            _panel.setWidget(_engine);
         } catch (LoadException ex) {
-            player = new Label("A load exception has occured!");
         } catch (PluginNotFoundException ex) {
-            player = PlayerUtil.getMissingPluginNotice(ex.getPlugin());
+            _panel.setWidget(missingPluginNotice == null ? PlayerUtil.getMissingPluginNotice(ex.getPlugin()) : missingPluginNotice);
         } catch (PluginVersionException ex) {
-            player = PlayerUtil.getMissingPluginNotice(ex.getPlugin());
+            _panel.setWidget(missingPluginVersionNotice == null
+                    ? PlayerUtil.getMissingPluginNotice(ex.getPlugin(), ex.getRequiredVersion()) : missingPluginVersionNotice);
         }
-        initWidget(player);
     }
 
     /**
@@ -154,6 +169,7 @@ public abstract class PlayerWrapper1<T extends AbstractMediaPlayer> extends Abst
     protected abstract T initPlayerEngine(String mediaURL, boolean autoplay, String height, String width)
             throws LoadException, PluginNotFoundException, PluginVersionException;
 
+    @Override
     public long getMediaDuration() {
         if (_engine == null) {
             return 0;
@@ -161,6 +177,7 @@ public abstract class PlayerWrapper1<T extends AbstractMediaPlayer> extends Abst
         return _engine.getMediaDuration();
     }
 
+    @Override
     public double getPlayPosition() {
         if (_engine == null) {
             return 0;
@@ -168,6 +185,7 @@ public abstract class PlayerWrapper1<T extends AbstractMediaPlayer> extends Abst
         return _engine.getPlayPosition();
     }
 
+    @Override
     public void setPlayPosition(double position) {
         if (_engine == null) {
             return;
@@ -175,6 +193,7 @@ public abstract class PlayerWrapper1<T extends AbstractMediaPlayer> extends Abst
         _engine.setPlayPosition(position);
     }
 
+    @Override
     public void loadMedia(String mediaURL) throws LoadException {
         if (_engine == null) {
             return;
@@ -182,6 +201,7 @@ public abstract class PlayerWrapper1<T extends AbstractMediaPlayer> extends Abst
         _engine.loadMedia(mediaURL);
     }
 
+    @Override
     public void pauseMedia() {
         if (_engine == null) {
             return;
@@ -189,6 +209,7 @@ public abstract class PlayerWrapper1<T extends AbstractMediaPlayer> extends Abst
         _engine.pauseMedia();
     }
 
+    @Override
     public void playMedia() throws PlayException {
         if (_engine == null) {
             return;
@@ -196,6 +217,7 @@ public abstract class PlayerWrapper1<T extends AbstractMediaPlayer> extends Abst
         _engine.playMedia();
     }
 
+    @Override
     public void stopMedia() {
         if (_engine == null) {
             return;
@@ -203,6 +225,7 @@ public abstract class PlayerWrapper1<T extends AbstractMediaPlayer> extends Abst
         _engine.stopMedia();
     }
 
+    @Override
     public double getVolume() {
         if (_engine == null) {
             return 0;
@@ -210,6 +233,7 @@ public abstract class PlayerWrapper1<T extends AbstractMediaPlayer> extends Abst
         return _engine.getVolume();
     }
 
+    @Override
     public void setVolume(double volume) {
         if (_engine == null) {
             return;
@@ -316,6 +340,7 @@ public abstract class PlayerWrapper1<T extends AbstractMediaPlayer> extends Abst
         _engine.setResizeToVideoSize(resize);
     }
 
+    @Override
     public void addToPlaylist(String mediaURL) {
         if (_engine == null) {
             return;
@@ -325,6 +350,7 @@ public abstract class PlayerWrapper1<T extends AbstractMediaPlayer> extends Abst
         }
     }
 
+    @Override
     public boolean isShuffleEnabled() {
         if (_engine == null) {
             return false;
@@ -335,6 +361,7 @@ public abstract class PlayerWrapper1<T extends AbstractMediaPlayer> extends Abst
         return false;
     }
 
+    @Override
     public void removeFromPlaylist(int index) {
         if (_engine == null) {
             return;
@@ -344,6 +371,7 @@ public abstract class PlayerWrapper1<T extends AbstractMediaPlayer> extends Abst
         }
     }
 
+    @Override
     public void setShuffleEnabled(boolean enable) {
         if (_engine == null) {
             return;
@@ -353,6 +381,7 @@ public abstract class PlayerWrapper1<T extends AbstractMediaPlayer> extends Abst
         }
     }
 
+    @Override
     public void clearPlaylist() {
         if (_engine == null) {
             return;
@@ -362,6 +391,7 @@ public abstract class PlayerWrapper1<T extends AbstractMediaPlayer> extends Abst
         }
     }
 
+    @Override
     public int getPlaylistSize() {
         if (_engine == null) {
             return 0;
@@ -372,6 +402,7 @@ public abstract class PlayerWrapper1<T extends AbstractMediaPlayer> extends Abst
         return 1;
     }
 
+    @Override
     public void play(int index) throws IndexOutOfBoundsException {
         if (_engine == null) {
             return;
@@ -381,6 +412,7 @@ public abstract class PlayerWrapper1<T extends AbstractMediaPlayer> extends Abst
         }
     }
 
+    @Override
     public void playNext() throws PlayException {
         if (_engine == null) {
             return;
@@ -390,6 +422,7 @@ public abstract class PlayerWrapper1<T extends AbstractMediaPlayer> extends Abst
         }
     }
 
+    @Override
     public void playPrevious() throws PlayException {
         if (_engine == null) {
             return;
@@ -399,6 +432,7 @@ public abstract class PlayerWrapper1<T extends AbstractMediaPlayer> extends Abst
         }
     }
 
+    @Override
     public void setMatrix(TransformationMatrix matrix) {
         if (_engine == null) {
             return;
@@ -408,6 +442,7 @@ public abstract class PlayerWrapper1<T extends AbstractMediaPlayer> extends Abst
         }
     }
 
+    @Override
     public TransformationMatrix getMatrix() {
         if (_engine == null) {
             return null;
@@ -417,4 +452,16 @@ public abstract class PlayerWrapper1<T extends AbstractMediaPlayer> extends Abst
         }
         return null;
     }
+
+
+    //TODO : requires GWT 2.1 support
+
+//    @UiChild(limit=1, tagname="missingPluginNotice")
+    public void setMissingPluginNotice(Widget w){
+       missingPluginNotice = w;
     }
+//    @UiChild(limit=1, tagname="missingPluginVersionNotice")
+    public void setMissingPluginVersionNotice(Widget w){
+       missingPluginVersionNotice = w;
+    }
+}

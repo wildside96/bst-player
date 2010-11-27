@@ -67,9 +67,8 @@ public class DivXPlayer extends AbstractMediaPlayer implements PlaylistSupport {
     private LoopManager loopManager;
     private DisplayMode displayMode;
     private DelegatePlaylistManager playlistManager;
-    private boolean resizeToVideoSize, isEmbedded, playing, firePlayStated;
+    private boolean resizeToVideoSize, isEmbedded, playing;
     private double currentPosition;
-    private int _volume = 50;
 
     private DivXPlayer() throws PluginNotFoundException, PluginVersionException {
         PluginVersion req = Plugin.DivXPlayer.getVersion();
@@ -101,7 +100,8 @@ public class DivXPlayer extends AbstractMediaPlayer implements PlaylistSupport {
             public void playNextLoop() {
                 try {
                     playlistManager.playNext(true);
-                } catch (PlayException ex) {}
+                } catch (PlayException ex) {
+                }
             }
         });
         manager = new DivXStateManager(playerId, new DivXStateManager.StateCallback() {
@@ -110,23 +110,24 @@ public class DivXPlayer extends AbstractMediaPlayer implements PlaylistSupport {
             public void onStatusChanged(int statusId) {
                 switch (statusId) {
                     case 1: // OPEN_DONE - media info available
+                        fireDebug("Loading media @ '" + playlistManager.getCurrentItem() + "'");
                         fireDebug("Media Info available");
                         fireMediaInfoAvailable(manager.getFilledMediaInfo(impl.getMediaDuration(),
                                 impl.getVideoWidth(), impl.getVideoHeight()));
-                        firePlayStated = true;
                         break;
                     case 2: // VIDEO_END, notify loop manager...
                         fireDebug("Playback ended");
                         loopManager.notifyPlayFinished();
                         break;
+                    case 8: // FULLSCREEN_START
+                        firePlayerStateEvent(PlayerStateEvent.State.FullScreenStarted);
+                        break;
+                    case 9: // FULLSCREEN_END
+                        firePlayerStateEvent(PlayerStateEvent.State.FullScreenFinished);
+                        break;
                     case 10: // STATUS_PLAYING
-                        if (firePlayStated) {
-                            fireDebug("Playback started - '" + playlistManager.getCurrentItem() + "'");
-                            firePlayStateEvent(PlayStateEvent.State.Started, playlistManager.getPlaylistIndex());
-                        } else {
-                            fireDebug("Playback resumed");
-                        }
-                        firePlayStated = false;
+                        fireDebug("Playback started");
+                        firePlayStateEvent(PlayStateEvent.State.Started, playlistManager.getPlaylistIndex());
                         break;
                     case 11: // STATUS_PAUSED
                         fireDebug("Playback paused");
@@ -162,15 +163,13 @@ public class DivXPlayer extends AbstractMediaPlayer implements PlaylistSupport {
                     case 5: // EMBEDDED_END
                     case 6: // WINDOWED_START
                     case 7: // WINDOWED_END
-                    case 8: // FULLSCREEN_START
-                    case 9: // FULLSCREEN_END
                     case 12: // STATUS_FF
                     case 13: // STATUS_RW
-                        break;
+//                        break;
                     case 0: // INIT_DONE
                     case 3: // SHUT_DONE
                     default:
-                        fireDebug("DEV: Status Changed : " + statusId);
+//                        fireDebug("DEV: Status Changed : " + statusId);
                 }
             }
 
@@ -224,7 +223,7 @@ public class DivXPlayer extends AbstractMediaPlayer implements PlaylistSupport {
             _width = "0px";
         }
 
-        playerWidget = new PlayerWidget(Plugin.DivXPlayer, playerId, mediaURL,
+        playerWidget = new PlayerWidget(Plugin.DivXPlayer, playerId, "",
                 autoplay, new BeforeUnloadCallback() {
 
             @Override
@@ -234,16 +233,7 @@ public class DivXPlayer extends AbstractMediaPlayer implements PlaylistSupport {
         });
         playerWidget.addParam("statusCallback", "bstplayer.handlers.divx." + playerId + ".stateChanged");
         playerWidget.addParam("downloadCallback", "bstplayer.handlers.divx." + playerId + ".downloadState");
-//        playerWidget.addParam("timeCallback", "bstplayer.handlers.divx." + playerId + ".timeState");
-
-        // TODO: remove when divx implements volume getter ...
-        addToPlayerReadyCommandQueue("volume", new Command() {
-
-            @Override
-            public void execute() {
-                impl.setVolume(_volume);
-            }
-        });
+        playerWidget.addParam("timeCallback", "bstplayer.handlers.divx." + playerId + ".timeState");
 
         FlowPanel panel = new FlowPanel();
         panel.add(playerWidget);
@@ -264,13 +254,13 @@ public class DivXPlayer extends AbstractMediaPlayer implements PlaylistSupport {
 
                 @Override
                 public void onMediaInfoAvailable(MediaInfoEvent event) {
-                    logger.log(event.getMediaInfo().asHTMLString(), true);
                     MediaInfo info = event.getMediaInfo();
                     if (info.getAvailableItems().contains(MediaInfoKey.VideoHeight)
                             || info.getAvailableItems().contains(MediaInfoKey.VideoWidth)) {
                         checkVideoSize(Integer.parseInt(info.getItem(MediaInfoKey.VideoHeight)),
                                 Integer.parseInt(info.getItem(MediaInfoKey.VideoWidth)));
                     }
+                    logger.log(info.asHTMLString(), true);
                 }
             });
         }
@@ -334,7 +324,6 @@ public class DivXPlayer extends AbstractMediaPlayer implements PlaylistSupport {
         }
 
         playerWidget.setSize("100%", _h);
-//        impl.setSize(playerWidget.getOffsetWidth(), playerWidget.getOffsetHeight());
         setSize(_w, _h);
 
         if (!_height.equals(_h) && !_width.equals(_w)) {
@@ -352,6 +341,7 @@ public class DivXPlayer extends AbstractMediaPlayer implements PlaylistSupport {
         impl = DivXPlayerImpl.getPlayer(playerId);
         fireDebug("Plugin Version : " + impl.getPluginVersion());
         setWidth(_width);
+        playlistManager.load(0);
         firePlayerStateEvent(PlayerStateEvent.State.Ready);
     }
 
@@ -395,8 +385,7 @@ public class DivXPlayer extends AbstractMediaPlayer implements PlaylistSupport {
     public void setPlayPosition(double position) {
         checkAvailable();
         impl.seek(SeekMethod.DOWN.name(), Math.round(position / impl.getMediaDuration() * 100));
-        if (playing) {  // seek mthd pauses playback, so start playback if playing b4 but suppress event ...
-            firePlayStated = false;
+        if (playing) {  // seek mthd pauses playback, so start playback if playing b4 ...
             impl.playMedia();
         }
     }
@@ -404,18 +393,14 @@ public class DivXPlayer extends AbstractMediaPlayer implements PlaylistSupport {
     @Override
     public double getVolume() {
         checkAvailable();
-
-        //TODO: update when divx implements getVolume ...
-        // return impl.getVolume() / 100;
-        return _volume / 100.0;
+        return impl.getVolume();
     }
 
     @Override
     public void setVolume(double volume) {
         checkAvailable();
-        _volume = (int) (volume * 100);
-        impl.setVolume(_volume);
-        fireDebug("Volume set to " + _volume + "%");
+        impl.setVolume(volume);
+        fireDebug("Volume set to " + (impl.getVolume() * 100) + "%");
     }
 
     @Override
