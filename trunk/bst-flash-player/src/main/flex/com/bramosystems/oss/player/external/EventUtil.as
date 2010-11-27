@@ -51,6 +51,10 @@ package com.bramosystems.oss.player.external {
             ExternalInterface.call("bstplayer.handlers.swf." + playerId + ".onLoadingProgress", progress);
         }
 
+        public static function fireFullScreenChanged(fullscreen:Boolean):void {
+            ExternalInterface.call("bstplayer.handlers.swf." + playerId + ".onFullscreen", fullscreen);
+        }
+
         public static function firePlayingProgress(progress:Number):void {
             controller.onPlayingProgress(progress);
             ExternalInterface.call("bstplayer.handlers.swf." + playerId + ".onPlayingProgress", progress);
@@ -87,27 +91,27 @@ package com.bramosystems.oss.player.external {
         public static function fireMouseDownEvent(event:MouseEvent):void {
             ExternalInterface.call("bstplayer.handlers.swf." + playerId + ".onEvent", 1, event.buttonDown,
                 event.altKey, event.ctrlKey, event.shiftKey, false, //event.commandKey,
-                event.stageX, event.stageY);
+                int(event.stageX), int(event.stageY));
         }
         public static function fireMouseUpEvent(event:MouseEvent):void {
             ExternalInterface.call("bstplayer.handlers.swf." + playerId + ".onEvent", 2, event.buttonDown,
                 event.altKey, event.ctrlKey, event.shiftKey, false, //event.commandKey,
-                event.stageX, event.stageY);
+                int(event.stageX), int(event.stageY));
         }
         public static function fireMouseMoveEvent(event:MouseEvent):void {
             ExternalInterface.call("bstplayer.handlers.swf." + playerId + ".onEvent", 3, event.buttonDown,
                 event.altKey, event.ctrlKey, event.shiftKey, false, //event.commandKey,
-                event.stageX, event.stageY);
+                int(event.stageX), int(event.stageY));
         }
         public static function fireClickEvent(event:MouseEvent):void {
             ExternalInterface.call("bstplayer.handlers.swf." + playerId + ".onEvent", 10, event.buttonDown,
                 event.altKey, event.ctrlKey, event.shiftKey, false, //event.commandKey,
-                event.stageX, event.stageY);
+                int(event.stageX), int(event.stageY));
         }
         public static function fireDoubleClickEvent(event:MouseEvent):void {
             ExternalInterface.call("bstplayer.handlers.swf." + playerId + ".onEvent", 11, event.buttonDown,
                 event.altKey, event.ctrlKey, event.shiftKey, false, //event.commandKey,
-                event.stageX, event.stageY);
+                int(event.stageX), int(event.stageY));
         }
         public static function fireKeyDownEvent(event:KeyboardEvent):void {
             Log.info("Firing KeyDown Event : " + event.charCode);

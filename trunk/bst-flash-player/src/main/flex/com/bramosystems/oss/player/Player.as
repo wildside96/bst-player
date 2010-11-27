@@ -308,6 +308,7 @@ package com.bramosystems.oss.player {
             } else {
                 visible = _visible;
             }
-        }
+            EventUtil.fireFullScreenChanged(event.fullScreen);
+       }
     }
 }
