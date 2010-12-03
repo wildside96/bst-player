@@ -58,8 +58,6 @@
                         addChild(player);
                         addChild(controller);
 
-                        player.visible = height > 30;
-
                         /********************** ADD EVENT LISTENERS ************************/
                         addEventListener(MouseEvent.MOUSE_DOWN, EventUtil.fireMouseDownEvent);
                         addEventListener(MouseEvent.MOUSE_UP, EventUtil.fireMouseUpEvent);
