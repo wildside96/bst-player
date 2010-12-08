@@ -123,7 +123,6 @@
                         playlist.add(PlayerOptions.mediaURL);
                         EventUtil.fireApplicationInitialized();
 
-                        player.updateVDUSize();
                         player.loadNext();
                         if (PlayerOptions.autoplay) {
                             player.play();
