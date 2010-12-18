@@ -38,28 +38,28 @@
 
         <plugins>
             <plugin>
-                <groupId>net.israfil.mojo</groupId>
-                <artifactId>maven-flex2-plugin</artifactId>
+                <artifactId>maven-dependency-plugin</artifactId>
                 <executions>
                     <execution>
-                        <id>copy-flex</id>
+                        <id>copy-flash-player</id>
                         <phase>process-resources</phase>
                         <goals>
-                            <goal>copy-flex-applications</goal>
+                            <goal>copy</goal>
                         </goals>
                         <configuration>
-                            <modules>
-                                <swfModule>
+                            <artifactItems>
+                                <artifactItem>
                                     <groupId>${project.groupId}</groupId>
                                     <artifactId>bst-flash-player</artifactId>
-                                    <targetPath>${flex.apps.dir}</targetPath>
-                                </swfModule>
-                            </modules>
+                                    <version>${project.version}</version>
+                                    <type>swf</type>
+                                </artifactItem>
+                            </artifactItems>
+                            <outputDirectory>${flex.apps.dir}</outputDirectory>
                         </configuration>
                     </execution>
                 </executions>
             </plugin>
-
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>gwt-maven-plugin</artifactId>
@@ -84,13 +84,6 @@
     </build>
 
     <dependencies>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <version>${project.version}</version>
-            <artifactId>bst-flash-player</artifactId>
-            <scope>provided</scope>
-            <type>swf</type>
-        </dependency>
         <dependency>
             <groupId>com.google.gwt</groupId>
             <artifactId>gwt-user</artifactId>
