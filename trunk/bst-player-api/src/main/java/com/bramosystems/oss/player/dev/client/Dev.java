@@ -15,7 +15,7 @@
  */
 package com.bramosystems.oss.player.dev.client;
 
-import com.bramosystems.oss.player.capsule.client.Capsule;
+//import com.bramosystems.oss.player.capsule.client.Capsule;
 import com.bramosystems.oss.player.core.client.AbstractMediaPlayer;
 import com.bramosystems.oss.player.core.client.ConfigParameter;
 import com.bramosystems.oss.player.core.client.LoadException;
@@ -28,7 +28,7 @@ import com.bramosystems.oss.player.core.client.ui.*;
 import com.bramosystems.oss.player.core.event.client.PlayStateEvent;
 import com.bramosystems.oss.player.core.event.client.PlayStateEvent.State;
 import com.bramosystems.oss.player.core.event.client.PlayStateHandler;
-import com.bramosystems.oss.player.flat.client.FlatVideoPlayer;
+//import com.bramosystems.oss.player.flat.client.FlatVideoPlayer;
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -75,8 +75,8 @@ public class Dev extends VerticalPanel implements EntryPoint {
         RootPanel.get().add(this);
 //        addPlayer(Plugin.WinMediaPlayer);
 //        addPlayer(Plugin.DivXPlayer);
-//        addPlayer(Plugin.FlashPlayer);
-        addPlayer(Plugin.QuickTimePlayer);
+        addPlayer(Plugin.FlashPlayer);
+//        addPlayer(Plugin.QuickTimePlayer);
 //        addPlayer(Plugin.Native);
 //        addPlayer(Plugin.VLCPlayer);
 
@@ -103,8 +103,8 @@ public class Dev extends VerticalPanel implements EntryPoint {
         try {
             switch (plugin) {
                 case DivXPlayer:
-                    mmp = new FlatVideoPlayer(Plugin.DivXPlayer,
-                            //                    mmp = new DivXPlayer(
+//                    mmp = new FlatVideoPlayer(Plugin.DivXPlayer,
+                                               mmp = new DivXPlayer(
                             GWT.getModuleBaseURL() + "big-buck-bunny.mp4",
                             false, "350px", "100%");
 //                    divx.setBannerEnabled(false);
@@ -123,8 +123,8 @@ public class Dev extends VerticalPanel implements EntryPoint {
 //                    ((PlaylistSupport) mmp).addToPlaylist(getURL("/local-video/01_Al_Fatihah.m4a"));
                     break;
                 case VLCPlayer:
-                    mmp = new Capsule(Plugin.FlashPlayer, getURL("/local-video/fireflies.flv"), false);
-//                    mmp = new VLCPlayer(getURL("/local-video/divx7_postinstall.divx"), true, "250px", "100%");
+//                    mmp = new Capsule(Plugin.FlashPlayer, getURL("/local-video/fireflies.flv"), false);
+                    mmp = new VLCPlayer(getURL("/local-video/divx7_postinstall.divx"), true, "250px", "100%");
 //                    mmp.setVolume(0.2);
 //                    ((PlaylistSupport) mmp).addToPlaylist(getURL("/local-video/fireflies.flv"));
 //                    mmp = new VLCPlayer(getURL("/local-video/big-buck-bunny.mp4"), true, "250px", "100%");
