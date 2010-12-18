@@ -35,7 +35,7 @@ public class QuickTimePlayerImpl extends JavaScriptObject {
     return $doc.getElementById(playerId);
     }-*/;
 
-    public final native String getPluginVersionImpl() /*-{
+    public final native String getPluginVersion() /*-{
     return this.GetPluginVersion();
     }-*/;
 

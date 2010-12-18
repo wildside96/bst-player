@@ -163,7 +163,7 @@ public class NativePlayer extends AbstractMediaPlayer implements PlaylistSupport
                         }
                         break;
                     case 10: // loading started
-                        fireDebug("Loading '" + playlistManager.getCurrentItem() + "'");
+                        fireDebug("Loading '" + impl.getMediaURL() + "'");
                         fireLoadingProgress(0);
                         break;
                     case 11: // loading finished
@@ -182,7 +182,7 @@ public class NativePlayer extends AbstractMediaPlayer implements PlaylistSupport
                                 fireError("ERROR: Network error");
                                 break;
                             case UnsupportedMedia:
-                                fireError("ERROR: Media not supported! '"
+                                fireError("ERROR: Media could not be loaded or format not supported! '"
                                         + playlistManager.getCurrentItem() + "'");
                                 fireDebug("Trying alternative playlist item ...");
                                 try {

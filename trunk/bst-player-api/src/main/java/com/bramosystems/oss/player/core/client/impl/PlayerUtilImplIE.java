@@ -16,6 +16,7 @@
 package com.bramosystems.oss.player.core.client.impl;
 
 import com.bramosystems.oss.player.core.client.PlayerUtil;
+import com.bramosystems.oss.player.core.client.Plugin;
 import com.bramosystems.oss.player.core.client.PluginVersion;
 
 /**
@@ -27,8 +28,7 @@ import com.bramosystems.oss.player.core.client.PluginVersion;
  */
 public class PlayerUtilImplIE extends PlayerUtilImpl {
 
-    @Override
-    public native void getFlashPluginVersion(PluginVersion version) /*-{
+    private native void getFlashPluginVersion(PluginVersion version) /*-{
     try {
     verRegex = new RegExp("\\d+,\\d+,\\d+,\\d+", "");   // "WIN A,B,CCC,DD
     ax = new ActiveXObject("ShockwaveFlash.ShockwaveFlash");
@@ -41,8 +41,7 @@ public class PlayerUtilImplIE extends PlayerUtilImpl {
     } catch (e) {}
     }-*/;
 
-    @Override
-    public native void getQuickTimePluginVersion(PluginVersion version) /*-{
+    private native void getQuickTimePluginVersion(PluginVersion version) /*-{
     try {
     ax = new ActiveXObject('QuickTimeCheckObject.QuickTimeCheck');
     ver = ax.QuickTimeVersion.toString(16);
@@ -57,8 +56,7 @@ public class PlayerUtilImplIE extends PlayerUtilImpl {
      * Native implementation of Windows Media Player plugin detection
      * @param version wraps the detected version numbers.
      */
-    @Override
-    public native void getWindowsMediaPlayerVersion(PluginVersion version) /*-{
+    private native void getWindowsMediaPlayerVersion(PluginVersion version) /*-{
     try {
     ax = new ActiveXObject('WMPlayer.ocx');
     ver = ax.versionInfo;
@@ -70,8 +68,7 @@ public class PlayerUtilImplIE extends PlayerUtilImpl {
     } catch (e) {}
     }-*/;
 
-    @Override
-    public native void getVLCPluginVersion(PluginVersion version) /*-{
+    private native void getVLCPluginVersion(PluginVersion version) /*-{
     try {
     descRegex = new RegExp("\\d+.\\d+.\\d+", "");
     ax = new ActiveXObject('VideoLAN.VLCPlugin');
@@ -84,8 +81,7 @@ public class PlayerUtilImplIE extends PlayerUtilImpl {
     } catch (e) {}
     }-*/;
 
-    @Override
-    public native void getDivXPluginVersion(PluginVersion version) /*-{
+    private native void getDivXPluginVersion(PluginVersion version) /*-{
     try {
     descRegex = new RegExp("\\d+.\\d+.\\d+", "");
     ax = new ActiveXObject('npdivx.DivXBrowserPlugin');
@@ -97,4 +93,26 @@ public class PlayerUtilImplIE extends PlayerUtilImpl {
     ax.Quit();
     } catch (e) {}
     }-*/;
+
+    @Override
+    public PluginInfo getPluginInfo(Plugin plugin) {
+        PluginVersion pv = new PluginVersion();
+        switch (plugin) {
+            case DivXPlayer:
+                getDivXPluginVersion(pv);
+                break;
+            case FlashPlayer:
+                getFlashPluginVersion(pv);
+                break;
+            case QuickTimePlayer:
+                getQuickTimePluginVersion(pv);
+                break;
+            case VLCPlayer:
+                getVLCPluginVersion(pv);
+                break;
+            case WinMediaPlayer:
+                getWindowsMediaPlayerVersion(pv);
+        }
+        return new PluginInfo(pv, PluginInfo.PlayerPluginWrapperType.Native);
+    }
 }

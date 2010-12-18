@@ -239,7 +239,8 @@ public class FlashMediaPlayer extends AbstractMediaPlayer implements PlaylistSup
         }
 
         // inject bst-flash-player version via maven resources filter...
-        String playerAppFile = "bst-flash-player-${version}.swf";
+        String playerAppFile = "bst-flash-player-1.2.1-SNAPSHOT.swf";
+//        String playerAppFile = "bst-flash-player-${version}.swf";
 
         swf = new PlayerWidget(Plugin.FlashPlayer, playerId, GWT.getModuleBaseURL() + playerAppFile,
                 autoplay, new BeforeUnloadCallback() {

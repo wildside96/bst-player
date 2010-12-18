@@ -16,6 +16,7 @@
 package com.bramosystems.oss.player.core.client;
 
 import com.bramosystems.oss.player.core.client.impl.PlayerUtilImpl;
+import com.bramosystems.oss.player.core.client.impl.PluginInfo;
 import com.bramosystems.oss.player.core.client.ui.DivXPlayer;
 import com.bramosystems.oss.player.core.client.ui.FlashMediaPlayer;
 import com.bramosystems.oss.player.core.client.ui.NativePlayer;
@@ -195,9 +196,12 @@ public class PlayerUtil {
 
         if (_plugins != null) {
             for (int i = 0; i < _plugins.length; i++) {
-                if (impl.canHandleMedia(_plugins[i], protocol, ext)) {
-                    pg = _plugins[i];
-                    break;
+                try {
+                    if (impl.canHandleMedia(_plugins[i], protocol, ext)) {
+                        pg = _plugins[i];
+                        break;
+                    }
+                } catch (PluginNotFoundException ex) {
                 }
             }
             return pg;
@@ -221,7 +225,11 @@ public class PlayerUtil {
     public static boolean canHandleMedia(Plugin plugin, String mediaURL) {
         String protocol = extractProtocol(mediaURL);
         String ext = extractExt(mediaURL);
-        return impl.canHandleMedia(plugin, protocol, ext);
+        try {
+            return impl.canHandleMedia(plugin, protocol, ext);
+        } catch (PluginNotFoundException ex) {
+            return false;
+        }
     }
 
     /**
@@ -306,8 +314,7 @@ public class PlayerUtil {
      * (especially if none is installed or the plugin is disabled).
      */
     public static PluginVersion getFlashPlayerVersion() throws PluginNotFoundException {
-        PluginVersion v = new PluginVersion();
-        impl.getFlashPluginVersion(v);
+        PluginVersion v = impl.getPluginInfo(Plugin.FlashPlayer).getVersion();
         if (v.equals(new PluginVersion())) {
             throw new PluginNotFoundException(Plugin.FlashPlayer);
         }
@@ -325,8 +332,7 @@ public class PlayerUtil {
      * (especially if none is installed or the plugin is disabled).
      */
     public static PluginVersion getQuickTimePluginVersion() throws PluginNotFoundException {
-        PluginVersion v = new PluginVersion();
-        impl.getQuickTimePluginVersion(v);
+        PluginVersion v = impl.getPluginInfo(Plugin.QuickTimePlayer).getVersion();
         if (v.equals(new PluginVersion())) {
             throw new PluginNotFoundException(Plugin.QuickTimePlayer);
         }
@@ -344,8 +350,7 @@ public class PlayerUtil {
      * (especially if none is installed or the plugin is disabled).
      */
     public static PluginVersion getWindowsMediaPlayerPluginVersion() throws PluginNotFoundException {
-        PluginVersion v = new PluginVersion();
-        impl.getWindowsMediaPlayerVersion(v);
+        PluginVersion v = impl.getPluginInfo(Plugin.WinMediaPlayer).getVersion();
         if (v.equals(new PluginVersion())) {
             throw new PluginNotFoundException(Plugin.WinMediaPlayer);
         }
@@ -365,8 +370,7 @@ public class PlayerUtil {
      * @since 1.0
      */
     public static PluginVersion getVLCPlayerPluginVersion() throws PluginNotFoundException {
-        PluginVersion v = new PluginVersion();
-        impl.getVLCPluginVersion(v);
+        PluginVersion v = impl.getPluginInfo(Plugin.VLCPlayer).getVersion();
         if (v.equals(new PluginVersion())) {
             throw new PluginNotFoundException(Plugin.VLCPlayer);
         }
@@ -386,8 +390,7 @@ public class PlayerUtil {
      * @since 1.2
      */
     public static PluginVersion getDivXPlayerPluginVersion() throws PluginNotFoundException {
-        PluginVersion v = new PluginVersion();
-        impl.getDivXPluginVersion(v);
+        PluginVersion v = impl.getPluginInfo(Plugin.DivXPlayer).getVersion();
         if (v.equals(new PluginVersion())) {
             throw new PluginNotFoundException(Plugin.DivXPlayer);
         }
@@ -578,4 +581,9 @@ public class PlayerUtil {
     public static boolean isHTML5CompliantClient() {
         return impl.isHTML5CompliantClient();
     }
+
+    public static PluginInfo getPlayerPluginInfo(Plugin plugin) throws PluginNotFoundException {
+        return impl.getPluginInfo(plugin);
+    }
+
 }

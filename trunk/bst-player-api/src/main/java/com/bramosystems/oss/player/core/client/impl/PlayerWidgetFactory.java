@@ -15,6 +15,9 @@
  */
 package com.bramosystems.oss.player.core.client.impl;
 
+import com.bramosystems.oss.player.core.client.PlayerUtil;
+import com.bramosystems.oss.player.core.client.Plugin;
+import com.bramosystems.oss.player.core.client.PluginNotFoundException;
 import com.bramosystems.oss.player.util.client.MimeType;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.Document;
@@ -105,7 +108,7 @@ public class PlayerWidgetFactory {
         XEmbed xo = new XEmbed(playerId);
         xo.addParam("type", "video/quicktime");
         xo.addParam("autoplay", Boolean.toString(autoplay));
-        xo.addParam("src", mediaURL);
+//        xo.addParam("src", mediaURL);
 
         Iterator<String> keys = params.keySet().iterator();
         while (keys.hasNext()) {
@@ -155,7 +158,7 @@ public class PlayerWidgetFactory {
         XEmbed xo = new XEmbed(playerId);
         xo.addParam("type", "video/divx");
         xo.addParam("autoPlay", Boolean.toString(autoplay));
-        xo.addParam("src", mediaURL);
+//        xo.addParam("src", mediaURL);
 
         Iterator<String> keys = params.keySet().iterator();
         while (keys.hasNext()) {
@@ -166,6 +169,11 @@ public class PlayerWidgetFactory {
     }
 
     public boolean isWMPProgrammableEmbedModeSupported() {
-        return hasWMPFFPlugin();
+        try {
+            PluginInfo.PlayerPluginWrapperType w = PlayerUtil.getPlayerPluginInfo(Plugin.WinMediaPlayer).getWrapperType();
+            return w.equals(PluginInfo.PlayerPluginWrapperType.WMPForFirefox) || w.equals(PluginInfo.PlayerPluginWrapperType.Totem);
+        } catch (PluginNotFoundException ex) {
+            return false;
+        }
     }
 }

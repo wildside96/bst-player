@@ -63,7 +63,7 @@ public class PlayerWidgetFactoryIE extends PlayerWidgetFactory {
         XObjectIE xo = new XObjectIE(playerId, "clsid:02BF25D5-8C17-4B23-BC80-D3488ABDDC6B");
         xo.getElement().getStyle().setProperty("BEHAVIOR" , "url(#" + QTStateManagerIE.behaviourObjId + ")");
         xo.addParam("AutoPlay", Boolean.toString(autoplay));
-        xo.addParam("Src", mediaURL);
+//        xo.addParam("Src", mediaURL);
         
         Iterator<String> keys = params.keySet().iterator();
         while (keys.hasNext()) {
@@ -91,7 +91,7 @@ public class PlayerWidgetFactoryIE extends PlayerWidgetFactory {
             HashMap<String, String> params) {
         XObjectIE xo = new XObjectIE(playerId, "clsid:67DABFBF-D0AB-41fa-9C46-CC0F21721616");
         xo.addParam("autoPlay", Boolean.toString(autoplay));
-        xo.addParam("src", mediaURL);
+//        xo.addParam("src", mediaURL);
 
         Iterator<String> keys = params.keySet().iterator();
         while (keys.hasNext()) {
