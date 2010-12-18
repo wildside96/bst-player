@@ -34,6 +34,7 @@ import com.bramosystems.oss.player.core.client.impl.DelegatePlaylistManager;
 import com.bramosystems.oss.player.core.client.impl.LoopManager;
 import com.bramosystems.oss.player.core.client.impl.PlayerWidget;
 import com.bramosystems.oss.player.core.client.impl.PlayerWidgetFactory;
+import com.bramosystems.oss.player.core.client.impl.PluginInfo;
 import com.bramosystems.oss.player.core.client.impl.WMPStateManager;
 import com.bramosystems.oss.player.core.client.impl.WinMediaPlayerImpl;
 import com.bramosystems.oss.player.core.event.client.DebugEvent;
@@ -96,7 +97,7 @@ public class WinMediaPlayer extends AbstractMediaPlayer implements PlaylistSuppo
     private PlayerWidget playerWidget;
     private String playerId, _width, _height;
     private Logger logger;
-    private boolean isEmbedded, resizeToVideoSize;
+    private boolean isEmbedded, resizeToVideoSize, isTotem;
     private UIMode uiMode;
     private WMPPlaylistManager playlistManager;
     private LoopManager loopManager;
@@ -109,10 +110,11 @@ public class WinMediaPlayer extends AbstractMediaPlayer implements PlaylistSuppo
         }
 
         PluginVersion req = Plugin.WinMediaPlayer.getVersion();
-        PluginVersion v = PlayerUtil.getWindowsMediaPlayerPluginVersion();
-        if (v.compareTo(req) < 0) {
-            throw new PluginVersionException(Plugin.WinMediaPlayer, req.toString(), v.toString());
+        PluginInfo pi = PlayerUtil.getPlayerPluginInfo(Plugin.WinMediaPlayer);
+        if (pi.getVersion().compareTo(req) < 0) {
+            throw new PluginVersionException(Plugin.WinMediaPlayer, req.toString(), pi.getVersion().toString());
         }
+        isTotem = pi.getWrapperType().equals(PluginInfo.PlayerPluginWrapperType.Totem);
 
         playerId = DOM.createUniqueId().replace("-", "");
         if (stateManager == null) {
@@ -336,7 +338,7 @@ public class WinMediaPlayer extends AbstractMediaPlayer implements PlaylistSuppo
      */
     @Override
     protected final void onLoad() {
-        fireDebug("Windows Media Player plugin");
+        fireDebug("Windows Media Player plugin" + (isTotem ? " - Totem Compatible" : ""));
         setupPlayer(false);
         fireDebug("Plugin Version : " + impl.getPlayerVersion());
         firePlayerStateEvent(PlayerStateEvent.State.Ready);

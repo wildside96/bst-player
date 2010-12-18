@@ -111,7 +111,7 @@ public class QuickTimePlayer extends AbstractMediaPlayer implements MatrixSuppor
                 try {
                     playlistManager.playNext(true);
                 } catch (PlayException ex) {}
-            }
+                }
 
             @Override
             public void playNextItem() throws PlayException {
@@ -205,7 +205,6 @@ public class QuickTimePlayer extends AbstractMediaPlayer implements MatrixSuppor
 
         playerWidget = new PlayerWidget(Plugin.QuickTimePlayer, playerId, "", autoplay, null);
         playerWidget.addParam("BGCOLOR", "#000000");
-        playerWidget.addParam("SHOWLOGO", "False");
         playerWidget.addParam("ENABLEJAVASCRIPT", "True");
         playerWidget.addParam("KIOSKMODE", "True");
         playerWidget.addParam("PostDomEvents", "True");
@@ -220,14 +219,14 @@ public class QuickTimePlayer extends AbstractMediaPlayer implements MatrixSuppor
             logger.setVisible(false);
             panel.add(logger);
 
-            addDebugHandler(new DebugHandler() {
+            addDebugHandler(new DebugHandler()  {
 
                 @Override
                 public void onDebug(DebugEvent event) {
                     logger.log(event.getMessage(), false);
                 }
             });
-            addMediaInfoHandler(new MediaInfoHandler() {
+            addMediaInfoHandler(new MediaInfoHandler()  {
 
                 @Override
                 public void onMediaInfoAvailable(MediaInfoEvent event) {
@@ -294,18 +293,21 @@ public class QuickTimePlayer extends AbstractMediaPlayer implements MatrixSuppor
         playerWidget.setSize("100%", _height);
         setWidth(_width);
 
-        Timer tt = new Timer() {
+        Timer tt = new Timer()  {
 
             @Override
             public void run() {
                 impl = QuickTimePlayerImpl.getPlayer(playerId);
-                if (impl != null) {
-                    cancel();
-                    fireDebug("Plugin Version : " + impl.getPluginVersionImpl());
-                    manager.registerMediaStateListener(impl, handler, "");
-                    firePlayerStateEvent(PlayerStateEvent.State.Ready);
-                    playlistManager.load(0);
-                }
+                try {
+                    String v = impl.getPluginVersion();
+                    if (v != null) {
+                        cancel();
+                        fireDebug("Plugin Version : " + v);
+                        manager.registerMediaStateListener(impl, handler, "");
+                        firePlayerStateEvent(PlayerStateEvent.State.Ready);
+                        playlistManager.load(0);
+                    }
+                } catch (Exception e) {}
             }
         };
         tt.scheduleRepeating(200);  // IE workarround ...
@@ -391,7 +393,7 @@ public class QuickTimePlayer extends AbstractMediaPlayer implements MatrixSuppor
         if (isPlayerOnPage(playerId)) {
             impl.setControllerVisible(show);
         } else {
-            addToPlayerReadyCommandQueue("controller", new Command() {
+            addToPlayerReadyCommandQueue("controller", new Command()  {
 
                 @Override
                 public void execute() {
@@ -427,7 +429,7 @@ public class QuickTimePlayer extends AbstractMediaPlayer implements MatrixSuppor
         if (isPlayerOnPage(playerId)) {
             loopManager.setLoopCount(loop);
         } else {
-            addToPlayerReadyCommandQueue("loopcount", new Command() {
+            addToPlayerReadyCommandQueue("loopcount", new Command()  {
 
                 @Override
                 public void execute() {
@@ -435,57 +437,6 @@ public class QuickTimePlayer extends AbstractMediaPlayer implements MatrixSuppor
                 }
             });
         }
-    }
-
-    /**
-     * Sets the transformation matrix of the underlying QuickTime Player.
-     *
-     * <p>If this player is not attached to a panel, this method call is added to
-     * the command-queue for later execution.
-     *
-     * @param matrix the matrix
-     * @since 1.0
-     * @see TransformationMatrix
-     * @deprecated As of version 1.1. Use {@link #setMatrix(com.bramosystems.oss.player.core.client.geom.TransformationMatrix)}
-     * instead. Will be removed in a future version
-     */
-    public void setTransformationMatrix(final TransformationMatrix matrix) {
-        if (isPlayerOnPage(playerId)) {
-            impl.setMatrix(matrix.toQTMatrixString());
-            if (resizeToVideoSize) {
-                checkVideoSize(getVideoHeight() + 16, getVideoWidth());
-            }
-        } else {
-            addToPlayerReadyCommandQueue("matrix", new Command() {
-
-                @Override
-                public void execute() {
-                    setTransformationMatrix(matrix);
-                }
-            });
-        }
-    }
-
-    /**
-     * Returns the current matrix transformation
-     *
-     * @return the current matrix transformation
-     * @since 1.0
-     * @see TransformationMatrix
-     * @deprecated As of version 1.1. Use {@link #getMatrix()} instead. Will be removed in a future version
-     */
-    public TransformationMatrix getTransformationMatrix() {
-        checkAvailable();
-        String[] elements = impl.getMatrix().split(", ");
-
-        TransformationMatrix matrix = new TransformationMatrix();
-        matrix.setA(Double.parseDouble(elements[0].trim()));
-        matrix.setB(Double.parseDouble(elements[1].trim()));
-        matrix.setC(Double.parseDouble(elements[2].substring(3).trim()));
-        matrix.setD(Double.parseDouble(elements[3].trim()));
-        matrix.setTx(Double.parseDouble(elements[4].substring(3).trim()));
-        matrix.setTy(Double.parseDouble(elements[5].trim()));
-        return matrix;
     }
 
     /**
@@ -594,7 +545,7 @@ public class QuickTimePlayer extends AbstractMediaPlayer implements MatrixSuppor
                 checkVideoSize(getVideoHeight() + 16, getVideoWidth());
             }
         } else {
-            addToPlayerReadyCommandQueue("matrix", new Command() {
+            addToPlayerReadyCommandQueue("matrix", new Command()  {
 
                 @Override
                 public void execute() {
@@ -690,7 +641,7 @@ public class QuickTimePlayer extends AbstractMediaPlayer implements MatrixSuppor
         if (isPlayerOnPage(playerId)) {
             playlistManager.setShuffleEnabled(enable);
         } else {
-            addToPlayerReadyCommandQueue("shuffle", new Command() {
+            addToPlayerReadyCommandQueue("shuffle", new Command()  {
 
                 @Override
                 public void execute() {
@@ -775,187 +726,5 @@ public class QuickTimePlayer extends AbstractMediaPlayer implements MatrixSuppor
          * movie’s aspect ratio
          */
         Aspect;
-    }
-
-    /**
-     * Defines the transformation matrix of the QuickTime&trade; Player plugin.  The transformation
-     * matrix can be used to perform several standard graphical operations like translation,
-     * rotation and scaling.
-     *
-     * <p>The QuickTime&trade; player uses the 3 x 3 matrix shown below to accomplish 2-dimensional
-     * transformations:
-     *
-     * <div style="text-align:center"><pre>
-     *      --         --
-     *      | a   b   u |
-     *      | c   d   v |
-     *      | tx  ty  w |
-     *      --         --
-     * </pre></div>
-     * <p>However, elements <code>u</code> and <code>v</code> are always 0.0, while <code>w</code>
-     * is always 1.0.
-     *
-     * @since 1.0
-     * @see <a href='http://developer.apple.com/documentation/QuickTime/RM/MovieBasics/MTEditing/A-Intro/1Introduction.htm1'>QuickTime Movie Basics</a>
-     * @deprecated As of version 1.1, Replaced with {@link com.bramosystems.oss.player.core.client.geom.TransformationMatrix}
-     */
-    public static class TransformationMatrix {
-
-        private double a, b, c, d, tx, ty;
-
-        /**
-         * Constructs a new identity TransformationMatrix object. 
-         */
-        public TransformationMatrix() {
-            a = 1.0;
-            d = 1.0;
-        }
-
-        /**
-         * Constructs a new TransformationMatrix object.
-         *
-         * @param a matrix element a
-         * @param b matrix element b
-         * @param c matrix element c
-         * @param d matrix element d
-         * @param tx matrix element tx
-         * @param ty matrix element ty
-         */
-        public TransformationMatrix(double a, double b, double c, double d, double tx, double ty) {
-            this.a = a;
-            this.b = b;
-            this.c = c;
-            this.d = d;
-            this.tx = tx;
-            this.ty = ty;
-        }
-
-        /**
-         * Returns the matrix elements as a String
-         *
-         * @return the matrix in the form <code>a, b, u, c, d, v, tx, ty, w</code>
-         */
-        @Override
-        public String toString() {
-            return a + ", " + b + ", 0.0, " + c + ", " + d + ", 0.0, " + tx + ", " + ty + ", 1.0";
-        }
-
-        /**
-         * Returns the matrix elements as a string in the form understood by the
-         * QuickTime&trade; player plugin.
-         *
-         * @return the matrix in the form <code>a, b, 0.0c, d, 0.0tx, ty, 1.0</code>
-         */
-        public String toQTMatrixString() {
-            return a + ", " + b + ", 0.0" + c + ", " + d + ", 0.0" + tx + ", " + ty + ", 1.0";
-        }
-
-        /**
-         * Returns matrix element a
-         *
-         * @return the a
-         */
-        public double getA() {
-            return a;
-        }
-
-        /**
-         * Returns matrix element b
-         *
-         * @return the b
-         */
-        public double getB() {
-            return b;
-        }
-
-        /**
-         * Returns matrix element c
-         *
-         * @return the c
-         */
-        public double getC() {
-            return c;
-        }
-
-        /**
-         * Returns matrix element d
-         *
-         * @return the d
-         */
-        public double getD() {
-            return d;
-        }
-
-        /**
-         * Returns matrix element tx
-         *
-         * @return the tx
-         */
-        public double getTx() {
-            return tx;
-        }
-
-        /**
-         * Returns matrix element ty
-         *
-         * @return the ty
-         */
-        public double getTy() {
-            return ty;
-        }
-
-        /**
-         * Sets the matrix element a
-         *
-         * @param a the a to set
-         */
-        public void setA(double a) {
-            this.a = a;
-        }
-
-        /**
-         * Sets the matrix element b
-         *
-         * @param b the b to set
-         */
-        public void setB(double b) {
-            this.b = b;
-        }
-
-        /**
-         * Sets the matrix element c
-         *
-         * @param c the c to set
-         */
-        public void setC(double c) {
-            this.c = c;
-        }
-
-        /**
-         * Sets the matrix element d
-         *
-         * @param d the d to set
-         */
-        public void setD(double d) {
-            this.d = d;
-        }
-
-        /**
-         * Sets the matrix element tx
-         *
-         * @param tx the tx to set
-         */
-        public void setTx(double tx) {
-            this.tx = tx;
-        }
-
-        /**
-         * Sets the matrix element ty
-         *
-         * @param ty the ty to set
-         */
-        public void setTy(double ty) {
-            this.ty = ty;
-        }
     }
 }

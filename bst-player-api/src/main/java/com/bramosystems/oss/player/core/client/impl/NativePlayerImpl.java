@@ -210,7 +210,7 @@ public class NativePlayerImpl extends JavaScriptObject {
     this.addEventListener('pause', function(){  // play paused
     _callback.@com.bramosystems.oss.player.core.client.impl.NativePlayerUtil.NativeEventCallback::onStateChanged(I)(2);
     }, false);
-    this.addEventListener('ended', function(){  // play started
+    this.addEventListener('ended', function(){  // play finished
     _callback.@com.bramosystems.oss.player.core.client.impl.NativePlayerUtil.NativeEventCallback::onStateChanged(I)(3);
     }, false);
     this.addEventListener('waiting', function(){  // buffering

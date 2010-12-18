@@ -39,38 +39,14 @@ public class PlayerUtilImpl {
     public PlayerUtilImpl() {
     }
 
-    public boolean canHandleMedia(Plugin plugin, String protocol, String ext) {
-        PluginVersion pv = new PluginVersion();
+    public boolean canHandleMedia(Plugin plugin, String protocol, String ext) throws PluginNotFoundException {
+        PluginVersion pv = getPluginInfo(plugin).getVersion();
         Set<String> types = MimePool.instance.getRegisteredExtensions(plugin);
         Set<String> prots = MimePool.instance.getRegisteredProtocols(plugin);
 
         if (protocol == null) {
             protocol = "-";
         }
-
-        // check if plugin is available...
-        switch (plugin) {
-            case FlashPlayer:
-                getFlashPluginVersion(pv);
-                break;
-            case QuickTimePlayer:
-                getQuickTimePluginVersion(pv);
-                break;
-            case WinMediaPlayer:
-                getWindowsMediaPlayerVersion(pv);
-                break;
-            case VLCPlayer:
-                getVLCPluginVersion(pv);
-                break;
-            case DivXPlayer:
-                getDivXPluginVersion(pv);
-                break;
-            case Native:
-                if (isHTML5CompliantClient()) {
-                    pv = PluginVersion.get(0, 0, 1);
-                }
-        }
-
         if (pv.compareTo(plugin.getVersion()) >= 0) {   // req plugin found...
             // check for streaming protocol & extension ...
             return ((prots != null) && prots.contains(protocol.toLowerCase()))
@@ -79,125 +55,82 @@ public class PlayerUtilImpl {
         return false;
     }
 
-    /**
-     * Native implementation of Flash plugin detection
-     * @param version wraps the detected version numbers.
-     */
-    public void getFlashPluginVersion(PluginVersion version) {
-        MimeType mt = MimeType.getMimeType("application/x-shockwave-flash");  // get SWF mime type...
-        if (mt != null) {   // plugin present
-            try {
-                // plugin present
-                if (mt.getEnabledPlugin().getName().contains("Shockwave Flash")) {
-                    // the type is enabled for SWF
-                    String desc = mt.getEnabledPlugin().getDescription();
-                    RegExp.RegexResult res = RegExp.getRegExp("(\\d+).(\\d+)\\s*[r|d|b](\\d+)", "").exec(desc);
-                    version.setMajor(Integer.parseInt(res.getMatch(1)));
-                    version.setMinor(Integer.parseInt(res.getMatch(2)));
-                    version.setRevision(Integer.parseInt(res.getMatch(3)));
-                }
-            } catch (RegexException ex) {
-            } catch (PluginNotFoundException ex) {
-            }
-        }
-    }
+    public PluginInfo getPluginInfo(Plugin plugin) throws PluginNotFoundException {
+        PluginInfo pi = new PluginInfo();
 
-    /**
-     * QuickTime plugin detection
-     * @param version wraps the detected version numbers.
-     */
-    public void getQuickTimePluginVersion(PluginVersion version) {
-        MimeType mt = MimeType.getMimeType("video/quicktime");  // get quicktime mime type...
-        if (mt != null) {   // plugin present
-            try {
-                // plugin present
-                String name = mt.getEnabledPlugin().getName().toLowerCase();
-                if (name.contains("quicktime")) {    // the type is enabled for QuickTime (not VLC)...
-                    RegExp.RegexResult res = RegExp.getRegExp("(\\d+).(\\d+).(\\d+)", "").exec(name);
-                    version.setMajor(Integer.parseInt(res.getMatch(1)));
-                    version.setMinor(Integer.parseInt(res.getMatch(2)));
-                    version.setRevision(Integer.parseInt(res.getMatch(3)));
-                }
-            } catch (RegexException ex) {
-            } catch (PluginNotFoundException ex) {
-            }
-        }
-    }
-
-    /**
-     * Windows Media Player plugin detection. The method
-     * simply checks if Windows Media Player plugin is available.
-     *
-     * @param version wraps the detected version numbers.
-     */
-    public void getWindowsMediaPlayerVersion(PluginVersion version) {
-        // check for WMP firefox plugin mime type
-        boolean found = false;
-        MimeType mt = MimeType.getMimeType("application/x-ms-wmp");
-        if (mt != null) {   // firefox plugin present...
-            found = true;
-        } else {   // firefox plugin not found check for generic..
-            mt = MimeType.getMimeType("application/x-mplayer2");
-            if (mt != null) {
-                try {
-                    BrowserPlugin plug = mt.getEnabledPlugin(); // who's got the mime ? (WMP / VLC)
-                    if (plug.getName().contains("Windows Media Player")) {
+        if (plugin.equals(Plugin.Native) || plugin.equals(Plugin.WinMediaPlayer)) {
+            switch (plugin) {
+                case WinMediaPlayer:
+                    boolean found = false;
+                    MimeType mt = MimeType.getMimeType("application/x-ms-wmp");
+                    BrowserPlugin plug = mt.getEnabledPlugin();
+                    if (mt != null) {   // firefox plugin present...
                         found = true;
+                        pi.setWrapperType(PluginInfo.PlayerPluginWrapperType.WMPForFirefox);
+                    } else {   // firefox plugin not found check for generic..
+                        mt = MimeType.getMimeType("application/x-mplayer2");
+                        if (mt != null) {
+                            try {
+                                plug = mt.getEnabledPlugin(); // who's got the mime ? (WMP / VLC)
+                                if (plug.getName().contains("Windows Media Player")) {
+                                    found = true;
+                                }
+                            } catch (PluginNotFoundException ex) {
+                            }
+                        }
                     }
-                } catch (PluginNotFoundException ex) {
-                }
+
+                    if (found) {
+                        pi.setVersion(PluginVersion.get(1, 1, 1));
+                        if (plug.getFileName().toLowerCase().contains("totem")
+                                || plug.getDescription().toLowerCase().contains("totem")) {
+                            pi.setWrapperType(PluginInfo.PlayerPluginWrapperType.Totem);
+                        }
+                    }
+                    break;
+                case Native:
+                    if (isHTML5CompliantClient()) {
+                        pi.setVersion(PluginVersion.get(5, 0, 0));
+                    }
             }
+            return pi;
         }
 
-        if (found) {
-            version.setMajor(1);
-            version.setMinor(1);
-            version.setRevision(1);
+        PluginMimeTypes pt = PluginMimeTypes.none;
+        switch (plugin) {
+            case DivXPlayer:
+                pt = PluginMimeTypes.divx;
+                break;
+            case FlashPlayer:
+                pt = PluginMimeTypes.flash;
+                break;
+            case QuickTimePlayer:
+                pt = PluginMimeTypes.quicktime;
+                break;
+            case VLCPlayer:
+                pt = PluginMimeTypes.vlc;
+                break;
         }
-    }
 
-    /**
-     * VLC plugin detection
-     * @param version wraps the detected version numbers.
-     */
-    public void getVLCPluginVersion(PluginVersion version) {
-        // check for VLC plugin mime type
-        MimeType mt = MimeType.getMimeType("application/x-vlc-plugin");
+        MimeType mt = MimeType.getMimeType(pt.mime);
         if (mt != null) {   // plugin present...
             try {
                 String desc = mt.getEnabledPlugin().getDescription();
-                if (mt.getEnabledPlugin().getName().toLowerCase().contains("vlc")) {
-                    RegExp.RegexResult res = RegExp.getRegExp("(\\d+).(\\d+).(\\d+)", "").exec(desc);
-                    version.setMajor(Integer.parseInt(res.getMatch(1)));
-                    version.setMinor(Integer.parseInt(res.getMatch(2)));
-                    version.setRevision(Integer.parseInt(res.getMatch(3)));
+                String name = mt.getEnabledPlugin().getName();
+                if (name.toLowerCase().contains(pt.whois)) { // who has it?
+                    RegExp.RegexResult res = RegExp.getRegExp(pt.regex, "").exec(pt.versionInName ? name : desc);
+                    pi.getVersion().setMajor(Integer.parseInt(res.getMatch(1)));
+                    pi.getVersion().setMinor(Integer.parseInt(res.getMatch(2)));
+                    pi.getVersion().setRevision(Integer.parseInt(res.getMatch(3)));
+                    if (mt.getEnabledPlugin().getFileName().toLowerCase().contains("totem")
+                            || desc.toLowerCase().contains("totem")) {
+                        pi.setWrapperType(PluginInfo.PlayerPluginWrapperType.Totem);
+                    }
                 }
             } catch (RegexException ex) {
-            } catch (PluginNotFoundException ex) {
             }
         }
-    }
-
-    /**
-     * DivX plugin detection
-     * @param version wraps the detected version numbers.
-     */
-    public void getDivXPluginVersion(PluginVersion version) {
-        // check for DivX plugin mime type
-        MimeType mt = MimeType.getMimeType("video/divx");
-        if (mt != null) {   // plugin present...
-            try {
-                String desc = mt.getEnabledPlugin().getDescription();
-                if (mt.getEnabledPlugin().getName().toLowerCase().contains("divx")) { // who has it?
-                    RegExp.RegexResult res = RegExp.getRegExp("(\\d+).(\\d+).(\\d+)", "").exec(desc);
-                    version.setMajor(Integer.parseInt(res.getMatch(1)));
-                    version.setMinor(Integer.parseInt(res.getMatch(2)));
-                    version.setRevision(Integer.parseInt(res.getMatch(3)));
-                }
-            } catch (RegexException ex) {
-            } catch (PluginNotFoundException ex) {
-            }
-        }
+        return pi;
     }
 
     public native boolean isHTML5CompliantClient() /*-{
@@ -209,4 +142,22 @@ public class PlayerUtilImpl {
     return false;
     }
     }-*/;
+
+    private enum PluginMimeTypes {
+
+        none("", "", "", false),
+        divx("video/divx", "divx", "(\\d+).(\\d+).(\\d+)", false),
+        flash("application/x-shockwave-flash", "shockwave flash", "(\\d+).(\\d+)\\s*[r|d|b](\\d+)", false),
+        vlc("application/x-vlc-plugin", "vlc", "(\\d+).(\\d+).(\\d+)", false),
+        quicktime("video/quicktime", "quicktime", "(\\d+).(\\d+).(\\d+)", true);
+
+        private PluginMimeTypes(String mime, String whois, String regex, boolean versionInName) {
+            this.mime = mime;
+            this.whois = whois;
+            this.regex = regex;
+            this.versionInName = versionInName;
+        }
+        String mime, whois, regex;
+        boolean versionInName;
+    }
 }

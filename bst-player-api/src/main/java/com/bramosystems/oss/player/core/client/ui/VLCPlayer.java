@@ -70,7 +70,7 @@ public class VLCPlayer extends AbstractMediaPlayer implements PlaylistSupport {
     private CustomPlayerControl control;
     private LoopManager loopManager;
 
-    VLCPlayer() throws PluginNotFoundException, PluginVersionException {
+    private VLCPlayer() throws PluginNotFoundException, PluginVersionException {
         PluginVersion req = Plugin.VLCPlayer.getVersion();
         PluginVersion v = PlayerUtil.getVLCPlayerPluginVersion();
         if (v.compareTo(req) < 0) {
@@ -213,7 +213,7 @@ public class VLCPlayer extends AbstractMediaPlayer implements PlaylistSupport {
         FlowPanel panel = new FlowPanel();
         initWidget(panel);
 
-        playerWidget = new PlayerWidget(Plugin.VLCPlayer, playerId, mediaURL, autoplay,
+        playerWidget = new PlayerWidget(Plugin.VLCPlayer, playerId, "", autoplay,
                 new BeforeUnloadCallback() {
 
                     @Override

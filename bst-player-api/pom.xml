@@ -117,6 +117,7 @@
                             <soyc>false</soyc>
                             <runTarget>dev/index.html</runTarget>
                             <hostedWebapp>${project.build.directory}/${project.build.finalName}</hostedWebapp>
+                            <bindAddress>0.0.0.0</bindAddress>
                         </configuration>
                     </plugin>
                 </plugins>

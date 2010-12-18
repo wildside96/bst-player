@@ -1,5 +1,5 @@
 /*
- *  Copyright 2009 Sikirulai Braheem <sbraheem at bramosystems.com>.
+ *  Copyright 2010 Administrator.
  * 
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,10 +15,17 @@
  *  under the License.
  */
 
-/**
- * Provides user interface widgets to embed Windows Media Player&trade;, QuickTime&reg;
- * Player, VLC Media Player, Flash Player, DivX&reg; Web Player and HTML 5 video elements
- * in GWT applications.
- */
-package com.bramosystems.oss.player.core.client.ui;
+package com.bramosystems.oss.player.dev.client;
 
+/**
+ *
+ * @author Administrator
+ */
+public class TrackInfo {
+    public static enum Type {
+        Subtitles, Captions, Descriptions, Chapters, Metadata
+    }
+
+    private Type kind;
+    private String src, label, srcLanguage, srcCharSet;
+}

@@ -17,6 +17,7 @@ package com.bramosystems.oss.player.dev.client;
 
 import com.bramosystems.oss.player.capsule.client.Capsule;
 import com.bramosystems.oss.player.core.client.AbstractMediaPlayer;
+import com.bramosystems.oss.player.core.client.ConfigParameter;
 import com.bramosystems.oss.player.core.client.LoadException;
 import com.bramosystems.oss.player.core.client.PlayerUtil;
 import com.bramosystems.oss.player.core.client.PlaylistSupport;
@@ -24,26 +25,26 @@ import com.bramosystems.oss.player.core.client.Plugin;
 import com.bramosystems.oss.player.core.client.PluginNotFoundException;
 import com.bramosystems.oss.player.core.client.PluginVersionException;
 import com.bramosystems.oss.player.core.client.ui.*;
+import com.bramosystems.oss.player.core.event.client.PlayStateEvent;
+import com.bramosystems.oss.player.core.event.client.PlayStateEvent.State;
+import com.bramosystems.oss.player.core.event.client.PlayStateHandler;
 import com.bramosystems.oss.player.flat.client.FlatVideoPlayer;
-import com.bramosystems.oss.player.youtube.client.PlayerParameters;
-import com.bramosystems.oss.player.youtube.client.YouTubePlayer;
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.MouseMoveEvent;
 import com.google.gwt.event.dom.client.MouseMoveHandler;
-import com.google.gwt.uibinder.client.UiBinder;
-import com.google.gwt.uibinder.client.UiTemplate;
-import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.Window.Location;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import java.util.ArrayList;
+import java.util.logging.Level;
 
 /**
  *
@@ -75,14 +76,19 @@ public class Dev extends VerticalPanel implements EntryPoint {
 //        addPlayer(Plugin.WinMediaPlayer);
 //        addPlayer(Plugin.DivXPlayer);
 //        addPlayer(Plugin.FlashPlayer);
-//        addPlayer(Plugin.QuickTimePlayer);
+        addPlayer(Plugin.QuickTimePlayer);
 //        addPlayer(Plugin.Native);
 //        addPlayer(Plugin.VLCPlayer);
 
 //        add(new MimeStuffs());
 //        addUTube();
-
-//        add(pb.createAndBindUi(this)); TODO: requires GWT 2.1
+ //       issueScott();
+        try {
+            //        add(pb.createAndBindUi(this)); TODO: requires GWT 2.1
+            GWT.log("Message from util : " + PlayerUtil.getPlayerPluginInfo(Plugin.DivXPlayer));
+        } catch (PluginNotFoundException ex) {
+            java.util.logging.Logger.getLogger(Dev.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
     private void addPlayer(Plugin plugin) {
@@ -98,7 +104,7 @@ public class Dev extends VerticalPanel implements EntryPoint {
             switch (plugin) {
                 case DivXPlayer:
                     mmp = new FlatVideoPlayer(Plugin.DivXPlayer,
-//                    mmp = new DivXPlayer(
+                            //                    mmp = new DivXPlayer(
                             GWT.getModuleBaseURL() + "big-buck-bunny.mp4",
                             false, "350px", "100%");
 //                    divx.setBannerEnabled(false);
@@ -115,8 +121,6 @@ public class Dev extends VerticalPanel implements EntryPoint {
                 case QuickTimePlayer:
                     mmp = new QuickTimePlayer(GWT.getModuleBaseURL() + "big-buck-bunny.mp4", false, "250px", "100%");
 //                    ((PlaylistSupport) mmp).addToPlaylist(getURL("/local-video/01_Al_Fatihah.m4a"));
-                    ((PlaylistSupport) mmp).addToPlaylist(getURL("/local-video/big-buck-bunny.mp4"));
-//            mmp.setConfigParameter(ConfigParameter.QTScale, QuickTimePlayer.Scale.ToFit);
                     break;
                 case VLCPlayer:
                     mmp = new Capsule(Plugin.FlashPlayer, getURL("/local-video/fireflies.flv"), false);
@@ -144,7 +148,8 @@ public class Dev extends VerticalPanel implements EntryPoint {
 //                    ((NativePlayer) mmp).addToPlaylist(getURL("/local-video/big-buck-bunny.mp4"));
             }
             mmp.showLogger(true);
-            mmp.setResizeToVideoSize(true);
+            mmp.setConfigParameter(ConfigParameter.QTScale, QuickTimePlayer.Scale.Aspect);
+//            mmp.setResizeToVideoSize(true);
 //            mmp.setLoopCount(2);
 //            mmp.setRepeatMode(RepeatMode.REPEAT_ALL);
 //            ((PlaylistSupport) mmp).setShuffleEnabled(true);
@@ -171,45 +176,113 @@ public class Dev extends VerticalPanel implements EntryPoint {
     }
 
     private void addUTube() {
-        try {
-            PlayerParameters p = new PlayerParameters();
-            p.setLoadRelatedVideos(false);
-            p.setFullScreenEnabled(false);
+        final PlayStateHandler psh = new PlayStateHandler() {
 
-            final YouTubePlayer u = new YouTubePlayer("http://www.youtube.com/v/QbwZL-EK6CY", "100%", "350px");
-            u.showLogger(true);
-            add(u);
+            @Override
+            public void onPlayStateChanged(PlayStateEvent event) {
 
-            final Label label = new Label();
-            add(label);
-
-            Timer timer = new Timer() {
-
-                @Override
-                public void run() {
-                    try {
-                        double position = u.getPlayPosition();
-                        double duration = u.getMediaDuration();
-                        label.setText("" + position + "/" + duration);
-                    } catch (IllegalStateException e) {
-                        label.setText("?");
-                    }
+                if (event.getPlayState() == State.Finished) {
+                    GWT.log("finished");
                 }
-            };
-            timer.scheduleRepeating(5000);
+                if (event.getPlayState() == State.Stopped) {
+                    GWT.log("stopped");
+                }
+                if (event.getPlayState() == State.Paused) {
+                    GWT.log("paused");
+                }
+                if (event.getPlayState() == State.Started) {
+                    GWT.log("started");
+                }
+            }
+        };
+
+        add(new Button("[1] click to create player", new ClickHandler() {
+
+            @Override
+            public void onClick(ClickEvent event) {
+                try {
+                    NativePlayer np = new NativePlayer(GWT.getModuleBaseURL() + "big-buck-bunny.mp4", false, "260px", "80%");
+                    np.showLogger(true);
+                    np.addPlayStateHandler(psh);
+                    add(np);
+                } catch (LoadException ex) {
+                } catch (PluginNotFoundException ex) {
+                    add(PlayerUtil.getMissingPluginNotice(ex.getPlugin()));
+                }
+            }
+        }));
+
+        try {
+            npp = new NativePlayer(null, false);
+            npp.setResizeToVideoSize(true);
+            npp.showLogger(true);
+            npp.addPlayStateHandler(psh);
+            npp.setVisible(false);
+            add(npp);
+        } catch (LoadException ex) {
         } catch (PluginNotFoundException ex) {
-            add(PlayerUtil.getMissingPluginNotice(ex.getPlugin()));
-        } catch (PluginVersionException ex) {
-            add(PlayerUtil.getMissingPluginNotice(ex.getPlugin()));
         }
+
+        add(new Button("[2] click to set player url", new ClickHandler() {
+
+            @Override
+            public void onClick(ClickEvent event) {
+                try {
+                    npp.setVisible(true);
+                    npp.loadMedia(GWT.getModuleBaseURL() + "big-buck-bunny.mp4");
+                } catch (LoadException ex) {
+                }
+            }
+        }));
     }
+    NativePlayer npp = null;
 
     private String getURL(String path) {
         return Location.createUrlBuilder().setPort(8080).setPath(path).buildString();
     }
+//    @UiTemplate("Player.ui.xml")
+//    interface PlayerBinder extends UiBinder<Widget, Dev>{}
+//    PlayerBinder pb = GWT.create(PlayerBinder.class);
 
-    @UiTemplate("Player.ui.xml")
-    interface PlayerBinder extends UiBinder<Widget, Dev>{}
-    PlayerBinder pb = GWT.create(PlayerBinder.class);
+    public void issue32() {
+        final String fileUrl = "http://www.selikoffsolutions.com/3590.flv";
+        final PopupPanel popup = new PopupPanel();
+        AbstractMediaPlayer player;
+        Widget mp = null;
+        try {
+            player = new FlashMediaPlayer(fileUrl, true, "464px", "620px");
+            player.setResizeToVideoSize(false);
+            popup.setSize("620px", "464px");
+            mp = player;
+        } catch (PluginNotFoundException e) {
+            mp = PlayerUtil.getMissingPluginNotice(Plugin.FlashPlayer, e.getMessage());
+        } catch (PluginVersionException e) {
+            mp = PlayerUtil.getMissingPluginNotice(Plugin.FlashPlayer, e.getRequiredVersion());
+        } catch (LoadException e) {
+            mp = PlayerUtil.getMissingPluginNotice(Plugin.FlashPlayer);
+        }
+        popup.add(mp);
+        popup.show();
 
+    }
+
+    public void issue32a() {
+        // GWT.getModuleBaseURL() + "applause.mp3";
+        final String fileUrl = GWT.getModuleBaseURL() + "big-buck-bunny.mp4";
+        AbstractMediaPlayer player;
+        Widget mp = null;
+        try {
+            player = new FlashMediaPlayer(fileUrl, true, "464px", "620px");
+            player.setResizeToVideoSize(true);
+            player.showLogger(true);
+            mp = player;
+        } catch (PluginNotFoundException e) {
+            mp = PlayerUtil.getMissingPluginNotice(Plugin.FlashPlayer, e.getMessage());
+        } catch (PluginVersionException e) {
+            mp = PlayerUtil.getMissingPluginNotice(Plugin.FlashPlayer, e.getRequiredVersion());
+        } catch (LoadException e) {
+            mp = PlayerUtil.getMissingPluginNotice(Plugin.FlashPlayer);
+        }
+        add(mp);
+    }
 }
