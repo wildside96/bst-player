@@ -64,9 +64,9 @@
     </replace-with>
     -->
 
-    <!-- PlayerUtilImpl mapping for IE6/7/8 -->
-    <replace-with class="com.bramosystems.oss.player.core.client.impl.PlayerUtilImplIE">
-        <when-type-is class="com.bramosystems.oss.player.core.client.impl.PlayerUtilImpl"/>
+    <!-- PluginManagerImpl mapping for IE6/7/8 -->
+    <replace-with class="com.bramosystems.oss.player.core.client.impl.plugin.PluginManagerImplIE">
+        <when-type-is class="com.bramosystems.oss.player.core.client.impl.plugin.PluginManagerImpl"/>
         <any>
             <when-property-is name="user.agent" value="ie6"/>
             <when-property-is name="user.agent" value="ie8"/>

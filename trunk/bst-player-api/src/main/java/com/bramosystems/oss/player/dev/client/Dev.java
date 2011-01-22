@@ -24,48 +24,54 @@ import com.bramosystems.oss.player.core.client.PlaylistSupport;
 import com.bramosystems.oss.player.core.client.Plugin;
 import com.bramosystems.oss.player.core.client.PluginNotFoundException;
 import com.bramosystems.oss.player.core.client.PluginVersionException;
-import com.bramosystems.oss.player.core.client.ui.*;
+import com.bramosystems.oss.player.core.client.ui.FlashMediaPlayer;
+import com.bramosystems.oss.player.core.client.ui.NativePlayer;
+import com.bramosystems.oss.player.core.client.ui.QuickTimePlayer;
+import com.bramosystems.oss.player.core.client.ui.VLCPlayer;
 import com.bramosystems.oss.player.core.event.client.PlayStateEvent;
 import com.bramosystems.oss.player.core.event.client.PlayStateEvent.State;
 import com.bramosystems.oss.player.core.event.client.PlayStateHandler;
 //import com.bramosystems.oss.player.flat.client.FlatVideoPlayer;
+import com.bramosystems.oss.player.flat.client.FlatVideoPlayer;
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.event.dom.client.MouseMoveEvent;
-import com.google.gwt.event.dom.client.MouseMoveHandler;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.Window.Location;
 import com.google.gwt.user.client.ui.Button;
+import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.gwt.user.client.ui.RootPanel;
-import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
-import java.util.ArrayList;
-import java.util.logging.Level;
 
 /**
  *
  * @author Sikirulai Braheem <sbraheem at gmail.com>
  */
-public class Dev extends VerticalPanel implements EntryPoint {
-
-    private AbstractMediaPlayer mmp = null;
-
+public class Dev extends FlowPanel implements EntryPoint {
+    
+    private final String HEIGHT = "350px", WIDTH = "90%";
+    private AbstractMediaPlayer mmp;
+    private MRL mrl;
+    
     public Dev() {
-        setSpacing(20);
+//        setSpacing(20);
         setWidth("80%");
-
-        GWT.setUncaughtExceptionHandler(new GWT.UncaughtExceptionHandler() {
-
+        
+        GWT.setUncaughtExceptionHandler(new GWT.UncaughtExceptionHandler()  {
+            
             @Override
             public void onUncaughtException(Throwable e) {
                 GWT.log(e.getMessage(), e);
                 Window.alert("Dev Uncaught : " + e.getMessage());
             }
         });
+        
+        mrl = new MRL();
+        mrl.addURL(GWT.getModuleBaseURL() + "big-buck-bunny.mp4");
+        mrl.addURL(GWT.getModuleBaseURL() + "applause.mp3");
     }
 
 //TODO: test resizeToVideoSize feature for plugins ...
@@ -73,39 +79,30 @@ public class Dev extends VerticalPanel implements EntryPoint {
     public void onModuleLoad() {
 //        RootPanel.get().add(new ScrollPanel(this));
         RootPanel.get().add(this);
-//        addPlayer(Plugin.WinMediaPlayer);
-//        addPlayer(Plugin.DivXPlayer);
-        addPlayer(Plugin.FlashPlayer);
-//        addPlayer(Plugin.QuickTimePlayer);
-//        addPlayer(Plugin.Native);
-//        addPlayer(Plugin.VLCPlayer);
+        addPlayer(Plugin.DivXPlayer);
 
 //        add(new MimeStuffs());
 //        addUTube();
- //       issueScott();
-        try {
-            //        add(pb.createAndBindUi(this)); TODO: requires GWT 2.1
-            GWT.log("Message from util : " + PlayerUtil.getPlayerPluginInfo(Plugin.DivXPlayer));
-        } catch (PluginNotFoundException ex) {
-            java.util.logging.Logger.getLogger(Dev.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        //       issueScott();
+        //        add(pb.createAndBindUi(this)); TODO: requires GWT 2.1
     }
-
+    
     private void addPlayer(Plugin plugin) {
+        /*
         add(new Button("Show", new ClickHandler() {
-
-            @Override
-            public void onClick(ClickEvent event) {
-                mmp.setControllerVisible(!mmp.isControllerVisible());
-            }
+        
+        @Override
+        public void onClick(ClickEvent event) {
+        mmp.setControllerVisible(!mmp.isControllerVisible());
+        }
         }));
-
+         */
         try {
             switch (plugin) {
                 case DivXPlayer:
-//                    mmp = new FlatVideoPlayer(Plugin.DivXPlayer,
-                                               mmp = new DivXPlayer(
-                            GWT.getModuleBaseURL() + "big-buck-bunny.mp4",
+                    mmp = new FlatVideoPlayer(Plugin.FlashPlayer,
+//                    mmp = new DivXPlayer(
+                            mrl.getNextResource(true),
                             false, "350px", "100%");
 //                    divx.setBannerEnabled(false);
 //                    divx.setDisplayMode(DivXPlayer.DisplayMode.LARGE);
@@ -114,17 +111,15 @@ public class Dev extends VerticalPanel implements EntryPoint {
 //                   ((DivXPlayer) mmp).addToPlaylist(getURL("/local-video/gi-joe-trailer.mkv"));
                     break;
                 case FlashPlayer:
-                    mmp = new FlashMediaPlayer(GWT.getModuleBaseURL() + "applause.mp3", true, "350px", "100%");
-                    //                   ((PlaylistSupport) mmp).addToPlaylist(getURL("/local-video/brandy-everything.mp3"));
-                    //                   ((PlaylistSupport) mmp).addToPlaylist(getURL("/local-video/traffic.flv"));
+                    mmp = new FlashMediaPlayer(mrl.getNextResource(true), true, HEIGHT, WIDTH);
                     break;
                 case QuickTimePlayer:
-                    mmp = new QuickTimePlayer(GWT.getModuleBaseURL() + "big-buck-bunny.mp4", false, "250px", "100%");
+                    mmp = new QuickTimePlayer(mrl.getNextResource(true), false, HEIGHT, WIDTH);
 //                    ((PlaylistSupport) mmp).addToPlaylist(getURL("/local-video/01_Al_Fatihah.m4a"));
                     break;
                 case VLCPlayer:
 //                    mmp = new Capsule(Plugin.FlashPlayer, getURL("/local-video/fireflies.flv"), false);
-                    mmp = new VLCPlayer(getURL("/local-video/divx7_postinstall.divx"), true, "250px", "100%");
+                    mmp = new VLCPlayer(getURL("/local-video/divx7_postinstall.divx"), true, HEIGHT, WIDTH);
 //                    mmp.setVolume(0.2);
 //                    ((PlaylistSupport) mmp).addToPlaylist(getURL("/local-video/fireflies.flv"));
 //                    mmp = new VLCPlayer(getURL("/local-video/big-buck-bunny.mp4"), true, "250px", "100%");
@@ -133,54 +128,52 @@ public class Dev extends VerticalPanel implements EntryPoint {
 //                    ((PlaylistSupport) mmp).addToPlaylist(getURL("/local-video/Sample.mov"));
                     break;
                 case WinMediaPlayer:
-                    mmp = new WinMediaPlayer(getURL("/local-video/home-video.wmv"), false, "200px", "100%");
-                    ((PlaylistSupport) mmp).addToPlaylist(getURL("/local-video/applause.mp3"));
+                    mmp = new WinMediaPlayerX(mrl.getNextResource(true), false, HEIGHT, WIDTH);
 //                    ((PlaylistSupport) mmp).addToPlaylist(getURL("/local-video/o-na-som.mp3"));
 //                    mmp = new Capsule(Plugin.FlashPlayer, getURL("/local-video/applause.mp3"), false);
-                    ((PlaylistSupport) mmp).addToPlaylist(getURL("/local-video/o-na-som.mp3"));
+//                    ((PlaylistSupport) mmp).addToPlaylist(getURL("/local-video/o-na-som.mp3"));
                     break;
                 case Native:
-                    ArrayList<String> urls = new ArrayList<String>();
-                    urls.add(getURL("/local-video/big-buck-bunny.ogv"));
-                    urls.add(getURL("/local-video/big-buck-bunny.mp4"));
-
-                    mmp = new NativePlayer(urls, true, "450px", "100%");
+                    mmp = new NativePlayer(mrl.getNextResource(true), true, HEIGHT, WIDTH);
 //                    ((NativePlayer) mmp).addToPlaylist(getURL("/local-video/big-buck-bunny.mp4"));
             }
             mmp.showLogger(true);
             mmp.setConfigParameter(ConfigParameter.QTScale, QuickTimePlayer.Scale.Aspect);
+            ((PlaylistSupport) mmp).addToPlaylist(mrl.getNextResource(true));
 //            mmp.setResizeToVideoSize(true);
 //            mmp.setLoopCount(2);
 //            mmp.setRepeatMode(RepeatMode.REPEAT_ALL);
 //            ((PlaylistSupport) mmp).setShuffleEnabled(true);
 //            mmp.setControllerVisible(false);
             add(mmp);
-
+            /*
             final Label lbl = new Label("MM - ");
             add(lbl);
-
             mmp.addMouseMoveHandler(new MouseMoveHandler() {
-
-                @Override
-                public void onMouseMove(MouseMoveEvent event) {
-                    lbl.setText("MM - " + event.getX() + ", " + event.getY());
-                }
+            
+            @Override
+            public void onMouseMove(MouseMoveEvent event) {
+            lbl.setText("MM - " + event.getX() + ", " + event.getY());
+            }
             });
+             */
         } catch (LoadException ex) {
             add(new Label("Load Exception"));
         } catch (PluginNotFoundException ex) {
             add(PlayerUtil.getMissingPluginNotice(ex.getPlugin()));
+            GWT.log("Missing plugin >>>>", ex);
         } catch (PluginVersionException ex) {
             add(PlayerUtil.getMissingPluginNotice(ex.getPlugin(), ex.getRequiredVersion()));
+            GWT.log("Missing Plugin Version >>>>>", ex);
         }
     }
-
+    
     private void addUTube() {
-        final PlayStateHandler psh = new PlayStateHandler() {
-
+        final PlayStateHandler psh = new PlayStateHandler()  {
+            
             @Override
             public void onPlayStateChanged(PlayStateEvent event) {
-
+                
                 if (event.getPlayState() == State.Finished) {
                     GWT.log("finished");
                 }
@@ -195,9 +188,9 @@ public class Dev extends VerticalPanel implements EntryPoint {
                 }
             }
         };
-
-        add(new Button("[1] click to create player", new ClickHandler() {
-
+        
+        add(new Button("[1] click to create player", new ClickHandler()  {
+            
             @Override
             public void onClick(ClickEvent event) {
                 try {
@@ -211,7 +204,7 @@ public class Dev extends VerticalPanel implements EntryPoint {
                 }
             }
         }));
-
+        
         try {
             npp = new NativePlayer(null, false);
             npp.setResizeToVideoSize(true);
@@ -222,9 +215,9 @@ public class Dev extends VerticalPanel implements EntryPoint {
         } catch (LoadException ex) {
         } catch (PluginNotFoundException ex) {
         }
-
-        add(new Button("[2] click to set player url", new ClickHandler() {
-
+        
+        add(new Button("[2] click to set player url", new ClickHandler()  {
+            
             @Override
             public void onClick(ClickEvent event) {
                 try {
@@ -236,7 +229,7 @@ public class Dev extends VerticalPanel implements EntryPoint {
         }));
     }
     NativePlayer npp = null;
-
+    
     private String getURL(String path) {
         return Location.createUrlBuilder().setPort(8080).setPath(path).buildString();
     }
@@ -263,9 +256,9 @@ public class Dev extends VerticalPanel implements EntryPoint {
         }
         popup.add(mp);
         popup.show();
-
+        
     }
-
+    
     public void issue32a() {
         // GWT.getModuleBaseURL() + "applause.mp3";
         final String fileUrl = GWT.getModuleBaseURL() + "big-buck-bunny.mp4";

@@ -54,6 +54,13 @@
                                     <version>${project.version}</version>
                                     <type>swf</type>
                                 </artifactItem>
+                                <artifactItem>
+                                    <groupId>${project.groupId}</groupId>
+                                    <artifactId>bst-flash-player</artifactId>
+                                    <version>${project.version}</version>
+                                    <type>swf</type>
+                                    <classifier>lo</classifier>
+                                </artifactItem>
                             </artifactItems>
                             <outputDirectory>${flex.apps.dir}</outputDirectory>
                         </configuration>

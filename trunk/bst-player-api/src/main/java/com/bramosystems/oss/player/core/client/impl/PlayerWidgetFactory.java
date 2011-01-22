@@ -15,6 +15,7 @@
  */
 package com.bramosystems.oss.player.core.client.impl;
 
+import com.bramosystems.oss.player.core.client.impl.plugin.PluginInfo;
 import com.bramosystems.oss.player.core.client.PlayerUtil;
 import com.bramosystems.oss.player.core.client.Plugin;
 import com.bramosystems.oss.player.core.client.PluginNotFoundException;
@@ -90,6 +91,8 @@ public class PlayerWidgetFactory {
 
     protected Element getWMPElement(String playerId, String mediaURL, boolean autoplay,
             HashMap<String, String> params) {
+ //               XEmbed xo = new XEmbed(playerId);
+//        xo.addParam("type", hasWMPFFPlugin() ? wmpFFMimeType : wmpAppMimeType);
         XObject xo = new XObject(playerId);
         xo.getElement().setType(hasWMPFFPlugin() ? wmpFFMimeType : wmpAppMimeType);
         xo.addParam("autostart", hasWMPFFPlugin() ? Boolean.toString(autoplay) : (autoplay ? "1" : "0"));
