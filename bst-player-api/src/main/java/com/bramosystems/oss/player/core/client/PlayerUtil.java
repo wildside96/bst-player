@@ -15,20 +15,20 @@
  */
 package com.bramosystems.oss.player.core.client;
 
-import com.bramosystems.oss.player.core.client.impl.PlayerUtilImpl;
-import com.bramosystems.oss.player.core.client.impl.PluginInfo;
+import com.bramosystems.oss.player.core.client.impl.plugin.PluginInfo;
+import com.bramosystems.oss.player.core.client.impl.plugin.PluginManager;
 import com.bramosystems.oss.player.core.client.ui.DivXPlayer;
 import com.bramosystems.oss.player.core.client.ui.FlashMediaPlayer;
 import com.bramosystems.oss.player.core.client.ui.NativePlayer;
 import com.bramosystems.oss.player.core.client.ui.QuickTimePlayer;
 import com.bramosystems.oss.player.core.client.ui.VLCPlayer;
 import com.bramosystems.oss.player.core.client.ui.WinMediaPlayer;
-import com.google.gwt.core.client.GWT;
 import com.google.gwt.i18n.client.NumberFormat;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Event;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
+import java.util.Set;
 
 /**
  * Utility class for various media player related functions.
@@ -37,7 +37,6 @@ import com.google.gwt.user.client.ui.*;
  */
 public class PlayerUtil {
 
-    private static PlayerUtilImpl impl = GWT.create(PlayerUtilImpl.class);
     private static NumberFormat timeFormat = NumberFormat.getFormat("00");
     private static NumberFormat hourFormat = NumberFormat.getFormat("#0");
 
@@ -197,7 +196,7 @@ public class PlayerUtil {
         if (_plugins != null) {
             for (int i = 0; i < _plugins.length; i++) {
                 try {
-                    if (impl.canHandleMedia(_plugins[i], protocol, ext)) {
+                    if (canHandleMedia(_plugins[i], protocol, ext)) {
                         pg = _plugins[i];
                         break;
                     }
@@ -211,7 +210,7 @@ public class PlayerUtil {
     }
 
     private static String extractExt(String mediaURL) {
-       return mediaURL.substring(mediaURL.lastIndexOf(".") + 1);
+        return mediaURL.substring(mediaURL.lastIndexOf(".") + 1);
     }
 
     private static String extractProtocol(String mediaURL) {
@@ -221,15 +220,31 @@ public class PlayerUtil {
             return null;
         }
     }
-    
+/*
     public static boolean canHandleMedia(Plugin plugin, String mediaURL) {
         String protocol = extractProtocol(mediaURL);
         String ext = extractExt(mediaURL);
         try {
-            return impl.canHandleMedia(plugin, protocol, ext);
+            return canHandleMedia(plugin, protocol, ext);
         } catch (PluginNotFoundException ex) {
             return false;
         }
+    }
+*/
+    protected static boolean canHandleMedia(Plugin plugin, String protocol, String ext) throws PluginNotFoundException {
+        PluginVersion pv = PluginManager.getPluginInfo(plugin).getVersion();
+        Set<String> types = MimePool.instance.getRegisteredExtensions(plugin);
+        Set<String> prots = MimePool.instance.getRegisteredProtocols(plugin);
+
+        if (protocol == null) {
+            protocol = "-";
+        }
+        if (pv.compareTo(plugin.getVersion()) >= 0) {   // req plugin found...
+            // check for streaming protocol & extension ...
+            return ((prots != null) && prots.contains(protocol.toLowerCase()))
+                    || ((types != null) && types.contains(ext.toLowerCase()));
+        }
+        return false;
     }
 
     /**
@@ -314,7 +329,7 @@ public class PlayerUtil {
      * (especially if none is installed or the plugin is disabled).
      */
     public static PluginVersion getFlashPlayerVersion() throws PluginNotFoundException {
-        PluginVersion v = impl.getPluginInfo(Plugin.FlashPlayer).getVersion();
+        PluginVersion v = PluginManager.getPluginInfo(Plugin.FlashPlayer).getVersion();
         if (v.equals(new PluginVersion())) {
             throw new PluginNotFoundException(Plugin.FlashPlayer);
         }
@@ -332,7 +347,7 @@ public class PlayerUtil {
      * (especially if none is installed or the plugin is disabled).
      */
     public static PluginVersion getQuickTimePluginVersion() throws PluginNotFoundException {
-        PluginVersion v = impl.getPluginInfo(Plugin.QuickTimePlayer).getVersion();
+        PluginVersion v = PluginManager.getPluginInfo(Plugin.QuickTimePlayer).getVersion();
         if (v.equals(new PluginVersion())) {
             throw new PluginNotFoundException(Plugin.QuickTimePlayer);
         }
@@ -350,7 +365,7 @@ public class PlayerUtil {
      * (especially if none is installed or the plugin is disabled).
      */
     public static PluginVersion getWindowsMediaPlayerPluginVersion() throws PluginNotFoundException {
-        PluginVersion v = impl.getPluginInfo(Plugin.WinMediaPlayer).getVersion();
+        PluginVersion v = PluginManager.getPluginInfo(Plugin.WinMediaPlayer).getVersion();
         if (v.equals(new PluginVersion())) {
             throw new PluginNotFoundException(Plugin.WinMediaPlayer);
         }
@@ -370,7 +385,7 @@ public class PlayerUtil {
      * @since 1.0
      */
     public static PluginVersion getVLCPlayerPluginVersion() throws PluginNotFoundException {
-        PluginVersion v = impl.getPluginInfo(Plugin.VLCPlayer).getVersion();
+        PluginVersion v = PluginManager.getPluginInfo(Plugin.VLCPlayer).getVersion();
         if (v.equals(new PluginVersion())) {
             throw new PluginNotFoundException(Plugin.VLCPlayer);
         }
@@ -390,7 +405,7 @@ public class PlayerUtil {
      * @since 1.2
      */
     public static PluginVersion getDivXPlayerPluginVersion() throws PluginNotFoundException {
-        PluginVersion v = impl.getPluginInfo(Plugin.DivXPlayer).getVersion();
+        PluginVersion v = PluginManager.getPluginInfo(Plugin.DivXPlayer).getVersion();
         if (v.equals(new PluginVersion())) {
             throw new PluginNotFoundException(Plugin.DivXPlayer);
         }
@@ -420,7 +435,7 @@ public class PlayerUtil {
      */
     public static Widget getMissingPluginNotice(final Plugin plugin, String title, String message,
             boolean asHTML) {
-        DockPanel dp = new DockPanel() {
+        DockPanel dp = new DockPanel()   {
 
             @Override
             public void onBrowserEvent(Event event) {
@@ -579,11 +594,11 @@ public class PlayerUtil {
      * @since 1.1
      */
     public static boolean isHTML5CompliantClient() {
-        return impl.isHTML5CompliantClient();
+        return PluginManager.isHTML5CompliantClient();
+    
     }
-
+    
     public static PluginInfo getPlayerPluginInfo(Plugin plugin) throws PluginNotFoundException {
-        return impl.getPluginInfo(plugin);
+        return PluginManager.getPluginInfo(plugin);
     }
-
 }

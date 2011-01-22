@@ -131,7 +131,17 @@ public class TxtPlayerUtil extends GWTTestCase {
         }
     }
 
-    @Override
+     @Test
+    public void testSuggestPlayer() throws Exception {
+        System.out.println("suggestPlayer");
+
+        assertTrue("FLV: ", PlayerUtil.canHandleMedia(Plugin.FlashPlayer, null, "flv"));
+//        assertTrue("QT : ", instance.canHandleMedia(Plugin.QuickTimePlayer, null, "m4a"));
+//        assertTrue("WMP: ", instance.canHandleMedia(Plugin.WinMediaPlayer, null, "wma"));
+//        assertTrue("VLC: ", instance.canHandleMedia(Plugin.VLCPlayer, null, "vob"));
+    }
+
+     @Override
     public String getModuleName() {
         return "com.bramosystems.oss.player.core.Core";
     }

@@ -188,6 +188,12 @@ public class WinMediaPlayerImpl extends JavaScriptObject {
     } catch(e) {}
     }-*/;
 
+    public final native boolean canPlay() /*-{
+    try {
+    return this.controls.isAvailable('play');
+    } catch(e) {return false;}
+    }-*/;
+    
     public final native void stop() /*-{
     try {
     this.controls.stop();
@@ -283,4 +289,88 @@ public class WinMediaPlayerImpl extends JavaScriptObject {
     this.settings.autoStart = autoStart;
     } catch(e) {}
     }-*/;
+
+    // test playlist creation ...
+    public final native Playlist getCurrentPlaylist() /*-{
+    try {
+    return this.currentPlaylist;
+    } catch(e) {return null;}
+    }-*/;
+    
+    public final native void setCurrentPlaylist(Playlist playlist) /*-{
+    try {
+    this.currentPlaylist = playlist;
+    } catch(e) {}
+    }-*/;
+    
+    public final native Playlist createPlaylist(String name) /*-{
+    try {
+    return this.newPlaylist(name, null);
+    } catch(e) {return null;}
+    }-*/;
+
+    public final native Media createMedia(String mediaURL) /*-{
+//    try {
+    return this.newMedia(mediaURL);
+ //   } catch(e) {return null;}
+    }-*/;
+    
+    public final native void setCurrentMedia(Media media) /*-{
+    try {
+    this.currentMedia(media);
+    } catch(e) {}
+    }-*/;
+
+    public static class Playlist extends JavaScriptObject {
+        
+        protected Playlist(){}
+
+        public final native void addItem(Media item) /*-{
+        try {
+        this.appendItem(item);
+        } catch(e) {}
+        }-*/;
+
+        public final native Media getItem(int index) /*-{
+        try {
+        return this.item(index);
+        } catch(e) {return null;}
+        }-*/;
+
+        public final native void removeItem(Media item) /*-{
+        try {
+        this.removeItem(item);
+        } catch(e) {}
+        }-*/;
+
+        public final native void moveItem(int oldIndex, int newIndex) /*-{
+        try {
+        this.moveItem(oldIdex,newIndex);
+        } catch(e) {}
+        }-*/;
+
+        public final native void insertItem(int index, Media item) /*-{
+        try {
+        this.insertItem(index,item);
+        } catch(e) {}
+        }-*/;
+    }
+
+    public static class Media extends JavaScriptObject {
+
+        protected Media() {
+        }
+
+        public final native String getName() /*-{
+        try {
+        return this.name;
+        } catch(e) {return null;}
+        }-*/;
+
+        public final native String getSourceURL() /*-{
+        try {
+        return this.sourceURL;
+        } catch(e) {return null;}
+        }-*/;
+    }
 }

@@ -62,7 +62,7 @@ public class MimeType extends JavaScriptObject {
         if (plug != null) {
             return plug;
         } else {
-            throw new PluginNotFoundException("No Plugin found!");
+            throw new PluginNotFoundException("No Plugin found for type - '" + getType() + "' !");
         }
     }
 

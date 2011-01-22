@@ -232,7 +232,7 @@ public class WMPStateManager {
                     break;
                 case 6:    // buffering ...
                 case 11:    // reconnecting to stream  ...
-                    break;
+                   break;
             }
         }
 
@@ -243,8 +243,6 @@ public class WMPStateManager {
         }
 
         protected void doMetadata() {
-            debug("Playing media at " + _mURL);
-
             MediaInfo info = new MediaInfo();
             String err = "";
             _impl.getImpl().fillMetadata(info, err);

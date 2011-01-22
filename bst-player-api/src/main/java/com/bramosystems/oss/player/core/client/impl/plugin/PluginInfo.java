@@ -13,8 +13,9 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-package com.bramosystems.oss.player.core.client.impl;
+package com.bramosystems.oss.player.core.client.impl.plugin;
 
+import com.bramosystems.oss.player.core.client.Plugin;
 import com.bramosystems.oss.player.core.client.PluginVersion;
 import java.io.Serializable;
 
@@ -51,13 +52,13 @@ public class PluginInfo implements Serializable {
 
     private PluginVersion version;
     private PlayerPluginWrapperType wrapperType;
+    private Plugin plugin;
 
     /**
      * Creates a <code>PluginVersion</code>
      */
     public PluginInfo() {
-        version = new PluginVersion();
-        wrapperType = PlayerPluginWrapperType.Native;
+        this(Plugin.Auto, new PluginVersion(), PlayerPluginWrapperType.Native);
     }
 
     /**
@@ -66,9 +67,10 @@ public class PluginInfo implements Serializable {
      * @param version the plugin version
      * @param wrapperType the wrapper type in use by the plugin
      */
-    public PluginInfo(PluginVersion version, PlayerPluginWrapperType wrapperType) {
+    public PluginInfo(Plugin plugin, PluginVersion version, PlayerPluginWrapperType wrapperType) {
         this.version = version;
         this.wrapperType = wrapperType;
+        this.plugin = plugin;
     }
 
     public PluginVersion getVersion() {
@@ -87,9 +89,17 @@ public class PluginInfo implements Serializable {
         this.wrapperType = wrapperType;
     }
 
+    public Plugin getPlugin() {
+        return plugin;
+    }
+
+    public void setPlugin(Plugin plugin) {
+        this.plugin = plugin;
+    }
+
     @Override
     public String toString() {
-        return "PluginInfo{" + "version=" + version + ",  wrapperType=" + wrapperType + "} ";
+        return "PluginInfo{plugin=" + plugin + ", version=" + version + ",  wrapperType=" + wrapperType + "} ";
     }
 
 
