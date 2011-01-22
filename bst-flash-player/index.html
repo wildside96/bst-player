@@ -26,38 +26,53 @@
             bstplayer.handlers.swf = new Object();
             bstplayer.handlers.swf.gwtuid1 = new Object();
             bstplayer.handlers.swf.gwtuid1.onMessage = function(type, message) {
-                document.getElementById("traceDiv").innerHTML += type + " - " + message + "<br/>";
+                document.getElementById("traceDiv").innerHTML += "gwtuid1: " + type + " - " + message + "<br/>";
+            }
+            bstplayer.handlers.swf.gwtuid2 = new Object();
+            bstplayer.handlers.swf.gwtuid2.onMessage = function(type, message) {
+                document.getElementById("traceDiv").innerHTML += "gwtuid2: " + type + " - " + message + "<br/>";
             }
             bstplayer.handlers.swf.gwtuid1.onInit = function() {
                 var pl = document.getElementById("gwtuid1");
-//                pl.addToPlaylist('http://localhost:8080/local-video/brandy-everything.mp3');
-//                pl.addToPlaylist('http://localhost:8080/local-video/traffic.flv');
-//                pl.setRepeatMode('all');
-//                pl.setLoopCount(2);
-//                pl.setShuffleEnabled(true);
+                //                pl.addToPlaylist('http://localhost:8080/local-video/brandy-everything.mp3');
+                //                pl.addToPlaylist('http://localhost:8080/local-video/traffic.flv');
+                //                pl.setRepeatMode('all');
+                //                pl.setLoopCount(2);
+                //                pl.setShuffleEnabled(true);
                 pl.setControllerVisible(true);
-//                pl.setAutoHideController(true);
+                //                pl.setAutoHideController(true);
+                //                   flashvars="playerId=gwtuid1&autoplay=false&mediaURL=file:///C:/SPEC/projects/oss/bst-player/bst-flash-player/traffic.flv"
             }
             bstplayer.handlers.swf.gwtuid1.onPlayingProgress = function(prog) {
                 document.getElementById("progDiv").innerHTML = ': ' + prog/1000;
             }
+            // C:\Users\User\Documents\Sikiru\Lib\Apps\OSSProjects\bst-player-r120\bst-player-showcase\target\bst-player-showcase\media
+            //  flashvars="playerId=gwtuid2&autoplay=false&mediaURL=file:///C:/SPEC/projects/oss/bst-player/bst-flash-player/traffic.flv"
+            // flashvars="playerId=gwtuid2&autoplay=false&mediaURL=file:///C:/Users/User/Documents/Sikiru/Lib/Apps/OSSProjects/bst-player-r120/bst-player-showcase/target/bst-player-showcase/media/traffic.flv
         </script>
     </head>
     <body>
         <button type="button"
                 onclick="gwtuid1.setControllerVisible(!gwtuid1.isControllerVisible())">Toggle Controller</button>
-        
+
         <div>
             <embed id="gwtuid1"  type="application/x-shockwave-flash"
                    src="target/bst-flash-player-1.2.1-SNAPSHOT.swf"  name="gwtuid1"
-                   flashvars="playerId=gwtuid1&autoplay=false&mediaURL=../traffic.flv"
-                   allowscriptaccess="always" allowfullscreen="true" style="width: 620px; height: 464px;"
+                   flashvars="playerId=gwtuid1&autoplay=false&mediaURL=http://192.168.19.135:8080/traffic.flv"
+                   allowscriptaccess="always" allowfullscreen="true" style="width: 45%; height: 400px; float: left"
                    wmode="opaque"/>
-        </div>
-        
-        <div id="traceDiv" style="margin-top: 5px; font-size: 12px;overflow: scroll;width: 50%;height: 150px;float: left">
-        </div>
-        <div id="progDiv" style="margin-top: 5px; font-size: 12px;width: 50%;height: 50px;float: right">
-        </div>
-    </body>
+
+            <embed id="gwtuid2"  type="application/x-shockwave-flash"
+                   src="target/bst-flash-player-1.2.1-SNAPSHOT.swf"  name="gwtuid2"
+              flashvars="playerId=gwtuid2&autoplay=false&mediaURL=file:///C:/SPEC/projects/oss/bst-player/bst-flash-player/traffic.flv"
+                   allowscriptaccess="always" allowfullscreen="true" style="width: 45%; height: 400px;float: right"
+                   wmode="opaque"/>
+    </div>
+
+    <div id="traceDiv" style="margin-top: 5px; font-size: 12px;overflow: scroll;width: 50%;height: 150px;float: left">
+    </div>
+    <div id="progDiv" style="margin-top: 5px; font-size: 12px;width: 50%;height: 50px;float: right">
+    </div>
+
+</body>
 </html>

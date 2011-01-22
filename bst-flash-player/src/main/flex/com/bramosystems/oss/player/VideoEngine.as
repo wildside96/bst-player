@@ -127,7 +127,7 @@ package com.bramosystems.oss.player {
                     hdwr += ", Video data rate: " + meta.info.videodatarate;
                     hdwr += ", Frame rate: " + meta.info.framerate;
 
-                    Log.info("Media Metadata available");
+                    Log.info("Media metadata available");
                     EventUtil.fireVideoMetadata(meta.info.duration, hdwr, meta.info.width, meta.info.height);
                     propagateMeta = false;
                 }

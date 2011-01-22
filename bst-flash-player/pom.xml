@@ -23,10 +23,34 @@
                 <groupId>org.sonatype.flexmojos</groupId>
                 <artifactId>flexmojos-maven-plugin</artifactId>
                 <extensions>true</extensions>
-                <configuration>
-                    <useNetwork>true</useNetwork>
-                    <incremental>false</incremental>
-                </configuration>
+                
+                        <configuration>
+                    <useNetwork>false</useNetwork>
+                            <incremental>false</incremental>
+                        </configuration>                        
+                <!--executions>
+                    <execution>
+                        <id>network</id>
+                        <goals>
+                            <goal>compile-swf</goal>
+                        </goals>
+                        <configuration>
+                            <useNetwork>false</useNetwork>
+                            <incremental>false</incremental>
+                        </configuration>                        
+                    </execution>
+                    <execution>
+                        <id>local-sandbox</id>
+                        <goals>
+                            <goal>compile-swf</goal>
+                        </goals>
+                        <configuration>
+                            <useNetwork>false</useNetwork>
+                            <incremental>false</incremental>
+                            <classifier>lo</classifier>
+                        </configuration>                        
+                    </execution>
+                </executions-->
             </plugin>
         </plugins>
     </build>
