@@ -272,11 +272,13 @@ package com.bramosystems.oss.player {
 
         /******* fix streaching/cropping issue, let app auto-adjust video size *******/
         private function metaDoVDUSize(event:MetadataEvent):void {
-            updateVDUSize();
+             Log.info("update from metadata event ... ");
+           updateVDUSize();
         }
 
         public function resizeDoVDUSize(event:ResizeEvent):void {
             if(player && (player is VideoEngine)) {
+            Log.info("update from resize event ... ");
                 updateVDUSize();
             }
         }
@@ -290,13 +292,22 @@ package com.bramosystems.oss.player {
             if((_aHeight < _vduHeight) || (_aWidth < _vduWidth)) {  // avoid cropping
                 vdu.percentHeight = 100;
                 vdu.percentWidth = 100;
+            Log.info("avoid cropping ... ");
             } else if((_aHeight > _vduHeight) || (_aWidth > _vduWidth)) {  // avoid steching
                     vdu.height = _vduHeight;
                     vdu.width = _vduWidth;
+            Log.info("avoid streching ... ");
             } else if((_aHeight > _vduHeight) && (_aWidth > _vduWidth)) {  // fit to window
                 vdu.percentHeight = 100;
                 vdu.percentWidth = 100;
+            Log.info("fit to window ... ");
             }
+            Log.info("dim vdu : " + vdu.height + ", " + vdu.width);
+            Log.info("dim vd% : " + vdu.percentHeight + ", " + vdu.percentWidth);
+            Log.info("dim app : " + _aHeight + ", " + _aWidth);
+            Log.info("dim _vd : " + _vduHeight + ", " + _vduWidth);
+            if(vdu.metadata)
+            Log.info("dim mtd : " + vdu.metadata.height + ", " + vdu.metadata.width);
         }
 
         /************************** FS effects **********************/
