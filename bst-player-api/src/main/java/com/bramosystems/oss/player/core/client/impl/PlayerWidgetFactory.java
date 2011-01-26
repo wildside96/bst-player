@@ -91,10 +91,10 @@ public class PlayerWidgetFactory {
 
     protected Element getWMPElement(String playerId, String mediaURL, boolean autoplay,
             HashMap<String, String> params) {
- //               XEmbed xo = new XEmbed(playerId);
-//        xo.addParam("type", hasWMPFFPlugin() ? wmpFFMimeType : wmpAppMimeType);
-        XObject xo = new XObject(playerId);
-        xo.getElement().setType(hasWMPFFPlugin() ? wmpFFMimeType : wmpAppMimeType);
+        XEmbed xo = new XEmbed(playerId);
+        xo.addParam("type", hasWMPFFPlugin() ? wmpFFMimeType : wmpAppMimeType);
+//        XObject xo = new XObject(playerId);
+        //      xo.getElement().setType(hasWMPFFPlugin() ? wmpFFMimeType : wmpAppMimeType);
         xo.addParam("autostart", hasWMPFFPlugin() ? Boolean.toString(autoplay) : (autoplay ? "1" : "0"));
         xo.addParam(hasWMPFFPlugin() ? "URL" : "SRC", mediaURL);
 

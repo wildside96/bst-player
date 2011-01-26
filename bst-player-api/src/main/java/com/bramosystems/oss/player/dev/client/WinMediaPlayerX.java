@@ -50,6 +50,7 @@ import com.google.gwt.dom.client.NativeEvent;
 import com.google.gwt.event.dom.client.DomEvent;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.DOM;
+import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.ui.FlowPanel;
 import java.util.ArrayList;
 
@@ -103,8 +104,6 @@ public class WinMediaPlayerX extends AbstractMediaPlayer implements PlaylistSupp
     private UIMode uiMode;
     private WMPPlaylistManager playlistManager;
     private LoopManager loopManager;
-    
-    
     private ArrayList<String> urls;
     private WinMediaPlayerImpl.Playlist playlist;
 
@@ -126,11 +125,11 @@ public class WinMediaPlayerX extends AbstractMediaPlayer implements PlaylistSupp
         if (stateManager == null) {
             stateManager = GWT.create(WMPStateManager.class);
         }
-        
+
         urls = new ArrayList<String>();
 
         playlistManager = new WMPPlaylistManager(autoplay);
-        loopManager = new LoopManager(new LoopManager.LoopCallback()   {
+        loopManager = new LoopManager(new LoopManager.LoopCallback()       {
 
             @Override
             public void onLoopFinished() {
@@ -157,7 +156,7 @@ public class WinMediaPlayerX extends AbstractMediaPlayer implements PlaylistSupp
                 playlistManager.playNext();
             }
         });
-        eventProcessor = stateManager.init(playerId, playlistManager, new WMPStateManager.WMPImplCallback()   {
+        eventProcessor = stateManager.init(playerId, playlistManager, new WMPStateManager.WMPImplCallback()       {
 
             @Override
             public WinMediaPlayerImpl getImpl() {
@@ -208,7 +207,7 @@ public class WinMediaPlayerX extends AbstractMediaPlayer implements PlaylistSupp
         initWidget(panel);
 
         playerWidget = new PlayerWidget(Plugin.WinMediaPlayer, playerId, "", false,
-                new BeforeUnloadCallback()   {
+                new BeforeUnloadCallback()       {
 
                     @Override
                     public void onBeforeUnload() {
@@ -224,14 +223,14 @@ public class WinMediaPlayerX extends AbstractMediaPlayer implements PlaylistSupp
             logger.setVisible(false);
             panel.add(logger);
 
-            addDebugHandler(new DebugHandler()   {
+            addDebugHandler(new DebugHandler()       {
 
                 @Override
                 public void onDebug(DebugEvent event) {
                     logger.log(event.getMessage(), false);
                 }
             });
-            addMediaInfoHandler(new MediaInfoHandler()   {
+            addMediaInfoHandler(new MediaInfoHandler()       {
 
                 @Override
                 public void onMediaInfoAvailable(MediaInfoEvent event) {
@@ -327,27 +326,47 @@ public class WinMediaPlayerX extends AbstractMediaPlayer implements PlaylistSupp
      *
      * @param replaceWidget
      */
-    private void setupPlayer(boolean replaceWidget) {
+    private void setupPlayer(final boolean replaceWidget) {
         if (replaceWidget) {
             eventProcessor.setEnabled(false);
             playerWidget.replace(Plugin.WinMediaPlayer, playerId, playlistManager.getCurrentItem(), false);
         }
 
-        impl = WinMediaPlayerImpl.getPlayer(playerId);
-        stateManager.registerMediaStateHandlers(impl);
-        eventProcessor.setEnabled(true);
-        if (uiMode != null) {
-            setUIMode(uiMode);
-        }
-        
-        setMediaAccessRights(MediaAccessRights.FULL);
-        playlist = impl.createPlaylist("web-playlist");
-        fireDebug("playlist : " + playlist);
-        for(String url : urls) {
-            WinMediaPlayerImpl.Media m = impl.createMedia(url);
-            fireDebug("adding item : " + m.getSourceURL());
-            playlist.addItem(m);
-        }
+        Timer tt = new Timer()      {
+
+            @Override
+            public void run() {
+                impl = WinMediaPlayerImpl.getPlayer(playerId);
+                try {
+ //                   String v = impl.getPlayerVersion();
+                   playlist = impl.createPlaylist("webplaylist");
+                            fireDebug("Playlist 2 : " + playlist);
+                   if (playlist != null) {
+                        cancel();
+                        stateManager.registerMediaStateHandlers(impl);
+                        eventProcessor.setEnabled(true);
+                        if (uiMode != null) {
+                            setUIMode(uiMode);
+                        }
+
+                        fireDebug("playlist : " + playlist);
+                        for (String url : urls) {
+                            WinMediaPlayerImpl.Media m = impl.createMedia(url);
+                            fireDebug("adding item : " + m.getSourceURL());
+                            playlist.addItem(m);
+                        }
+
+                        if (!replaceWidget) {
+ //                           fireDebug("Plugin Version : " + v);
+                            firePlayerStateEvent(PlayerStateEvent.State.Ready);
+                            playlistManager._start();
+                        }
+                    }
+                } catch (Exception e) {
+                }
+            }
+        };
+        tt.scheduleRepeating(600);  // IE workarround ...
     }
 
     /**
@@ -357,8 +376,8 @@ public class WinMediaPlayerX extends AbstractMediaPlayer implements PlaylistSupp
     protected final void onLoad() {
         fireDebug("Windows Media Player plugin" + (isTotem ? " - Totem Compatible" : ""));
         setupPlayer(false);
-        fireDebug("Plugin Version : " + impl.getPlayerVersion());
-        firePlayerStateEvent(PlayerStateEvent.State.Ready);
+//        fireDebug("Plugin Version : " + impl.getPlayerVersion());
+//        firePlayerStateEvent(PlayerStateEvent.State.Ready);
 //        playlistManager._start();
     }
 
@@ -481,7 +500,7 @@ public class WinMediaPlayerX extends AbstractMediaPlayer implements PlaylistSupp
         if (isAvailable()) {
             loopManager.setLoopCount(loop);
         } else {
-            addToPlayerReadyCommandQueue("loopcount", new Command()   {
+            addToPlayerReadyCommandQueue("loopcount", new Command()       {
 
                 @Override
                 public void execute() {
@@ -577,7 +596,7 @@ public class WinMediaPlayerX extends AbstractMediaPlayer implements PlaylistSupp
         if (isAvailable()) {
             impl.requestMediaAccessRight(accessRights.name().toLowerCase());
         } else {
-            addToPlayerReadyCommandQueue("accessright", new Command()   {
+            addToPlayerReadyCommandQueue("accessright", new Command()       {
 
                 @Override
                 public void execute() {
@@ -604,7 +623,7 @@ public class WinMediaPlayerX extends AbstractMediaPlayer implements PlaylistSupp
         if (isAvailable()) {
             impl.setUIMode(uiMode.name().toLowerCase());
         } else {
-            addToPlayerReadyCommandQueue("uimode", new Command()   {
+            addToPlayerReadyCommandQueue("uimode", new Command()       {
 
                 @Override
                 public void execute() {
@@ -660,7 +679,7 @@ public class WinMediaPlayerX extends AbstractMediaPlayer implements PlaylistSupp
         if (isPlayerOnPage(playerId)) {
             impl.setRate(rate);
         } else {
-            addToPlayerReadyCommandQueue("rate", new Command()   {
+            addToPlayerReadyCommandQueue("rate", new Command()       {
 
                 @Override
                 public void execute() {
@@ -681,7 +700,7 @@ public class WinMediaPlayerX extends AbstractMediaPlayer implements PlaylistSupp
         if (isPlayerOnPage(playerId)) {
             playlistManager.setShuffleEnabled(enable);
         } else {
-            addToPlayerReadyCommandQueue("shuffle", new Command()   {
+            addToPlayerReadyCommandQueue("shuffle", new Command()       {
 
                 @Override
                 public void execute() {
@@ -700,16 +719,17 @@ public class WinMediaPlayerX extends AbstractMediaPlayer implements PlaylistSupp
     @Override
     public void addToPlaylist(String mediaURL) {
 //        playlistManager.addToPlaylist(mediaURL);
-        if(playlist != null)
+        if (playlist != null) {
             playlist.addItem(impl.createMedia(mediaURL));
-        else
+        } else {
             urls.add(mediaURL);
+        }
     }
 
     @Override
     public void removeFromPlaylist(int index) {
         checkAvailable();
- //       playlistManager.removeFromPlaylist(index);
+        //       playlistManager.removeFromPlaylist(index);
     }
 
     @Override
@@ -852,7 +872,7 @@ public class WinMediaPlayerX extends AbstractMediaPlayer implements PlaylistSupp
 
         @Override
         protected PlayerCallback initCallback() {
-            return new PlayerCallback()   {
+            return new PlayerCallback()       {
 
                 @Override
                 public void play() throws PlayException {
