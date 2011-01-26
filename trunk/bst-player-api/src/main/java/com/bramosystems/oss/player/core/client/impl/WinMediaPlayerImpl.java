@@ -290,6 +290,12 @@ public class WinMediaPlayerImpl extends JavaScriptObject {
     } catch(e) {}
     }-*/;
 
+   public final native boolean isAutoStart() /*-{
+    try {
+    return this.settings.autoStart;
+    } catch(e) {}
+    }-*/;
+
     // test playlist creation ...
     public final native Playlist getCurrentPlaylist() /*-{
     try {
@@ -304,9 +310,11 @@ public class WinMediaPlayerImpl extends JavaScriptObject {
     }-*/;
     
     public final native Playlist createPlaylist(String name) /*-{
-    try {
-    return this.newPlaylist(name, null);
-    } catch(e) {return null;}
+//    try {
+    v = this.newPlaylist(name, null);
+    $wnd.alert('v ' + v.toString()); 
+           return v;
+//    } catch(e) {return null;}
     }-*/;
 
     public final native Media createMedia(String mediaURL) /*-{

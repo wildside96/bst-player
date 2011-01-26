@@ -28,6 +28,7 @@ import com.bramosystems.oss.player.core.client.ui.FlashMediaPlayer;
 import com.bramosystems.oss.player.core.client.ui.NativePlayer;
 import com.bramosystems.oss.player.core.client.ui.QuickTimePlayer;
 import com.bramosystems.oss.player.core.client.ui.VLCPlayer;
+import com.bramosystems.oss.player.core.client.ui.WinMediaPlayer;
 import com.bramosystems.oss.player.core.event.client.PlayStateEvent;
 import com.bramosystems.oss.player.core.event.client.PlayStateEvent.State;
 import com.bramosystems.oss.player.core.event.client.PlayStateHandler;
@@ -100,7 +101,7 @@ public class Dev extends FlowPanel implements EntryPoint {
         try {
             switch (plugin) {
                 case DivXPlayer:
-                    mmp = new FlatVideoPlayer(Plugin.FlashPlayer,
+                    mmp = new FlatVideoPlayer(Plugin.WinMediaPlayer,
 //                    mmp = new DivXPlayer(
                             mrl.getNextResource(true),
                             false, "350px", "100%");
@@ -128,7 +129,7 @@ public class Dev extends FlowPanel implements EntryPoint {
 //                    ((PlaylistSupport) mmp).addToPlaylist(getURL("/local-video/Sample.mov"));
                     break;
                 case WinMediaPlayer:
-                    mmp = new WinMediaPlayerX(mrl.getNextResource(true), false, HEIGHT, WIDTH);
+                    mmp = new WinMediaPlayer(mrl.getNextResource(true), false, HEIGHT, WIDTH);
 //                    ((PlaylistSupport) mmp).addToPlaylist(getURL("/local-video/o-na-som.mp3"));
 //                    mmp = new Capsule(Plugin.FlashPlayer, getURL("/local-video/applause.mp3"), false);
 //                    ((PlaylistSupport) mmp).addToPlaylist(getURL("/local-video/o-na-som.mp3"));
