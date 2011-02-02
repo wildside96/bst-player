@@ -729,7 +729,7 @@ public class QuickTimePlayer extends AbstractMediaPlayer implements MatrixSuppor
         ToFit,
         /**
          * Scale the movie to fill as much of the specified player size as possible while preserving the
-         * movie’s aspect ratio
+         * movie's aspect ratio
          */
         Aspect;
     }
