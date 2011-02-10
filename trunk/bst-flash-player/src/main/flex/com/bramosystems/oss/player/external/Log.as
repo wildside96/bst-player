@@ -22,11 +22,28 @@ package com.bramosystems.oss.player.external {
         private static var playerId:String = PlayerOptions.playerId;
 
         public static function info(message:String):void {
-            ExternalInterface.call("bstplayer.handlers.swf." + playerId + ".onMessage", 0, message);
+            try {
+                ExternalInterface.call("bstplayer.handlers.swf." + playerId + ".onMessage", 0, message);
+            } catch(err:SecurityError) {
+            } catch(err:Error) {
+            }            
         }
 
         public static function error(message:String):void {
-            ExternalInterface.call("bstplayer.handlers.swf." + playerId + ".onMessage", 1, message);
+            try {
+               ExternalInterface.call("bstplayer.handlers.swf." + playerId + ".onMessage", 1, message);
+            } catch(err:SecurityError) {
+            } catch(err:Error) {
+            }            
+        }
+
+        public static function debug(message:String):void {
+            try {
+                if(PlayerOptions.isDebug)
+                   ExternalInterface.call("bstplayer.handlers.swf." + playerId + ".onMessage", 0, message);
+            } catch(err:SecurityError) {
+            } catch(err:Error) {
+            }            
         }
     }
 }

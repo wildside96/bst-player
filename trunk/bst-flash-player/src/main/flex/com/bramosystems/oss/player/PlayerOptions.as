@@ -24,11 +24,19 @@ package com.bramosystems.oss.player {
         }
 
         public static function get autoplay():Boolean {
-            return Application.application.parameters.autoplay != "false";
+            return Application.application.parameters.autoplay == "true";
         }
 
         public static function get mediaURL():String {
             return Application.application.parameters.mediaURL;
+        }
+
+        public static function get isDebug():Boolean {
+            return Application.application.parameters.debug == "true";
+        }
+
+        public static function get isMouseEventsEnabled():Boolean {
+            return Application.application.parameters.enableMouseEvent == "true";
         }
     }
 }
