@@ -29,7 +29,11 @@ package com.bramosystems.oss.player.external {
         public static var controller:Controller;
 
         public static function fireApplicationInitialized():void {
-            ExternalInterface.call("bstplayer.handlers.swf." + playerId + ".onInit");
+            try {
+                ExternalInterface.call("bstplayer.handlers.swf." + playerId + ".onInit");
+            } catch(err:SecurityError) {
+            } catch(err:Error) {
+            }            
         }
 
         /**
@@ -43,24 +47,42 @@ package com.bramosystems.oss.player.external {
          */
         public static function fireMediaStateChanged(state:int, playlistIndex:int = 0):void {
             controller.onMediaStateChanged(state, playlistIndex);
-            ExternalInterface.call("bstplayer.handlers.swf." + playerId + ".onStateChanged", state, playlistIndex);
+            try {
+                ExternalInterface.call("bstplayer.handlers.swf." + playerId + ".onStateChanged", state, playlistIndex);
+            } catch(err:SecurityError) {
+            } catch(err:Error) {
+            }            
         }
 
         public static function fireLoadingProgress(progress:Number):void {
             controller.onLoadingProgress(progress);
-            ExternalInterface.call("bstplayer.handlers.swf." + playerId + ".onLoadingProgress", progress);
+            try {
+                ExternalInterface.call("bstplayer.handlers.swf." + playerId + ".onLoadingProgress", progress);
+            } catch(err:SecurityError) {
+            } catch(err:Error) {
+            }            
         }
 
         public static function fireFullScreenChanged(fullscreen:Boolean):void {
-            ExternalInterface.call("bstplayer.handlers.swf." + playerId + ".onFullscreen", fullscreen);
+            try {
+                ExternalInterface.call("bstplayer.handlers.swf." + playerId + ".onFullscreen", fullscreen);
+            } catch(err:SecurityError) {
+            } catch(err:Error) {
+            }            
         }
 
         public static function firePlayingProgress(progress:Number):void {
             controller.onPlayingProgress(progress);
-            ExternalInterface.call("bstplayer.handlers.swf." + playerId + ".onPlayingProgress", progress);
+            try {
+                ExternalInterface.call("bstplayer.handlers.swf." + playerId + ".onPlayingProgress", progress);
+            } catch(err:SecurityError) {
+            } catch(err:Error) {
+            }            
         }
 
         public static function fireID3Metadata(info:ID3Info):void {
+            controller.onMetadata();
+
             // parse into CSV like values ...
             // year[$]albumTitle[$]artists[$]comment[$]genre[$]title[$]
             // contentProviders[$]copyright[$]duration[$]hardwareSoftwareRequirements[$]
@@ -71,11 +93,16 @@ package com.bramosystems.oss.player.external {
                                 info.TOLY + "[$]" + info.TOWN + "[$]" + info.TLEN + "[$]" +
                                 info.TSSE + "[$]" + info.TPUB + "[$]" + info.TRSO + "[$]" +
                                 info.TRSN + "[$]0[$]0";
-            controller.onMetadata();
-            ExternalInterface.call("bstplayer.handlers.swf." + playerId + ".onMetadata", id3);
+            try {
+                ExternalInterface.call("bstplayer.handlers.swf." + playerId + ".onMetadata", id3);
+            } catch(err:SecurityError) {
+            } catch(err:Error) {
+            }            
         }
 
         public static function fireVideoMetadata(duration:Number, info:String, width:Number, height:Number):void {
+            controller.onMetadata();
+
             // parse into CSV like values ...
             // year[$]albumTitle[$]artists[$]comment[$]genre[$]title[$]
             // contentProviders[$]copyright[$]duration[$]hardwareSoftwareRequirements[$]
@@ -84,48 +111,84 @@ package com.bramosystems.oss.player.external {
             var id3:String = "0[$] [$] [$] [$] [$] [$] [$] [$]" + (duration * 1000) +
                              "[$]" + info + "[$] [$] [$] [$]" + (isNaN(width) ? 0 : width) + "[$]" +
                             (isNaN(height) ? 0 : height);
-            controller.onMetadata();
-            ExternalInterface.call("bstplayer.handlers.swf." + playerId + ".onMetadata", id3);
+            try {
+                ExternalInterface.call("bstplayer.handlers.swf." + playerId + ".onMetadata", id3);
+            } catch(err:SecurityError) {
+            } catch(err:Error) {
+            }            
         }
 
         public static function fireMouseDownEvent(event:MouseEvent):void {
-            ExternalInterface.call("bstplayer.handlers.swf." + playerId + ".onEvent", 1, event.buttonDown,
-                event.altKey, event.ctrlKey, event.shiftKey, false, //event.commandKey,
-                int(event.stageX), int(event.stageY));
+            try {
+                if(PlayerOptions.isMouseEventsEnabled)
+                    ExternalInterface.call("bstplayer.handlers.swf." + playerId + ".onEvent", 1, event.buttonDown,
+                        event.altKey, event.ctrlKey, event.shiftKey, false, //event.commandKey,
+                        int(event.stageX), int(event.stageY));
+            } catch(err:SecurityError) {
+            } catch(err:Error) {
+            }            
         }
         public static function fireMouseUpEvent(event:MouseEvent):void {
-            ExternalInterface.call("bstplayer.handlers.swf." + playerId + ".onEvent", 2, event.buttonDown,
-                event.altKey, event.ctrlKey, event.shiftKey, false, //event.commandKey,
-                int(event.stageX), int(event.stageY));
+            try {
+                if(PlayerOptions.isMouseEventsEnabled)
+                    ExternalInterface.call("bstplayer.handlers.swf." + playerId + ".onEvent", 2, event.buttonDown,
+                        event.altKey, event.ctrlKey, event.shiftKey, false, //event.commandKey,
+                        int(event.stageX), int(event.stageY));
+            } catch(err:SecurityError) {
+            } catch(err:Error) {
+            }            
         }
         public static function fireMouseMoveEvent(event:MouseEvent):void {
-            ExternalInterface.call("bstplayer.handlers.swf." + playerId + ".onEvent", 3, event.buttonDown,
-                event.altKey, event.ctrlKey, event.shiftKey, false, //event.commandKey,
-                int(event.stageX), int(event.stageY));
+            try {
+                if(PlayerOptions.isMouseEventsEnabled)
+                    ExternalInterface.call("bstplayer.handlers.swf." + playerId + ".onEvent", 3, event.buttonDown,
+                        event.altKey, event.ctrlKey, event.shiftKey, false, //event.commandKey,
+                        int(event.stageX), int(event.stageY));
+            } catch(err:SecurityError) {
+            } catch(err:Error) {
+            }
         }
         public static function fireClickEvent(event:MouseEvent):void {
-            ExternalInterface.call("bstplayer.handlers.swf." + playerId + ".onEvent", 10, event.buttonDown,
-                event.altKey, event.ctrlKey, event.shiftKey, false, //event.commandKey,
-                int(event.stageX), int(event.stageY));
+            try {
+                if(PlayerOptions.isMouseEventsEnabled)
+                    ExternalInterface.call("bstplayer.handlers.swf." + playerId + ".onEvent", 10, event.buttonDown,
+                        event.altKey, event.ctrlKey, event.shiftKey, false, //event.commandKey,
+                        int(event.stageX), int(event.stageY));
+            } catch(err:SecurityError) {
+            } catch(err:Error) {
+            }            
         }
         public static function fireDoubleClickEvent(event:MouseEvent):void {
-            ExternalInterface.call("bstplayer.handlers.swf." + playerId + ".onEvent", 11, event.buttonDown,
-                event.altKey, event.ctrlKey, event.shiftKey, false, //event.commandKey,
-                int(event.stageX), int(event.stageY));
+            try {
+                if(PlayerOptions.isMouseEventsEnabled)
+                    ExternalInterface.call("bstplayer.handlers.swf." + playerId + ".onEvent", 11, event.buttonDown,
+                        event.altKey, event.ctrlKey, event.shiftKey, false, //event.commandKey,
+                        int(event.stageX), int(event.stageY));
+            } catch(err:SecurityError) {
+            } catch(err:Error) {
+            }            
         }
         public static function fireKeyDownEvent(event:KeyboardEvent):void {
-            Log.info("Firing KeyDown Event : " + event.charCode);
-            ExternalInterface.call("bstplayer.handlers.swf." + playerId + ".onEvent", 20, false, //event.buttonDown,
-                event.altKey, event.ctrlKey, event.shiftKey, false, //event.commandKey,
-                event.keyCode, event.charCode);
-            ExternalInterface.call("bstplayer.handlers.swf." + playerId + ".onEvent", 21, false, //event.buttonDown,
-                event.altKey, event.ctrlKey, event.shiftKey, false, //event.commandKey,
-                event.keyCode, event.charCode);
+            Log.debug("Firing KeyDown Event : " + event.charCode);
+            try {
+                ExternalInterface.call("bstplayer.handlers.swf." + playerId + ".onEvent", 20, false, //event.buttonDown,
+                    event.altKey, event.ctrlKey, event.shiftKey, false, //event.commandKey,
+                    event.keyCode, event.charCode);
+                ExternalInterface.call("bstplayer.handlers.swf." + playerId + ".onEvent", 21, false, //event.buttonDown,
+                    event.altKey, event.ctrlKey, event.shiftKey, false, //event.commandKey,
+                    event.keyCode, event.charCode);
+            } catch(err:SecurityError) {
+            } catch(err:Error) {
+            }            
         }
         public static function fireKeyUpEvent(event:KeyboardEvent):void {
-            ExternalInterface.call("bstplayer.handlers.swf." + playerId + ".onEvent", 22, false, //event.buttonDown,
-                event.altKey, event.ctrlKey, event.shiftKey, false, //event.commandKey,
-                event.keyCode, event.charCode);
+            try {
+                ExternalInterface.call("bstplayer.handlers.swf." + playerId + ".onEvent", 22, false, //event.buttonDown,
+                    event.altKey, event.ctrlKey, event.shiftKey, false, //event.commandKey,
+                    event.keyCode, event.charCode);
+            } catch(err:SecurityError) {
+            } catch(err:Error) {
+            }            
         }
     }
 }

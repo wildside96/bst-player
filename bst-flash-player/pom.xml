@@ -14,31 +14,18 @@
         This project is component part of the BST Player API.
         It implements the FlashPlayer SWF application.
     </description>
-
+    
     <build>
         <sourceDirectory>src/main/flex</sourceDirectory>
-        <defaultGoal>install</defaultGoal>
         <plugins>
             <plugin>
                 <groupId>org.sonatype.flexmojos</groupId>
                 <artifactId>flexmojos-maven-plugin</artifactId>
                 <extensions>true</extensions>
-                
-                        <configuration>
-                    <useNetwork>false</useNetwork>
-                            <incremental>false</incremental>
-                        </configuration>                        
-                <!--executions>
-                    <execution>
-                        <id>network</id>
-                        <goals>
-                            <goal>compile-swf</goal>
-                        </goals>
-                        <configuration>
-                            <useNetwork>false</useNetwork>
-                            <incremental>false</incremental>
-                        </configuration>                        
-                    </execution>
+                <configuration>
+                    <incremental>false</incremental>
+                </configuration>                                      
+                <executions>
                     <execution>
                         <id>local-sandbox</id>
                         <goals>
@@ -46,11 +33,10 @@
                         </goals>
                         <configuration>
                             <useNetwork>false</useNetwork>
-                            <incremental>false</incremental>
                             <classifier>lo</classifier>
                         </configuration>                        
                     </execution>
-                </executions-->
+                </executions>
             </plugin>
         </plugins>
     </build>

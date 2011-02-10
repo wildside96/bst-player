@@ -41,35 +41,57 @@
             private var player:Player;
 
             private function initApp():void {
+                try {
+                    var setting:Setting = new Setting();
+                    var playlist:Playlist = new Playlist(setting);
+
+                    // init player ...
+                    player = new Player(setting, playlist);
+                    addEventListener(ResizeEvent.RESIZE, player.resizeDoVDUSize);
+
+                    // init controller ...
+                    controller = new Controller(player, setting, playlist);
+                    EventUtil.controller = controller;
+
+                    addChild(player);
+                    addChild(controller);
+
+                    /********************** ADD EVENT LISTENERS ************************/
+                    addEventListener(MouseEvent.MOUSE_DOWN, EventUtil.fireMouseDownEvent);
+                    addEventListener(MouseEvent.MOUSE_UP, EventUtil.fireMouseUpEvent);
+                    addEventListener(MouseEvent.MOUSE_MOVE, EventUtil.fireMouseMoveEvent);
+                    addEventListener(MouseEvent.MOUSE_MOVE, controller.onAHMouseMove);
+                    addEventListener(MouseEvent.CLICK, EventUtil.fireClickEvent);
+                    addEventListener(MouseEvent.DOUBLE_CLICK, EventUtil.fireDoubleClickEvent);
+                    application.addEventListener(KeyboardEvent.KEY_UP, EventUtil.fireKeyUpEvent);
+                    application.addEventListener(KeyboardEvent.KEY_DOWN, EventUtil.fireKeyDownEvent);
+
+                    /********************** SETUP JS-INTERFACE FUNCTIONS ************************/
+                    attachJSInterface(setting, playlist);
+
+                    /******************* FINISH INIT ***********************************/
+                    contextMenu = new PlayerMenu().getMenu();
+                    Log.info("BST Flash Player 1.2");
+                    Log.info("Flash Plugin Version " + getFlashVersion());
+                    Log.debug("Security Zone " + Security.sandboxType);
+                    playlist.add(PlayerOptions.mediaURL);
+                    EventUtil.fireApplicationInitialized();
+
+                    player.loadNext();
+                    if (PlayerOptions.autoplay) {
+                        player.play();
+                    }
+                } catch(err:SecurityError) {
+                    Log.error(err.message);
+                } catch(err:Error) {
+                    Log.error(err.message);
+                }
+            }
+
+            private function attachJSInterface(setting:Setting, playlist:Playlist):void {
                 // Check if the container is able to use the external API.
-                if (ExternalInterface.available) {
-                    try {
-                        var setting:Setting = new Setting();
-                        var playlist:Playlist = new Playlist(setting);
-
-                        // init player ...
-                        player = new Player(setting, playlist);
-                        addEventListener(ResizeEvent.RESIZE, player.resizeDoVDUSize);
-
-                        // init controller ...
-                        controller = new Controller(player, setting, playlist);
-                        EventUtil.controller = controller;
-
-                        addChild(player);
-                        addChild(controller);
-
-                        /********************** ADD EVENT LISTENERS ************************/
-                        addEventListener(MouseEvent.MOUSE_DOWN, EventUtil.fireMouseDownEvent);
-                        addEventListener(MouseEvent.MOUSE_UP, EventUtil.fireMouseUpEvent);
-                        addEventListener(MouseEvent.MOUSE_MOVE, EventUtil.fireMouseMoveEvent);
-                        addEventListener(MouseEvent.MOUSE_MOVE, controller.onAHMouseMove);
-                        addEventListener(MouseEvent.CLICK, EventUtil.fireClickEvent);
-                        addEventListener(MouseEvent.DOUBLE_CLICK, EventUtil.fireDoubleClickEvent);
-                        application.addEventListener(KeyboardEvent.KEY_UP, EventUtil.fireKeyUpEvent);
-                        application.addEventListener(KeyboardEvent.KEY_DOWN, EventUtil.fireKeyDownEvent);
-
-                        /********************** SETUP JS-INTERFACE FUNCTIONS ************************/
-                        // setup callback interfaces...
+                try {
+                    if (ExternalInterface.available) {          // setup callback interfaces...
                         ExternalInterface.addCallback("getPlayerVersion", getPlayerVersion);
                         ExternalInterface.addCallback("getPluginVersion", getFlashVersion);
                         ExternalInterface.addCallback("close", player.close);
@@ -109,31 +131,17 @@
                         ExternalInterface.addCallback("setMatrix", player.setMatrix);
 
                         // fullscreen support ... [since 1.2]
-//                        ExternalInterface.addCallback("toggleFullScreen", controller.toggleScreen);
-//                        ExternalInterface.addCallback("isFullScreen", controller.isFullScreenState);
+    //                        ExternalInterface.addCallback("toggleFullScreen", controller.toggleScreen);
+    //                        ExternalInterface.addCallback("isFullScreen", controller.isFullScreenState);
                         ExternalInterface.addCallback("isControllerVisible", controller.isControllerVisible);
                         ExternalInterface.addCallback("setControllerVisible", controller.setControllerVisible);
                         ExternalInterface.addCallback("setAutoHideController", controller.setAutoHide);
                         ExternalInterface.addCallback("isAutoHideController", controller.isAutoHide);
-
-                        /******************* FINISH INIT ***********************************/
-                        contextMenu = new PlayerMenu().getMenu();
-                        Log.info("BST Flash Player 1.2");
-                        Log.info("Flash Plugin Version " + getFlashVersion());
-                        playlist.add(PlayerOptions.mediaURL);
-                        EventUtil.fireApplicationInitialized();
-
-                        player.loadNext();
-                        if (PlayerOptions.autoplay) {
-                            player.play();
-                        }
-                    } catch(err:SecurityError) {
-                        Log.error(err.message);
-                    } catch(err:Error) {
-                        Log.error(err.message);
+                    } else {
+                        trace("External interface is not available for this container.");
                     }
-                } else {
-                    Log.info("External interface is not available for this container.");
+                } catch(err:SecurityError) {
+                } catch(err:Error) {
                 }
             }
 
@@ -149,7 +157,7 @@
             }
 
             public function getPlayerVersion():String {
-                return "1.2";
+                return "1.2.1";
             }
         ]]>
     </mx:Script>

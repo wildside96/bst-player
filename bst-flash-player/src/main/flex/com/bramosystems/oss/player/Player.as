@@ -91,6 +91,7 @@ package com.bramosystems.oss.player {
         }
 
         public function play():void {
+            Log.debug("state : " + state);
             switch(state) {
                 case LOADED:
                 case PAUSED:
@@ -256,9 +257,15 @@ package com.bramosystems.oss.player {
                 addChild(vdu);
                 Log.info("VideoEngine: Loading media at '" + mediaURL + "'");
             }
-
-            player._load(mediaURL);
-            state = LOADED;
+            
+            try {
+                player._load(mediaURL);
+                state = LOADED;
+            } catch(err:SecurityError) {
+                Log.error("SEVERE: " + err.message);
+            } catch(err:Error) {
+                Log.error("SEVERE: " + err.message);
+            }
         }
 
         public function onUpdateVolumeEvent(event:SettingChangedEvent):void {
@@ -272,13 +279,13 @@ package com.bramosystems.oss.player {
 
         /******* fix streaching/cropping issue, let app auto-adjust video size *******/
         private function metaDoVDUSize(event:MetadataEvent):void {
-             Log.info("update from metadata event ... ");
+             Log.debug("update from metadata event ... ");
            updateVDUSize();
         }
 
         public function resizeDoVDUSize(event:ResizeEvent):void {
             if(player && (player is VideoEngine)) {
-            Log.info("update from resize event ... ");
+            Log.debug("update from resize event ... ");
                 updateVDUSize();
             }
         }
@@ -292,22 +299,22 @@ package com.bramosystems.oss.player {
             if((_aHeight < _vduHeight) || (_aWidth < _vduWidth)) {  // avoid cropping
                 vdu.percentHeight = 100;
                 vdu.percentWidth = 100;
-            Log.info("avoid cropping ... ");
+            Log.debug("avoid cropping ... ");
             } else if((_aHeight > _vduHeight) || (_aWidth > _vduWidth)) {  // avoid steching
                     vdu.height = _vduHeight;
                     vdu.width = _vduWidth;
-            Log.info("avoid streching ... ");
+            Log.debug("avoid streching ... ");
             } else if((_aHeight > _vduHeight) && (_aWidth > _vduWidth)) {  // fit to window
                 vdu.percentHeight = 100;
                 vdu.percentWidth = 100;
-            Log.info("fit to window ... ");
+            Log.debug("fit to window ... ");
             }
-            Log.info("dim vdu : " + vdu.height + ", " + vdu.width);
-            Log.info("dim vd% : " + vdu.percentHeight + ", " + vdu.percentWidth);
-            Log.info("dim app : " + _aHeight + ", " + _aWidth);
-            Log.info("dim _vd : " + _vduHeight + ", " + _vduWidth);
+            Log.debug("dim vdu : " + vdu.height + ", " + vdu.width);
+            Log.debug("dim vd% : " + vdu.percentHeight + ", " + vdu.percentWidth);
+            Log.debug("dim app : " + _aHeight + ", " + _aWidth);
+            Log.debug("dim _vd : " + _vduHeight + ", " + _vduWidth);
             if(vdu.metadata)
-            Log.info("dim mtd : " + vdu.metadata.height + ", " + vdu.metadata.width);
+            Log.debug("dim mtd : " + vdu.metadata.height + ", " + vdu.metadata.width);
         }
 
         /************************** FS effects **********************/
