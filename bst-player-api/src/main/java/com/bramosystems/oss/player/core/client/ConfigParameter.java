@@ -37,7 +37,7 @@ public enum ConfigParameter {
      * <p>This parameter requires a {@linkplain TransparencyMode} value type
      */
     TransparencyMode(TransparencyMode.class),
-
+    
     /**
      * Parameter for WinMediaPlayers' UI Mode property.
      *
@@ -45,7 +45,7 @@ public enum ConfigParameter {
      * <p>This parameter requires a {@linkplain UIMode} value type
      */
     WMPUIMode(UIMode.class),
-
+    
     /**
      * Parameter for QuickTimePlayers' Scale property.
      *
@@ -58,11 +58,21 @@ public enum ConfigParameter {
      * @see Scale
      * @since 1.2
      */
-    QTScale(Scale.class, Double.class);
-
+    QTScale(Scale.class, Double.class),
+    
+    /**
+     * Parameter for the background color property or a player.
+     *
+     * <p>This parameter is used to specify the background color for the exposed part of a players' alloted space
+     * The value should be specified as a CSS color value (i.e. hexadecimal RGB values)</p>
+     *
+     * @since 1.2.1
+     */
+    BackgroundColor(String.class);
+    
     private Class[] valueType;
 
-    private ConfigParameter(Class ... valueType) {
+    private ConfigParameter(Class... valueType) {
         this.valueType = valueType;
     }
 

@@ -13,7 +13,6 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-
 package com.bramosystems.oss.player.core.client;
 
 /**
@@ -58,6 +57,18 @@ public class PluginNotFoundException extends Exception {
     public PluginNotFoundException(String message) {
         super(message);
         this.plugin = Plugin.Auto;
+    }
+
+    /**
+     * Constructs a new PluginNotFoundException with the specified message
+     * 
+     * @param plugin the required plugin
+     * @param message describes the exception
+     * @since 1.2.1
+     */
+    public PluginNotFoundException(Plugin plugin, String message) {
+        super(message);
+        this.plugin = plugin;
     }
 
     /**

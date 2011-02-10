@@ -16,14 +16,15 @@
 package com.bramosystems.oss.player.dev.client;
 
 //import com.bramosystems.oss.player.capsule.client.Capsule;
+import com.bramosystems.oss.player.capsule.client.Capsule;
 import com.bramosystems.oss.player.core.client.AbstractMediaPlayer;
 import com.bramosystems.oss.player.core.client.ConfigParameter;
 import com.bramosystems.oss.player.core.client.LoadException;
 import com.bramosystems.oss.player.core.client.PlayerUtil;
-import com.bramosystems.oss.player.core.client.PlaylistSupport;
 import com.bramosystems.oss.player.core.client.Plugin;
 import com.bramosystems.oss.player.core.client.PluginNotFoundException;
 import com.bramosystems.oss.player.core.client.PluginVersionException;
+import com.bramosystems.oss.player.core.client.ui.DivXPlayer;
 import com.bramosystems.oss.player.core.client.ui.FlashMediaPlayer;
 import com.bramosystems.oss.player.core.client.ui.NativePlayer;
 import com.bramosystems.oss.player.core.client.ui.QuickTimePlayer;
@@ -33,7 +34,6 @@ import com.bramosystems.oss.player.core.event.client.PlayStateEvent;
 import com.bramosystems.oss.player.core.event.client.PlayStateEvent.State;
 import com.bramosystems.oss.player.core.event.client.PlayStateHandler;
 //import com.bramosystems.oss.player.flat.client.FlatVideoPlayer;
-import com.bramosystems.oss.player.flat.client.FlatVideoPlayer;
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -41,6 +41,7 @@ import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.Window.Location;
 import com.google.gwt.user.client.ui.Button;
+import com.google.gwt.user.client.ui.DialogBox;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.PopupPanel;
@@ -52,27 +53,28 @@ import com.google.gwt.user.client.ui.Widget;
  * @author Sikirulai Braheem <sbraheem at gmail.com>
  */
 public class Dev extends FlowPanel implements EntryPoint {
-    
+
     private final String HEIGHT = "350px", WIDTH = "90%";
     private AbstractMediaPlayer mmp;
     private MRL mrl;
-    
+
     public Dev() {
 //        setSpacing(20);
         setWidth("80%");
-        
-        GWT.setUncaughtExceptionHandler(new GWT.UncaughtExceptionHandler()  {
-            
+
+        GWT.setUncaughtExceptionHandler(new GWT.UncaughtExceptionHandler()   {
+
             @Override
             public void onUncaughtException(Throwable e) {
                 GWT.log(e.getMessage(), e);
                 Window.alert("Dev Uncaught : " + e.getMessage());
             }
         });
-        
+
         mrl = new MRL();
         mrl.addURL(GWT.getModuleBaseURL() + "big-buck-bunny.mp4");
         mrl.addURL(GWT.getModuleBaseURL() + "applause.mp3");
+//        mrl.addURL("applause.mp3");
     }
 
 //TODO: test resizeToVideoSize feature for plugins ...
@@ -80,14 +82,14 @@ public class Dev extends FlowPanel implements EntryPoint {
     public void onModuleLoad() {
 //        RootPanel.get().add(new ScrollPanel(this));
         RootPanel.get().add(this);
-        addPlayer(Plugin.DivXPlayer);
+        addPlayer(Plugin.FlashPlayer);
 
 //        add(new MimeStuffs());
 //        addUTube();
-        //       issueScott();
+//               issueDialog();
         //        add(pb.createAndBindUi(this)); TODO: requires GWT 2.1
     }
-    
+
     private void addPlayer(Plugin plugin) {
         /*
         add(new Button("Show", new ClickHandler() {
@@ -101,47 +103,38 @@ public class Dev extends FlowPanel implements EntryPoint {
         try {
             switch (plugin) {
                 case DivXPlayer:
-                    mmp = new FlatVideoPlayer(Plugin.WinMediaPlayer,
-//                    mmp = new DivXPlayer(
-                            mrl.getNextResource(true),
-                            false, "350px", "100%");
+                    mmp = new DivXPlayer(mrl.getNextResource(true), false, "350px", "100%");
 //                    divx.setBannerEnabled(false);
 //                    divx.setDisplayMode(DivXPlayer.DisplayMode.LARGE);
 //                    divx.setAllowContextMenu(false);
-//                    ((DivXPlayer) mmp).addToPlaylist(getURL("/local-video/divx7_postinstall.divx"));
-//                   ((DivXPlayer) mmp).addToPlaylist(getURL("/local-video/gi-joe-trailer.mkv"));
                     break;
                 case FlashPlayer:
                     mmp = new FlashMediaPlayer(mrl.getNextResource(true), true, HEIGHT, WIDTH);
                     break;
                 case QuickTimePlayer:
                     mmp = new QuickTimePlayer(mrl.getNextResource(true), false, HEIGHT, WIDTH);
-//                    ((PlaylistSupport) mmp).addToPlaylist(getURL("/local-video/01_Al_Fatihah.m4a"));
                     break;
                 case VLCPlayer:
-//                    mmp = new Capsule(Plugin.FlashPlayer, getURL("/local-video/fireflies.flv"), false);
-                    mmp = new VLCPlayer(getURL("/local-video/divx7_postinstall.divx"), true, HEIGHT, WIDTH);
-//                    mmp.setVolume(0.2);
-//                    ((PlaylistSupport) mmp).addToPlaylist(getURL("/local-video/fireflies.flv"));
-//                    mmp = new VLCPlayer(getURL("/local-video/big-buck-bunny.mp4"), true, "250px", "100%");
-//                    ((PlaylistSupport) mmp).addToPlaylist(getURL("/local-video/divx7_postinstall.divx"));
-                    //                  ((PlaylistSupport) mmp).addToPlaylist(getURL("/local-video/traffic.flv"));
-//                    ((PlaylistSupport) mmp).addToPlaylist(getURL("/local-video/Sample.mov"));
-                    break;
+                    mmp = new VLCPlayer(mrl.getNextResource(true), false, HEIGHT, WIDTH);
+                   break;
                 case WinMediaPlayer:
                     mmp = new WinMediaPlayer(mrl.getNextResource(true), false, HEIGHT, WIDTH);
-//                    ((PlaylistSupport) mmp).addToPlaylist(getURL("/local-video/o-na-som.mp3"));
-//                    mmp = new Capsule(Plugin.FlashPlayer, getURL("/local-video/applause.mp3"), false);
-//                    ((PlaylistSupport) mmp).addToPlaylist(getURL("/local-video/o-na-som.mp3"));
                     break;
                 case Native:
                     mmp = new NativePlayer(mrl.getNextResource(true), true, HEIGHT, WIDTH);
-//                    ((NativePlayer) mmp).addToPlaylist(getURL("/local-video/big-buck-bunny.mp4"));
+                    break;
+                case PlaylistSupport:
+                    mmp = new Capsule(Plugin.FlashPlayer, mrl.getNextResource(true), false);
+                    break;
+                case Auto:
+                    mmp = PlayerUtil.getPlayer(mrl.getNextResource(true), false, "350px", "100%");
+                //                    mmp = new FlatVideoPlayer(Plugin.FlashPlayer, mrl.getNextResource(true),  false, "350px", "100%");
             }
             mmp.showLogger(true);
             mmp.setConfigParameter(ConfigParameter.QTScale, QuickTimePlayer.Scale.Aspect);
-            ((PlaylistSupport) mmp).addToPlaylist(mrl.getNextResource(true));
-//            mmp.setResizeToVideoSize(true);
+            mmp.setConfigParameter(ConfigParameter.BackgroundColor, "#ffffff") ;
+            //           ((PlaylistSupport) mmp).addToPlaylist(mrl.getNextResource(false));
+            mmp.setResizeToVideoSize(true);
 //            mmp.setLoopCount(2);
 //            mmp.setRepeatMode(RepeatMode.REPEAT_ALL);
 //            ((PlaylistSupport) mmp).setShuffleEnabled(true);
@@ -168,13 +161,13 @@ public class Dev extends FlowPanel implements EntryPoint {
             GWT.log("Missing Plugin Version >>>>>", ex);
         }
     }
-    
+
     private void addUTube() {
-        final PlayStateHandler psh = new PlayStateHandler()  {
-            
+        final PlayStateHandler psh = new PlayStateHandler()   {
+
             @Override
             public void onPlayStateChanged(PlayStateEvent event) {
-                
+
                 if (event.getPlayState() == State.Finished) {
                     GWT.log("finished");
                 }
@@ -189,9 +182,9 @@ public class Dev extends FlowPanel implements EntryPoint {
                 }
             }
         };
-        
-        add(new Button("[1] click to create player", new ClickHandler()  {
-            
+
+        add(new Button("[1] click to create player", new ClickHandler()   {
+
             @Override
             public void onClick(ClickEvent event) {
                 try {
@@ -205,7 +198,7 @@ public class Dev extends FlowPanel implements EntryPoint {
                 }
             }
         }));
-        
+
         try {
             npp = new NativePlayer(null, false);
             npp.setResizeToVideoSize(true);
@@ -216,9 +209,9 @@ public class Dev extends FlowPanel implements EntryPoint {
         } catch (LoadException ex) {
         } catch (PluginNotFoundException ex) {
         }
-        
-        add(new Button("[2] click to set player url", new ClickHandler()  {
-            
+
+        add(new Button("[2] click to set player url", new ClickHandler()   {
+
             @Override
             public void onClick(ClickEvent event) {
                 try {
@@ -230,7 +223,7 @@ public class Dev extends FlowPanel implements EntryPoint {
         }));
     }
     NativePlayer npp = null;
-    
+
     private String getURL(String path) {
         return Location.createUrlBuilder().setPort(8080).setPath(path).buildString();
     }
@@ -257,9 +250,9 @@ public class Dev extends FlowPanel implements EntryPoint {
         }
         popup.add(mp);
         popup.show();
-        
+
     }
-    
+
     public void issue32a() {
         // GWT.getModuleBaseURL() + "applause.mp3";
         final String fileUrl = GWT.getModuleBaseURL() + "big-buck-bunny.mp4";
@@ -278,5 +271,42 @@ public class Dev extends FlowPanel implements EntryPoint {
             mp = PlayerUtil.getMissingPluginNotice(Plugin.FlashPlayer);
         }
         add(mp);
+    }
+
+    public void issueDialog() {
+        final DialogBox panel = new DialogBox(false, true);
+        panel.setSize("700px", "500px");
+        AbstractMediaPlayer player;
+        Widget mp = null;
+        try {
+            player = new WinMediaPlayer("", true, "464px", "620px");
+ //           player.setResizeToVideoSize(false);
+            mp = player;
+        } catch (PluginNotFoundException e) {
+            mp = PlayerUtil.getMissingPluginNotice(e.getPlugin(), e.getMessage());
+        } catch (PluginVersionException e) {
+            mp = PlayerUtil.getMissingPluginNotice(e.getPlugin(), e.getRequiredVersion());
+        } catch (LoadException e) {
+            mp = PlayerUtil.getMissingPluginNotice(Plugin.FlashPlayer);
+        }
+        
+        FlowPanel fp = new FlowPanel();
+        fp.add(new Button("close", new ClickHandler() {
+
+            @Override
+            public void onClick(ClickEvent event) {
+                panel.hide();
+            }
+        }));
+        fp.add(mp);
+        panel.setWidget(fp);
+        
+        add(new Button("Show", new ClickHandler() {
+
+            @Override
+            public void onClick(ClickEvent event) {
+                panel.center();
+            }
+        }));
     }
 }

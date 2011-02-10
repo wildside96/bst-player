@@ -18,9 +18,10 @@ package com.bramosystems.oss.player.core.client.impl.plugin;
 import com.bramosystems.oss.player.core.client.Plugin;
 import com.bramosystems.oss.player.core.client.PluginVersion;
 import java.io.Serializable;
+import java.util.Set;
 
 /**
- * Wraps basic information about a browser plug-in component.
+ * Wraps basic information about a browser media plug-in component.
  *
  * @author Sikirulai Braheem
  * @since 1.2.1
@@ -53,11 +54,12 @@ public class PluginInfo implements Serializable {
     private PluginVersion version;
     private PlayerPluginWrapperType wrapperType;
     private Plugin plugin;
+    private Set<String> registeredExtensions, registeredProtocols;
 
     /**
      * Creates a <code>PluginVersion</code>
      */
-    public PluginInfo() {
+    protected PluginInfo() {
         this(Plugin.Auto, new PluginVersion(), PlayerPluginWrapperType.Native);
     }
 
@@ -67,7 +69,7 @@ public class PluginInfo implements Serializable {
      * @param version the plugin version
      * @param wrapperType the wrapper type in use by the plugin
      */
-    public PluginInfo(Plugin plugin, PluginVersion version, PlayerPluginWrapperType wrapperType) {
+    protected PluginInfo(Plugin plugin, PluginVersion version, PlayerPluginWrapperType wrapperType) {
         this.version = version;
         this.wrapperType = wrapperType;
         this.plugin = plugin;
@@ -77,7 +79,7 @@ public class PluginInfo implements Serializable {
         return version;
     }
 
-    public void setVersion(PluginVersion version) {
+    protected void setVersion(PluginVersion version) {
         this.version = version;
     }
 
@@ -85,7 +87,7 @@ public class PluginInfo implements Serializable {
         return wrapperType;
     }
 
-    public void setWrapperType(PlayerPluginWrapperType wrapperType) {
+    protected void setWrapperType(PlayerPluginWrapperType wrapperType) {
         this.wrapperType = wrapperType;
     }
 
@@ -93,8 +95,24 @@ public class PluginInfo implements Serializable {
         return plugin;
     }
 
-    public void setPlugin(Plugin plugin) {
+    protected void setPlugin(Plugin plugin) {
         this.plugin = plugin;
+    }
+
+    public Set<String> getRegisteredExtensions() {
+        return registeredExtensions;
+    }
+
+    protected void setRegisteredExtensions(Set<String> registeredExtensions) {
+        this.registeredExtensions = registeredExtensions;
+    }
+
+    public Set<String> getRegisteredProtocols() {
+        return registeredProtocols;
+    }
+
+    protected void setRegisteredProtocols(Set<String> registeredProtocols) {
+        this.registeredProtocols = registeredProtocols;
     }
 
     @Override

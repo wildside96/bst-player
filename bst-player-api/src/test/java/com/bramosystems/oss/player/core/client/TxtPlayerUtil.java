@@ -5,6 +5,7 @@
 package com.bramosystems.oss.player.core.client;
 
 import com.bramosystems.oss.player.core.client.ui.FlashMediaPlayer;
+import com.bramosystems.oss.player.core.client.ui.NativePlayer;
 import com.bramosystems.oss.player.core.client.ui.QuickTimePlayer;
 import com.bramosystems.oss.player.core.client.ui.VLCPlayer;
 import com.bramosystems.oss.player.core.client.ui.WinMediaPlayer;
@@ -75,15 +76,24 @@ public class TxtPlayerUtil extends GWTTestCase {
     }
 
     @Test
+    public void testExtraction() {
+        System.out.println("Extract Extension");
+        assertTrue("Extract Extension: ", "ext".equals(PlayerUtil.extractExt("files/file.ext")));
+        System.out.println("Extract Protocol : " + PlayerUtil.extractProtocol("files/file.ext"));
+    }
+
+    @Test
     public void testGetPlayer() {
         AbstractMediaPlayer result;
         try {
-            System.out.println("getPlayer: MP3 format");
-            result = PlayerUtil.getPlayer("foo.mp3", false, "0", "0");
+            System.out.print("getPlayer: MP3 format - ");
+            result = PlayerUtil.getPlayer("folder/foo.mp3", false, "0", "0");
+            System.out.println(result.getClass());
             assertTrue((result instanceof QuickTimePlayer)
                     || (result instanceof WinMediaPlayer)
                     || (result instanceof FlashMediaPlayer)
-                    || (result instanceof VLCPlayer));
+                    || (result instanceof VLCPlayer)
+                    || (result instanceof NativePlayer));
         } catch (LoadException ex) {
             System.out.println("Exception : " + ex.getMessage());
         } catch (PluginNotFoundException ex) {
@@ -93,8 +103,9 @@ public class TxtPlayerUtil extends GWTTestCase {
         }
 
         try {
-            System.out.println("getPlayer: MOV format");
+            System.out.print("getPlayer: MOV format - ");
             result = PlayerUtil.getPlayer("foo.mov", false, "0", "0");
+            System.out.println(result.getClass());
             assertTrue((result instanceof QuickTimePlayer)
                     || (result instanceof VLCPlayer));
         } catch (LoadException ex) {
@@ -106,8 +117,9 @@ public class TxtPlayerUtil extends GWTTestCase {
         }
 
         try {
-            System.out.println("getPlayer: WMA format");
+            System.out.print("getPlayer: WMA format - ");
             result = PlayerUtil.getPlayer("foo.wma", false, "0", "0");
+            System.out.println(result.getClass());
             assertTrue((result instanceof WinMediaPlayer)
                     || (result instanceof VLCPlayer));
         } catch (LoadException ex) {
@@ -119,9 +131,10 @@ public class TxtPlayerUtil extends GWTTestCase {
         }
 
         try {
-            System.out.println("getPlayer: VOB format");
+            System.out.print("getPlayer: VOB format - ");
             result = PlayerUtil.getPlayer("foo.vob", false, "0", "0");
-            assertTrue(result instanceof VLCPlayer);
+            System.out.println(result.getClass());
+            assertTrue((result instanceof VLCPlayer) || (result instanceof NativePlayer));
         } catch (LoadException ex) {
             System.out.println("Exception : " + ex.getMessage());
         } catch (PluginNotFoundException ex) {
@@ -131,7 +144,7 @@ public class TxtPlayerUtil extends GWTTestCase {
         }
     }
 
-     @Test
+    @Test
     public void testSuggestPlayer() throws Exception {
         System.out.println("suggestPlayer");
 
@@ -141,7 +154,7 @@ public class TxtPlayerUtil extends GWTTestCase {
 //        assertTrue("VLC: ", instance.canHandleMedia(Plugin.VLCPlayer, null, "vob"));
     }
 
-     @Override
+    @Override
     public String getModuleName() {
         return "com.bramosystems.oss.player.core.Core";
     }

@@ -29,7 +29,6 @@ import com.bramosystems.oss.player.core.event.client.MediaInfoEvent;
 import com.bramosystems.oss.player.core.event.client.MediaInfoHandler;
 import com.bramosystems.oss.player.core.event.client.PlayStateEvent;
 import com.bramosystems.oss.player.core.event.client.PlayerStateEvent;
-import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.Document;
 import com.google.gwt.dom.client.NativeEvent;
 import com.google.gwt.event.dom.client.DomEvent;
@@ -238,11 +237,7 @@ public class FlashMediaPlayer extends AbstractMediaPlayer implements PlaylistSup
             _width = "0px";
         }
 
-        // inject bst-flash-player version via maven resources filter...
-        String playerAppFile = "bst-flash-player-1.2.1-SNAPSHOT.swf";
-//        String playerAppFile = "bst-flash-player-${version}.swf";
-
-        swf = new PlayerWidget(Plugin.FlashPlayer, playerId, GWT.getModuleBaseURL() + playerAppFile,
+        swf = new PlayerWidget(Plugin.FlashPlayer, playerId, FMPStateManager.getSWFImpl(),
                 autoplay, new BeforeUnloadCallback() {
 
             @Override
@@ -398,6 +393,7 @@ public class FlashMediaPlayer extends AbstractMediaPlayer implements PlaylistSup
     @Override
     public void playMedia() throws PlayException {
         checkAvailable();
+        fireDebug("flash play media ...");
         impl.playMedia();
     }
 
@@ -644,6 +640,16 @@ public class FlashMediaPlayer extends AbstractMediaPlayer implements PlaylistSup
         }
     }
 
+    @Override
+    public void setConfigParameter(ConfigParameter param, String value) {
+        super.setConfigParameter(param, value);
+        switch (param) {
+            case BackgroundColor:
+                swf.addParam("bgcolor", value);
+
+        }
+    }
+    
     @Override
     public RepeatMode getRepeatMode() {
         checkAvailable();

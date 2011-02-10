@@ -21,17 +21,17 @@
     <build>
         <resources>
             <resource>
-                <directory>src/main/java</directory>
+                <directory>src/main/java/com/bramosystems/oss/player/core/client/impl</directory>
                 <filtering>true</filtering>
                 <includes>
-                    <include>**/FlashMediaPlayer.java</include>
+                    <include>**/FMPStateManager.java</include>
                 </includes>
             </resource>
             <resource>
-                <directory>src/main/java</directory>
+                <directory>src/main/java/com/bramosystems/oss/player/core/client/impl</directory>
                 <filtering>false</filtering>
                 <excludes>
-                    <exclude>**/FlashMediaPlayer.java</exclude>
+                    <exclude>**/FMPStateManager.java</exclude>
                 </excludes>
             </resource>
         </resources>
@@ -54,13 +54,13 @@
                                     <version>${project.version}</version>
                                     <type>swf</type>
                                 </artifactItem>
-                                <!--artifactItem>
+                                <artifactItem>
                                     <groupId>${project.groupId}</groupId>
                                     <artifactId>bst-flash-player</artifactId>
                                     <version>${project.version}</version>
                                     <type>swf</type>
                                     <classifier>lo</classifier>
-                                </artifactItem-->
+                                </artifactItem>
                             </artifactItems>
                             <outputDirectory>${flex.apps.dir}</outputDirectory>
                         </configuration>
@@ -114,7 +114,6 @@
                         <artifactId>gwt-maven-plugin</artifactId>
                         <configuration>
                             <module>com.bramosystems.oss.player.dev.Dev</module>
-                            <soyc>false</soyc>
                             <runTarget>dev/index.html</runTarget>
                             <hostedWebapp>${project.build.directory}/${project.build.finalName}</hostedWebapp>
                             <bindAddress>0.0.0.0</bindAddress>
