@@ -17,10 +17,17 @@
                 This page contains information on the various released packages of the project.
             </p>
 
-            <subsection name="xx November 2010 - Version 1.2.1">
+            <subsection name="xx November 2011 - Version 1.2.1">
                 <p>
                     This is a bug-fix release to address display and packaging issues.
                 </p>
+
+                <p>
+                    <b>Improvements</b>
+                </p>
+                <ul>
+                    <li>Add BackgroundColor configuration property for background color support</li>
+                </ul>
 
                 <p>
                     <b>Bug Fixes</b>
