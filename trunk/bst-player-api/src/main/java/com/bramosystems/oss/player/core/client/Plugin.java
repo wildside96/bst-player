@@ -51,7 +51,7 @@ public enum Plugin {
     /**
      * Specifies the Flash Player plugin
      */
-    FlashPlayer("http://www.adobe.com/go/getflash", 9, 0, 0, "Flash Player (BST Flash Player)"),
+    FlashPlayer("http://get.adobe.com/flashplayer", 9, 0, 0, "Flash Player (BST Flash Player)"),
 
     /**
      * Specifies the Window Media Player&trade; plugin

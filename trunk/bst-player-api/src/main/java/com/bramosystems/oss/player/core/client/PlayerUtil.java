@@ -209,11 +209,11 @@ public class PlayerUtil {
         }
     }
 
-    private static String extractExt(String mediaURL) {
+    protected static String extractExt(String mediaURL) {
         return mediaURL.substring(mediaURL.lastIndexOf(".") + 1);
     }
 
-    private static String extractProtocol(String mediaURL) {
+    protected static String extractProtocol(String mediaURL) {
         if (mediaURL.contains("://")) {
             return mediaURL.substring(0, mediaURL.indexOf("://"));
         } else {
@@ -236,13 +236,10 @@ public class PlayerUtil {
         Set<String> types = MimePool.instance.getRegisteredExtensions(plugin);
         Set<String> prots = MimePool.instance.getRegisteredProtocols(plugin);
 
-        if (protocol == null) {
-            protocol = "-";
-        }
         if (pv.compareTo(plugin.getVersion()) >= 0) {   // req plugin found...
             // check for streaming protocol & extension ...
-            return ((prots != null) && prots.contains(protocol.toLowerCase()))
-                    || ((types != null) && types.contains(ext.toLowerCase()));
+            return ((protocol != null) && (prots != null) && prots.contains(protocol.toLowerCase()))
+                    || ((ext != null) && (types != null) && types.contains(ext.toLowerCase()));
         }
         return false;
     }

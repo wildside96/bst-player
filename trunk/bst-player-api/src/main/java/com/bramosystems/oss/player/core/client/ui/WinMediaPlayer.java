@@ -83,7 +83,7 @@ public class WinMediaPlayer extends AbstractMediaPlayer implements PlaylistSuppo
             throws PluginNotFoundException, PluginVersionException {
         if (embedMode.equals(EmbedMode.PROGRAMMABLE)
                 && !PlayerWidgetFactory.get().isWMPProgrammableEmbedModeSupported()) {
-            throw new PluginNotFoundException("'Media Player plugin for Firefox' is required");
+            throw new PluginNotFoundException(Plugin.WinMediaPlayer, "'Media Player plugin for Firefox' is required");
         }
 
         PluginVersion req = Plugin.WinMediaPlayer.getVersion();

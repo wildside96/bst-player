@@ -488,6 +488,28 @@ public abstract class AbstractMediaPlayer extends Composite implements HasMediaS
     }
 
     /**
+     * Sets the specified player parameter to the specified value IF AND ONLY IF the
+     * parameter is applicable on the player
+     *
+     * <p><h4>Overriding in a subclass</h4>
+     * This method should be called first by any subclass that overrides it. This
+     * implementation checks if the specified value is a valid type for the specified
+     * parameter.</p>
+     *
+     * @param param the configuration parameter
+     * @param value the String value
+     * @throws IllegalArgumentException if {@code param} is not useable with a String
+     * @since 1.2.1
+     * @see #setConfigParameter(ConfigParameter, ConfigValue)
+     */
+    public void setConfigParameter(ConfigParameter param, String value) {
+        if ((value != null) && (!Arrays.asList(param.getValueType()).contains(value.getClass()))) {
+            throw new IllegalArgumentException("Found ConfigParameter type "
+                    + value.getClass() + ", Requires " + param.getValueType() + " for value!");
+        }
+    }
+
+    /**
      * Sets the playback rate.
      *
      * <p>If this player is not available on the panel, this method call is added to the

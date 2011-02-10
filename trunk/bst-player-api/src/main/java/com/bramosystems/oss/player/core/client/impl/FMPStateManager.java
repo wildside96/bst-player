@@ -17,7 +17,9 @@ package com.bramosystems.oss.player.core.client.impl;
 
 import com.bramosystems.oss.player.core.client.MediaInfo;
 import com.bramosystems.oss.player.core.client.ui.FlashMediaPlayer;
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.JavaScriptObject;
+import com.google.gwt.user.client.Window.Location;
 
 /**
  * Native implementation of the FlashMediaPlayer class. It is not recommended to
@@ -105,5 +107,16 @@ public class FMPStateManager {
         public void onStateChanged(int stateId, int listIndex);
 
         public void onFullScreen(boolean fullscreen);
+    }
+    
+    public static String getSWFImpl() {
+        StringBuilder swf = new StringBuilder(GWT.getModuleBaseURL() + "bst-flash-player-");
+        swf.append("1.2.1-SNAPSHOT");   // inject bst-flash-player version via maven resources filter...
+//        swf.append("${version}");   // inject bst-flash-player version via maven resources filter...
+        if(Location.getProtocol().toLowerCase().startsWith("file")) {
+            swf.append("-lo");
+        }
+        swf.append(".swf");
+        return swf.toString();
     }
 }

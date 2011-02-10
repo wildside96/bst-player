@@ -92,7 +92,7 @@ public class QuickTimePlayer extends AbstractMediaPlayer implements MatrixSuppor
         resizeToVideoSize = false;
 
         playlistManager = new DelegatePlaylistManager(this);
-        loopManager = new LoopManager(new LoopManager.LoopCallback()  {
+        loopManager = new LoopManager(new LoopManager.LoopCallback()    {
 
             @Override
             public void onLoopFinished() {
@@ -119,7 +119,7 @@ public class QuickTimePlayer extends AbstractMediaPlayer implements MatrixSuppor
                 playlistManager.playNext();
             }
         });
-        handler = new QTStateManager.QTEventHandler()  {
+        handler = new QTStateManager.QTEventHandler()    {
 
             @Override
             public void onStateChange(int newState) {
@@ -220,14 +220,14 @@ public class QuickTimePlayer extends AbstractMediaPlayer implements MatrixSuppor
             logger.setVisible(false);
             panel.add(logger);
 
-            addDebugHandler(new DebugHandler()   {
+            addDebugHandler(new DebugHandler()     {
 
                 @Override
                 public void onDebug(DebugEvent event) {
                     logger.log(event.getMessage(), false);
                 }
             });
-            addMediaInfoHandler(new MediaInfoHandler()   {
+            addMediaInfoHandler(new MediaInfoHandler()     {
 
                 @Override
                 public void onMediaInfoAvailable(MediaInfoEvent event) {
@@ -294,7 +294,7 @@ public class QuickTimePlayer extends AbstractMediaPlayer implements MatrixSuppor
         playerWidget.setSize("100%", _height);
         setWidth(_width);
 
-        Timer tt = new Timer()   {
+        Timer tt = new Timer()     {
 
             @Override
             public void run() {
@@ -395,7 +395,7 @@ public class QuickTimePlayer extends AbstractMediaPlayer implements MatrixSuppor
         if (isPlayerOnPage(playerId)) {
             impl.setControllerVisible(show);
         } else {
-            addToPlayerReadyCommandQueue("controller", new Command()   {
+            addToPlayerReadyCommandQueue("controller", new Command()     {
 
                 @Override
                 public void execute() {
@@ -431,7 +431,7 @@ public class QuickTimePlayer extends AbstractMediaPlayer implements MatrixSuppor
         if (isPlayerOnPage(playerId)) {
             loopManager.setLoopCount(loop);
         } else {
-            addToPlayerReadyCommandQueue("loopcount", new Command()   {
+            addToPlayerReadyCommandQueue("loopcount", new Command()     {
 
                 @Override
                 public void execute() {
@@ -508,18 +508,15 @@ public class QuickTimePlayer extends AbstractMediaPlayer implements MatrixSuppor
     private void checkVideoSize(int vidHeight, int vidWidth) {
         String _h = _height, _w = _width;
         if (resizeToVideoSize) {
-            if ((vidHeight > 0) && (vidWidth > 0)) {
-                // adjust to video size ...
-                fireDebug("Resizing Player : " + vidWidth + " x " + vidHeight);
-                _w = vidWidth + "px";
-                _h = vidHeight + "px";
-            }
+            _h = vidHeight > 0 ? vidHeight + "px" : "16px";
+            _w = vidWidth > 0 ? vidWidth + "px" : _width;
+            fireDebug("Resizing Player : " + _w + " x " + _h);
         }
 
         playerWidget.setSize("100%", _h);
         setWidth(_w);
 
-        if (!_height.equals(_h) && !_width.equals(_w)) {
+        if (!_height.equals(_h) || !_width.equals(_w)) {
             firePlayerStateEvent(PlayerStateEvent.State.DimensionChangedOnVideo);
         }
     }
@@ -547,7 +544,7 @@ public class QuickTimePlayer extends AbstractMediaPlayer implements MatrixSuppor
                 checkVideoSize(getVideoHeight() + 16, getVideoWidth());
             }
         } else {
-            addToPlayerReadyCommandQueue("matrix", new Command()   {
+            addToPlayerReadyCommandQueue("matrix", new Command()     {
 
                 @Override
                 public void execute() {
@@ -602,7 +599,7 @@ public class QuickTimePlayer extends AbstractMediaPlayer implements MatrixSuppor
         if (isPlayerOnPage(playerId)) {
             impl.setRate(rate);
         } else {
-            addToPlayerReadyCommandQueue("rate", new Command()  {
+            addToPlayerReadyCommandQueue("rate", new Command()    {
 
                 @Override
                 public void execute() {
@@ -643,11 +640,21 @@ public class QuickTimePlayer extends AbstractMediaPlayer implements MatrixSuppor
     }
 
     @Override
+    public void setConfigParameter(ConfigParameter param, String value) {
+        super.setConfigParameter(param, value);
+        switch (param) {
+            case BackgroundColor:
+                playerWidget.addParam("BGCOLOR", value);
+
+        }
+    }
+
+    @Override
     public void setShuffleEnabled(final boolean enable) {
         if (isPlayerOnPage(playerId)) {
             playlistManager.setShuffleEnabled(enable);
         } else {
-            addToPlayerReadyCommandQueue("shuffle", new Command()   {
+            addToPlayerReadyCommandQueue("shuffle", new Command()     {
 
                 @Override
                 public void execute() {

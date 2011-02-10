@@ -52,14 +52,6 @@ public class PluginManager {
         }
     }
 
-    public static void updatePluginInfo(Plugin plugin, PluginInfo info) throws PluginNotFoundException {
-        if (pluginInfoMap.containsKey(plugin)) {
-            pluginInfoMap.put(plugin, info);
-        } else {
-            throw new PluginNotFoundException(plugin);
-        }
-    }
-
     public static native boolean isHTML5CompliantClient() /*-{
     try {
     var test = new Audio();
