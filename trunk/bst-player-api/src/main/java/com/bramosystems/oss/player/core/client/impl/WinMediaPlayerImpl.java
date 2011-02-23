@@ -310,11 +310,12 @@ public class WinMediaPlayerImpl extends JavaScriptObject {
     }-*/;
     
     public final native Playlist createPlaylist(String name) /*-{
-//    try {
-    v = this.newPlaylist(name, null);
-    $wnd.alert('v ' + v.toString()); 
+    try {
+    v = this.newPlaylist(name, '');
+    $wnd.alert('v ' + name + ', ' + v.toString()); 
            return v;
-//    } catch(e) {return null;}
+    } catch(e) {//$wnd.alert('e : ' + name + ', ' + e);
+        return null;}
     }-*/;
 
     public final native Media createMedia(String mediaURL) /*-{

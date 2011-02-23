@@ -24,6 +24,7 @@ import com.bramosystems.oss.player.util.client.RegExp;
 import com.bramosystems.oss.player.util.client.RegExp.RegexException;
 import com.google.gwt.core.client.GWT;
 import java.util.EnumMap;
+import java.util.HashMap;
 
 /**
  *
@@ -32,12 +33,15 @@ import java.util.EnumMap;
 public class PluginManager {
 
     private static final EnumMap<Plugin, PluginInfo> pluginInfoMap = new EnumMap<Plugin, PluginInfo>(Plugin.class);
+    private static final MimeParserBase mpb = GWT.create(MimeParserBase.class);        
 
     static { // init infoMap ...
         PluginManagerImpl pmi = GWT.create(PluginManagerImpl.class);
         for (Plugin p : Plugin.values()) {
             try {
-                pluginInfoMap.put(p, pmi.getPluginInfo(p));
+                PluginInfo inf = pmi.getPluginInfo(p);
+                mpb.addPluginProperties(inf);
+                pluginInfoMap.put(p, inf);
             } catch (PluginNotFoundException ex) {
                 // plugin not available ...
             }
@@ -54,13 +58,17 @@ public class PluginManager {
 
     public static native boolean isHTML5CompliantClient() /*-{
     try {
-    var test = new Audio();
-    test = null;
+    var t = new Audio();
+    t = null;
     return true;
     } catch(e){
     return false;
     }
     }-*/;
+    
+    public static HashMap<String, String> getRegisteredMimeTypes() {
+        return mpb.getMimeTypes();
+    }
 
     protected  static class PluginManagerImpl {
 
@@ -97,11 +105,15 @@ public class PluginManager {
                                     || plug.getDescription().toLowerCase().contains("totem")) {
                                 pi.setWrapperType(PluginInfo.PlayerPluginWrapperType.Totem);
                             }
+                        } else {
+                            throw new PluginNotFoundException(plugin);
                         }
                         break;
                     case Native:
                         if (isHTML5CompliantClient()) {
                             pi.setVersion(PluginVersion.get(5, 0, 0));
+                        } else {
+                            throw new PluginNotFoundException(plugin);
                         }
                 }
                 return pi;
@@ -140,6 +152,8 @@ public class PluginManager {
                     }
                 } catch (RegexException ex) {
                 }
+            } else {
+                throw new PluginNotFoundException(plugin);
             }
             return pi;
         }
@@ -218,7 +232,7 @@ public class PluginManager {
         }-*/;
 
         @Override
-        public PluginInfo getPluginInfo(Plugin plugin) {
+        public PluginInfo getPluginInfo(Plugin plugin) throws PluginNotFoundException {
             PluginVersion pv = new PluginVersion();
             switch (plugin) {
                 case DivXPlayer:
@@ -240,6 +254,9 @@ public class PluginManager {
                     if (isHTML5CompliantClient()) {
                         pv = PluginVersion.get(5, 0, 0);
                     }
+            }
+            if(pv.compareTo(new PluginVersion()) <= 0) {
+                throw new PluginNotFoundException(plugin);
             }
             return new PluginInfo(plugin, pv, PluginInfo.PlayerPluginWrapperType.Native);
         }

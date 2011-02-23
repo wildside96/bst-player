@@ -19,6 +19,8 @@ package com.bramosystems.oss.player.dev.client;
 import com.bramosystems.oss.player.core.client.Plugin;
 import com.bramosystems.oss.player.core.client.PluginNotFoundException;
 import com.bramosystems.oss.player.core.client.MimePool;
+import com.bramosystems.oss.player.core.client.impl.plugin.PluginInfo;
+import com.bramosystems.oss.player.core.client.impl.plugin.PluginManager;
 import com.bramosystems.oss.player.util.client.BrowserPlugin;
 import com.bramosystems.oss.player.util.client.MimeType;
 import com.google.gwt.core.client.JsArray;
@@ -42,7 +44,7 @@ public class MimeStuffs extends FlexTable {
         setCellSpacing(5);
         setCellPadding(5);
 
-                doMimePool();
+        doMimePool2();
 //        doMimeTypes();
 //        doPlugins();
     }
@@ -136,7 +138,7 @@ public class MimeStuffs extends FlexTable {
         }
     }
 
-    private void doMimePool() {
+    private void doMimePool() throws PluginNotFoundException {
         MimePool pool = MimePool.instance;
         int row = 0;
 
@@ -154,6 +156,28 @@ public class MimeStuffs extends FlexTable {
             Set<String> prot = pool.getRegisteredProtocols(plug);
             setHTML(row, 0, plug.name());
             setHTML(row++, 1, prot != null ? prot.toString() : "-");
+        }
+    }
+
+    private void doMimePool2() {
+        int row = 0;
+
+        setHTML(row, 0, "Plugin");
+        setHTML(row, 1, "Version");
+        setHTML(row, 2, "Suffixes");
+        setHTML(row++, 3, "Protocols");
+        for (Plugin plug : Plugin.values()) {
+                setHTML(row, 0, plug.name());
+            try {
+                PluginInfo suf = PluginManager.getPluginInfo(plug);
+                setHTML(row, 1, suf.getVersion().toString());
+                setHTML(row, 2, suf.getRegisteredExtensions().toString());
+                setHTML(row++, 3, suf.getRegisteredProtocols().toString());
+            } catch (PluginNotFoundException ex) {
+                setHTML(row, 1, "-");
+                setHTML(row, 2, "-");
+                setHTML(row++, 3, "-");
+            }
         }
     }
 

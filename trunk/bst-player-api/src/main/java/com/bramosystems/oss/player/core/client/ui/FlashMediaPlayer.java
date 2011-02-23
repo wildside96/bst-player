@@ -393,7 +393,6 @@ public class FlashMediaPlayer extends AbstractMediaPlayer implements PlaylistSup
     @Override
     public void playMedia() throws PlayException {
         checkAvailable();
-        fireDebug("flash play media ...");
         impl.playMedia();
     }
 

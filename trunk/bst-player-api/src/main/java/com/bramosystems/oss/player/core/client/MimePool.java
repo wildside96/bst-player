@@ -15,7 +15,7 @@
  */
 package com.bramosystems.oss.player.core.client;
 
-import com.google.gwt.core.client.GWT;
+import com.bramosystems.oss.player.core.client.impl.MimePoolBase;
 import java.util.HashMap;
 import java.util.Set;
 
@@ -33,7 +33,7 @@ public interface MimePool {
     /**
      * The static instance of the MimePool implementation
      */
-    public static MimePool instance = GWT.create(MimePool.class);
+    public static MimePool instance = new MimePoolBase();
 
     /**
      * Returns the file extensions registered on the specified plugin
@@ -41,7 +41,7 @@ public interface MimePool {
      * @param plugin the desired plugin
      * @return the registered file extensions
      */
-    public Set<String> getRegisteredExtensions(Plugin plugin);
+    public Set<String> getRegisteredExtensions(Plugin plugin) throws PluginNotFoundException;
 
     /**
      * Returns the streaming protocols registered on the specified plugin
@@ -49,7 +49,7 @@ public interface MimePool {
      * @param plugin the desired plugin
      * @return the registered streaming protocols
      */
-    public Set<String> getRegisteredProtocols(Plugin plugin);
+    public Set<String> getRegisteredProtocols(Plugin plugin) throws PluginNotFoundException;
 
     /**
      * Returns the media mimeTypes registered on the application.  These are the mimetypes

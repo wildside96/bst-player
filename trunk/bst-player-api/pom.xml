@@ -21,14 +21,14 @@
     <build>
         <resources>
             <resource>
-                <directory>src/main/java/com/bramosystems/oss/player/core/client/impl</directory>
+                <directory>src/main/java</directory>
                 <filtering>true</filtering>
                 <includes>
                     <include>**/FMPStateManager.java</include>
                 </includes>
             </resource>
             <resource>
-                <directory>src/main/java/com/bramosystems/oss/player/core/client/impl</directory>
+                <directory>src/main/java</directory>
                 <filtering>false</filtering>
                 <excludes>
                     <exclude>**/FMPStateManager.java</exclude>

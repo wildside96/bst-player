@@ -72,7 +72,7 @@ public class Dev extends FlowPanel implements EntryPoint {
         });
 
         mrl = new MRL();
-        mrl.addURL(GWT.getModuleBaseURL() + "big-buck-bunny.mp4");
+//        mrl.addURL(GWT.getModuleBaseURL() + "big-buck-bunny.mp4");
         mrl.addURL(GWT.getModuleBaseURL() + "applause.mp3");
 //        mrl.addURL("applause.mp3");
     }
@@ -82,7 +82,7 @@ public class Dev extends FlowPanel implements EntryPoint {
     public void onModuleLoad() {
 //        RootPanel.get().add(new ScrollPanel(this));
         RootPanel.get().add(this);
-        addPlayer(Plugin.FlashPlayer);
+        addPlayer(Plugin.WinMediaPlayer);
 
 //        add(new MimeStuffs());
 //        addUTube();
@@ -118,7 +118,7 @@ public class Dev extends FlowPanel implements EntryPoint {
                     mmp = new VLCPlayer(mrl.getNextResource(true), false, HEIGHT, WIDTH);
                    break;
                 case WinMediaPlayer:
-                    mmp = new WinMediaPlayer(mrl.getNextResource(true), false, HEIGHT, WIDTH);
+                    mmp = new WinMediaPlayerX(mrl.getNextResource(true), false, HEIGHT, WIDTH);
                     break;
                 case Native:
                     mmp = new NativePlayer(mrl.getNextResource(true), true, HEIGHT, WIDTH);

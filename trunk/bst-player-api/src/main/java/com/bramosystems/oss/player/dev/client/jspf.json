@@ -20,10 +20,10 @@
         {
         "title"         : "JSPF example",
         "creator"       : "Artist name",
-        "annotation"    : "Super playlist",
+        "annotation"    : "Super playlist comment",
         "info"          : "http://example.com/",
         "location"      : "http://example.com/",
-        "identifier"    : "http://example.com/",
+        "identifier"    : "playlist canonical id",
         "image"         : "http://example.com/",
         "date"          : "2005-01-08T17:10:47-05:00",
         "license"       : "http://example.com/",
@@ -32,14 +32,17 @@
             {"location"     : "http://example.com/"}
         ],
         "link"          : [
+            {"rel" : "content"},
             {"http://example.com/rel/1/" : "http://example.com/body/1/"},
             {"http://example.com/rel/2/" : "http://example.com/body/2/"}
         ],
         "meta"          : [
+            {"rel" : "content"},
             {"http://example.com/rel/1/" : "my meta 14"},
             {"http://example.com/rel/2/" : "345"}
         ],
         "extension"     : {
+            "application" : [nested json, not supported yet],
             "http://example.com/app/1/" : [ARBITRARY_EXTENSION_BODY, ARBITRARY_EXTENSION_BODY],
             "http://example.com/app/2/" : [ARBITRARY_EXTENSION_BODY]
         },
