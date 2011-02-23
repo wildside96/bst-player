@@ -27,21 +27,29 @@ package com.bramosystems.oss.player {
     import mx.core.*;
     import mx.events.*;
 
-    public class PlayerMenu {
+    public class PlayerInfo {
         private var ctxMenu:ContextMenu;
 
 //        public function PlayerMenu(setting:Setting, _playlist:Playlist) {
-        public function PlayerMenu() {
+        public function PlayerInfo() {
             ctxMenu = new ContextMenu();
             ctxMenu.hideBuiltInItems();
 
-            ctxMenu.customItems.push(new ContextMenuItem("BST Player 1.2"));
+            ctxMenu.customItems.push(new ContextMenuItem(getPlayerInfo()));
 //            ctxMenu.customItems.push(new ContextMenuItem("Repeat"));
 //            ctxMenu.customItems.push(new ContextMenuItem("Shuffle"));
         }
 
         public function getMenu():ContextMenu {
             return ctxMenu;
+        }
+
+        public static function getPlayerInfo():String {
+            return "BST Player 1.2.1";
+        }
+
+        public static function getPlayerVersion():String {
+            return "1.2.1";
         }
     }
 }
