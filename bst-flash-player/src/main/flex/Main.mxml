@@ -70,8 +70,8 @@
                     attachJSInterface(setting, playlist);
 
                     /******************* FINISH INIT ***********************************/
-                    contextMenu = new PlayerMenu().getMenu();
-                    Log.info("BST Flash Player 1.2");
+                    contextMenu = new PlayerInfo().getMenu();
+                    Log.info(PlayerInfo.getPlayerInfo());
                     Log.info("Flash Plugin Version " + getFlashVersion());
                     Log.debug("Security Zone " + Security.sandboxType);
                     playlist.add(PlayerOptions.mediaURL);
@@ -92,7 +92,7 @@
                 // Check if the container is able to use the external API.
                 try {
                     if (ExternalInterface.available) {          // setup callback interfaces...
-                        ExternalInterface.addCallback("getPlayerVersion", getPlayerVersion);
+                        ExternalInterface.addCallback("getPlayerVersion", PlayerInfo.getPlayerVersion);
                         ExternalInterface.addCallback("getPluginVersion", getFlashVersion);
                         ExternalInterface.addCallback("close", player.close);
                         ExternalInterface.addCallback("getVideoHeight", player.getVideoHeight);
@@ -154,10 +154,6 @@
                     vers += "." + v[i];
                 }
                 return vers;
-            }
-
-            public function getPlayerVersion():String {
-                return "1.2.1";
             }
         ]]>
     </mx:Script>
