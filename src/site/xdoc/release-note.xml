@@ -17,16 +17,18 @@
                 This page contains information on the various released packages of the project.
             </p>
 
-            <subsection name="xx November 2011 - Version 1.2.1">
+            <subsection name="24 February 2011 - Version 1.2.1">
                 <p>
-                    This is a bug-fix release to address display and packaging issues.
+                    This is a bug-fix release addressing critical bugs and some feature improvements.
                 </p>
 
                 <p>
                     <b>Improvements</b>
                 </p>
                 <ul>
-                    <li>Add BackgroundColor configuration property for background color support</li>
+                    <li>Provides support for plugin/mime-type specification based on media plugin version</li>
+                    <li>Conditional inclusion of player resources</li>
+                    <li>BackgroundColor configuration property added for background color support</li>
                 </ul>
 
                 <p>
@@ -37,7 +39,15 @@
                         <a href="http://code.google.com/p/bst-player/issues/detail?id=32">Issue #32</a> -
                         Video invisible in FlashMediaPlayer with player height less than 30px
                     </li>
-                </ul>
+                    <li>
+                        <a href="http://code.google.com/p/bst-player/issues/detail?id=35">Issue #35</a> -
+                        FlashMediaPlayer enhanced with filesystem support
+                    </li>
+                     <li>
+                        <a href="http://code.google.com/p/bst-player/issues/detail?id=36">Issue #36</a> -
+                        WinMediaPlayer autoplays with <code>autoplay</code> set to <code>false</code>
+                    </li>
+               </ul>
 
                 <p>
                     <b>Known Issue</b>
