@@ -131,7 +131,11 @@ public class PluginVersion implements IsSerializable, Serializable, Comparable<P
 
     @Override
     public int hashCode() {
-        return super.hashCode();
+        int hash = 5;
+        hash = 59 * hash + this.minor;
+        hash = 59 * hash + this.major;
+        hash = 59 * hash + this.revision;
+        return hash;
     }
 
     /**
@@ -146,6 +150,7 @@ public class PluginVersion implements IsSerializable, Serializable, Comparable<P
      *
      * @see #compareTo(int, int, int)
      */
+    @Override
     public int compareTo(PluginVersion o) {
         int val = Integer.valueOf(major).compareTo(o.getMajor());
         if(val == 0) {// compare minor numbers...

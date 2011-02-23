@@ -90,7 +90,7 @@
 
     <!-- MimePoolGenerator mapping -->
     <generate-with class="com.bramosystems.oss.player.core.rebind.MimePoolGenerator" >
-        <when-type-assignable class="com.bramosystems.oss.player.core.client.MimePool"/>
+        <when-type-assignable class="com.bramosystems.oss.player.core.client.impl.plugin.MimeParserBase"/>
     </generate-with>
 
     <!-- Logger mapping -->

@@ -19,6 +19,7 @@ import com.bramosystems.oss.player.core.client.Plugin;
 import com.bramosystems.oss.player.core.client.PluginVersion;
 import java.io.Serializable;
 import java.util.Set;
+import java.util.TreeSet;
 
 /**
  * Wraps basic information about a browser media plug-in component.
@@ -34,27 +35,25 @@ public class PluginInfo implements Serializable {
      * @since 1.2.1
      */
     public static enum PlayerPluginWrapperType {
+
         /**
          * The player plugin is exposed to javascript using its native API
          */
         Native,
-
         /**
          * Used only for Windows Media Player plugin.  The player is exposed by the
          * Windows Media Player plugin for Firefox
          */
         WMPForFirefox,
-
         /**
          * The player plugin wrapped and exposed to javascript by the Totem plugin
          */
         Totem
     }
-
     private PluginVersion version;
     private PlayerPluginWrapperType wrapperType;
     private Plugin plugin;
-    private Set<String> registeredExtensions, registeredProtocols;
+    private Set<String> registeredExtensions = new TreeSet<String> (), registeredProtocols = new TreeSet<String>();
 
     /**
      * Creates a <code>PluginVersion</code>
@@ -119,6 +118,4 @@ public class PluginInfo implements Serializable {
     public String toString() {
         return "PluginInfo{plugin=" + plugin + ", version=" + version + ",  wrapperType=" + wrapperType + "} ";
     }
-
-
 }
