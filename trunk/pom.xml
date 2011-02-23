@@ -96,9 +96,18 @@
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>gwt-maven-plugin</artifactId>
                     <version>${gwtMojoPluginVersion}</version>
-                    <configuration>
-                        <gwtVersion>2.1.0</gwtVersion>
-                    </configuration>
+                    <dependencies>
+                        <dependency>
+                            <groupId>com.google.gwt</groupId>
+                            <artifactId>gwt-dev</artifactId>
+                            <version>${gwtVersion}</version>
+                        </dependency>
+                        <dependency>
+                            <groupId>com.google.gwt</groupId>
+                            <artifactId>gwt-user</artifactId>
+                            <version>${gwtVersion}</version>
+                        </dependency>
+                    </dependencies>                    
                 </plugin>
                 <plugin>
                     <groupId>org.sonatype.flexmojos</groupId>
@@ -119,7 +128,7 @@
 
     <properties>
         <gwtMojoPluginVersion>2.1.0-1</gwtMojoPluginVersion>
-        <gwtVersion>2.1.0</gwtVersion>
+        <gwtVersion>2.2.0</gwtVersion>
     </properties>
 
     <dependencyManagement>
@@ -290,6 +299,7 @@
                 <plugins>
                     <plugin>
                         <artifactId>maven-site-plugin</artifactId>
+                        <version>3.0-beta-3</version>
                         <configuration>
                             <siteDirectory>src/site/osslab</siteDirectory>
                             <xdocDirectory>src/site/xdoc</xdocDirectory>
