@@ -37,7 +37,8 @@ import java.util.ArrayList;
  */
 public class PlaylistPane extends Composite implements ValueChangeHandler<String> {
 
-    public static String baseURL = GWT.getHostPageBaseURL() + "media/";
+    public static String baseURL = "http://oss.bramosystems.com/bst-player/demo/media/";
+//    public static String baseURL = GWT.getHostPageBaseURL() + "media/";
     public static PlaylistPane singleton = new PlaylistPane();
     private ArrayList<MRL> entries, uTube;
     private AppOptions option;

@@ -111,6 +111,7 @@ public class BrowserInfo extends FlowPanel {
             Boolean isSupported = null;
             String player = plug.name(), plugName = plug.name(), ver = "-";
             PluginVersion pv = null;
+            Set<String> suf = null;
             try {
                 switch (plug) {
                     case DivXPlayer:
@@ -149,10 +150,10 @@ public class BrowserInfo extends FlowPanel {
                         player = "NativePlayer";
                         break;
                 }
+                suf = pool.getRegisteredExtensions(plug);
             } catch (PluginNotFoundException ex) {
             }
 
-            Set<String> suf = pool.getRegisteredExtensions(plug);
             addPoolRow(player, plugName, ver, isSupported,
                     (isSupported != null) && isSupported && (suf != null) ? suf.toString() : "-", row++ % 2 != 0 ? EntryType.even : EntryType.odd);
         }
@@ -282,6 +283,7 @@ public class BrowserInfo extends FlowPanel {
     }
 
     @UiTemplate("xml/BrowserInfoLegend.ui.xml")
-    interface LegendBinder extends UiBinder<Widget, Void>{};
+    interface LegendBinder extends UiBinder<Widget, Void> {
+    };
     LegendBinder lb = GWT.create(LegendBinder.class);
 }
