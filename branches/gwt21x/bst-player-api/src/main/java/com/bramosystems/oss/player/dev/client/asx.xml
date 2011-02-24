@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="windows-1252"?>
+
+<asx version='3'>
+    <abstract>description of entry</abstract>
+    <author>author of list</author>
+    <base></base>
+    <copyright>copyright info</copyright>
+    <entry>
+        <abstract>description of entry</abstract>
+        <author>author of entry</author>
+        <copyright>copyright info</copyright>
+        <duration value="hh:mm:ss.fract" />
+        <ref href="media url">
+            <duration value="hh:mm:ss.fract" />
+            <endmarker name="" number="" />
+        </ref>
+    </entry>
+    <entryref></entryref>
+    <moreinfo></moreinfo>
+    <param></param>
+    <title></title>
+</asx>
