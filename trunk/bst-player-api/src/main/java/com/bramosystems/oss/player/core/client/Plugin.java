@@ -41,7 +41,7 @@ public enum Plugin {
      *
      * @since 1.1
      */
-    Native("", 0, 0, 0, "HTML5 Media Player"),
+    Native("", 5, 0, 0, "HTML5 Media Player"),
 
     /**
      * Specifies the QuickTime Player plugin
