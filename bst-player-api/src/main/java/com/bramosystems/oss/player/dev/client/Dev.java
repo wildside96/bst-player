@@ -24,6 +24,9 @@ import com.bramosystems.oss.player.core.client.PlayerUtil;
 import com.bramosystems.oss.player.core.client.Plugin;
 import com.bramosystems.oss.player.core.client.PluginNotFoundException;
 import com.bramosystems.oss.player.core.client.PluginVersionException;
+import com.bramosystems.oss.player.core.client.impl.BeforeUnloadCallback;
+import com.bramosystems.oss.player.core.client.impl.PlayerWidget;
+import com.bramosystems.oss.player.core.client.impl.WinMediaPlayerImpl;
 import com.bramosystems.oss.player.core.client.ui.DivXPlayer;
 import com.bramosystems.oss.player.core.client.ui.FlashMediaPlayer;
 import com.bramosystems.oss.player.core.client.ui.NativePlayer;
@@ -62,7 +65,7 @@ public class Dev extends FlowPanel implements EntryPoint {
 //        setSpacing(20);
         setWidth("80%");
 
-        GWT.setUncaughtExceptionHandler(new GWT.UncaughtExceptionHandler()   {
+        GWT.setUncaughtExceptionHandler(new GWT.UncaughtExceptionHandler()      {
 
             @Override
             public void onUncaughtException(Throwable e) {
@@ -82,9 +85,9 @@ public class Dev extends FlowPanel implements EntryPoint {
     public void onModuleLoad() {
 //        RootPanel.get().add(new ScrollPanel(this));
         RootPanel.get().add(this);
-        addPlayer(Plugin.WinMediaPlayer);
+        addPlayer(Plugin.Native);
 
-//        add(new MimeStuffs());
+        add(new MimeStuffs());
 //        addUTube();
 //               issueDialog();
         //        add(pb.createAndBindUi(this)); TODO: requires GWT 2.1
@@ -116,9 +119,9 @@ public class Dev extends FlowPanel implements EntryPoint {
                     break;
                 case VLCPlayer:
                     mmp = new VLCPlayer(mrl.getNextResource(true), false, HEIGHT, WIDTH);
-                   break;
+                    break;
                 case WinMediaPlayer:
-                    mmp = new WinMediaPlayerX(mrl.getNextResource(true), false, HEIGHT, WIDTH);
+                    mmp = new WinMediaPlayer(mrl.getNextResource(true), false, HEIGHT, WIDTH, WinMediaPlayer.EmbedMode.EMBED_ONLY);
                     break;
                 case Native:
                     mmp = new NativePlayer(mrl.getNextResource(true), true, HEIGHT, WIDTH);
@@ -132,7 +135,7 @@ public class Dev extends FlowPanel implements EntryPoint {
             }
             mmp.showLogger(true);
             mmp.setConfigParameter(ConfigParameter.QTScale, QuickTimePlayer.Scale.Aspect);
-            mmp.setConfigParameter(ConfigParameter.BackgroundColor, "#ffffff") ;
+            mmp.setConfigParameter(ConfigParameter.BackgroundColor, "#ffffff");
             //           ((PlaylistSupport) mmp).addToPlaylist(mrl.getNextResource(false));
             mmp.setResizeToVideoSize(true);
 //            mmp.setLoopCount(2);
@@ -163,7 +166,7 @@ public class Dev extends FlowPanel implements EntryPoint {
     }
 
     private void addUTube() {
-        final PlayStateHandler psh = new PlayStateHandler()   {
+        final PlayStateHandler psh = new PlayStateHandler()      {
 
             @Override
             public void onPlayStateChanged(PlayStateEvent event) {
@@ -183,7 +186,7 @@ public class Dev extends FlowPanel implements EntryPoint {
             }
         };
 
-        add(new Button("[1] click to create player", new ClickHandler()   {
+        add(new Button("[1] click to create player", new ClickHandler()      {
 
             @Override
             public void onClick(ClickEvent event) {
@@ -210,7 +213,7 @@ public class Dev extends FlowPanel implements EntryPoint {
         } catch (PluginNotFoundException ex) {
         }
 
-        add(new Button("[2] click to set player url", new ClickHandler()   {
+        add(new Button("[2] click to set player url", new ClickHandler()      {
 
             @Override
             public void onClick(ClickEvent event) {
@@ -280,7 +283,7 @@ public class Dev extends FlowPanel implements EntryPoint {
         Widget mp = null;
         try {
             player = new WinMediaPlayer("", true, "464px", "620px");
- //           player.setResizeToVideoSize(false);
+            //           player.setResizeToVideoSize(false);
             mp = player;
         } catch (PluginNotFoundException e) {
             mp = PlayerUtil.getMissingPluginNotice(e.getPlugin(), e.getMessage());
@@ -289,9 +292,9 @@ public class Dev extends FlowPanel implements EntryPoint {
         } catch (LoadException e) {
             mp = PlayerUtil.getMissingPluginNotice(Plugin.FlashPlayer);
         }
-        
+
         FlowPanel fp = new FlowPanel();
-        fp.add(new Button("close", new ClickHandler() {
+        fp.add(new Button("close", new ClickHandler()    {
 
             @Override
             public void onClick(ClickEvent event) {
@@ -300,8 +303,8 @@ public class Dev extends FlowPanel implements EntryPoint {
         }));
         fp.add(mp);
         panel.setWidget(fp);
-        
-        add(new Button("Show", new ClickHandler() {
+
+        add(new Button("Show", new ClickHandler()    {
 
             @Override
             public void onClick(ClickEvent event) {
