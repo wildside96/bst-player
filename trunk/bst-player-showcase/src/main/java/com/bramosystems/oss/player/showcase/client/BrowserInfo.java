@@ -19,8 +19,8 @@ package com.bramosystems.oss.player.showcase.client;
 import com.bramosystems.oss.player.core.client.Plugin;
 import com.bramosystems.oss.player.core.client.PluginNotFoundException;
 import com.bramosystems.oss.player.core.client.MimePool;
-import com.bramosystems.oss.player.core.client.PlayerUtil;
 import com.bramosystems.oss.player.core.client.PluginVersion;
+import com.bramosystems.oss.player.core.client.impl.plugin.PluginManager;
 import com.bramosystems.oss.player.showcase.client.res.Bundle;
 import com.bramosystems.oss.player.util.client.BrowserPlugin;
 import com.bramosystems.oss.player.util.client.MimeType;
@@ -107,7 +107,7 @@ public class BrowserInfo extends FlowPanel {
         plugs.remove(Plugin.MatrixSupport);
         plugs.remove(Plugin.PlaylistSupport);
         int row = 0;
-        for (Plugin plug : plugs) {
+        for (Plugin plug : plugs) { //TODO: REFINE THIS TO WORK WITH PLUGININFO class
             Boolean isSupported = null;
             String player = plug.name(), plugName = plug.name(), ver = "-";
             PluginVersion pv = null;
@@ -116,40 +116,29 @@ public class BrowserInfo extends FlowPanel {
                 switch (plug) {
                     case DivXPlayer:
                         plugName = "DivX Web Player";
-                        pv = PlayerUtil.getDivXPlayerPluginVersion();
-                        ver = pv.toString();
-                        isSupported = pv.compareTo(plug.getVersion()) >= 0;
                         break;
                     case QuickTimePlayer:
                         plugName = "QuickTime Player";
-                        pv = PlayerUtil.getQuickTimePluginVersion();
-                        ver = pv.toString();
-                        isSupported = pv.compareTo(plug.getVersion()) >= 0;
                         break;
                     case VLCPlayer:
                         plugName = "VLC Multimedia Player";
-                        pv = PlayerUtil.getVLCPlayerPluginVersion();
-                        ver = pv.toString();
-                        isSupported = pv.compareTo(plug.getVersion()) >= 0;
                         break;
                     case FlashPlayer:
                         player = "FlashMediaPlayer";
                         plugName = "Adobe Flash Player";
-                        pv = PlayerUtil.getFlashPlayerVersion();
-                        isSupported = pv.compareTo(plug.getVersion()) >= 0;
-                        ver = pv.toString();
                         break;
                     case WinMediaPlayer:
                         plugName = "Windows Media Player";
-                        pv = PlayerUtil.getWindowsMediaPlayerPluginVersion();
-                        isSupported = pv.compareTo(plug.getVersion()) >= 0;
                         break;
                     case Native:
                         plugName = "HTML5 <code>&lt;video&gt;</code>";
-                        isSupported = PlayerUtil.isHTML5CompliantClient() ? true : null;
                         player = "NativePlayer";
                         break;
                 }
+                
+                pv = PluginManager.getPluginInfo(plug).getVersion();
+                ver = pv.toString();
+                isSupported = pv.compareTo(plug.getVersion()) >= 0;
                 suf = pool.getRegisteredExtensions(plug);
             } catch (PluginNotFoundException ex) {
             }
