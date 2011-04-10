@@ -186,42 +186,37 @@ public abstract class PlayerWrapper<T extends AbstractMediaPlayer> extends Abstr
 
     @Override
     public void setPlayPosition(double position) {
-        if (_engine == null) {
-            return;
+        if (_engine != null) {
+            _engine.setPlayPosition(position);
         }
-        _engine.setPlayPosition(position);
     }
 
     @Override
     public void loadMedia(String mediaURL) throws LoadException {
-        if (_engine == null) {
-            return;
+        if (_engine != null) {
+            _engine.loadMedia(mediaURL);
         }
-        _engine.loadMedia(mediaURL);
     }
 
     @Override
     public void pauseMedia() {
-        if (_engine == null) {
-            return;
+        if (_engine != null) {
+            _engine.pauseMedia();
         }
-        _engine.pauseMedia();
     }
 
     @Override
     public void playMedia() throws PlayException {
-        if (_engine == null) {
-            return;
+        if (_engine != null) {
+            _engine.playMedia();
         }
-        _engine.playMedia();
     }
 
     @Override
     public void stopMedia() {
-        if (_engine == null) {
-            return;
+        if (_engine != null) {
+            _engine.stopMedia();
         }
-        _engine.stopMedia();
     }
 
     @Override
@@ -234,10 +229,9 @@ public abstract class PlayerWrapper<T extends AbstractMediaPlayer> extends Abstr
 
     @Override
     public void setVolume(double volume) {
-        if (_engine == null) {
-            return;
+        if (_engine != null) {
+            _engine.setVolume(volume);
         }
-        _engine.setVolume(volume);
     }
 
     /**
@@ -256,18 +250,16 @@ public abstract class PlayerWrapper<T extends AbstractMediaPlayer> extends Abstr
      */
     @Override
     public void setLoopCount(int loop) {
-        if (_engine == null) {
-            return;
+        if (_engine != null) {
+            _engine.setLoopCount(loop);
         }
-        _engine.setLoopCount(loop);
     }
 
     @Override
     public void showLogger(boolean show) {
         if (_engine == null) {
-            return;
+            _engine.showLogger(show);
         }
-        _engine.showLogger(show);
     }
 
     /**
@@ -277,10 +269,9 @@ public abstract class PlayerWrapper<T extends AbstractMediaPlayer> extends Abstr
      * @see #showLogger(boolean)
      */
     public void setShowLogger(boolean show) {
-        if (_engine == null) {
-            return;
+        if (_engine != null) {
+            _engine.showLogger(show);
         }
-        _engine.showLogger(show);
     }
 
     @Override
@@ -317,35 +308,43 @@ public abstract class PlayerWrapper<T extends AbstractMediaPlayer> extends Abstr
 
     @Override
     public <T extends ConfigValue> void setConfigParameter(ConfigParameter param, T value) {
-        if (_engine == null) {
-            return;
+        if (_engine != null) {
+            _engine.setConfigParameter(param, value);
         }
-        _engine.setConfigParameter(param, value);
     }
 
     @Override
     public void setControllerVisible(boolean show) {
-        if (_engine == null) {
-            return;
+        if (_engine != null) {
+            _engine.setControllerVisible(show);
         }
-        _engine.setControllerVisible(show);
     }
 
     @Override
     public void setResizeToVideoSize(boolean resize) {
-        if (_engine == null) {
-            return;
+        if (_engine != null) {
+            _engine.setResizeToVideoSize(resize);
         }
-        _engine.setResizeToVideoSize(resize);
     }
 
     @Override
     public void addToPlaylist(String mediaURL) {
-        if (_engine == null) {
-            return;
-        }
-        if (_engine instanceof com.bramosystems.oss.player.core.client.PlaylistSupport) {
+        if ((_engine != null) && (_engine instanceof com.bramosystems.oss.player.core.client.PlaylistSupport)) {
             ((com.bramosystems.oss.player.core.client.PlaylistSupport) _engine).addToPlaylist(mediaURL);
+        }
+    }
+
+    @Override
+    public void addToPlaylist(MRL mediaLocator) {
+        if ((_engine != null) && (_engine instanceof com.bramosystems.oss.player.core.client.PlaylistSupport)) {
+            ((com.bramosystems.oss.player.core.client.PlaylistSupport) _engine).addToPlaylist(mediaLocator);
+        }
+    }
+
+    @Override
+    public void addToPlaylist(String... mediaURLs) {
+        if ((_engine != null) && (_engine instanceof com.bramosystems.oss.player.core.client.PlaylistSupport)) {
+            ((com.bramosystems.oss.player.core.client.PlaylistSupport) _engine).addToPlaylist(mediaURLs);
         }
     }
 
@@ -362,30 +361,21 @@ public abstract class PlayerWrapper<T extends AbstractMediaPlayer> extends Abstr
 
     @Override
     public void removeFromPlaylist(int index) {
-        if (_engine == null) {
-            return;
-        }
-        if (_engine instanceof com.bramosystems.oss.player.core.client.PlaylistSupport) {
+        if ((_engine != null) && (_engine instanceof com.bramosystems.oss.player.core.client.PlaylistSupport)) {
             ((com.bramosystems.oss.player.core.client.PlaylistSupport) _engine).removeFromPlaylist(index);
         }
     }
 
     @Override
     public void setShuffleEnabled(boolean enable) {
-        if (_engine == null) {
-            return;
-        }
-        if (_engine instanceof com.bramosystems.oss.player.core.client.PlaylistSupport) {
+        if ((_engine != null) && (_engine instanceof com.bramosystems.oss.player.core.client.PlaylistSupport)) {
             ((com.bramosystems.oss.player.core.client.PlaylistSupport) _engine).setShuffleEnabled(enable);
         }
     }
 
     @Override
     public void clearPlaylist() {
-        if (_engine == null) {
-            return;
-        }
-        if (_engine instanceof com.bramosystems.oss.player.core.client.PlaylistSupport) {
+        if ((_engine != null) && (_engine instanceof com.bramosystems.oss.player.core.client.PlaylistSupport)) {
             ((com.bramosystems.oss.player.core.client.PlaylistSupport) _engine).clearPlaylist();
         }
     }
@@ -403,30 +393,21 @@ public abstract class PlayerWrapper<T extends AbstractMediaPlayer> extends Abstr
 
     @Override
     public void play(int index) throws IndexOutOfBoundsException {
-        if (_engine == null) {
-            return;
-        }
-        if (_engine instanceof com.bramosystems.oss.player.core.client.PlaylistSupport) {
+        if ((_engine != null) && (_engine instanceof com.bramosystems.oss.player.core.client.PlaylistSupport)) {
             ((com.bramosystems.oss.player.core.client.PlaylistSupport) _engine).play(index);
         }
     }
 
     @Override
     public void playNext() throws PlayException {
-        if (_engine == null) {
-            return;
-        }
-        if (_engine instanceof com.bramosystems.oss.player.core.client.PlaylistSupport) {
+        if ((_engine != null) && (_engine instanceof com.bramosystems.oss.player.core.client.PlaylistSupport)) {
             ((com.bramosystems.oss.player.core.client.PlaylistSupport) _engine).playNext();
         }
     }
 
     @Override
     public void playPrevious() throws PlayException {
-        if (_engine == null) {
-            return;
-        }
-        if (_engine instanceof com.bramosystems.oss.player.core.client.PlaylistSupport) {
+        if ((_engine != null) && (_engine instanceof com.bramosystems.oss.player.core.client.PlaylistSupport)) {
             ((com.bramosystems.oss.player.core.client.PlaylistSupport) _engine).playPrevious();
         }
     }

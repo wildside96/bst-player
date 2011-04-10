@@ -138,7 +138,8 @@ public abstract class CustomVideoPlayer extends AbstractMediaPlayer implements P
      * @see #setPlayerControlWidget(com.google.gwt.user.client.ui.Widget)
      */
     @Override
-    protected final void initWidget(Widget widget) {}
+    protected final void initWidget(Widget widget) {
+    }
 
     /**
      * Sets the widget that will be used to control the player plugin.
@@ -216,6 +217,20 @@ public abstract class CustomVideoPlayer extends AbstractMediaPlayer implements P
     public void addToPlaylist(String mediaURL) {
         if (engine instanceof PlaylistSupport) {
             ((PlaylistSupport) engine).addToPlaylist(mediaURL);
+        }
+    }
+
+    @Override
+    public void addToPlaylist(MRL mediaLocator) {
+        if (engine instanceof PlaylistSupport) {
+            ((PlaylistSupport) engine).addToPlaylist(mediaLocator);
+        }
+    }
+
+    @Override
+    public void addToPlaylist(String... mediaURLs) {
+        if (engine instanceof PlaylistSupport) {
+            ((PlaylistSupport) engine).addToPlaylist(mediaURLs);
         }
     }
 

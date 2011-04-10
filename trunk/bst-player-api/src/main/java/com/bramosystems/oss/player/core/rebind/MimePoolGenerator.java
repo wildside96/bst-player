@@ -66,7 +66,7 @@ public class MimePoolGenerator extends Generator {
             throws UnableToCompleteException {
         this.logger = logger;
         TypeOracle typeOracle = context.getTypeOracle();
-
+        
         try {
             // get classType and save instance variables
             JClassType classType = typeOracle.getType(typeName);

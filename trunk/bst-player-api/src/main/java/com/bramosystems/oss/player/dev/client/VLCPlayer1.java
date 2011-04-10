@@ -75,7 +75,7 @@ public class VLCPlayer1 extends AbstractMediaPlayer implements PlaylistSupport {
     private Logger logger;
     private boolean isEmbedded, autoplay, resizeToVideoSize, shuffleOn;
     private HandlerRegistration initListHandler;
-    private ArrayList<MRL> _playlistCache;
+    private ArrayList<_MRL> _playlistCache;
     private CustomPlayerControl control;
 
     VLCPlayer1() throws PluginNotFoundException, PluginVersionException {
@@ -85,7 +85,7 @@ public class VLCPlayer1 extends AbstractMediaPlayer implements PlaylistSupport {
             throw new PluginVersionException(Plugin.VLCPlayer, req.toString(), v.toString());
         }
 
-        _playlistCache = new ArrayList<MRL>();
+        _playlistCache = new ArrayList<_MRL>();
         playerId = DOM.createUniqueId().replace("-", "");
         stateHandler = new VLCStateManager1();
         shuffleOn = false;
@@ -450,7 +450,7 @@ public class VLCPlayer1 extends AbstractMediaPlayer implements PlaylistSupport {
                     public void onPlayerStateChanged(PlayerStateEvent event) {
                         switch (event.getPlayerState()) {
                             case Ready:
-                                for (MRL mrl : _playlistCache) {
+                                for (_MRL mrl : _playlistCache) {
 //                                    stateHandler.addToPlaylist(mrl.getUrl(), mrl.getOption());
                                 }
                                 break;
@@ -459,10 +459,16 @@ public class VLCPlayer1 extends AbstractMediaPlayer implements PlaylistSupport {
                     }
                 });
             }
-            _playlistCache.add(new MRL(mediaURL, null));
+            _playlistCache.add(new _MRL(mediaURL, null));
         }
     }
+    @Override
+    public void addToPlaylist(MRL mediaLocator) {
+    }
 
+    @Override
+    public void addToPlaylist(String... mediaURLs) {
+    }
     @Override
     public boolean isShuffleEnabled() {
         checkAvailable();
@@ -615,11 +621,11 @@ public class VLCPlayer1 extends AbstractMediaPlayer implements PlaylistSupport {
         }
     }
 
-    private class MRL {
+    private class _MRL {
 
         private String url, option;
 
-        public MRL(String url, String option) {
+        public _MRL(String url, String option) {
             this.url = url;
             this.option = option;
         }

@@ -15,6 +15,8 @@
  */
 package com.bramosystems.oss.player.core.client;
 
+import java.util.List;
+
 /**
  * Interface for players that have client-side playlist support.
  *
@@ -47,6 +49,27 @@ public interface PlaylistSupport {
      * @param mediaURL the URL of the media.
      */
     public void addToPlaylist(String mediaURL);
+
+    /**
+     * Adds the media at the specified URLs to the players' playlist.  
+     * 
+     * <p>The player chooses ONLY ONE of the {@code mediaURLs} it supports.
+     *
+     * <p>In respect of the same domain policy of some browsers, the URLs should point to
+     * a destination on the same domain where the application is hosted.
+     * 
+     * @param mediaURLs the alternative URLs of the same media (probably in different formats).
+     * @since 1.3
+     */
+    public void addToPlaylist(String... mediaURLs);
+
+    /**
+     * Adds the media locator to the players' playlist.  
+     * 
+     * @param mediaLocator specifies alternative URLs of the same media
+     * @since 1.3
+     */
+    public void addToPlaylist(MRL mediaLocator);
 
     /**
      * Removes the entry at the specified index from the players' playlist.

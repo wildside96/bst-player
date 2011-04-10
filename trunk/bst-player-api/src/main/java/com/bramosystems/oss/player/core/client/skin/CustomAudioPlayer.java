@@ -247,6 +247,20 @@ public abstract class CustomAudioPlayer extends AbstractMediaPlayer implements P
     }
 
     @Override
+    public void addToPlaylist(MRL mediaLocator) {
+        if (engine instanceof PlaylistSupport) {
+            ((PlaylistSupport) engine).addToPlaylist(mediaLocator);
+        }
+    }
+
+    @Override
+    public void addToPlaylist(String... mediaURLs) {
+        if (engine instanceof PlaylistSupport) {
+            ((PlaylistSupport) engine).addToPlaylist(mediaURLs);
+        }
+    }
+
+    @Override
     public boolean isShuffleEnabled() {
         if (engine instanceof PlaylistSupport) {
             return ((PlaylistSupport) engine).isShuffleEnabled();
