@@ -297,19 +297,19 @@ public class WinMediaPlayerImpl extends JavaScriptObject {
     }-*/;
 
     // test playlist creation ...
-    public final native Playlist getCurrentPlaylist() /*-{
+    public final native WMPPlaylist getCurrentPlaylist() /*-{
     try {
     return this.currentPlaylist;
     } catch(e) {return null;}
     }-*/;
     
-    public final native void setCurrentPlaylist(Playlist playlist) /*-{
+    public final native void setCurrentPlaylist(WMPPlaylist playlist) /*-{
     try {
     this.currentPlaylist = playlist;
     } catch(e) {}
     }-*/;
     
-    public final native Playlist createPlaylist(String name) /*-{
+    public final native WMPPlaylist createPlaylist(String name) /*-{
     try {
     v = this.newPlaylist(name, '');
     $wnd.alert('v ' + name + ', ' + v.toString()); 
@@ -330,9 +330,9 @@ public class WinMediaPlayerImpl extends JavaScriptObject {
     } catch(e) {}
     }-*/;
 
-    public static class Playlist extends JavaScriptObject {
+    public static class WMPPlaylist extends JavaScriptObject {
         
-        protected Playlist(){}
+        protected WMPPlaylist(){}
 
         public final native void addItem(Media item) /*-{
         try {

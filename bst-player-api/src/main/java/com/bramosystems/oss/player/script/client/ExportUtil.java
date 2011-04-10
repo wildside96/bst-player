@@ -18,6 +18,7 @@ package com.bramosystems.oss.player.script.client;
 import com.bramosystems.oss.player.core.client.AbstractMediaPlayer;
 import com.bramosystems.oss.player.core.client.ConfigParameter;
 import com.bramosystems.oss.player.core.client.LoadException;
+import com.bramosystems.oss.player.core.client.MRL;
 import com.bramosystems.oss.player.core.client.PlayException;
 import com.bramosystems.oss.player.core.client.PlaylistSupport;
 import com.bramosystems.oss.player.core.client.Plugin;
@@ -562,6 +563,16 @@ public class ExportUtil {
             if ((player != null) && (player instanceof PlaylistSupport)) {
                 ((PlaylistSupport) player).addToPlaylist(mediaURL);
             }
+        }
+
+        @Override
+        public void addToPlaylist(MRL mediaLocator) {
+            // not supported in javascript
+        }
+
+        @Override
+        public void addToPlaylist(String... mediaURLs) {
+            // not supported in javascript
         }
 
         @Override

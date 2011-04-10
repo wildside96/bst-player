@@ -16,6 +16,7 @@
 package com.bramosystems.oss.player.core.client.ui;
 
 import com.bramosystems.oss.player.core.client.AbstractMediaPlayer;
+import com.bramosystems.oss.player.core.client.MRL;
 import java.util.ArrayList;
 
 import com.bramosystems.oss.player.core.client.LoadException;
@@ -573,8 +574,14 @@ public class NativePlayer extends AbstractMediaPlayer implements PlaylistSupport
      * @param mediaURLs the alternative URLs of the same media (probably in different formats).
      * @since 1.2
      */
+    @Override
     public void addToPlaylist(String... mediaURLs) {
         playlistManager.addToPlaylist(mediaURLs);
+    }
+
+    @Override
+    public void addToPlaylist(MRL mediaLocator) {
+        playlistManager.addToPlaylist(mediaLocator);
     }
 
     @Override

@@ -16,17 +16,16 @@
 package com.bramosystems.oss.player.dev.client;
 
 //import com.bramosystems.oss.player.capsule.client.Capsule;
+import com.bramosystems.oss.player.core.client.MRL;
 import com.bramosystems.oss.player.capsule.client.Capsule;
 import com.bramosystems.oss.player.core.client.AbstractMediaPlayer;
 import com.bramosystems.oss.player.core.client.ConfigParameter;
 import com.bramosystems.oss.player.core.client.LoadException;
 import com.bramosystems.oss.player.core.client.PlayerUtil;
+import com.bramosystems.oss.player.core.client.PlaylistSupport;
 import com.bramosystems.oss.player.core.client.Plugin;
 import com.bramosystems.oss.player.core.client.PluginNotFoundException;
 import com.bramosystems.oss.player.core.client.PluginVersionException;
-import com.bramosystems.oss.player.core.client.impl.BeforeUnloadCallback;
-import com.bramosystems.oss.player.core.client.impl.PlayerWidget;
-import com.bramosystems.oss.player.core.client.impl.WinMediaPlayerImpl;
 import com.bramosystems.oss.player.core.client.ui.DivXPlayer;
 import com.bramosystems.oss.player.core.client.ui.FlashMediaPlayer;
 import com.bramosystems.oss.player.core.client.ui.NativePlayer;
@@ -37,17 +36,25 @@ import com.bramosystems.oss.player.core.event.client.PlayStateEvent;
 import com.bramosystems.oss.player.core.event.client.PlayStateEvent.State;
 import com.bramosystems.oss.player.core.event.client.PlayStateHandler;
 //import com.bramosystems.oss.player.flat.client.FlatVideoPlayer;
+import com.bramosystems.oss.player.dev.client.playlist.SPFParser;
+import com.bramosystems.oss.player.dev.client.playlist.impl.spf.SPFPlaylist;
+import com.bramosystems.oss.player.dev.client.playlist.impl.spf.Track;
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.core.client.JsArray;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.http.client.Request;
+import com.google.gwt.http.client.RequestBuilder;
+import com.google.gwt.http.client.RequestCallback;
+import com.google.gwt.http.client.RequestException;
+import com.google.gwt.http.client.Response;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.Window.Location;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.DialogBox;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.Label;
-import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.Widget;
 
@@ -65,7 +72,7 @@ public class Dev extends FlowPanel implements EntryPoint {
 //        setSpacing(20);
         setWidth("80%");
 
-        GWT.setUncaughtExceptionHandler(new GWT.UncaughtExceptionHandler()      {
+        GWT.setUncaughtExceptionHandler(new GWT.UncaughtExceptionHandler()         {
 
             @Override
             public void onUncaughtException(Throwable e) {
@@ -75,22 +82,61 @@ public class Dev extends FlowPanel implements EntryPoint {
         });
 
         mrl = new MRL();
-//        mrl.addURL(GWT.getModuleBaseURL() + "big-buck-bunny.mp4");
-        mrl.addURL(GWT.getModuleBaseURL() + "applause.mp3");
+ //       mrl.addURL(GWT.getModuleBaseURL() + "applause.mp3");
+//        mrl.addURL(GWT.getModuleBaseURL() + "DSCF1780.AVI");
+//        mrl.addURL(GWT.getModuleBaseURL() + "traffic.avi");
+        mrl.addURL(GWT.getModuleBaseURL() + "big-buck-bunny.mp4");
+        mrl.addURL(GWT.getModuleBaseURL() + "sample_mpeg4.mp4");
 //        mrl.addURL("applause.mp3");
     }
 
 //TODO: test resizeToVideoSize feature for plugins ...
     @Override
     public void onModuleLoad() {
-//        RootPanel.get().add(new ScrollPanel(this));
+        //        RootPanel.get().add(new ScrollPanel(this));
         RootPanel.get().add(this);
-        addPlayer(Plugin.Native);
+                addPlayer(Plugin.QuickTimePlayer);
 
-        add(new MimeStuffs());
-//        addUTube();
-//               issueDialog();
+//                    add(new MimeStuffs());
+        //        addUTube();
+        //               issueDialog();
         //        add(pb.createAndBindUi(this)); TODO: requires GWT 2.1
+/*
+        try {
+            RequestBuilder rb = new RequestBuilder(RequestBuilder.GET, GWT.getModuleBaseURL() + "jspf.json");
+//            RequestBuilder rb = new RequestBuilder(RequestBuilder.GET, GWT.getModuleBaseURL() + "xspf.xml");
+            rb.sendRequest(null, new RequestCallback()    {
+
+                @Override
+                public void onResponseReceived(Request request, Response response) {
+                    showPlaylist(SPFParser.parseJspfPlaylist2(response.getText()));
+//                    showPlaylist(SPFParser.parseXspfPlaylist(response.getText()));               
+                }
+
+                @Override
+                public void onError(Request request, Throwable exception) {
+                }
+            });
+        } catch (RequestException ex) {
+            GWT.log("error ", ex);
+        }
+        */
+    }
+
+    private void showPlaylist(SPFPlaylist pl) {
+        add(new Label("<<<<<<<<<<<<<<<<<<<<<<<<<< Playlist >>>>>>>>>>>>>>>>>>>>>>>>>>>>>"));
+        add(new Label(pl.getTitle()));
+        add(new Label(pl.getInfo()));
+        add(new Label(pl.getCreator()));
+
+        JsArray<Track> ts = pl.getTracks();
+        for (int i = 0; i < ts.length(); i++) {
+            Track t = ts.get(i);
+            add(new Label("<<<<<<<<<<<<<<<<<<< Track " + i + " >>>>>>>>>>>>>>>>>"));
+            add(new Label(t.getTitle()));
+            add(new Label(t.getCreator()));
+            add(new Label(t.getAlbum()));
+        }
     }
 
     private void addPlayer(Plugin plugin) {
@@ -107,7 +153,6 @@ public class Dev extends FlowPanel implements EntryPoint {
             switch (plugin) {
                 case DivXPlayer:
                     mmp = new DivXPlayer(mrl.getNextResource(true), false, "350px", "100%");
-//                    divx.setBannerEnabled(false);
 //                    divx.setDisplayMode(DivXPlayer.DisplayMode.LARGE);
 //                    divx.setAllowContextMenu(false);
                     break;
@@ -133,15 +178,22 @@ public class Dev extends FlowPanel implements EntryPoint {
                     mmp = PlayerUtil.getPlayer(mrl.getNextResource(true), false, "350px", "100%");
                 //                    mmp = new FlatVideoPlayer(Plugin.FlashPlayer, mrl.getNextResource(true),  false, "350px", "100%");
             }
+            mmp.addPlayStateHandler(new PlayStateHandler() {
+
+                @Override
+                public void onPlayStateChanged(PlayStateEvent event) {
+                    GWT.log("Index : " + event.getItemIndex() + " = " + event.getPlayState());
+                }
+            });
             mmp.showLogger(true);
             mmp.setConfigParameter(ConfigParameter.QTScale, QuickTimePlayer.Scale.Aspect);
             mmp.setConfigParameter(ConfigParameter.BackgroundColor, "#ffffff");
-            //           ((PlaylistSupport) mmp).addToPlaylist(mrl.getNextResource(false));
-            mmp.setResizeToVideoSize(true);
+//                      ((PlaylistSupport) mmp).addToPlaylist(mrl.getNextResource(false));
+//            mmp.setResizeToVideoSize(true);
 //            mmp.setLoopCount(2);
 //            mmp.setRepeatMode(RepeatMode.REPEAT_ALL);
-//            ((PlaylistSupport) mmp).setShuffleEnabled(true);
-//            mmp.setControllerVisible(false);
+            ((PlaylistSupport) mmp).setShuffleEnabled(false);
+            mmp.setControllerVisible(true);
             add(mmp);
             /*
             final Label lbl = new Label("MM - ");
@@ -166,7 +218,7 @@ public class Dev extends FlowPanel implements EntryPoint {
     }
 
     private void addUTube() {
-        final PlayStateHandler psh = new PlayStateHandler()      {
+        final PlayStateHandler psh = new PlayStateHandler()         {
 
             @Override
             public void onPlayStateChanged(PlayStateEvent event) {
@@ -186,7 +238,7 @@ public class Dev extends FlowPanel implements EntryPoint {
             }
         };
 
-        add(new Button("[1] click to create player", new ClickHandler()      {
+        add(new Button("[1] click to create player", new ClickHandler()         {
 
             @Override
             public void onClick(ClickEvent event) {
@@ -213,7 +265,7 @@ public class Dev extends FlowPanel implements EntryPoint {
         } catch (PluginNotFoundException ex) {
         }
 
-        add(new Button("[2] click to set player url", new ClickHandler()      {
+        add(new Button("[2] click to set player url", new ClickHandler()         {
 
             @Override
             public void onClick(ClickEvent event) {
@@ -235,28 +287,6 @@ public class Dev extends FlowPanel implements EntryPoint {
 //    PlayerBinder pb = GWT.create(PlayerBinder.class);
 
     public void issue32() {
-        final String fileUrl = "http://www.selikoffsolutions.com/3590.flv";
-        final PopupPanel popup = new PopupPanel();
-        AbstractMediaPlayer player;
-        Widget mp = null;
-        try {
-            player = new FlashMediaPlayer(fileUrl, true, "464px", "620px");
-            player.setResizeToVideoSize(false);
-            popup.setSize("620px", "464px");
-            mp = player;
-        } catch (PluginNotFoundException e) {
-            mp = PlayerUtil.getMissingPluginNotice(Plugin.FlashPlayer, e.getMessage());
-        } catch (PluginVersionException e) {
-            mp = PlayerUtil.getMissingPluginNotice(Plugin.FlashPlayer, e.getRequiredVersion());
-        } catch (LoadException e) {
-            mp = PlayerUtil.getMissingPluginNotice(Plugin.FlashPlayer);
-        }
-        popup.add(mp);
-        popup.show();
-
-    }
-
-    public void issue32a() {
         // GWT.getModuleBaseURL() + "applause.mp3";
         final String fileUrl = GWT.getModuleBaseURL() + "big-buck-bunny.mp4";
         AbstractMediaPlayer player;
@@ -294,7 +324,7 @@ public class Dev extends FlowPanel implements EntryPoint {
         }
 
         FlowPanel fp = new FlowPanel();
-        fp.add(new Button("close", new ClickHandler()    {
+        fp.add(new Button("close", new ClickHandler()       {
 
             @Override
             public void onClick(ClickEvent event) {
@@ -304,7 +334,7 @@ public class Dev extends FlowPanel implements EntryPoint {
         fp.add(mp);
         panel.setWidget(fp);
 
-        add(new Button("Show", new ClickHandler()    {
+        add(new Button("Show", new ClickHandler()       {
 
             @Override
             public void onClick(ClickEvent event) {

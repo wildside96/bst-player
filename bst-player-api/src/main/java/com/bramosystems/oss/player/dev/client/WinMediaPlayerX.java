@@ -15,6 +15,7 @@
  */
 package com.bramosystems.oss.player.dev.client;
 
+import com.bramosystems.oss.player.core.client.MRL;
 import com.bramosystems.oss.player.core.client.ui.*;
 import com.bramosystems.oss.player.core.client.AbstractMediaPlayer;
 import com.bramosystems.oss.player.core.client.ConfigParameter;
@@ -105,7 +106,7 @@ public class WinMediaPlayerX extends AbstractMediaPlayer implements PlaylistSupp
     private WMPPlaylistManager playlistManager;
     private LoopManager loopManager;
     private ArrayList<String> urls;
-    private WinMediaPlayerImpl.Playlist playlist;
+    private WinMediaPlayerImpl.WMPPlaylist playlist;
 
     private WinMediaPlayerX(EmbedMode embedMode, boolean autoplay)
             throws PluginNotFoundException, PluginVersionException {
@@ -724,6 +725,16 @@ public class WinMediaPlayerX extends AbstractMediaPlayer implements PlaylistSupp
         } else {
             urls.add(mediaURL);
         }
+    }
+
+    @Override
+    public void addToPlaylist(MRL mediaLocator) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public void addToPlaylist(String... mediaURLs) {
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 
     @Override

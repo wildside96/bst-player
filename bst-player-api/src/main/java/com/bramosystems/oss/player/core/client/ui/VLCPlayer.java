@@ -448,7 +448,17 @@ public class VLCPlayer extends AbstractMediaPlayer implements PlaylistSupport {
     public void addToPlaylist(String mediaURL) {
         stateHandler.getPlaylistManager().addToPlaylist(mediaURL);
     }
+    
+    @Override
+    public void addToPlaylist(MRL mediaLocator) {
+        stateHandler.getPlaylistManager().addToPlaylist(mediaLocator);
+    }
 
+    @Override
+    public void addToPlaylist(String... mediaURLs) {
+        stateHandler.getPlaylistManager().addToPlaylist(mediaURLs);
+    }
+    
     @Override
     public boolean isShuffleEnabled() {
         checkAvailable();

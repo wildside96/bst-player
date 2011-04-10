@@ -20,7 +20,6 @@ import com.bramosystems.oss.player.core.event.client.DebugEvent;
 import com.bramosystems.oss.player.core.event.client.PlayerStateEvent;
 import com.bramosystems.oss.player.core.event.client.PlayerStateHandler;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -120,27 +119,23 @@ public class DelegatePlaylistManager implements PlaylistSupport {
 
     @Override
     public void addToPlaylist(String mediaURL) {
-        urls.add(new MRL(mediaURL));
-        indexOracle.incrementIndexSize();
-        _debug("Added to playlist - '" + mediaURL + "'");
+        addToPlaylist(new MRL(mediaURL));
     }
 
-    /**
-     * For use with NativePlayer.
-     * @param mediaURLs
-     */
+    @Override
     public void addToPlaylist(String... mediaURLs) {
-        urls.add(new MRL(mediaURLs));
-        indexOracle.incrementIndexSize();
-        _debug("Added to playlist - '" + mediaURLs + "'");
+        addToPlaylist(new MRL(mediaURLs));
     }
 
     public void addToPlaylist(List<String> mediaURLs) {
-        MRL mrl = new MRL();
-        mrl.addAll(mediaURLs);
-        urls.add(mrl);
+        addToPlaylist(new MRL(mediaURLs));
+    }
+
+    @Override
+    public void addToPlaylist(MRL mediaLocator) {
+        urls.add(mediaLocator);
         indexOracle.incrementIndexSize();
-        _debug("Added to playlist - '" + mediaURLs + "'");
+        _debug("Added to playlist - '" + mediaLocator + "'");
     }
 
     @Override
@@ -258,28 +253,5 @@ public class DelegatePlaylistManager implements PlaylistSupport {
         public void load(String url);
 
         public void onDebug(String message);
-    }
-
-    private class MRL extends ArrayList<String> {
-
-        private int index = -1;
-
-        public MRL() {
-            super();
-        }
-
-        public MRL(String... urls) {
-            addAll(Arrays.asList(urls));
-        }
-
-        public String getNextResource(boolean roll) {
-            index++;
-            index = (roll && (index == size())) ? 0 : index;
-            return get(index);
-        }
-
-        public String getCurrentResource() {
-            return get(index);
-        }
     }
 }

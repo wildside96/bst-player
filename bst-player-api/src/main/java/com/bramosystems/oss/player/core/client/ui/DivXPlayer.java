@@ -635,6 +635,16 @@ public class DivXPlayer extends AbstractMediaPlayer implements PlaylistSupport {
     }
 
     @Override
+    public void addToPlaylist(MRL mediaLocator) {
+        playlistManager.addToPlaylist(mediaLocator);
+    }
+
+    @Override
+    public void addToPlaylist(String... mediaURLs) {
+        playlistManager.addToPlaylist(mediaURLs);
+    }
+
+    @Override
     public void removeFromPlaylist(int index) {
         checkAvailable();
         playlistManager.removeFromPlaylist(index);
