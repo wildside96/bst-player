@@ -15,6 +15,7 @@
  */
 package com.bramosystems.oss.player.core.client.skin;
 
+import com.bramosystems.oss.player.core.client.playlist.MRL;
 import com.bramosystems.oss.player.core.client.geom.MatrixSupport;
 import com.bramosystems.oss.player.core.client.geom.TransformationMatrix;
 import com.bramosystems.oss.player.core.client.*;

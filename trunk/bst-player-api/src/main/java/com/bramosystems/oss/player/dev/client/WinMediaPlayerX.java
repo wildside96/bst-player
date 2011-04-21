@@ -15,7 +15,7 @@
  */
 package com.bramosystems.oss.player.dev.client;
 
-import com.bramosystems.oss.player.core.client.MRL;
+import com.bramosystems.oss.player.core.client.playlist.MRL;
 import com.bramosystems.oss.player.core.client.ui.*;
 import com.bramosystems.oss.player.core.client.AbstractMediaPlayer;
 import com.bramosystems.oss.player.core.client.ConfigParameter;

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.bramosystems.oss.player.core.client;
+package com.bramosystems.oss.player.core.client.playlist;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -30,6 +30,7 @@ public class MRL {
 
     private int _index = -1;
     private ArrayList<String> _urls;
+    private String _author, _name;
 
     /**
      * Constructs MRL object
@@ -38,6 +39,17 @@ public class MRL {
         _urls = new ArrayList<String>();
     }
 
+    /**
+     * Constructs MRL object with the specified {@code name} and {@code author}
+     * 
+     * @param name the descriptive name of the media resource
+     * @param author the author of the media resource
+     */
+    public MRL(String name, String author) {
+        this._author = author;
+        this._name = name;
+    }
+    
     /**
      * Constructs MRL object with the specified URLs
      * 
@@ -116,6 +128,40 @@ public class MRL {
     public String toString() {
         return _urls.toString();
     }
-    
-    
+
+    /**
+     * Returns the author of the media resource
+     * 
+     * @return the author of the media resource
+     */
+    public String getAuthor() {
+        return _author;
+    }
+
+    /**
+     * Sets the author of the media resource
+     * 
+     * @param author the author of the media resource 
+     */
+    public void setAuthor(String author) {
+        this._author = author;
+    }
+
+    /**
+     * Returns a descriptive name of the media resource
+     * 
+     * @return a descriptive name of the media resource
+     */
+    public String getName() {
+        return _name;
+    }
+
+    /**
+     * Assigns a descriptive name for the media resource
+     * 
+     * @param name a descriptive name of the media resource
+     */
+    public void setName(String name) {
+        this._name = name;
+    }    
 }

@@ -15,6 +15,7 @@
  */
 package com.bramosystems.oss.player.dev.client;
 
+import com.bramosystems.oss.player.core.client.playlist.MRL;
 import com.bramosystems.oss.player.core.event.client.PlayerStateHandler;
 import com.bramosystems.oss.player.core.event.client.PlayerStateEvent;
 import com.bramosystems.oss.player.core.event.client.MediaInfoEvent;

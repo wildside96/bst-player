@@ -15,7 +15,10 @@
  */
 package com.bramosystems.oss.player.dev.client.playlist;
 
+import com.bramosystems.oss.player.dev.client.playlist.impl.ASXHandler;
 import com.bramosystems.oss.player.dev.client.playlist.impl.XSPFHandler;
+import com.bramosystems.oss.player.dev.client.playlist.impl.asx.ASXPlaylist;
+import com.bramosystems.oss.player.dev.client.playlist.impl.spf.JSPFPlaylist;
 import com.bramosystems.oss.player.dev.client.playlist.impl.spf.SPFPlaylist;
 import com.google.gwt.core.client.JsonUtils;
 
@@ -25,16 +28,14 @@ import com.google.gwt.core.client.JsonUtils;
  */
 public class SPFParser {
 
-    public static native SPFPlaylist parseJspfPlaylist(String jspf) /*-{
-    return eval('(' + jspf + ')').playlist;
-    }-*/;
-
-    public static SPFPlaylist parseJspfPlaylist2(String jspf) {
-        return JsonUtils.unsafeEval(jspf);
+    public static SPFPlaylist parseJspfPlaylist(String jspf) {
+        return ((JSPFPlaylist)JsonUtils.safeEval(jspf)).getPlaylist();
     }
 
     public static SPFPlaylist parseXspfPlaylist(String xspf) {
-        XSPFHandler xs = new XSPFHandler();
-        return xs.getPlaylist(xspf);
+        return new XSPFHandler().getPlaylist(xspf);
+    }
+    public static ASXPlaylist parseAsxPlaylist(String asx) {
+        return new ASXHandler().getPlaylist(asx);
     }
 }
