@@ -4,7 +4,7 @@
     <groupId>com.bramosystems.oss.player</groupId>
     <artifactId>bst-player</artifactId>
     <packaging>pom</packaging>
-    <version>1.2.2-SNAPSHOT</version>
+    <version>1.3-SNAPSHOT</version>
     <name>BST Player</name>
     <url>http://oss.bramosystems.com/bst-player</url>
     <inceptionYear>2009</inceptionYear>
@@ -112,7 +112,7 @@
                 <plugin>
                     <groupId>org.sonatype.flexmojos</groupId>
                     <artifactId>flexmojos-maven-plugin</artifactId>
-                    <version>3.7.1</version>
+                    <version>3.9</version>
                 </plugin>
             </plugins>
         </pluginManagement>
@@ -127,7 +127,7 @@
     </build>
 
     <properties>
-        <gwtMojoPluginVersion>2.1.0-1</gwtMojoPluginVersion>
+        <gwtMojoPluginVersion>2.2.0</gwtMojoPluginVersion>
         <gwtVersion>2.2.0</gwtVersion>
     </properties>
 
