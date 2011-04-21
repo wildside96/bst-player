@@ -17,9 +17,58 @@
                 This page contains information on the various released packages of the project.
             </p>
 
-            <subsection name="24 February 2011 - Version 1.2.1">
+            <subsection name="24 February 2011 - Version 1.2.2 / 1.2.1-le">
                 <p>
-                    This is a bug-fix release addressing critical bugs and some feature improvements.
+                    This is a bug-fix release addressing critical bugs and some feature improvements.  Version 1.2.1-le is provided for
+                    GWT versions before 2.2
+                </p>
+
+                <p>
+                    <b>Improvements</b>
+                </p>
+                <ul>
+                    <li>Improved Windows Media Player plugin detection</li>
+                </ul>
+
+                <p>
+                    <b>Bug Fixes</b>
+                </p>
+                <ul>
+                    <li>
+                        <a href="http://code.google.com/p/bst-player/issues/detail?id=32">Issue #32</a> -
+                        Video invisible in FlashMediaPlayer with player height less than 30px
+                    </li>
+                    <li>
+                        <a href="http://code.google.com/p/bst-player/issues/detail?id=35">Issue #35</a> -
+                        FlashMediaPlayer enhanced with filesystem support
+                    </li>
+                     <li>
+                        <a href="http://code.google.com/p/bst-player/issues/detail?id=36">Issue #36</a> -
+                        WinMediaPlayer autoplays with <code>autoplay</code> set to <code>false</code>
+                    </li>
+                     <li>
+                        <a href="http://code.google.com/p/bst-player/issues/detail?id=40">Issue #44</a> -
+                        Compilation problems with GWT 2.2 (for version 1.2.1 only)
+                    </li>
+               </ul>
+
+                <p>
+                    <b>Known Issue</b>
+                </p>
+                <ul >
+                    <li>
+                        Resizing
+                        <code>WinMediaPlayer</code> widget is not supported for non-IE browsers.
+                        This is due to unpredictable rendering behaviour when using playlists.  However, this
+                        feature works fine in IE browsers.
+                    </li>
+                </ul>
+            </subsection>
+
+            <subsection name="24 February 2011 - Version 1.2.1 / 1.2.1-le">
+                <p>
+                    This is a bug-fix release addressing critical bugs and some feature improvements.  Version 1.2.1-le is provided for
+                    GWT versions before 2.2
                 </p>
 
                 <p>
@@ -46,6 +95,10 @@
                      <li>
                         <a href="http://code.google.com/p/bst-player/issues/detail?id=36">Issue #36</a> -
                         WinMediaPlayer autoplays with <code>autoplay</code> set to <code>false</code>
+                    </li>
+                     <li>
+                        <a href="http://code.google.com/p/bst-player/issues/detail?id=40">Issue #44</a> -
+                        Compilation problems with GWT 2.2 (for version 1.2.1 only)
                     </li>
                </ul>
 

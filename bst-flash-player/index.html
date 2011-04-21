@@ -29,16 +29,17 @@
             bstplayer.handlers.swf.gwtuid1.onMessage = function(type, message) {
                 document.getElementById("trace1").innerHTML += type + " - " + message + "<br/>";
             }
+           bstplayer.handlers.swf.gwtuid1.onStateChanged = function(state, index) {
+                document.getElementById("trace1").innerHTML += "state: " + state + " - " + index + "<br/>";
+            }
             bstplayer.handlers.swf.gwtuid2 = new Object();
             bstplayer.handlers.swf.gwtuid2.onMessage = function(type, message) {
                 document.getElementById("trace2").innerHTML += type + " - " + message + "<br/>";
             }
             bstplayer.handlers.swf.gwtuid1.onInit = function() {
-//                var pl = document.getElementById("gwtuid1");
-                //                pl.addToPlaylist('http://localhost:8080/local-video/brandy-everything.mp3');
-                //                pl.addToPlaylist('http://localhost:8080/local-video/traffic.flv');
-                //                pl.setRepeatMode('all');
-                //                pl.setLoopCount(2);
+                document.getElementById("trace1").innerHTML += "--- Initz --- <br/>";
+ //                               pl.setRepeatMode('all');
+ //                               pl.setLoopCount(2);
                 //                pl.setShuffleEnabled(true);
 //                pl.setControllerVisible(true);
                 //                pl.setAutoHideController(true);
@@ -54,6 +55,7 @@
             function doplay() {
                 window.alert("do play ...");
                 document.getElementById("gwtuid1").play();
+                document.getElementById("gwtuid1").addToPlaylist('http://192.168.20.68:8080/traffic_1.flv');
             }
         </script>
     </head>
@@ -66,7 +68,7 @@
         </div>
         <div style="width: 42%; float: left">
             <object id="gwtuid1" classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000" style="width: 100%; height: 400px" >
-                <param name="src" value="target/bst-flash-player-1.2.1-SNAPSHOT.swf"/>
+                <param name="src" value="target/bst-flash-player-1.2.2-SNAPSHOT.swf"/>
                 <param name="flashvars" value="playerId=gwtuid1&autoplay=false&debug=true&mediaURL=http://192.168.19.135:8080/traffic.flv">
                 <!--param name="allowScriptAccess" value="always"-->
                 <param name="allowNetworking" value="all">
@@ -74,13 +76,14 @@
                 <param name="wmode" value="opaque">                
 
             <embed id="gwtuid1"  type="application/x-shockwave-flash"
-                   src="target/bst-flash-player-1.2.1-SNAPSHOT.swf"  name="gwtuid1"
-                   flashvars="playerId=gwtuid1&autoplay=false&mediaURL=http://192.168.19.135:8080/traffic.flv"
+                   src="target/bst-flash-player-1.2.2-SNAPSHOT.swf"  name="gwtuid1"
+                   flashvars="playerId=gwtuid1&autoplay=false&mediaURL=http://192.168.20.68:8080/traffic.flv"
                    allowscriptaccess="always" allowfullscreen="true" style="width: 100%; height: 400px" wmode="opaque"/>
             </object> 
             <div id="trace1" style="margin-top: 5px; font-size: 12px;overflow: scroll;height: 150px"></div>
         </div>
 
+<!--
         <div style="width: 42%; float: right">
             <object id="gwtuid2" classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000" style="width: 100%; height: 400px" >
                 <param name="src" value="target/bst-flash-player-1.2.1-SNAPSHOT-lo.swf">
@@ -96,8 +99,8 @@
             </object>
             <div id="trace2" style="margin-top: 5px; font-size: 12px;overflow: scroll;height: 150px"></div>
         </div>
-<!--
-                <param name="flashvars" value="playerId=gwtuid2&autoplay=false&debug=false&mediaURL=file:///C:/SPEC/projects/oss/bst-player/bst-flash-player/traffic.flv">
+
+<param name="flashvars" value="playerId=gwtuid2&autoplay=false&debug=false&mediaURL=file:///C:/SPEC/projects/oss/bst-player/bst-flash-player/traffic.flv">
                    flashvars="playerId=gwtuid2&autoplay=false&mediaURL=file:///C:/SPEC/projects/oss/bst-player/bst-flash-player/traffic.flv"
                    flashvars="playerId=gwtuid2&autoplay=false&mediaURL=file:///C:/Users/User/Documents/Sikiru/Lib/Apps/OSSProjects/bst-player-r120/bst-player-showcase/target/bst-player-showcase/media
 -->
