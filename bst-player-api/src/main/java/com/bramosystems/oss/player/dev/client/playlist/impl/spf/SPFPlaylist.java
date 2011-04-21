@@ -15,8 +15,13 @@
  */
 package com.bramosystems.oss.player.dev.client.playlist.impl.spf;
 
+import com.bramosystems.oss.player.core.client.playlist.MRL;
+import com.bramosystems.oss.player.core.client.playlist.Playlist;
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.core.client.JsArray;
+import com.google.gwt.core.client.JsArrayString;
+import com.google.gwt.core.client.JsDate;
+import java.util.Date;
 
 /**
  *
@@ -51,7 +56,17 @@ public final class SPFPlaylist extends JavaScriptObject {
         this.creator = creator;
     }-*/;
 
-    public native String getDate() /*-{
+    public final Date getDate(){
+        JsDate jd = JsDate.create(getDateImpl());
+        return new Date((long)jd.getTime());
+    }
+    
+    public final void setDate(Date date) {
+        JsDate jd = JsDate.create(date.getTime());
+        setDate(jd.toLocaleString());
+    }
+    
+    private native String getDateImpl() /*-{
         return this.date;
     }-*/;
 
@@ -114,4 +129,23 @@ public final class SPFPlaylist extends JavaScriptObject {
     public native void setTracks(JsArray<Track> tracks) /*-{
         this.track = tracks;
     }-*/;
+
+    public final Playlist toPlaylist() {
+        Playlist p = new Playlist();
+        p.setName(getTitle());
+        p.setAuthor(getCreator());
+        
+        JsArray<Track> ts = getTracks();
+        for(int i = 0; i < ts.length(); i++) {
+           Track t = ts.get(i);
+           
+           MRL m = new MRL(t.getTitle(), t.getCreator());
+           JsArrayString js = t.getLocation();
+           for(int j = 0; j < js.length(); j++) {
+               m.addURL(js.get(i));
+           }
+           p.add(m);
+        }
+        return p;
+    }
 }

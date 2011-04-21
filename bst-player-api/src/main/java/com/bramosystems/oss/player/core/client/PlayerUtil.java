@@ -23,7 +23,6 @@ import com.bramosystems.oss.player.core.client.ui.NativePlayer;
 import com.bramosystems.oss.player.core.client.ui.QuickTimePlayer;
 import com.bramosystems.oss.player.core.client.ui.VLCPlayer;
 import com.bramosystems.oss.player.core.client.ui.WinMediaPlayer;
-import com.google.gwt.i18n.client.NumberFormat;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Event;
 import com.google.gwt.user.client.Window;
@@ -37,9 +36,6 @@ import java.util.Set;
  */
 public class PlayerUtil {
 
-    private static NumberFormat timeFormat = NumberFormat.getFormat("00");
-    private static NumberFormat hourFormat = NumberFormat.getFormat("#0");
-
     /**
      * Formats the specified time (in milliseconds) into time string in the
      * format <code>hh:mm:ss</code>.
@@ -51,27 +47,7 @@ public class PlayerUtil {
      * @return the formatted time as String
      */
     public static String formatMediaTime(long milliSeconds) {
-        long secth = 0, secs = 0, min = 0, hrs = 0;
-
-        try {
-            secth = milliSeconds % 1000;    // millisecs.
-            milliSeconds /= 1000;
-
-            secs = milliSeconds % 60;   // secs.
-            milliSeconds /= 60;
-
-            min = milliSeconds % 60;   // min.
-            milliSeconds /= 60;
-
-            hrs = milliSeconds % 60;   // hrs.
-            milliSeconds /= 60;
-        } catch (Exception e) {
-            // catch exceptions like division by zero...
-        }
-
-        String time = (hrs > 0 ? hourFormat.format(hrs) + ":" : "")
-                + timeFormat.format(min) + ":" + timeFormat.format(secs);
-        return time;
+        return new PlayTime(milliSeconds).toString(false);
     }
 
     /**

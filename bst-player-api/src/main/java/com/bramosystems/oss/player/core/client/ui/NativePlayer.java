@@ -16,7 +16,7 @@
 package com.bramosystems.oss.player.core.client.ui;
 
 import com.bramosystems.oss.player.core.client.AbstractMediaPlayer;
-import com.bramosystems.oss.player.core.client.MRL;
+import com.bramosystems.oss.player.core.client.playlist.MRL;
 import java.util.ArrayList;
 
 import com.bramosystems.oss.player.core.client.LoadException;

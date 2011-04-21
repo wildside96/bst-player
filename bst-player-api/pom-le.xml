@@ -7,6 +7,7 @@
         <version>1.3-SNAPSHOT</version>
     </parent>
     <artifactId>bst-player-api</artifactId>
+    <version>${project.parent.version}-le</version>
     <name>BST Player API</name>
     <description>
         Provides a consistent API for embedding popular media player plugins in web applications.
@@ -51,13 +52,13 @@
                                 <artifactItem>
                                     <groupId>${project.groupId}</groupId>
                                     <artifactId>bst-flash-player</artifactId>
-                                    <version>${project.version}</version>
+                                    <version>${project.parent.version}</version>
                                     <type>swf</type>
                                 </artifactItem>
                                 <artifactItem>
                                     <groupId>${project.groupId}</groupId>
                                     <artifactId>bst-flash-player</artifactId>
-                                    <version>${project.version}</version>
+                                    <version>${project.parent.version}</version>
                                     <type>swf</type>
                                     <classifier>lo</classifier>
                                 </artifactItem>
@@ -94,6 +95,7 @@
         <dependency>
             <groupId>com.google.gwt</groupId>
             <artifactId>gwt-user</artifactId>
+            <version>2.1.1</version>
         </dependency>
         <dependency>
             <groupId>junit</groupId>
@@ -115,6 +117,18 @@
                             <hostedWebapp>${project.build.directory}/${project.build.finalName}</hostedWebapp>
                             <bindAddress>0.0.0.0</bindAddress>
                         </configuration>
+                        <dependencies>
+                            <dependency>
+                                <groupId>com.google.gwt</groupId>
+                                <artifactId>gwt-dev</artifactId>
+                                <version>2.1.1</version>
+                            </dependency>
+                            <dependency>
+                                <groupId>com.google.gwt</groupId>
+                                <artifactId>gwt-user</artifactId>
+                                <version>2.1.1</version>
+                            </dependency>
+                        </dependencies>                    
                     </plugin>
                 </plugins>
             </build>
@@ -122,6 +136,7 @@
                 <dependency>
                     <groupId>com.google.gwt</groupId>
                     <artifactId>gwt-dev</artifactId>
+                    <version>2.1.1</version>
                 </dependency>
             </dependencies>
         </profile>

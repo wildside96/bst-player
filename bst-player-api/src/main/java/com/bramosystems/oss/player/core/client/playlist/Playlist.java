@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 Sikirulai Braheem <sbraheem at bramosystems.com>.
+ * Copyright 2011 Sikiru Braheem.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,19 +13,35 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.bramosystems.oss.player.dev.client.playlist.impl;
 
-import java.util.HashMap;
+package com.bramosystems.oss.player.core.client.playlist;
+
+import java.util.ArrayList;
 
 /**
  *
- * @author Sikirulai Braheem <sbraheem at bramosystems.com>
+ * @author Sikiru Braheem
  */
-public interface SAXHandler {
+public class Playlist extends ArrayList<MRL> {
+    
+    private String name, author;
 
-    public void onNodeStart(String nodeName, HashMap<String, String> attr, String namespaceURI);
+    public Playlist() {
+    }
 
-    public void setNodeValue(String nodeName, String value);
+    public String getAuthor() {
+        return author;
+    }
 
-    public void onNodeEnd(String nodeName);
+    public void setAuthor(String author) {
+        this.author = author;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
 }
