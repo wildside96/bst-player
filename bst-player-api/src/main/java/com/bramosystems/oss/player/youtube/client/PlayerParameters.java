@@ -25,7 +25,8 @@ package com.bramosystems.oss.player.youtube.client;
 public class PlayerParameters {
     private int loadRelatedVideos = 1, autoplay, loop, enableJsApi, disableKeyboardControls,
             egm, showBorder, fullScreen, highDef, showSearch = 1, showInfo = 1,
-            ivLoadPolicy = 1, closedCaptionPolicy, startTime;
+            ivLoadPolicy = 1, closedCaptionPolicy, startTime, showControls = 1;
+    private AutoHideMode autoHide = AutoHideMode.AUTOHIDE_PROGRESS_BAR;
     private String color1 = "", color2 = "", playerAPIId = "";
 
     public PlayerParameters() {
@@ -62,6 +63,7 @@ public class PlayerParameters {
      * Returns the players primary border color.
      *
      * @return color in hexadecimal format
+     * @deprecated Will be removed in a future version
      */
     public String getPrimaryBorderColor() {
         return color1;
@@ -71,6 +73,7 @@ public class PlayerParameters {
      * Sets the players primary border color.
      *
      * @param color an RGB value in hexadecimal format
+     * @deprecated Will be removed in a future version
      */
     public void setPrimaryBorderColor(String color) {
         this.color1 = color;
@@ -80,6 +83,7 @@ public class PlayerParameters {
      * Returns the players secondary border color and control bar background color.
      *
      * @return color in hexadecimal format
+     * @deprecated Will be removed in a future version
      */
     public String getSecondaryBorderColor() {
         return color2;
@@ -89,6 +93,7 @@ public class PlayerParameters {
      * Sets the players video control bar background color and secondary border color.
      *
      * @param color an RGB value in hexadecimal format
+     * @deprecated Will be removed in a future version
      */
     public void setSecondaryBorderColor(String color) {
         this.color2 = color;
@@ -117,6 +122,7 @@ public class PlayerParameters {
      *
      * @return {@code true} is genie menu is enabled, {@code false} otherwise
      * @see #setEnhancedGenieMenuEnabled(boolean)
+     * @deprecated Will be removed in a future version
      */
     public boolean isEnhancedGenieMenuEnabled() {
         return egm == 1;
@@ -128,6 +134,7 @@ public class PlayerParameters {
      * when the menu button is pressed
      *
      * @param enable {@code true} to enable genie menu, {@code false} otherwise
+     * @deprecated Will be removed in a future version
      */
     public void setEnhancedGenieMenuEnabled(boolean enable) {
         this.egm = enable ? 1 : 0;
@@ -173,6 +180,7 @@ public class PlayerParameters {
      * Checks if HD playback is enabled
      *
      * @return {@code true} if enabled, {@code false} otherwise.
+     * @deprecated Will be removed in a future version
      */
     public boolean isHDEnabled() {
         return highDef == 1;
@@ -185,6 +193,7 @@ public class PlayerParameters {
      * is not available.
      *
      * @param enable {@code true} to enable HD playback, {@code false} otherwise
+     * @deprecated Will be removed in a future version
      */
     public void setHDEnabled(boolean enable) {
         this.highDef = enable ? 1 : 0;
@@ -286,6 +295,7 @@ public class PlayerParameters {
      * Returns the display status of the search box.
      *
      * @return <code>true</code> if the search box is enabled, <code>false</code> otherwise.
+     * @deprecated Will be removed in a future version
      */
     public boolean isShowSearchBox() {
         return showSearch == 1;
@@ -298,6 +308,7 @@ public class PlayerParameters {
      * also be disabled.
      *
      * @param show <code>true</code> to show the search box, <code>false</code> otherwise.
+     * @deprecated Will be removed in a future version
      */
     public void showSearchBox(boolean show) {
         this.showSearch = show ? 1 : 0;
@@ -337,5 +348,68 @@ public class PlayerParameters {
      */
     public void setPlayerAPIId(String playerAPIId) {
         this.playerAPIId = playerAPIId;
+    }
+
+    /**
+     * Returns the <code>autohide</code> mode of the player
+     * 
+     * @return the autohide mode
+     * @since 1.3
+     */
+    public AutoHideMode getAutoHide() {
+        return autoHide;
+    }
+
+    /**
+     * Sets the <code>autohide</code> mode of the player
+     * 
+     * @param autoHide the autohide mode
+     * @since 1.3
+     */
+    public void setAutoHide(AutoHideMode autoHide) {
+        this.autoHide = autoHide;
+    }
+
+    /**
+     * Returns the status of the video player controls
+     * 
+     * @return <coode>true</code> if video player controls is visible, <code>false</code> otherwise
+     * @since 1.3
+     */
+    public boolean isShowControls() {
+        return showControls == 1;
+    }
+
+    /**
+     * Shows or hides the video player controls
+     * 
+     * @param showControls <code>true</code> to show video player controls and <code>false</code> otherwise
+     * @since 1.3
+     */
+    public void setShowControls(boolean showControls) {
+        this.showControls = showControls ? 1 : 0;
+    }
+    
+    /**
+     * An enum of autohide parameters for YouTubePlayer
+     * 
+     * @author Sikiru Braheem
+     * @since 1.3
+     */
+    public static enum AutoHideMode {
+        /**
+         * Video player controls and video progress bar are visible throughout video playback
+         */
+        NO_AUTOHIDE, 
+        
+        /**
+         * Video player controls and video progress bar are automatically hidden during video playback
+         */
+        AUTOHIDE_ALL_CONTROLS, 
+        
+        /**
+         * Video progress bar fades out during video playback while video player controls remain visible
+         */
+        AUTOHIDE_PROGRESS_BAR
     }
 }

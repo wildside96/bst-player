@@ -70,6 +70,8 @@ import java.util.ArrayList;
  *
  * @author Sikirulai Braheem <sbraheem at bramosystems dot com>
  * @since 1.1
+ * 
+ * TODO: work on playlist ...
  */
 public class YouTubePlayer extends AbstractMediaPlayer {
 
@@ -252,6 +254,9 @@ public class YouTubePlayer extends AbstractMediaPlayer {
                 try {
                     String value[] = _params[i].split("=");
                     switch (URLParameters.valueOf(value[0])) {
+                        case autohide:
+                            playerParameters.setAutoHide(PlayerParameters.AutoHideMode.values()[Integer.parseInt(value[1])]);
+                            break;
                         case autoplay:
                             playerParameters.setAutoplay(value[1].equals("1"));
                             break;
@@ -266,6 +271,9 @@ public class YouTubePlayer extends AbstractMediaPlayer {
                             break;
                         case color2:
                             playerParameters.setSecondaryBorderColor(value[1]);
+                            break;
+                        case controls:
+                            playerParameters.setShowControls(value[1].equals("1"));
                             break;
                         case disablekb:
                             playerParameters.setKeyboardControlsEnabled(value[1].equals("0"));
@@ -317,64 +325,70 @@ public class YouTubePlayer extends AbstractMediaPlayer {
      * @return the parameters in YouTube&trade; video URL format
      */
     protected final String paramsToString(PlayerParameters playerParameters) {
-        String url = "";
+        StringBuilder url = new StringBuilder("&version=3");
         for (URLParameters _param : URLParameters.values()) {
-            url += "&" + _param.name() + "=";
+            url.append("&").append(_param.name()).append("=");
             switch (_param) {
                 case autoplay:
-                    url += playerParameters.isAutoplay() ? "1" : "0";
+                    url.append(playerParameters.isAutoplay() ? "1" : "0");
                     break;
                 case border:
-                    url += playerParameters.isShowBorder() ? "1" : "0";
+                    url.append(playerParameters.isShowBorder() ? "1" : "0");
                     break;
 //                case cc_load_policy:
-//                    url += playerParameters.() ? "1" : "0";
+//                    url.append(playerParameters.() ? "1" : "0");
 //                    break;
                 case color1:
-                    url += playerParameters.getPrimaryBorderColor();
+                    url.append(playerParameters.getPrimaryBorderColor());
                     break;
                 case color2:
-                    url += playerParameters.getSecondaryBorderColor();
+                    url.append(playerParameters.getSecondaryBorderColor());
                     break;
                 case disablekb:
-                    url += playerParameters.isKeyboardControlsEnabled() ? "0" : "1";
+                    url.append(playerParameters.isKeyboardControlsEnabled() ? "0" : "1");
                     break;
                 case egm:
-                    url += playerParameters.isEnhancedGenieMenuEnabled() ? "1" : "0";
+                    url.append(playerParameters.isEnhancedGenieMenuEnabled() ? "1" : "0");
                     break;
                 case enablejsapi:
-                    url += playerParameters.isJSApiEnabled() ? "1" : "0";
+                    url.append(playerParameters.isJSApiEnabled() ? "1" : "0");
                     break;
                 case fs:
-                    url += playerParameters.isFullScreenEnabled() ? "1" : "0";
+                    url.append(playerParameters.isFullScreenEnabled() ? "1" : "0");
                     break;
                 case hd:
-                    url += playerParameters.isHDEnabled() ? "1" : "0";
+                    url.append(playerParameters.isHDEnabled() ? "1" : "0");
                     break;
                 case iv_load_policy:
-                    url += playerParameters.isShowVideoAnnotations() ? "1" : "3";
+                    url.append(playerParameters.isShowVideoAnnotations() ? "1" : "3");
                     break;
                 case loop:
-                    url += playerParameters.isLoopEnabled() ? "1" : "0";
+                    url.append(playerParameters.isLoopEnabled() ? "1" : "0");
                     break;
                 case playerapiid:
-                    url += playerParameters.getPlayerAPIId();
+                    url.append(playerParameters.getPlayerAPIId());
                     break;
                 case rel:
-                    url += playerParameters.isLoadRelatedVideos() ? "1" : "0";
+                    url.append(playerParameters.isLoadRelatedVideos() ? "1" : "0");
                     break;
                 case showinfo:
-                    url += playerParameters.isShowVideoInformation() ? "1" : "0";
+                    url.append(playerParameters.isShowVideoInformation() ? "1" : "0");
                     break;
                 case showsearch:
-                    url += playerParameters.isShowSearchBox() ? "1" : "0";
+                    url.append(playerParameters.isShowSearchBox() ? "1" : "0");
                     break;
                 case start:
-                    url += playerParameters.getStartTime();
+                    url.append(playerParameters.getStartTime());
+                    break;
+                case autohide:
+                    url.append(playerParameters.getAutoHide().ordinal());
+                    break;
+                case controls:
+                    url.append(playerParameters.isShowControls() ? "1" : "0");
                     break;
             }
         }
-        return url;
+        return url.toString();
     }
 
     @Override
@@ -603,7 +617,8 @@ public class YouTubePlayer extends AbstractMediaPlayer {
     private enum URLParameters {
 
         rel, autoplay, loop, enablejsapi, playerapiid, disablekb, egm, border,
-        color1, color2, start, fs, hd, showsearch, showinfo, iv_load_policy
+        color1, color2, start, fs, hd, showsearch, showinfo, iv_load_policy, autohide,
+        controls, origin, playlist
         //cc_load_policy
     }
 }

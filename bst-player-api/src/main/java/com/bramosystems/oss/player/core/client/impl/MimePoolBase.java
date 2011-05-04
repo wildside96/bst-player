@@ -17,12 +17,8 @@ package com.bramosystems.oss.player.core.client.impl;
 
 import com.bramosystems.oss.player.core.client.*;
 import com.bramosystems.oss.player.core.client.impl.plugin.PluginManager;
-import java.util.Arrays;
-import java.util.EnumMap;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Set;
-import java.util.TreeSet;
 
 /**
  * Utility class to get the file types associated with browser plugins
@@ -40,11 +36,11 @@ public class MimePoolBase implements MimePool {
 
     @Override
     public final Set<String> getRegisteredExtensions(Plugin plugin) throws PluginNotFoundException {
-        return PluginManager.getPluginInfo(plugin).getRegisteredExtensions();
+        return PluginManager.getPlayerInfo(plugin.name()).getRegisteredExtensions();
     }
 
     @Override
     public final Set<String> getRegisteredProtocols(Plugin plugin) throws PluginNotFoundException {
-        return PluginManager.getPluginInfo(plugin).getRegisteredProtocols();
+        return PluginManager.getPlayerInfo(plugin.name()).getRegisteredProtocols();
     }
 }

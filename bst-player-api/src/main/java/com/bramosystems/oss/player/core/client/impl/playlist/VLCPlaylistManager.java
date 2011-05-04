@@ -14,8 +14,9 @@
  *  limitations under the License.
  *  under the License.
  */
-package com.bramosystems.oss.player.core.client.impl;
+package com.bramosystems.oss.player.core.client.impl.playlist;
 
+import com.bramosystems.oss.player.core.client.playlist.PlaylistManager;
 import com.bramosystems.oss.player.core.client.PlayException;
 import com.bramosystems.oss.player.core.client.impl.VLCStateManager.VLCPlayerImplCallback;
 import com.bramosystems.oss.player.core.client.impl.VLCStateManager.VLCStateCallback;
@@ -26,7 +27,7 @@ import com.bramosystems.oss.player.core.event.client.PlayStateEvent.State;
  *
  * @author Sikiru
  */
-public class VLCPlaylistManager extends DelegatePlaylistManager {
+public class VLCPlaylistManager extends PlaylistManager {
 
     private VLCStateCallback _callback;
     private VLCPlayerImplCallback _impl;
@@ -34,7 +35,7 @@ public class VLCPlaylistManager extends DelegatePlaylistManager {
     private PlayStateEvent.State _currentState;
     private int _vlcItemIndex;
 
-    VLCPlaylistManager(VLCPlayerImplCallback impl, VLCStateCallback callback) {
+    public VLCPlaylistManager(VLCPlayerImplCallback impl, VLCStateCallback callback) {
         _impl = impl;
         _callback = callback;
         _currentState = PlayStateEvent.State.Stopped;
@@ -62,15 +63,20 @@ public class VLCPlaylistManager extends DelegatePlaylistManager {
         };
     }
 
+    @Override
+    public void flushMessageCache() {
+        super.flushMessageCache();
+    }
+
     public void setCurrentState(State currentState) {
         _currentState = currentState;
     }
 
-    void setStoppedByUser(boolean stoppedByUser) {
+    public void setStoppedByUser(boolean stoppedByUser) {
         this.stoppedByUser = stoppedByUser;
     }
 
-    boolean isStoppedByUser() {
+    public boolean isStoppedByUser() {
         return stoppedByUser;
     }
 

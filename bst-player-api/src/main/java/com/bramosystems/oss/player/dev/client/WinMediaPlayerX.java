@@ -32,13 +32,13 @@ import com.bramosystems.oss.player.core.client.MediaInfo.MediaInfoKey;
 import com.bramosystems.oss.player.core.client.PlaylistSupport;
 import com.bramosystems.oss.player.core.client.RepeatMode;
 import com.bramosystems.oss.player.core.client.impl.BeforeUnloadCallback;
-import com.bramosystems.oss.player.core.client.impl.DelegatePlaylistManager;
+import com.bramosystems.oss.player.core.client.playlist.PlaylistManager;
 import com.bramosystems.oss.player.core.client.impl.LoopManager;
 import com.bramosystems.oss.player.core.client.impl.PlayerWidget;
-import com.bramosystems.oss.player.core.client.impl.PlayerWidgetFactory;
-import com.bramosystems.oss.player.core.client.impl.plugin.PluginInfo;
+import com.bramosystems.oss.player.core.client.PluginInfo;
 import com.bramosystems.oss.player.core.client.impl.WMPStateManager;
 import com.bramosystems.oss.player.core.client.impl.WinMediaPlayerImpl;
+import com.bramosystems.oss.player.core.client.impl.plugin.CoreWidgetFactory;
 import com.bramosystems.oss.player.core.event.client.DebugEvent;
 import com.bramosystems.oss.player.core.event.client.DebugHandler;
 import com.bramosystems.oss.player.core.event.client.MediaInfoEvent;
@@ -111,12 +111,12 @@ public class WinMediaPlayerX extends AbstractMediaPlayer implements PlaylistSupp
     private WinMediaPlayerX(EmbedMode embedMode, boolean autoplay)
             throws PluginNotFoundException, PluginVersionException {
         if (embedMode.equals(EmbedMode.PROGRAMMABLE)
-                && !PlayerWidgetFactory.get().isWMPProgrammableEmbedModeSupported()) {
+                && !((CoreWidgetFactory)getWidgetFactory(Plugin.WinMediaPlayer.name())).isWMPProgrammableEmbedModeSupported()) {
             throw new PluginNotFoundException("'Media Player plugin for Firefox' is required");
         }
 
         PluginVersion req = Plugin.WinMediaPlayer.getVersion();
-        PluginInfo pi = PlayerUtil.getPlayerPluginInfo(Plugin.WinMediaPlayer);
+        PluginInfo pi = PlayerUtil.getPluginInfo(Plugin.WinMediaPlayer);
         if (pi.getVersion().compareTo(req) < 0) {
             throw new PluginVersionException(Plugin.WinMediaPlayer, req.toString(), pi.getVersion().toString());
         }
@@ -864,7 +864,7 @@ public class WinMediaPlayerX extends AbstractMediaPlayer implements PlaylistSupp
         PROGRAMMABLE
     }
 
-    private class WMPPlaylistManager extends DelegatePlaylistManager
+    private class WMPPlaylistManager extends PlaylistManager
             implements WMPStateManager.WMPEventCallback {
 
         private boolean _autoplay, shouldPlay, isPlaying;

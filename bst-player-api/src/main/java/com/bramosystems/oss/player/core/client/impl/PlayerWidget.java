@@ -17,6 +17,7 @@
 package com.bramosystems.oss.player.core.client.impl;
 
 import com.bramosystems.oss.player.core.client.Plugin;
+import com.bramosystems.oss.player.core.client.impl.plugin.DetectionEngine;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.ui.Widget;
@@ -104,8 +105,8 @@ public class PlayerWidget extends Widget {
         this.mediaURL = mediaURL;
         injectWidget(true);
     }
-
-    private void injectWidget(boolean updateDimension) {
+/*
+    private void injectWidget2(boolean updateDimension) {
         Element e = DOM.createDiv();
         PlayerWidgetFactory pf = PlayerWidgetFactory.get();
         switch (plugin) {
@@ -132,6 +133,20 @@ public class PlayerWidget extends Widget {
                 e = pf.getDivXElement(playerId, mediaURL, autoplay, params);
                 break;
         }
+        if (updateDimension) {
+            String curHeight = getElement().getFirstChildElement().getAttribute("height");
+            String curWidth = getElement().getFirstChildElement().getAttribute("width");
+            e.setAttribute("height", curHeight);
+            e.getStyle().setProperty("height", curHeight);
+            e.setAttribute("width", curWidth);
+            e.getStyle().setProperty("width", curWidth);
+        }
+        getElement().setInnerHTML(e.getString());
+    }
+*/
+    private void injectWidget(boolean updateDimension) {
+        Element e = DetectionEngine.getInstance().getWidgetFactory(plugin.name()).getWidgetElement(
+                plugin.name(), playerId, mediaURL, autoplay, params);
         if (updateDimension) {
             String curHeight = getElement().getFirstChildElement().getAttribute("height");
             String curWidth = getElement().getFirstChildElement().getAttribute("width");

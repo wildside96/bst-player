@@ -1,25 +1,32 @@
 /*
- * Copyright 2009 Sikirulai Braheem
+ * Copyright 2011 Sikirulai Braheem <sbraheem at bramosystems.com>.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
- * License for the specific language governing permissions and limitations under
- * the License.
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
-package com.bramosystems.oss.player.core.client.impl;
+package com.bramosystems.oss.player.core.client.impl.plugin;
 
+import com.bramosystems.oss.player.core.client.impl.QTStateManagerIE;
 import com.google.gwt.dom.client.Element;
 import java.util.HashMap;
 import java.util.Iterator;
 
-public class PlayerWidgetFactoryIE extends PlayerWidgetFactory {
+/**
+ * IE specific native implementation of the PluginManagerImpl class. It is not recommended to
+ * interact with this class directly.
+ *
+ * @author Sikirulai Braheem <sbraheem at bramosystems.com>
+ */
+public class CoreWidgetFactoryIE extends CoreWidgetFactory {
 
     protected class XObjectIE extends XObject {
 
@@ -27,9 +34,6 @@ public class PlayerWidgetFactoryIE extends PlayerWidgetFactory {
             super(id);
             getElement().setPropertyString("classid", classId);
         }
-    }
-
-    PlayerWidgetFactoryIE() {
     }
 
     @Override
@@ -44,11 +48,11 @@ public class PlayerWidgetFactoryIE extends PlayerWidgetFactory {
 
     @Override
     protected Element getWMPElement(String playerId, String mediaURL, boolean autoplay,
-            HashMap<String,String> params) {
+            HashMap<String, String> params) {
         XObjectIE xo = new XObjectIE(playerId, "clsid:6BF52A52-394A-11d3-B153-00C04F79FAA6");
         xo.addParam("autostart", Boolean.toString(autoplay));
         xo.addParam("URL", mediaURL);
-        
+
         Iterator<String> keys = params.keySet().iterator();
         while (keys.hasNext()) {
             String name = keys.next();
@@ -61,10 +65,10 @@ public class PlayerWidgetFactoryIE extends PlayerWidgetFactory {
     protected Element getQTElement(String playerId, String mediaURL, boolean autoplay,
             HashMap<String, String> params) {
         XObjectIE xo = new XObjectIE(playerId, "clsid:02BF25D5-8C17-4B23-BC80-D3488ABDDC6B");
-        xo.getElement().getStyle().setProperty("BEHAVIOR" , "url(#" + QTStateManagerIE.behaviourObjId + ")");
+        xo.getElement().getStyle().setProperty("BEHAVIOR", "url(#" + QTStateManagerIE.behaviourObjId + ")");
         xo.addParam("AutoPlay", Boolean.toString(autoplay));
 //        xo.addParam("Src", mediaURL);
-        
+
         Iterator<String> keys = params.keySet().iterator();
         while (keys.hasNext()) {
             String name = keys.next();

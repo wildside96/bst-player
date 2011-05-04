@@ -19,7 +19,7 @@ package com.bramosystems.oss.player.dev.client;
 import com.bramosystems.oss.player.core.client.Plugin;
 import com.bramosystems.oss.player.core.client.PluginNotFoundException;
 import com.bramosystems.oss.player.core.client.MimePool;
-import com.bramosystems.oss.player.core.client.impl.plugin.PluginInfo;
+import com.bramosystems.oss.player.core.client.PluginInfo;
 import com.bramosystems.oss.player.core.client.impl.plugin.PluginManager;
 import com.bramosystems.oss.player.util.client.BrowserPlugin;
 import com.bramosystems.oss.player.util.client.MimeType;
@@ -171,8 +171,8 @@ public class MimeStuffs extends FlexTable {
             try {
                 PluginInfo suf = PluginManager.getPluginInfo(plug);
                 setHTML(row, 1, suf.getVersion().toString());
-                setHTML(row, 2, suf.getRegisteredExtensions().toString());
-                setHTML(row++, 3, suf.getRegisteredProtocols().toString());
+//                setHTML(row, 2, suf.getRegisteredExtensions().toString());
+//                setHTML(row++, 3, suf.getRegisteredProtocols().toString());
             } catch (PluginNotFoundException ex) {
                 setHTML(row, 1, "-");
                 setHTML(row, 2, "-");

@@ -20,7 +20,7 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * Media Resource Locator.  Holds multiple alternative URLs of the same media resource 
+ * Media Resource Locator that holds multiple alternative URLs of the same media resource 
  * (probably in different formats).
  * 
  * @author Sikiru Braheem
