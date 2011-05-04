@@ -13,10 +13,10 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-package com.bramosystems.oss.player.core.client.impl;
+package com.bramosystems.oss.player.core.client.playlist;
 
-import com.bramosystems.oss.player.core.client.playlist.MRL;
 import com.bramosystems.oss.player.core.client.*;
+import com.bramosystems.oss.player.core.client.impl.playlist.PlaylistIndexOracle;
 import com.bramosystems.oss.player.core.event.client.DebugEvent;
 import com.bramosystems.oss.player.core.event.client.PlayerStateEvent;
 import com.bramosystems.oss.player.core.event.client.PlayerStateHandler;
@@ -24,12 +24,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Provides Playlist emulation support for media plugins
+ * Provides playlist emulation support for media plugins
  *
  * @since 1.2
- * @author Sikiru
+ * @author Sikiru Braheem
  */
-public class DelegatePlaylistManager implements PlaylistSupport {
+public class PlaylistManager implements PlaylistSupport {
 
     private ArrayList<MRL> urls;
     private ArrayList<String> msgCache;
@@ -38,7 +38,7 @@ public class DelegatePlaylistManager implements PlaylistSupport {
     private int pIndex;
     private boolean useCache;
 
-    public DelegatePlaylistManager() {
+    public PlaylistManager() {
         urls = new ArrayList<MRL>();
         msgCache = new ArrayList<String>();
         indexOracle = new PlaylistIndexOracle();
@@ -46,7 +46,7 @@ public class DelegatePlaylistManager implements PlaylistSupport {
         callback = initCallback();
     }
 
-    public DelegatePlaylistManager(final AbstractMediaPlayer _player) {
+    public PlaylistManager(final AbstractMediaPlayer _player) {
         this();
         callback = new PlayerCallback() {
 

@@ -28,17 +28,19 @@ import com.bramosystems.oss.player.core.client.PlaylistSupport;
 import com.bramosystems.oss.player.core.client.Plugin;
 import com.bramosystems.oss.player.core.client.PluginNotFoundException;
 import com.bramosystems.oss.player.core.client.RepeatMode;
-import com.bramosystems.oss.player.core.client.impl.DelegatePlaylistManager;
+import com.bramosystems.oss.player.core.client.playlist.PlaylistManager;
 import com.bramosystems.oss.player.core.client.impl.LoopManager;
 import com.bramosystems.oss.player.core.client.impl.NativePlayerImpl;
 import com.bramosystems.oss.player.core.client.impl.NativePlayerUtil;
 import com.bramosystems.oss.player.core.client.impl.PlayerWidget;
+import com.bramosystems.oss.player.core.client.impl.plugin.CoreWidgetFactory;
 import com.bramosystems.oss.player.core.event.client.DebugEvent;
 import com.bramosystems.oss.player.core.event.client.DebugHandler;
 import com.bramosystems.oss.player.core.event.client.MediaInfoEvent;
 import com.bramosystems.oss.player.core.event.client.MediaInfoHandler;
 import com.bramosystems.oss.player.core.event.client.PlayStateEvent;
 import com.bramosystems.oss.player.core.event.client.PlayerStateEvent;
+import com.bramosystems.oss.player.core.client.Player;
 import com.google.gwt.i18n.client.NumberFormat;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.DOM;
@@ -69,6 +71,7 @@ import com.google.gwt.user.client.ui.FlowPanel;
  *
  * @author Sikirulai Braheem <sbraheem at bramosystems dot com>
  */
+@Player(name="Native", widgetFactory=CoreWidgetFactory.class, minPluginVersion="5.0.0")
 public class NativePlayer extends AbstractMediaPlayer implements PlaylistSupport {
 
     private NumberFormat volFmt = NumberFormat.getPercentFormat();
@@ -78,7 +81,7 @@ public class NativePlayer extends AbstractMediaPlayer implements PlaylistSupport
     private boolean adjustToVideoSize, isEmbedded, isWasPlaying;
     private Logger logger;
     private LoopManager loopManager;
-    private DelegatePlaylistManager playlistManager;
+    private PlaylistManager playlistManager;
     private NativePlayerUtil.NativeEventCallback _callback;
 
     private NativePlayer() throws PluginNotFoundException {
@@ -88,7 +91,7 @@ public class NativePlayer extends AbstractMediaPlayer implements PlaylistSupport
 
         playerId = DOM.createUniqueId().replace("-", "");
         adjustToVideoSize = false;
-        playlistManager = new DelegatePlaylistManager(this);
+        playlistManager = new PlaylistManager(this);
         loopManager = new LoopManager(new LoopManager.LoopCallback() {
 
             @Override

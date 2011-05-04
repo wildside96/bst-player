@@ -16,11 +16,14 @@
  */
 package com.bramosystems.oss.player.core.client.ui;
 
+import com.bramosystems.oss.player.core.client.playlist.PlaylistManager;
 import com.bramosystems.oss.player.core.client.playlist.MRL;
 import com.bramosystems.oss.player.core.client.*;
 import com.bramosystems.oss.player.core.client.MediaInfo.MediaInfoKey;
 import com.bramosystems.oss.player.core.client.impl.*;
+import com.bramosystems.oss.player.core.client.impl.plugin.CoreWidgetFactory;
 import com.bramosystems.oss.player.core.event.client.*;
+import com.bramosystems.oss.player.core.client.Player;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.ui.FlowPanel;
@@ -58,6 +61,7 @@ import com.google.gwt.user.client.ui.FlowPanel;
  * @since 1.2
  * @author Sikiru Braheem
  */
+@Player(name="DivXPlayer", widgetFactory=CoreWidgetFactory.class, minPluginVersion="2.0.0")
 public class DivXPlayer extends AbstractMediaPlayer implements PlaylistSupport {
 
     private DivXStateManager manager;
@@ -67,7 +71,7 @@ public class DivXPlayer extends AbstractMediaPlayer implements PlaylistSupport {
     private Logger logger;
     private LoopManager loopManager;
     private DisplayMode displayMode;
-    private DelegatePlaylistManager playlistManager;
+    private PlaylistManager playlistManager;
     private boolean resizeToVideoSize, isEmbedded, playing;
     private double currentPosition;
 
@@ -184,7 +188,7 @@ public class DivXPlayer extends AbstractMediaPlayer implements PlaylistSupport {
                 currentPosition = time * 1000;
             }
         });
-        playlistManager = new DelegatePlaylistManager(this);
+        playlistManager = new PlaylistManager(this);
         displayMode = DisplayMode.MINI;
 
         // add play state monitoring to enhance setPlayPosition method..

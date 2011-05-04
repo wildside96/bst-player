@@ -19,17 +19,19 @@ import com.bramosystems.oss.player.core.client.playlist.MRL;
 import com.bramosystems.oss.player.core.client.geom.MatrixSupport;
 import com.bramosystems.oss.player.core.client.*;
 import com.bramosystems.oss.player.core.client.MediaInfo.MediaInfoKey;
-import com.bramosystems.oss.player.core.client.impl.DelegatePlaylistManager;
+import com.bramosystems.oss.player.core.client.playlist.PlaylistManager;
 import com.bramosystems.oss.player.core.client.impl.QTStateManager;
 import com.bramosystems.oss.player.core.client.impl.QuickTimePlayerImpl;
 import com.bramosystems.oss.player.core.client.impl.LoopManager;
 import com.bramosystems.oss.player.core.client.impl.PlayerWidget;
+import com.bramosystems.oss.player.core.client.impl.plugin.CoreWidgetFactory;
 import com.bramosystems.oss.player.core.event.client.DebugEvent;
 import com.bramosystems.oss.player.core.event.client.DebugHandler;
 import com.bramosystems.oss.player.core.event.client.MediaInfoEvent;
 import com.bramosystems.oss.player.core.event.client.MediaInfoHandler;
 import com.bramosystems.oss.player.core.event.client.PlayStateEvent;
 import com.bramosystems.oss.player.core.event.client.PlayerStateEvent;
+import com.bramosystems.oss.player.core.client.Player;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.i18n.client.NumberFormat;
 import com.google.gwt.user.client.Command;
@@ -67,6 +69,7 @@ import com.google.gwt.user.client.ui.*;
  *
  * @author Sikirulai Braheem
  */
+@Player(name="QuickTimePlayer", widgetFactory=CoreWidgetFactory.class, minPluginVersion="7.2.1")
 public class QuickTimePlayer extends AbstractMediaPlayer implements MatrixSupport, PlaylistSupport {
 
     private static QTStateManager manager = GWT.create(QTStateManager.class);
@@ -78,7 +81,7 @@ public class QuickTimePlayer extends AbstractMediaPlayer implements MatrixSuppor
     private String playerId;//, mediaUrl;
     private Logger logger;
     private LoopManager loopManager;
-    private DelegatePlaylistManager playlistManager;
+    private PlaylistManager playlistManager;
     private boolean isEmbedded, resizeToVideoSize, _isBuffering;
     private String _height, _width;
 
@@ -92,7 +95,7 @@ public class QuickTimePlayer extends AbstractMediaPlayer implements MatrixSuppor
         playerId = DOM.createUniqueId().replace("-", "");
         resizeToVideoSize = false;
 
-        playlistManager = new DelegatePlaylistManager(this);
+        playlistManager = new PlaylistManager(this);
         loopManager = new LoopManager(new LoopManager.LoopCallback() {
 
             @Override

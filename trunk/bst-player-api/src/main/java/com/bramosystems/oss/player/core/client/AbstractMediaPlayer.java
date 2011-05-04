@@ -15,8 +15,10 @@
  */
 package com.bramosystems.oss.player.core.client;
 
+import com.bramosystems.oss.player.core.client.impl.plugin.DetectionEngine;
 import com.bramosystems.oss.player.core.client.ui.Logger;
 import com.bramosystems.oss.player.core.event.client.*;
+import com.bramosystems.oss.player.core.client.spi.PlayerWidgetFactory;
 import com.google.gwt.event.dom.client.*;
 import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.user.client.Command;
@@ -677,5 +679,15 @@ public abstract class AbstractMediaPlayer extends Composite implements HasMediaS
      */
     public RepeatMode getRepeatMode() {
         return RepeatMode.REPEAT_OFF;
+    }
+    
+    /**
+     * 
+     * @param playerName
+     * @return 
+     * @since 1.3
+     */
+    protected final PlayerWidgetFactory getWidgetFactory(String playerName) {
+        return DetectionEngine.getInstance().getWidgetFactory(playerName);
     }
 }

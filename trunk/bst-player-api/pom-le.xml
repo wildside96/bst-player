@@ -7,7 +7,7 @@
         <version>1.3-SNAPSHOT</version>
     </parent>
     <artifactId>bst-player-api</artifactId>
-    <version>${project.parent.version}-le</version>
+    <version>1.3-le-SNAPSHOT</version>
     <name>BST Player API</name>
     <description>
         Provides a consistent API for embedding popular media player plugins in web applications.

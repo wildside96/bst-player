@@ -93,6 +93,10 @@
         <when-type-assignable class="com.bramosystems.oss.player.core.client.impl.plugin.MimeParserBase"/>
     </generate-with>
 
+    <generate-with class="com.bramosystems.oss.player.core.rebind.DetectionEngineGenerator" >
+        <when-type-assignable class="com.bramosystems.oss.player.core.client.impl.plugin.DetectionEngine"/>
+    </generate-with>
+
     <!-- Logger mapping -->
     <replace-with class="com.bramosystems.oss.player.core.client.ui.Logger.NullLoggerConsoleImpl">
         <when-type-is class="com.bramosystems.oss.player.core.client.ui.Logger.LoggerConsoleImpl"/>

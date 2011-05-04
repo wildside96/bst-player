@@ -15,19 +15,12 @@
  */
 package com.bramosystems.oss.player.core.client;
 
-import com.bramosystems.oss.player.core.client.impl.plugin.PluginInfo;
+import com.bramosystems.oss.player.core.client.impl.plugin.DetectionEngine;
 import com.bramosystems.oss.player.core.client.impl.plugin.PluginManager;
-import com.bramosystems.oss.player.core.client.ui.DivXPlayer;
-import com.bramosystems.oss.player.core.client.ui.FlashMediaPlayer;
-import com.bramosystems.oss.player.core.client.ui.NativePlayer;
-import com.bramosystems.oss.player.core.client.ui.QuickTimePlayer;
-import com.bramosystems.oss.player.core.client.ui.VLCPlayer;
-import com.bramosystems.oss.player.core.client.ui.WinMediaPlayer;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Event;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
-import java.util.Set;
 
 /**
  * Utility class for various media player related functions.
@@ -118,7 +111,7 @@ public class PlayerUtil {
     public static AbstractMediaPlayer getPlayer(Plugin plugin, String mediaURL,
             boolean autoplay, String height, String width)
             throws LoadException, PluginNotFoundException, PluginVersionException {
-        return _getPlayer(_getPlugin(plugin, mediaURL), mediaURL, autoplay, height, width);
+        return DetectionEngine.getInstance().getPlayer(plugin, mediaURL, autoplay, height, width);
     }
 
     /**
@@ -140,155 +133,7 @@ public class PlayerUtil {
      */
     public static AbstractMediaPlayer getPlayer(Plugin plugin, String mediaURL, boolean autoplay)
             throws LoadException, PluginNotFoundException, PluginVersionException {
-        return _getPlayer(_getPlugin(plugin, mediaURL), mediaURL, autoplay);
-    }
-
-    /**
-     * Util method to get the appropriate player plugin for the specified plugin feature
-     * and media
-     *
-     * @param plugin
-     * @param mediaURL
-     * @return appropriate plugin
-     * @since 1.1
-     */
-    private static Plugin _getPlugin(Plugin plugin, String mediaURL) {
-        String protocol = extractProtocol(mediaURL);
-        String ext = extractExt(mediaURL);
-        Plugin pg = Plugin.Auto, _plugins[] = null;
-
-        switch (plugin) {
-            case MatrixSupport:
-                _plugins = new Plugin[2];
-                _plugins[0] = Plugin.QuickTimePlayer;
-                _plugins[1] = Plugin.FlashPlayer;
-                break;
-            case PlaylistSupport:
-            case Auto:
-                _plugins = Plugin.values();
-                break;
-        }
-
-        if (_plugins != null) {
-            for (int i = 0; i < _plugins.length; i++) {
-                try {
-                    if (canHandleMedia(_plugins[i], protocol, ext)) {
-                        pg = _plugins[i];
-                        break;
-                    }
-                } catch (PluginNotFoundException ex) {
-                }
-            }
-            return pg;
-        } else {
-            return plugin;
-        }
-    }
-
-    protected static String extractExt(String mediaURL) {
-        return mediaURL.substring(mediaURL.lastIndexOf(".") + 1);
-    }
-
-    protected static String extractProtocol(String mediaURL) {
-        if (mediaURL.contains("://")) {
-            return mediaURL.substring(0, mediaURL.indexOf("://"));
-        } else {
-            return null;
-        }
-    }
-/*
-    public static boolean canHandleMedia(Plugin plugin, String mediaURL) {
-        String protocol = extractProtocol(mediaURL);
-        String ext = extractExt(mediaURL);
-        try {
-            return canHandleMedia(plugin, protocol, ext);
-        } catch (PluginNotFoundException ex) {
-            return false;
-        }
-    }
-*/
-    protected static boolean canHandleMedia(Plugin plugin, String protocol, String ext) throws PluginNotFoundException {
-        PluginVersion pv = PluginManager.getPluginInfo(plugin).getVersion();
-        Set<String> types = MimePool.instance.getRegisteredExtensions(plugin);
-        Set<String> prots = MimePool.instance.getRegisteredProtocols(plugin);
-
-        if (pv.compareTo(plugin.getVersion()) >= 0) {   // req plugin found...
-            // check for streaming protocol & extension ...
-            return ((protocol != null) && (prots != null) && prots.contains(protocol.toLowerCase()))
-                    || ((ext != null) && (types != null) && types.contains(ext.toLowerCase()));
-        }
-        return false;
-    }
-
-    /**
-     * Util method to instantiate the player implementation for the specified plugin
-     *
-     * @param plugin
-     * @param mediaURL
-     * @param autoplay
-     * @param height
-     * @param width
-     * @return
-     * @throws LoadException
-     * @throws PluginVersionException
-     * @throws PluginNotFoundException
-     */
-    private static AbstractMediaPlayer _getPlayer(Plugin plugin, String mediaURL,
-            boolean autoplay, String height, String width) throws LoadException,
-            PluginVersionException, PluginNotFoundException {
-        AbstractMediaPlayer player;
-        switch (plugin) {
-            case VLCPlayer:
-                player = new VLCPlayer(mediaURL, autoplay, height, width);
-                break;
-            case FlashPlayer:
-                player = new FlashMediaPlayer(mediaURL, autoplay, height, width);
-                break;
-            case QuickTimePlayer:
-                player = new QuickTimePlayer(mediaURL, autoplay, height, width);
-                break;
-            case WinMediaPlayer:
-                player = new WinMediaPlayer(mediaURL, autoplay, height, width);
-                break;
-            case Native:
-                player = new NativePlayer(mediaURL, autoplay, height, width);
-                break;
-            case DivXPlayer:
-                player = new DivXPlayer(mediaURL, autoplay, height, width);
-                break;
-            default:
-                throw new PluginNotFoundException();
-        }
-        return player;
-    }
-
-    private static AbstractMediaPlayer _getPlayer(Plugin plugin, String mediaURL,
-            boolean autoplay) throws LoadException,
-            PluginVersionException, PluginNotFoundException {
-        AbstractMediaPlayer player;
-        switch (plugin) {
-            case VLCPlayer:
-                player = new VLCPlayer(mediaURL, autoplay);
-                break;
-            case FlashPlayer:
-                player = new FlashMediaPlayer(mediaURL, autoplay);
-                break;
-            case QuickTimePlayer:
-                player = new QuickTimePlayer(mediaURL, autoplay);
-                break;
-            case WinMediaPlayer:
-                player = new WinMediaPlayer(mediaURL, autoplay);
-                break;
-            case Native:
-                player = new NativePlayer(mediaURL, autoplay);
-                break;
-            case DivXPlayer:
-                player = new DivXPlayer(mediaURL, autoplay);
-                break;
-            default:
-                throw new PluginNotFoundException();
-        }
-        return player;
+        return DetectionEngine.getInstance().getPlayer(plugin, mediaURL, autoplay);
     }
 
     /**
@@ -306,7 +151,6 @@ public class PlayerUtil {
         if (v.equals(new PluginVersion())) {
             throw new PluginNotFoundException(Plugin.FlashPlayer);
         }
-
         return v;
     }
 
@@ -324,7 +168,6 @@ public class PlayerUtil {
         if (v.equals(new PluginVersion())) {
             throw new PluginNotFoundException(Plugin.QuickTimePlayer);
         }
-
         return v;
     }
 
@@ -342,7 +185,6 @@ public class PlayerUtil {
         if (v.equals(new PluginVersion())) {
             throw new PluginNotFoundException(Plugin.WinMediaPlayer);
         }
-
         return v;
     }
 
@@ -362,7 +204,6 @@ public class PlayerUtil {
         if (v.equals(new PluginVersion())) {
             throw new PluginNotFoundException(Plugin.VLCPlayer);
         }
-
         return v;
     }
 
@@ -382,7 +223,6 @@ public class PlayerUtil {
         if (v.equals(new PluginVersion())) {
             throw new PluginNotFoundException(Plugin.DivXPlayer);
         }
-
         return v;
     }
 
@@ -570,8 +410,19 @@ public class PlayerUtil {
         return PluginManager.isHTML5CompliantClient();
     
     }
-    
-    public static PluginInfo getPlayerPluginInfo(Plugin plugin) throws PluginNotFoundException {
+
+    public static PluginInfo getPluginInfo(Plugin plugin) throws PluginNotFoundException {
         return PluginManager.getPluginInfo(plugin);
+    }
+
+    /**
+     * 
+     * @param playerName
+     * @return
+     * @throws IllegalArgumentException if {@code playerName} is not available 
+     * @since 1.3
+     */
+    public static PlayerInfo getPlayerInfo(String playerName) {
+        return PluginManager.getPlayerInfo(playerName);
     }
 }

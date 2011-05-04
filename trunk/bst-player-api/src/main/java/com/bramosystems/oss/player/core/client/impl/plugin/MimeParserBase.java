@@ -17,6 +17,7 @@ package com.bramosystems.oss.player.core.client.impl.plugin;
 
 import com.bramosystems.oss.player.core.client.impl.*;
 import com.bramosystems.oss.player.core.client.*;
+import com.google.gwt.core.client.GWT;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -29,8 +30,9 @@ import java.util.Iterator;
  */
 public abstract class MimeParserBase {
 
+    public static final MimeParserBase instance = GWT.create(MimeParserBase.class);
     private HashMap<String, String> mimeTypes;
-    private PluginInfo infoCache;
+    private PlayerInfo infoCache;
 
     @SuppressWarnings("OverridableMethodCallInConstructor")
     protected MimeParserBase() {
@@ -42,18 +44,16 @@ public abstract class MimeParserBase {
         return mimeTypes;
     }
 
-    protected void addPluginProperties(PluginInfo info) {
+    protected void addPlayerProperties(PlayerInfo info) {
         infoCache = info;
-        switch (info.getPlugin()) {
-            case Native:
-                addNativeExtensions();
-                break;
-            default:
-                processPlugin(info.getPlugin());
+        if(info.getPlayerName().equals(Plugin.Native.name())) {
+            addNativeExtensions();
+        } else {
+            processPlayer(info.getPlayerName());
         }
     }
 
-    protected abstract void processPlugin(Plugin plugin);
+    protected abstract void processPlayer(String playerName);
 
     /**
      * Called by the constructor method to populate all known audio/video
@@ -75,7 +75,7 @@ public abstract class MimeParserBase {
     protected final void addExtensions(int major, int minor, int rev, String extensions) {
         if (extensions.length() > 0) {
             PluginVersion pv = PluginVersion.get(major, minor, rev);
-            if (infoCache.getVersion().compareTo(pv) >= 0) {
+            if (infoCache.getRequiredPluginVersion().compareTo(pv) >= 0) {
                 infoCache.getRegisteredExtensions().addAll(Arrays.asList(extensions.split(",")));
             }
         }
@@ -92,7 +92,7 @@ public abstract class MimeParserBase {
     protected final void addProtocols(int major, int minor, int rev, String protocols) {
         if (protocols.length() > 0) {
             PluginVersion pv = PluginVersion.get(major, minor, rev);
-            if (infoCache.getVersion().compareTo(pv) >= 0) {
+            if (infoCache.getRequiredPluginVersion().compareTo(pv) >= 0) {
                 infoCache.getRegisteredProtocols().addAll(Arrays.asList(protocols.split(",")));
             }
         }

@@ -78,8 +78,8 @@ public class TxtPlayerUtil extends GWTTestCase {
     @Test
     public void testExtraction() {
         System.out.println("Extract Extension");
-        assertTrue("Extract Extension: ", "ext".equals(PlayerUtil.extractExt("files/file.ext")));
-        System.out.println("Extract Protocol : " + PlayerUtil.extractProtocol("files/file.ext"));
+//        assertTrue("Extract Extension: ", "ext".equals(PlayerUtil.extractExt("files/file.ext")));
+//        System.out.println("Extract Protocol : " + PlayerUtil.extractProtocol("files/file.ext"));
     }
 
     @Test
@@ -148,7 +148,7 @@ public class TxtPlayerUtil extends GWTTestCase {
     public void testSuggestPlayer() throws Exception {
         System.out.println("suggestPlayer");
 
-        assertTrue("FLV: ", PlayerUtil.canHandleMedia(Plugin.FlashPlayer, null, "flv"));
+//        assertTrue("FLV: ", PlayerUtil.canHandleMedia(Plugin.FlashPlayer, null, "flv"));
 //        assertTrue("QT : ", instance.canHandleMedia(Plugin.QuickTimePlayer, null, "m4a"));
 //        assertTrue("WMP: ", instance.canHandleMedia(Plugin.WinMediaPlayer, null, "wma"));
 //        assertTrue("VLC: ", instance.canHandleMedia(Plugin.VLCPlayer, null, "vob"));

@@ -36,11 +36,11 @@ import com.bramosystems.oss.player.core.event.client.PlayStateEvent;
 import com.bramosystems.oss.player.core.event.client.PlayStateEvent.State;
 import com.bramosystems.oss.player.core.event.client.PlayStateHandler;
 //import com.bramosystems.oss.player.flat.client.FlatVideoPlayer;
-import com.bramosystems.oss.player.dev.client.playlist.SPFParser;
-import com.bramosystems.oss.player.dev.client.playlist.impl.asx.ASXEntry;
-import com.bramosystems.oss.player.dev.client.playlist.impl.asx.ASXPlaylist;
-import com.bramosystems.oss.player.dev.client.playlist.impl.spf.SPFPlaylist;
-import com.bramosystems.oss.player.dev.client.playlist.impl.spf.Track;
+import com.bramosystems.oss.player.playlist.client.PlaylistFactory;
+import com.bramosystems.oss.player.playlist.client.asx.ASXEntry;
+import com.bramosystems.oss.player.playlist.client.asx.ASXPlaylist;
+import com.bramosystems.oss.player.playlist.client.spf.SPFPlaylist;
+import com.bramosystems.oss.player.playlist.client.spf.Track;
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.JsArray;
@@ -98,7 +98,7 @@ public class Dev extends FlowPanel implements EntryPoint {
     public void onModuleLoad() {
         //        RootPanel.get().add(new ScrollPanel(this));
         RootPanel.get().add(this);
-//                addPlayer(Plugin.QuickTimePlayer);
+                addPlayer(Plugin.QuickTimePlayer);
 
 //                    add(new MimeStuffs());
         //        addUTube();
@@ -113,7 +113,7 @@ public class Dev extends FlowPanel implements EntryPoint {
 
                 @Override
                 public void onResponseReceived(Request request, Response response) {
-                    showPlaylist(SPFParser.parseJspfPlaylist(response.getText()));
+                    showPlaylist(PlaylistFactory.parseJspfPlaylist(response.getText()));
 //                    showPlaylist(SPFParser.parseAsxPlaylist(response.getText()));
 //                    showPlaylist(SPFParser.parseXspfPlaylist(response.getText()));               
                 }

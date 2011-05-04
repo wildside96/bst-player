@@ -15,6 +15,8 @@
  */
 package com.bramosystems.oss.player.core.client.impl.plugin;
 
+import com.bramosystems.oss.player.core.client.PlayerInfo;
+import com.bramosystems.oss.player.core.client.PluginInfo;
 import com.bramosystems.oss.player.core.client.Plugin;
 import com.bramosystems.oss.player.core.client.PluginNotFoundException;
 import com.bramosystems.oss.player.core.client.PluginVersion;
@@ -29,6 +31,7 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.ui.RootPanel;
 import java.util.EnumMap;
 import java.util.HashMap;
+import java.util.Iterator;
 
 /**
  *
@@ -36,16 +39,29 @@ import java.util.HashMap;
  */
 public class PluginManager {
 
-    private static final EnumMap<Plugin, PluginInfo> pluginInfoMap = new EnumMap<Plugin, PluginInfo>(Plugin.class);
-    private static final MimeParserBase mpb = GWT.create(MimeParserBase.class);
+    private static final EnumMap<Plugin, PluginInfo> corePluginInfoMap = new EnumMap<Plugin, PluginInfo>(Plugin.class);
+    private static final HashMap<String, PlayerInfo> playerInfoMap = new HashMap<String, PlayerInfo>();
 
-    static { // init infoMap ...
+    static { 
+        // init core plugin infoMap ...
         PluginManagerImpl pmi = GWT.create(PluginManagerImpl.class);
         for (Plugin p : Plugin.values()) {
             try {
-                PluginInfo inf = pmi.getPluginInfo(p);
-                mpb.addPluginProperties(inf);
-                pluginInfoMap.put(p, inf);
+                corePluginInfoMap.put(p, pmi.getPluginInfo(p));
+            } catch (PluginNotFoundException ex) {
+                // plugin not available ...
+            }
+        }
+
+        DetectionEngine add = DetectionEngine.getInstance();
+        Iterator<String> names = add.getRegisteredPlayerNames().iterator();
+        while(names.hasNext()) {
+            try {
+                String name = names.next();
+                PlayerInfo inf = new PlayerInfo(name, add.getRequiredPluginVersion(name));
+                inf.setDetectedPluginVersion(add.getWidgetFactory(name).getDetectedPluginVersion(name));
+                MimeParserBase.instance.addPlayerProperties(inf);
+                playerInfoMap.put(name, inf);
             } catch (PluginNotFoundException ex) {
                 // plugin not available ...
             }
@@ -53,10 +69,18 @@ public class PluginManager {
     }
 
     public static PluginInfo getPluginInfo(Plugin plugin) throws PluginNotFoundException {
-        if (pluginInfoMap.containsKey(plugin)) {
-            return pluginInfoMap.get(plugin);
+        if (corePluginInfoMap.containsKey(plugin)) {
+            return corePluginInfoMap.get(plugin);
         } else {
             throw new PluginNotFoundException(plugin);
+        }
+    }
+    
+    public static PlayerInfo getPlayerInfo(String playerName) {
+        if (playerInfoMap.containsKey(playerName)) {
+            return playerInfoMap.get(playerName);
+        } else {
+            throw new IllegalArgumentException("Player name not registered - '" + playerName + "'");
         }
     }
 
@@ -71,17 +95,17 @@ public class PluginManager {
     }-*/;
 
     public static HashMap<String, String> getRegisteredMimeTypes() {
-        return mpb.getMimeTypes();
+        return MimeParserBase.instance.getMimeTypes();
     }
-
+    
     protected static class PluginManagerImpl {
 
         private WinMediaPlayerImpl impl;
 
         public PluginInfo getPluginInfo(Plugin plugin) throws PluginNotFoundException {
             BrowserPlugin plug = null;
-            PluginInfo pi = new PluginInfo();
-            pi.setPlugin(plugin);
+            PluginInfo.PlayerPluginWrapperType pwt =  PluginInfo.PlayerPluginWrapperType.Native;
+            PluginVersion pv = new PluginVersion();
 
             if (plugin.equals(Plugin.Native) || plugin.equals(Plugin.WinMediaPlayer)) {
                 switch (plugin) {
@@ -90,7 +114,7 @@ public class PluginManager {
                         MimeType mt = MimeType.getMimeType("application/x-ms-wmp");
                         if (mt != null) {   // firefox plugin present...
                             found = true;
-                            pi.setWrapperType(PluginInfo.PlayerPluginWrapperType.WMPForFirefox);
+                            pwt = PluginInfo.PlayerPluginWrapperType.WMPForFirefox;
                         } else {   // firefox plugin not found check for generic..
                             mt = MimeType.getMimeType("application/x-mplayer2");
                             if (mt != null) {
@@ -105,11 +129,11 @@ public class PluginManager {
                         }
 
                         if (found) {
-                            updateWMPVersion(pi);
+                            updateWMPVersion(pv);
                             plug = mt.getEnabledPlugin();
                             if (plug.getFileName().toLowerCase().contains("totem")
                                     || plug.getDescription().toLowerCase().contains("totem")) {
-                                pi.setWrapperType(PluginInfo.PlayerPluginWrapperType.Totem);
+                                pwt = PluginInfo.PlayerPluginWrapperType.Totem;
                             }
                         } else {
                             throw new PluginNotFoundException(plugin);
@@ -117,12 +141,12 @@ public class PluginManager {
                         break;
                     case Native:
                         if (isHTML5CompliantClient()) {
-                            pi.setVersion(PluginVersion.get(5, 0, 0));
+                            pv = PluginVersion.get(5, 0, 0);
                         } else {
                             throw new PluginNotFoundException(plugin);
                         }
                 }
-                return pi;
+                return new PluginInfo(plugin, pv, pwt);
             }
 
             PluginMimeTypes pt = PluginMimeTypes.none;
@@ -148,12 +172,11 @@ public class PluginManager {
                     String name = mt.getEnabledPlugin().getName();
                     if (name.toLowerCase().contains(pt.whois)) { // who has it?
                         RegExp.RegexResult res = RegExp.getRegExp(pt.regex, "").exec(pt.versionInName ? name : desc);
-                        pi.getVersion().setMajor(Integer.parseInt(res.getMatch(1)));
-                        pi.getVersion().setMinor(Integer.parseInt(res.getMatch(2)));
-                        pi.getVersion().setRevision(Integer.parseInt(res.getMatch(3)));
+                        pv = new PluginVersion(Integer.parseInt(res.getMatch(1)), 
+                                Integer.parseInt(res.getMatch(2)), Integer.parseInt(res.getMatch(3)));
                         if (mt.getEnabledPlugin().getFileName().toLowerCase().contains("totem")
                                 || desc.toLowerCase().contains("totem")) {
-                            pi.setWrapperType(PluginInfo.PlayerPluginWrapperType.Totem);
+                            pwt = PluginInfo.PlayerPluginWrapperType.Totem;
                         }
                     }
                 } catch (RegexException ex) {
@@ -161,10 +184,10 @@ public class PluginManager {
             } else {
                 throw new PluginNotFoundException(plugin);
             }
-            return pi;
+            return new PluginInfo(plugin, pv, pwt);
         }
 
-        private void updateWMPVersion(PluginInfo pi) {
+        private void updateWMPVersion(PluginVersion pi) {
             try {
                 String pid = "bstwmpdetectid";
                 PlayerWidget pw = new PlayerWidget(Plugin.WinMediaPlayer, pid, "", false, new BeforeUnloadCallback()       {
@@ -184,11 +207,13 @@ public class PluginManager {
 
                 if (ver != null) {
                     RegExp.RegexResult res = RegExp.getRegExp("(\\d+).(\\d+).(\\d+)*", "").exec(ver);
-                    pi.setVersion(PluginVersion.get(Integer.parseInt(res.getMatch(1)),
-                            Integer.parseInt(res.getMatch(2)),
-                            Integer.parseInt(res.getMatch(3))));
+                    pi.setMajor(Integer.parseInt(res.getMatch(1)));
+                    pi.setMinor(Integer.parseInt(res.getMatch(2)));
+                    pi.setRevision(Integer.parseInt(res.getMatch(3)));
                 } else {
-                    pi.setVersion(PluginVersion.get(1, 1, 1));
+                    pi.setMajor(1);
+                    pi.setMinor(1);
+                    pi.setRevision(1);
                 }
                 RootPanel.get().remove(pw);
             } catch (Exception e) {

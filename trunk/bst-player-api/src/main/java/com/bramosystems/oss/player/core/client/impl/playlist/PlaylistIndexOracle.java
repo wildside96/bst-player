@@ -13,7 +13,7 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-package com.bramosystems.oss.player.core.client.impl;
+package com.bramosystems.oss.player.core.client.impl.playlist;
 
 import com.google.gwt.user.client.Random;
 import java.util.HashSet;

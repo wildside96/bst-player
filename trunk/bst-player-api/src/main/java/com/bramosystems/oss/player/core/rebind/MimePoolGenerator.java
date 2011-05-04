@@ -16,8 +16,8 @@
  */
 package com.bramosystems.oss.player.core.rebind;
 
-import com.bramosystems.oss.player.core.client.Plugin;
 import com.bramosystems.oss.player.core.client.PluginVersion;
+import com.google.gwt.core.ext.BadPropertyValueException;
 import com.google.gwt.core.ext.ConfigurationProperty;
 import com.google.gwt.core.ext.Generator;
 import com.google.gwt.core.ext.GeneratorContext;
@@ -29,9 +29,6 @@ import com.google.gwt.user.rebind.ClassSourceFileComposerFactory;
 import com.google.gwt.user.rebind.SourceWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Properties;
@@ -46,19 +43,13 @@ public class MimePoolGenerator extends Generator {
 
     private final String DEFAULT_MIME_TYPES_FILE = "default-mime-types.properties";
     private HashMap<String, String> mimeMap = new HashMap<String, String>();
-    private EnumMap<Plugin, PluginPropsCollection> pluginMap = new EnumMap<Plugin, PluginPropsCollection>(Plugin.class);
+    private HashMap<String, PlayerPropsCollection> pluginMap = new HashMap<String, PlayerPropsCollection>();
     private String className = null, packageName = null;
     private TreeLogger logger;
     private final Pattern PLUGIN_REGEX = Pattern.compile("plugin\\.([a-zA-Z]+)(\\.(\\d+)_(\\d+)_(\\d+))?");
     private final Pattern PROTO_REGEX = Pattern.compile("protocols\\.([a-zA-Z]+)(\\.(\\d+)_(\\d+)_(\\d+))?");
-    private final ArrayList<Plugin> pl = new ArrayList<Plugin>(Arrays.asList(Plugin.values()));
 
     public MimePoolGenerator() {
-        // init plugin props ...
-        pl.remove(Plugin.Auto);
-        pl.remove(Plugin.MatrixSupport);
-        pl.remove(Plugin.PlaylistSupport);
-        pl.remove(Plugin.Native);
     }
 
     @Override
@@ -66,24 +57,12 @@ public class MimePoolGenerator extends Generator {
             throws UnableToCompleteException {
         this.logger = logger;
         TypeOracle typeOracle = context.getTypeOracle();
-        
+
         try {
             // get classType and save instance variables
             JClassType classType = typeOracle.getType(typeName);
             packageName = classType.getPackage().getName();
             className = classType.getSimpleSourceName() + "Impl";
-
-            // build plugin mime types ...
-            ConfigurationProperty mimeFile =
-                    context.getPropertyOracle().getConfigurationProperty("bstplayer.media.mimeTypes");
-            String val = mimeFile.getValues().get(0);
-            if (val == null) {
-                logger.log(TreeLogger.Type.INFO, "'" + mimeFile.getName() + "' configuration property not set! Using defaults");
-                parsePropertyFile(DEFAULT_MIME_TYPES_FILE);
-            } else {
-                logger.log(TreeLogger.Type.INFO, "'" + mimeFile.getName() + "' set! Using '" + val + "'");
-                parsePropertyFile(val);
-            }
 
             // Generate class source code
             generateClass(logger, context);
@@ -97,10 +76,6 @@ public class MimePoolGenerator extends Generator {
 
     private void parsePropertyFile(String mimePropertyFile) throws UnableToCompleteException {
         try {
-            for (Plugin p : pl) {
-                pluginMap.put(p, new PluginPropsCollection());
-            }
-
             // build props ...            
             Properties p = new Properties();
             p.load(MimePoolGenerator.class.getResourceAsStream(mimePropertyFile));
@@ -119,7 +94,12 @@ public class MimePoolGenerator extends Generator {
                 Matcher m = PLUGIN_REGEX.matcher(key);
                 if (m.matches()) {
                     try {
-                        PluginPropsCollection ppc = pluginMap.get(Plugin.valueOf(m.group(1)));
+                        String playerName = m.group(1);
+                        PlayerPropsCollection ppc = pluginMap.get(playerName);
+                        if (ppc == null) {
+                            ppc = new PlayerPropsCollection();
+                            pluginMap.put(playerName, ppc);
+                        }
                         PluginVersion pv = m.group(2) != null
                                 ? PluginVersion.get(Integer.parseInt(m.group(3)), Integer.parseInt(m.group(4)), Integer.parseInt(m.group(5)))
                                 : new PluginVersion();
@@ -142,12 +122,17 @@ public class MimePoolGenerator extends Generator {
                 m = PROTO_REGEX.matcher(key);
                 if (m.matches()) {
                     try {
-                        PluginPropsCollection ppc = pluginMap.get(Plugin.valueOf(m.group(1)));
+                        String playerName = m.group(1);
+                        PlayerPropsCollection ppc = pluginMap.get(playerName);
+                        if (ppc == null) {
+                            ppc = new PlayerPropsCollection();
+                            pluginMap.put(playerName, ppc);
+                        }
                         PluginVersion pv = m.group(2) != null
                                 ? PluginVersion.get(Integer.parseInt(m.group(3)), Integer.parseInt(m.group(4)), Integer.parseInt(m.group(5)))
                                 : new PluginVersion();
                         ppc.getProps(pv).setProtos(p.getProperty(key));
-                   } catch (Exception e) {
+                    } catch (Exception e) {
                         logger.log(TreeLogger.WARN, "Invalid plugin type - '" + key + "'", e);
                     }
                 }
@@ -163,7 +148,7 @@ public class MimePoolGenerator extends Generator {
      * @param logger Logger object
      * @param context Generator context
      */
-    private void generateClass(TreeLogger logger, GeneratorContext context) {
+    private void generateClass(TreeLogger logger, GeneratorContext context) throws BadPropertyValueException, UnableToCompleteException {
         // get print writer that receives the source code
         PrintWriter printWriter = context.tryCreate(logger, packageName, className);
 
@@ -172,23 +157,24 @@ public class MimePoolGenerator extends Generator {
             return;
         }
 
+        // build plugin mime types ...
+        ConfigurationProperty mimeFile =
+                context.getPropertyOracle().getConfigurationProperty("bstplayer.media.mimeTypes");
+        String val = mimeFile.getValues().get(0);
+        if (val == null) {
+            logger.log(TreeLogger.Type.INFO, "'" + mimeFile.getName() + "' configuration property not set! Using defaults");
+            parsePropertyFile(DEFAULT_MIME_TYPES_FILE);
+        } else {
+            logger.log(TreeLogger.Type.INFO, "'" + mimeFile.getName() + "' set! Using '" + val + "'");
+            parsePropertyFile(val);
+        }
+
         // init composer, set class properties, create source writer
         ClassSourceFileComposerFactory composer = new ClassSourceFileComposerFactory(packageName, className);
-        composer.setSuperclass("com.bramosystems.oss.player.core.client.impl.plugin.MimeParserBase");
-        composer.addImport("com.bramosystems.oss.player.core.client.Plugin");
+        composer.setSuperclass("MimeParserBase");
         composer.addImport("java.util.HashMap");
-        composer.addImport("java.util.Iterator");
 
         SourceWriter sourceWriter = composer.createSourceWriter(context, printWriter);
-
-        // generate constructor source code
-        sourceWriter.println("public " + className + "() { ");
-        sourceWriter.indent();
-        sourceWriter.println("super();");
-        sourceWriter.outdent();
-        sourceWriter.println("}");   // end constructor source generation
-
-        sourceWriter.println();
 
         // implement mimeTypes ....
         sourceWriter.println("@Override");
@@ -206,23 +192,31 @@ public class MimePoolGenerator extends Generator {
 
         // process mime pools ...
         sourceWriter.println("@Override");
-        sourceWriter.println("protected void processPlugin(Plugin plugin) {");
+        sourceWriter.println("protected void processPlayer(String playerName) {");
         sourceWriter.indent();
-        sourceWriter.println("switch(plugin) {");
-        for (Plugin plug : pl) {
-            sourceWriter.println("case " + plug.name() + ":");
-            PluginPropsCollection ppc = pluginMap.get(plug);
-            HashMap<PluginVersion, PluginProps> ppm = ppc.getProps();
+        Iterator<String> pNames = pluginMap.keySet().iterator();
+        boolean firstRun = true;
+        while (pNames.hasNext()) {
+            String pName = pNames.next();
+            if (firstRun) {
+                sourceWriter.println("if(playerName.equals(\"" + pName + "\")) {");
+            } else {
+                sourceWriter.println("else if(playerName.equals(\"" + pName + "\")) {");
+            }
+            sourceWriter.indent();
+            PlayerPropsCollection ppc = pluginMap.get(pName);
+            HashMap<PluginVersion, PlayerProps> ppm = ppc.getProps();
             Iterator<PluginVersion> it = ppm.keySet().iterator();
             while (it.hasNext()) {
                 PluginVersion pv = it.next();
-                PluginProps pp = ppm.get(pv);
+                PlayerProps pp = ppm.get(pv);
                 sourceWriter.println("addExtensions(" + pv.getMajor() + ", " + pv.getMinor() + "," + pv.getRevision() + ", \"" + pp.getMimes() + "\");");
                 sourceWriter.println("addProtocols(" + pv.getMajor() + ", " + pv.getMinor() + "," + pv.getRevision() + ", \"" + pp.getProtos() + "\");");
             }
-            sourceWriter.println("break;");
+            sourceWriter.outdent();
+            sourceWriter.println("}");
+            firstRun = false;
         }
-        sourceWriter.println("}");
         sourceWriter.outdent();
         sourceWriter.println("}");
         sourceWriter.println();
@@ -235,25 +229,25 @@ public class MimePoolGenerator extends Generator {
         context.commit(logger, printWriter);
     }
 
-    public static class PluginPropsCollection {
+    public static class PlayerPropsCollection {
 
-        private HashMap<PluginVersion, PluginProps> props;
+        private HashMap<PluginVersion, PlayerProps> props;
 
-        public PluginPropsCollection() {
-            props = new HashMap<PluginVersion, PluginProps>();
+        public PlayerPropsCollection() {
+            props = new HashMap<PluginVersion, PlayerProps>();
         }
 
-        public PluginProps getProps(PluginVersion pv) {
+        public PlayerProps getProps(PluginVersion pv) {
             if (props.containsKey(pv)) {
                 return props.get(pv);
             } else {
-                PluginProps pp = new PluginProps();
+                PlayerProps pp = new PlayerProps();
                 props.put(pv, pp);
                 return pp;
             }
         }
 
-        public HashMap<PluginVersion, PluginProps> getProps() {
+        public HashMap<PluginVersion, PlayerProps> getProps() {
             return props;
         }
 
@@ -270,7 +264,7 @@ public class MimePoolGenerator extends Generator {
             if (getClass() != obj.getClass()) {
                 return false;
             }
-            final PluginPropsCollection other = (PluginPropsCollection) obj;
+            final PlayerPropsCollection other = (PlayerPropsCollection) obj;
             if (this.props != other.props && (this.props == null || !this.props.equals(other.props))) {
                 return false;
             }
@@ -285,11 +279,11 @@ public class MimePoolGenerator extends Generator {
         }
     }
 
-    public static class PluginProps {
+    public static class PlayerProps {
 
         private String mimes, protos;
 
-        public PluginProps() {
+        public PlayerProps() {
             mimes = "";
             protos = "";
         }
@@ -323,7 +317,7 @@ public class MimePoolGenerator extends Generator {
             if (getClass() != obj.getClass()) {
                 return false;
             }
-            final PluginProps other = (PluginProps) obj;
+            final PlayerProps other = (PlayerProps) obj;
             if ((this.mimes == null) ? (other.mimes != null) : !this.mimes.equals(other.mimes)) {
                 return false;
             }

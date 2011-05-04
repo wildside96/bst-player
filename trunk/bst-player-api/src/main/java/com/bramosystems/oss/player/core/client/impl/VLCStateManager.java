@@ -15,6 +15,7 @@
  */
 package com.bramosystems.oss.player.core.client.impl;
 
+import com.bramosystems.oss.player.core.client.impl.playlist.VLCPlaylistManager;
 import com.bramosystems.oss.player.core.client.*;
 import com.bramosystems.oss.player.core.event.client.PlayStateEvent.State;
 import com.google.gwt.user.client.Timer;
