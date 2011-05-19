@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.bramosystems.oss.player.core.client.impl.plugin;
+package com.bramosystems.oss.player.core.client.impl;
 
 import com.bramosystems.oss.player.core.client.impl.QTStateManagerIE;
 import com.google.gwt.dom.client.Element;
@@ -26,7 +26,7 @@ import java.util.Iterator;
  *
  * @author Sikirulai Braheem <sbraheem at bramosystems.com>
  */
-public class CoreWidgetFactoryIE extends CoreWidgetFactory {
+public class CorePlayerProviderIE extends CorePlayerProvider {
 
     protected class XObjectIE extends XObject {
 

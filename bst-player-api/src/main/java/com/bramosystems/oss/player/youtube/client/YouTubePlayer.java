@@ -133,7 +133,7 @@ public class YouTubePlayer extends AbstractMediaPlayer {
         _height = height;
 
         playerId = DOM.createUniqueId().replace("-", "");
-        swf = new PlayerWidget(Plugin.FlashPlayer, playerId,
+        swf = new PlayerWidget("core", Plugin.FlashPlayer.name(), playerId,
                 getNormalizedVideoAppURL(videoURL, playerParameters), false,
                 new BeforeUnloadCallback() {
 

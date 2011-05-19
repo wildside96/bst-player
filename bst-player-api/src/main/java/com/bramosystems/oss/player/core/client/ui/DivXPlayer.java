@@ -21,9 +21,9 @@ import com.bramosystems.oss.player.core.client.playlist.MRL;
 import com.bramosystems.oss.player.core.client.*;
 import com.bramosystems.oss.player.core.client.MediaInfo.MediaInfoKey;
 import com.bramosystems.oss.player.core.client.impl.*;
-import com.bramosystems.oss.player.core.client.impl.plugin.CoreWidgetFactory;
+import com.bramosystems.oss.player.core.client.impl.CorePlayerProvider;
 import com.bramosystems.oss.player.core.event.client.*;
-import com.bramosystems.oss.player.core.client.Player;
+import com.bramosystems.oss.player.core.client.spi.Player;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.ui.FlowPanel;
@@ -61,7 +61,7 @@ import com.google.gwt.user.client.ui.FlowPanel;
  * @since 1.2
  * @author Sikiru Braheem
  */
-@Player(name="DivXPlayer", widgetFactory=CoreWidgetFactory.class, minPluginVersion="2.0.0")
+@Player(name="DivXPlayer", widgetFactory=CorePlayerProvider.class, minPluginVersion="2.0.0")
 public class DivXPlayer extends AbstractMediaPlayer implements PlaylistSupport {
 
     private DivXStateManager manager;
@@ -228,7 +228,7 @@ public class DivXPlayer extends AbstractMediaPlayer implements PlaylistSupport {
             _width = "0px";
         }
 
-        playerWidget = new PlayerWidget(Plugin.DivXPlayer, playerId, "",
+        playerWidget = new PlayerWidget("core", Plugin.DivXPlayer.name(), playerId, "",
                 autoplay, new BeforeUnloadCallback() {
 
             @Override

@@ -15,7 +15,7 @@
  */
 package com.bramosystems.oss.player.core.client;
 
-import com.bramosystems.oss.player.core.client.impl.plugin.DetectionEngine;
+import com.bramosystems.oss.player.core.client.impl.plugin.PlayerManager;
 import com.bramosystems.oss.player.core.client.impl.plugin.PluginManager;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Event;
@@ -111,7 +111,7 @@ public class PlayerUtil {
     public static AbstractMediaPlayer getPlayer(Plugin plugin, String mediaURL,
             boolean autoplay, String height, String width)
             throws LoadException, PluginNotFoundException, PluginVersionException {
-        return DetectionEngine.getInstance().getPlayer(plugin, mediaURL, autoplay, height, width);
+        return PlayerManager.getInstance().getPlayer(plugin, mediaURL, autoplay, height, width);
     }
 
     /**
@@ -133,7 +133,7 @@ public class PlayerUtil {
      */
     public static AbstractMediaPlayer getPlayer(Plugin plugin, String mediaURL, boolean autoplay)
             throws LoadException, PluginNotFoundException, PluginVersionException {
-        return DetectionEngine.getInstance().getPlayer(plugin, mediaURL, autoplay);
+        return PlayerManager.getInstance().getPlayer(plugin, mediaURL, autoplay);
     }
 
     /**
@@ -422,7 +422,7 @@ public class PlayerUtil {
      * @throws IllegalArgumentException if {@code playerName} is not available 
      * @since 1.3
      */
-    public static PlayerInfo getPlayerInfo(String playerName) {
-        return PluginManager.getPlayerInfo(playerName);
+    public static PlayerInfo getPlayerInfo(String providerName, String playerName) {
+        return PlayerManager.getInstance().getPlayerInfo(providerName, playerName);
     }
 }

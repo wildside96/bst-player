@@ -103,7 +103,7 @@ public class SWFWidget extends Composite {
         this.height = height;
         playerId = DOM.createUniqueId().replace("-", "");
 
-        widget = new PlayerWidget(Plugin.FlashPlayer, playerId, swfURL, false, null);
+        widget = new PlayerWidget("core", Plugin.FlashPlayer.name(), playerId, swfURL, false, null);
         initWidget(widget);
         setSize(width, height);
     }

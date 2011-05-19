@@ -24,14 +24,14 @@ import com.bramosystems.oss.player.core.client.impl.QTStateManager;
 import com.bramosystems.oss.player.core.client.impl.QuickTimePlayerImpl;
 import com.bramosystems.oss.player.core.client.impl.LoopManager;
 import com.bramosystems.oss.player.core.client.impl.PlayerWidget;
-import com.bramosystems.oss.player.core.client.impl.plugin.CoreWidgetFactory;
+import com.bramosystems.oss.player.core.client.impl.CorePlayerProvider;
 import com.bramosystems.oss.player.core.event.client.DebugEvent;
 import com.bramosystems.oss.player.core.event.client.DebugHandler;
 import com.bramosystems.oss.player.core.event.client.MediaInfoEvent;
 import com.bramosystems.oss.player.core.event.client.MediaInfoHandler;
 import com.bramosystems.oss.player.core.event.client.PlayStateEvent;
 import com.bramosystems.oss.player.core.event.client.PlayerStateEvent;
-import com.bramosystems.oss.player.core.client.Player;
+import com.bramosystems.oss.player.core.client.spi.Player;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.i18n.client.NumberFormat;
 import com.google.gwt.user.client.Command;
@@ -69,7 +69,7 @@ import com.google.gwt.user.client.ui.*;
  *
  * @author Sikirulai Braheem
  */
-@Player(name="QuickTimePlayer", widgetFactory=CoreWidgetFactory.class, minPluginVersion="7.2.1")
+@Player(name="QuickTimePlayer", widgetFactory=CorePlayerProvider.class, minPluginVersion="7.2.1")
 public class QuickTimePlayer extends AbstractMediaPlayer implements MatrixSupport, PlaylistSupport {
 
     private static QTStateManager manager = GWT.create(QTStateManager.class);
@@ -208,7 +208,7 @@ public class QuickTimePlayer extends AbstractMediaPlayer implements MatrixSuppor
         FlowPanel panel = new FlowPanel();
         initWidget(panel);
 
-        playerWidget = new PlayerWidget(Plugin.QuickTimePlayer, playerId, "", autoplay, null);
+        playerWidget = new PlayerWidget("core", Plugin.QuickTimePlayer.name(), playerId, "", autoplay, null);
         playerWidget.addParam("BGCOLOR", "#000000");
         playerWidget.addParam("ENABLEJAVASCRIPT", "True");
         playerWidget.addParam("KIOSKMODE", "True");

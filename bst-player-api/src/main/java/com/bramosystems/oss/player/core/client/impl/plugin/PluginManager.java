@@ -15,7 +15,6 @@
  */
 package com.bramosystems.oss.player.core.client.impl.plugin;
 
-import com.bramosystems.oss.player.core.client.PlayerInfo;
 import com.bramosystems.oss.player.core.client.PluginInfo;
 import com.bramosystems.oss.player.core.client.Plugin;
 import com.bramosystems.oss.player.core.client.PluginNotFoundException;
@@ -31,7 +30,6 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.ui.RootPanel;
 import java.util.EnumMap;
 import java.util.HashMap;
-import java.util.Iterator;
 
 /**
  *
@@ -40,7 +38,6 @@ import java.util.Iterator;
 public class PluginManager {
 
     private static final EnumMap<Plugin, PluginInfo> corePluginInfoMap = new EnumMap<Plugin, PluginInfo>(Plugin.class);
-    private static final HashMap<String, PlayerInfo> playerInfoMap = new HashMap<String, PlayerInfo>();
 
     static { 
         // init core plugin infoMap ...
@@ -52,20 +49,6 @@ public class PluginManager {
                 // plugin not available ...
             }
         }
-
-        DetectionEngine add = DetectionEngine.getInstance();
-        Iterator<String> names = add.getRegisteredPlayerNames().iterator();
-        while(names.hasNext()) {
-            try {
-                String name = names.next();
-                PlayerInfo inf = new PlayerInfo(name, add.getRequiredPluginVersion(name));
-                inf.setDetectedPluginVersion(add.getWidgetFactory(name).getDetectedPluginVersion(name));
-                MimeParserBase.instance.addPlayerProperties(inf);
-                playerInfoMap.put(name, inf);
-            } catch (PluginNotFoundException ex) {
-                // plugin not available ...
-            }
-        }
     }
 
     public static PluginInfo getPluginInfo(Plugin plugin) throws PluginNotFoundException {
@@ -73,14 +56,6 @@ public class PluginManager {
             return corePluginInfoMap.get(plugin);
         } else {
             throw new PluginNotFoundException(plugin);
-        }
-    }
-    
-    public static PlayerInfo getPlayerInfo(String playerName) {
-        if (playerInfoMap.containsKey(playerName)) {
-            return playerInfoMap.get(playerName);
-        } else {
-            throw new IllegalArgumentException("Player name not registered - '" + playerName + "'");
         }
     }
 
@@ -190,7 +165,7 @@ public class PluginManager {
         private void updateWMPVersion(PluginVersion pi) {
             try {
                 String pid = "bstwmpdetectid";
-                PlayerWidget pw = new PlayerWidget(Plugin.WinMediaPlayer, pid, "", false, new BeforeUnloadCallback()       {
+                PlayerWidget pw = new PlayerWidget("core", Plugin.WinMediaPlayer.name(), pid, "", false, new BeforeUnloadCallback()       {
 
                     @Override
                     public void onBeforeUnload() {

@@ -191,7 +191,7 @@ public class VLCPlayer1 extends AbstractMediaPlayer implements PlaylistSupport {
         FlowPanel panel = new FlowPanel();
         initWidget(panel);
 
-        playerWidget = new PlayerWidget(Plugin.VLCPlayer, playerId, mediaURL, autoplay,
+        playerWidget = new PlayerWidget("core", Plugin.VLCPlayer.name(), playerId, mediaURL, autoplay,
                 new BeforeUnloadCallback() {
 
                     @Override

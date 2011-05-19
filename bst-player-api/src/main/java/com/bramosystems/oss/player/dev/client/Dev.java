@@ -51,6 +51,8 @@ import com.google.gwt.http.client.RequestBuilder;
 import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.RequestException;
 import com.google.gwt.http.client.Response;
+import com.google.gwt.uibinder.client.UiBinder;
+import com.google.gwt.uibinder.client.UiTemplate;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.Window.Location;
 import com.google.gwt.user.client.ui.Button;
@@ -98,13 +100,13 @@ public class Dev extends FlowPanel implements EntryPoint {
     public void onModuleLoad() {
         //        RootPanel.get().add(new ScrollPanel(this));
         RootPanel.get().add(this);
-                addPlayer(Plugin.QuickTimePlayer);
+//                addPlayer(Plugin.QuickTimePlayer);
 
-//                    add(new MimeStuffs());
+                    add(new MimeStuffs());
         //        addUTube();
         //               issueDialog();
-        //        add(pb.createAndBindUi(this)); TODO: requires GWT 2.1
-
+         add(pb.createAndBindUi(this)); //TODO: requires GWT 2.1
+/*
         try {
             RequestBuilder rb = new RequestBuilder(RequestBuilder.GET, GWT.getModuleBaseURL() + "jspf.json");
 //            RequestBuilder rb = new RequestBuilder(RequestBuilder.GET, GWT.getModuleBaseURL() + "xspf.xml");
@@ -125,7 +127,7 @@ public class Dev extends FlowPanel implements EntryPoint {
         } catch (RequestException ex) {
             GWT.log("error ", ex);
         }
-
+*/
     }
 
     private void showPlaylist(SPFPlaylist pl) {
@@ -306,9 +308,10 @@ public class Dev extends FlowPanel implements EntryPoint {
     private String getURL(String path) {
         return Location.createUrlBuilder().setPort(8080).setPath(path).buildString();
     }
-//    @UiTemplate("Player.ui.xml")
-//    interface PlayerBinder extends UiBinder<Widget, Dev>{}
-//    PlayerBinder pb = GWT.create(PlayerBinder.class);
+    
+    @UiTemplate("Player.ui.xml")
+    interface PlayerBinder extends UiBinder<Widget, Dev>{}
+    PlayerBinder pb = GWT.create(PlayerBinder.class);
 
     public void issue32() {
         // GWT.getModuleBaseURL() + "applause.mp3";
