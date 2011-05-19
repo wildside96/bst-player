@@ -27,13 +27,27 @@ import java.util.TreeSet;
  */
 public class PlayerInfo implements Serializable {
 
-    private String playerName;
+    private String playerName, providerName;
     private PluginVersion requiredPluginVersion, detectedPluginVersion;
+    private boolean hasPlaylistSupport, hasMatrixSupport;
     private Set<String> registeredExtensions = new TreeSet<String>(), registeredProtocols = new TreeSet<String>();
 
-    public PlayerInfo(String playerName, PluginVersion requiredPluginVersion) {
+    public PlayerInfo(String providerName, String playerName, PluginVersion requiredPluginVersion) {
+        this(providerName, playerName, requiredPluginVersion, false, false);
+     }
+
+    public PlayerInfo(String providerName, String playerName, PluginVersion requiredPluginVersion,
+            boolean hasPlaylistSupport, boolean hasMatrixSupport) {
         this.playerName = playerName;
+        this.providerName = providerName;
         this.requiredPluginVersion = requiredPluginVersion;
+        this.hasPlaylistSupport = hasPlaylistSupport;
+        this.hasMatrixSupport = hasMatrixSupport;
+        detectedPluginVersion = new PluginVersion();
+    }
+
+    public String getProviderName() {
+        return providerName;
     }
 
     public String getPlayerName() {
@@ -42,6 +56,14 @@ public class PlayerInfo implements Serializable {
 
     public PluginVersion getRequiredPluginVersion() {
         return requiredPluginVersion;
+    }
+
+    public boolean isHasMatrixSupport() {
+        return hasMatrixSupport;
+    }
+
+    public boolean isHasPlaylistSupport() {
+        return hasPlaylistSupport;
     }
 
     public PluginVersion getDetectedPluginVersion() {

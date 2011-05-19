@@ -32,6 +32,7 @@
         <any>
             <when-property-is name="user.agent" value="ie6"/>
             <when-property-is name="user.agent" value="ie8"/>
+            <when-property-is name="user.agent" value="ie9"/>
         </any>
     </replace-with>
 
@@ -49,6 +50,7 @@
         <any>
             <when-property-is name="user.agent" value="ie6"/>
             <when-property-is name="user.agent" value="ie8"/>
+            <when-property-is name="user.agent" value="ie9"/>
         </any>
     </replace-with>
 
@@ -70,14 +72,16 @@
         <any>
             <when-property-is name="user.agent" value="ie6"/>
             <when-property-is name="user.agent" value="ie8"/>
+            <when-property-is name="user.agent" value="ie9"/>
         </any>
     </replace-with>
 
-    <!-- PlayerWidgetFactoryImpl mapping for IE6/7/8 -->
-    <replace-with class="com.bramosystems.oss.player.core.client.impl.PlayerWidgetFactoryIE">
-        <when-type-is class="com.bramosystems.oss.player.core.client.impl.PlayerWidgetFactory"/>
+    <!-- CorePlayerProviderImpl mapping for IE6/7/8 -->
+    <replace-with class="com.bramosystems.oss.player.core.client.impl.CorePlayerProviderIE">
+        <when-type-is class="com.bramosystems.oss.player.core.client.impl.CorePlayerProvider"/>
         <any>
             <when-property-is name="user.agent" value="ie6"/>
+            <when-property-is name="user.agent" value="ie9"/>
             <when-property-is name="user.agent" value="ie8"/>
         </any>
     </replace-with>
@@ -93,8 +97,8 @@
         <when-type-assignable class="com.bramosystems.oss.player.core.client.impl.plugin.MimeParserBase"/>
     </generate-with>
 
-    <generate-with class="com.bramosystems.oss.player.core.rebind.DetectionEngineGenerator" >
-        <when-type-assignable class="com.bramosystems.oss.player.core.client.impl.plugin.DetectionEngine"/>
+    <generate-with class="com.bramosystems.oss.player.core.rebind.PlayerManagerGenerator" >
+        <when-type-assignable class="com.bramosystems.oss.player.core.client.impl.plugin.PlayerManager"/>
     </generate-with>
 
     <!-- Logger mapping -->

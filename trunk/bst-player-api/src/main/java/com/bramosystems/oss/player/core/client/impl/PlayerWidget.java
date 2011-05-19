@@ -16,8 +16,7 @@
  */
 package com.bramosystems.oss.player.core.client.impl;
 
-import com.bramosystems.oss.player.core.client.Plugin;
-import com.bramosystems.oss.player.core.client.impl.plugin.DetectionEngine;
+import com.bramosystems.oss.player.core.client.impl.plugin.PlayerManager;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.ui.Widget;
@@ -31,8 +30,7 @@ public class PlayerWidget extends Widget {
 
     private BeforeUnloadCallback callback;
     private HashMap<String, String> params;
-    private Plugin plugin;
-    private String playerId, mediaURL, _height, _width;
+    private String playerName, playerProvider, playerId, mediaURL, _height, _width;
     private boolean autoplay;
 
     private PlayerWidget() {
@@ -42,14 +40,15 @@ public class PlayerWidget extends Widget {
         _height = "10px";
     }
 
-    public PlayerWidget(Plugin plugin, String playerId, String mediaURL,
+    public PlayerWidget(String playerProvider, String playerName, String playerId, String mediaURL,
             boolean autoplay, BeforeUnloadCallback callback) {
         this();
         this.callback = callback;
-        this.plugin = plugin;
         this.playerId = playerId;
         this.autoplay = autoplay;
         this.mediaURL = mediaURL;
+        this.playerName = playerName;
+        this.playerProvider = playerProvider;
     }
 
     public void addParam(String name, String value) {
@@ -98,55 +97,18 @@ public class PlayerWidget extends Widget {
         }
     }
 
-    public void replace(Plugin plugin, String playerId, String mediaURL, boolean autoplay) {
-        this.plugin = plugin;
+    public void replace(String playerProvider, String playerName, String playerId, String mediaURL, boolean autoplay) {
         this.playerId = playerId;
         this.autoplay = autoplay;
         this.mediaURL = mediaURL;
+        this.playerProvider = playerProvider;
+        this.playerName = playerName;
         injectWidget(true);
     }
-/*
-    private void injectWidget2(boolean updateDimension) {
-        Element e = DOM.createDiv();
-        PlayerWidgetFactory pf = PlayerWidgetFactory.get();
-        switch (plugin) {
-            case Native:
-                e = pf.getNativeElement(playerId, mediaURL, autoplay);
-                break;
-            case FlashPlayer:
-                e = pf.getSWFElement(playerId, mediaURL, params);
-                break;
-            case QuickTimePlayer:
-                e = pf.getQTElement(playerId, mediaURL, autoplay, params);
-                break;
-            case VLCPlayer:
-                e = pf.getVLCElement(playerId, "", false);
-                break;
-            case WinMediaPlayer:
-                e = pf.getWMPElement(playerId, mediaURL, autoplay, params);
-                e.setAttribute("height", _height);
-                e.getStyle().setProperty("height", _height);
-                e.setAttribute("width", _width);
-                e.getStyle().setProperty("width", _width);
-                break;
-            case DivXPlayer:
-                e = pf.getDivXElement(playerId, mediaURL, autoplay, params);
-                break;
-        }
-        if (updateDimension) {
-            String curHeight = getElement().getFirstChildElement().getAttribute("height");
-            String curWidth = getElement().getFirstChildElement().getAttribute("width");
-            e.setAttribute("height", curHeight);
-            e.getStyle().setProperty("height", curHeight);
-            e.setAttribute("width", curWidth);
-            e.getStyle().setProperty("width", curWidth);
-        }
-        getElement().setInnerHTML(e.getString());
-    }
-*/
+
     private void injectWidget(boolean updateDimension) {
-        Element e = DetectionEngine.getInstance().getWidgetFactory(plugin.name()).getWidgetElement(
-                plugin.name(), playerId, mediaURL, autoplay, params);
+        Element e = PlayerManager.getInstance().getProviderFactory(playerProvider).getWidgetElement(
+                playerName, playerId, mediaURL, autoplay, params);
         if (updateDimension) {
             String curHeight = getElement().getFirstChildElement().getAttribute("height");
             String curWidth = getElement().getFirstChildElement().getAttribute("width");

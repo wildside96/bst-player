@@ -24,14 +24,14 @@ import com.bramosystems.oss.player.core.client.impl.FMPStateManager;
 import com.bramosystems.oss.player.core.client.impl.FlashMediaPlayerImpl;
 import com.bramosystems.oss.player.core.client.impl.BeforeUnloadCallback;
 import com.bramosystems.oss.player.core.client.impl.PlayerWidget;
-import com.bramosystems.oss.player.core.client.impl.plugin.CoreWidgetFactory;
+import com.bramosystems.oss.player.core.client.impl.CorePlayerProvider;
 import com.bramosystems.oss.player.core.event.client.DebugEvent;
 import com.bramosystems.oss.player.core.event.client.DebugHandler;
 import com.bramosystems.oss.player.core.event.client.MediaInfoEvent;
 import com.bramosystems.oss.player.core.event.client.MediaInfoHandler;
 import com.bramosystems.oss.player.core.event.client.PlayStateEvent;
 import com.bramosystems.oss.player.core.event.client.PlayerStateEvent;
-import com.bramosystems.oss.player.core.client.Player;
+import com.bramosystems.oss.player.core.client.spi.Player;
 import com.google.gwt.dom.client.Document;
 import com.google.gwt.dom.client.NativeEvent;
 import com.google.gwt.event.dom.client.DomEvent;
@@ -79,7 +79,7 @@ import java.util.ArrayList;
  * @author Sikirulai Braheem
  * @since 1.0
  */
-@Player(name="FlashPlayer", widgetFactory=CoreWidgetFactory.class, minPluginVersion="9.0.0")
+@Player(name="FlashPlayer", widgetFactory=CorePlayerProvider.class, minPluginVersion="9.0.0")
 public class FlashMediaPlayer extends AbstractMediaPlayer implements PlaylistSupport, MatrixSupport {
     
     private FMPStateManager manager;
@@ -241,7 +241,7 @@ public class FlashMediaPlayer extends AbstractMediaPlayer implements PlaylistSup
             _width = "0px";
         }
         
-        swf = new PlayerWidget(Plugin.FlashPlayer, playerId, FMPStateManager.getSWFImpl(),
+        swf = new PlayerWidget("core", Plugin.FlashPlayer.name(), playerId, FMPStateManager.getSWFImpl(),
                 autoplay, new BeforeUnloadCallback() {
             
             @Override

@@ -28,7 +28,7 @@ import java.util.HashMap;
  *
  * @author Sikirulai Braheem <sbraheem at bramosystems.com>
  */
-public interface PlayerWidgetFactory {
+public interface PlayerProviderFactory {
     
     public Element getWidgetElement(String playerName, String playerId, String mediaURL, boolean autoplay, 
             HashMap<String, String> params);

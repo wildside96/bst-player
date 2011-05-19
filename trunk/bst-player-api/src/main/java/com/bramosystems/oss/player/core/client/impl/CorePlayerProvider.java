@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.bramosystems.oss.player.core.client.impl.plugin;
+package com.bramosystems.oss.player.core.client.impl;
 
 import com.bramosystems.oss.player.core.client.PluginInfo;
 import com.bramosystems.oss.player.core.client.AbstractMediaPlayer;
@@ -23,13 +23,15 @@ import com.bramosystems.oss.player.core.client.Plugin;
 import com.bramosystems.oss.player.core.client.PluginNotFoundException;
 import com.bramosystems.oss.player.core.client.PluginVersion;
 import com.bramosystems.oss.player.core.client.PluginVersionException;
+import com.bramosystems.oss.player.core.client.impl.plugin.PluginManager;
+import com.bramosystems.oss.player.core.client.spi.PlayerProvider;
 import com.bramosystems.oss.player.core.client.ui.DivXPlayer;
 import com.bramosystems.oss.player.core.client.ui.FlashMediaPlayer;
 import com.bramosystems.oss.player.core.client.ui.NativePlayer;
 import com.bramosystems.oss.player.core.client.ui.QuickTimePlayer;
 import com.bramosystems.oss.player.core.client.ui.VLCPlayer;
 import com.bramosystems.oss.player.core.client.ui.WinMediaPlayer;
-import com.bramosystems.oss.player.core.client.spi.PlayerWidgetFactory;
+import com.bramosystems.oss.player.core.client.spi.PlayerProviderFactory;
 import com.bramosystems.oss.player.util.client.MimeType;
 import com.google.gwt.dom.client.Document;
 import com.google.gwt.dom.client.Element;
@@ -43,7 +45,8 @@ import java.util.Iterator;
  *
  * @author Sikirulai Braheem <sbraheem at bramosystems.com>
  */
-public class CoreWidgetFactory implements PlayerWidgetFactory {
+@PlayerProvider("core")
+public class CorePlayerProvider implements PlayerProviderFactory {
 
     private Document _doc = Document.get();
     private String wmpFFMimeType = "application/x-ms-wmp", wmpAppMimeType = "application/x-mplayer2";

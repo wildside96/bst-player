@@ -23,10 +23,10 @@ import com.bramosystems.oss.player.core.client.impl.LoopManager;
 import com.bramosystems.oss.player.core.client.impl.VLCPlayerImpl;
 import com.bramosystems.oss.player.core.client.impl.VLCStateManager;
 import com.bramosystems.oss.player.core.client.impl.PlayerWidget;
-import com.bramosystems.oss.player.core.client.impl.plugin.CoreWidgetFactory;
+import com.bramosystems.oss.player.core.client.impl.CorePlayerProvider;
 import com.bramosystems.oss.player.core.client.skin.CustomPlayerControl;
 import com.bramosystems.oss.player.core.event.client.*;
-import com.bramosystems.oss.player.core.client.Player;
+import com.bramosystems.oss.player.core.client.spi.Player;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.DOM;
@@ -62,7 +62,7 @@ import com.google.gwt.user.client.ui.FlowPanel;
  *
  * @author Sikirulai Braheem
  */
-@Player(name="VLCPlayer", widgetFactory=CoreWidgetFactory.class, minPluginVersion="1.0.0")
+@Player(name="VLCPlayer", widgetFactory=CorePlayerProvider.class, minPluginVersion="1.0.0")
 public class VLCPlayer extends AbstractMediaPlayer implements PlaylistSupport {
 
     private VLCPlayerImpl impl;
@@ -217,7 +217,7 @@ public class VLCPlayer extends AbstractMediaPlayer implements PlaylistSupport {
         FlowPanel panel = new FlowPanel();
         initWidget(panel);
 
-        playerWidget = new PlayerWidget(Plugin.VLCPlayer, playerId, "", autoplay,
+        playerWidget = new PlayerWidget("core", Plugin.VLCPlayer.name(), playerId, "", autoplay,
                 new BeforeUnloadCallback() {
 
                     @Override

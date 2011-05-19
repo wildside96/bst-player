@@ -16,6 +16,7 @@
 package com.bramosystems.oss.player.core.client.impl;
 
 import com.bramosystems.oss.player.core.client.*;
+import com.bramosystems.oss.player.core.client.impl.plugin.PlayerManager;
 import com.bramosystems.oss.player.core.client.impl.plugin.PluginManager;
 import java.util.HashMap;
 import java.util.Set;
@@ -36,11 +37,11 @@ public class MimePoolBase implements MimePool {
 
     @Override
     public final Set<String> getRegisteredExtensions(Plugin plugin) throws PluginNotFoundException {
-        return PluginManager.getPlayerInfo(plugin.name()).getRegisteredExtensions();
+        return PlayerManager.getInstance().getPlayerInfo("core", plugin.name()).getRegisteredExtensions();
     }
 
     @Override
     public final Set<String> getRegisteredProtocols(Plugin plugin) throws PluginNotFoundException {
-        return PluginManager.getPlayerInfo(plugin.name()).getRegisteredProtocols();
+        return PlayerManager.getInstance().getPlayerInfo("core", plugin.name()).getRegisteredProtocols();
     }
 }

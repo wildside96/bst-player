@@ -33,14 +33,14 @@ import com.bramosystems.oss.player.core.client.impl.LoopManager;
 import com.bramosystems.oss.player.core.client.impl.NativePlayerImpl;
 import com.bramosystems.oss.player.core.client.impl.NativePlayerUtil;
 import com.bramosystems.oss.player.core.client.impl.PlayerWidget;
-import com.bramosystems.oss.player.core.client.impl.plugin.CoreWidgetFactory;
+import com.bramosystems.oss.player.core.client.impl.CorePlayerProvider;
 import com.bramosystems.oss.player.core.event.client.DebugEvent;
 import com.bramosystems.oss.player.core.event.client.DebugHandler;
 import com.bramosystems.oss.player.core.event.client.MediaInfoEvent;
 import com.bramosystems.oss.player.core.event.client.MediaInfoHandler;
 import com.bramosystems.oss.player.core.event.client.PlayStateEvent;
 import com.bramosystems.oss.player.core.event.client.PlayerStateEvent;
-import com.bramosystems.oss.player.core.client.Player;
+import com.bramosystems.oss.player.core.client.spi.Player;
 import com.google.gwt.i18n.client.NumberFormat;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.DOM;
@@ -71,7 +71,7 @@ import com.google.gwt.user.client.ui.FlowPanel;
  *
  * @author Sikirulai Braheem <sbraheem at bramosystems dot com>
  */
-@Player(name="Native", widgetFactory=CoreWidgetFactory.class, minPluginVersion="5.0.0")
+@Player(name="Native", widgetFactory=CorePlayerProvider.class, minPluginVersion="5.0.0")
 public class NativePlayer extends AbstractMediaPlayer implements PlaylistSupport {
 
     private NumberFormat volFmt = NumberFormat.getPercentFormat();
@@ -301,7 +301,7 @@ public class NativePlayer extends AbstractMediaPlayer implements PlaylistSupport
     public NativePlayer(String mediaURL, boolean autoplay, String height, String width)
             throws LoadException, PluginNotFoundException {
         this();
-        playerWidget = new PlayerWidget(Plugin.Native, playerId, "", autoplay, null);
+        playerWidget = new PlayerWidget("core", Plugin.Native.name(), playerId, "", autoplay, null);
         _init(width, height);
         playlistManager.addToPlaylist(mediaURL);
     }
@@ -327,7 +327,7 @@ public class NativePlayer extends AbstractMediaPlayer implements PlaylistSupport
     public NativePlayer(ArrayList<String> mediaSources, boolean autoplay, String height, String width)
             throws LoadException, PluginNotFoundException {
         this();
-        playerWidget = new PlayerWidget(Plugin.Native, playerId, "", autoplay, null);
+        playerWidget = new PlayerWidget("core", Plugin.Native.name(), playerId, "", autoplay, null);
         _init(width, height);
         playlistManager.addToPlaylist(mediaSources);
     }

@@ -38,7 +38,8 @@ import com.bramosystems.oss.player.core.client.impl.PlayerWidget;
 import com.bramosystems.oss.player.core.client.PluginInfo;
 import com.bramosystems.oss.player.core.client.impl.WMPStateManager;
 import com.bramosystems.oss.player.core.client.impl.WinMediaPlayerImpl;
-import com.bramosystems.oss.player.core.client.impl.plugin.CoreWidgetFactory;
+import com.bramosystems.oss.player.core.client.impl.CorePlayerProvider;
+import com.bramosystems.oss.player.core.client.spi.Player;
 import com.bramosystems.oss.player.core.event.client.DebugEvent;
 import com.bramosystems.oss.player.core.event.client.DebugHandler;
 import com.bramosystems.oss.player.core.event.client.MediaInfoEvent;
@@ -92,6 +93,7 @@ import java.util.ArrayList;
  *
  * @author Sikirulai Braheem
  */
+@Player(minPluginVersion="1.1.1", name="WinMediaPlayerX", widgetFactory=DevProvider.class)
 public class WinMediaPlayerX extends AbstractMediaPlayer implements PlaylistSupport {
 
     private static WMPStateManager stateManager;
@@ -111,7 +113,7 @@ public class WinMediaPlayerX extends AbstractMediaPlayer implements PlaylistSupp
     private WinMediaPlayerX(EmbedMode embedMode, boolean autoplay)
             throws PluginNotFoundException, PluginVersionException {
         if (embedMode.equals(EmbedMode.PROGRAMMABLE)
-                && !((CoreWidgetFactory)getWidgetFactory(Plugin.WinMediaPlayer.name())).isWMPProgrammableEmbedModeSupported()) {
+                && !((CorePlayerProvider)getWidgetFactory("core")).isWMPProgrammableEmbedModeSupported()) {
             throw new PluginNotFoundException("'Media Player plugin for Firefox' is required");
         }
 
@@ -207,7 +209,7 @@ public class WinMediaPlayerX extends AbstractMediaPlayer implements PlaylistSupp
         FlowPanel panel = new FlowPanel();
         initWidget(panel);
 
-        playerWidget = new PlayerWidget(Plugin.WinMediaPlayer, playerId, "", false,
+        playerWidget = new PlayerWidget("core", Plugin.WinMediaPlayer.name(), playerId, "", false,
                 new BeforeUnloadCallback()       {
 
                     @Override
@@ -330,7 +332,7 @@ public class WinMediaPlayerX extends AbstractMediaPlayer implements PlaylistSupp
     private void setupPlayer(final boolean replaceWidget) {
         if (replaceWidget) {
             eventProcessor.setEnabled(false);
-            playerWidget.replace(Plugin.WinMediaPlayer, playerId, playlistManager.getCurrentItem(), false);
+            playerWidget.replace("core", Plugin.WinMediaPlayer.name(), playerId, playlistManager.getCurrentItem(), false);
         }
 
         Timer tt = new Timer()      {
