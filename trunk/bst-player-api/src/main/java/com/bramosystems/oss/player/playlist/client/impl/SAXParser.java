@@ -15,6 +15,7 @@
  */
 package com.bramosystems.oss.player.playlist.client.impl;
 
+import com.bramosystems.oss.player.playlist.client.ParseException;
 import com.google.gwt.xml.client.Document;
 import com.google.gwt.xml.client.NamedNodeMap;
 import com.google.gwt.xml.client.Node;
@@ -41,12 +42,12 @@ public class SAXParser {
         this.handler = handler;
     }
 
-    public void parseDocument(Document doc) {
+    public void parseDocument(Document doc) throws ParseException {
         XMLParser.removeWhitespace(doc);
         processNodes(doc.getChildNodes());
     }
 
-    private void processNodes(NodeList node) {
+    private void processNodes(NodeList node) throws ParseException {
         for (int i = 0; i < node.getLength(); i++) {
             Node nd = node.item(i);
             switch (nd.getNodeType()) {

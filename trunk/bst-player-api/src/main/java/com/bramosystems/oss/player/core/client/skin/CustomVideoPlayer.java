@@ -26,6 +26,7 @@ import com.bramosystems.oss.player.core.event.client.*;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.user.client.ui.Widget;
+import java.util.List;
 
 /**
  * Abstract base class for HTML based custom video players.
@@ -232,6 +233,13 @@ public abstract class CustomVideoPlayer extends AbstractMediaPlayer implements P
     public void addToPlaylist(String... mediaURLs) {
         if (engine instanceof PlaylistSupport) {
             ((PlaylistSupport) engine).addToPlaylist(mediaURLs);
+        }
+    }
+
+    @Override
+    public void addToPlaylist(List<MRL> mediaLocators) {
+        if (engine instanceof PlaylistSupport) {
+            ((PlaylistSupport) engine).addToPlaylist(mediaLocators);
         }
     }
 

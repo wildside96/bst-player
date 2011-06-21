@@ -15,7 +15,7 @@
  */
 
 /**
- * Provides classes for creating and manipulating playlists in 
- * <a href='http://xspf.org/xspf-v1.html'>XSPF</a>/<a href='http://wiki.xiph.org/JSPF_Draft'>JSPF</a> format.
+ * Provides the classes and interfaces to integrate custom plugin/player widgets into
+ * the API
  */
-package com.bramosystems.oss.player.playlist.client.spf;
+package com.bramosystems.oss.player.core.client.spi;

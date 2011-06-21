@@ -17,6 +17,7 @@ package com.bramosystems.oss.player.uibinder.client.youtube;
 
 import com.bramosystems.oss.player.core.client.PluginNotFoundException;
 import com.bramosystems.oss.player.core.client.PluginVersionException;
+import com.bramosystems.oss.player.uibinder.client.Player;
 import com.bramosystems.oss.player.uibinder.client.PlayerWrapper;
 import com.bramosystems.oss.player.youtube.client.ChromelessPlayer;
 import com.bramosystems.oss.player.youtube.client.PlayerParameters;
@@ -40,6 +41,7 @@ import com.google.gwt.uibinder.client.UiConstructor;
  * &lt;/ui:UiBinder&gt;
  * </pre></code>
  *
+ * @deprecated Replaced with {@link Player}, will be removed in future.
  * @author Sikiru Braheem <sbraheem at bramosystems . com>
  * @since 1.1
  */

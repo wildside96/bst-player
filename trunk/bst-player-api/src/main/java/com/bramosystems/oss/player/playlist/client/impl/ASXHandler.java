@@ -16,11 +16,11 @@
 package com.bramosystems.oss.player.playlist.client.impl;
 
 import com.bramosystems.oss.player.core.client.PlayTime;
+import com.bramosystems.oss.player.playlist.client.ParseException;
 import com.bramosystems.oss.player.playlist.client.asx.ASXEntry;
 import com.bramosystems.oss.player.playlist.client.asx.ASXPlaylist;
 import com.bramosystems.oss.player.playlist.client.asx.Ref;
 import com.bramosystems.oss.player.playlist.client.asx.Repeat;
-import com.google.gwt.core.client.GWT;
 import com.google.gwt.xml.client.XMLParser;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -44,7 +44,7 @@ public class ASXHandler implements SAXHandler {
     }
 
     @Override
-    public void onNodeStart(String nodeName, HashMap<String, String> attr, String namespaceURI) {
+    public void onNodeStart(String nodeName, HashMap<String, String> attr, String namespaceURI) throws ParseException {
         String href = null;
         try {
             switch (getNodeName(nodeName.toLowerCase())) {
@@ -57,9 +57,9 @@ public class ASXHandler implements SAXHandler {
                             playlist.setVersion(Double.parseDouble(attr.get(ky)));
                         } else if (ky.equalsIgnoreCase("previewmode")) {
                             playlist.setPreviewMode(attr.get(ky).equalsIgnoreCase("yes"));
-                        } else if (ky.equalsIgnoreCase("bannerbar")) {
-                            playlist.setBannerBar(attr.get(ky).equalsIgnoreCase("auto")
-                                    ? ASXPlaylist.BannerBar.Auto : ASXPlaylist.BannerBar.Fixed);
+//                        } else if (ky.equalsIgnoreCase("bannerbar")) {
+//                            playlist.setBannerBar(attr.get(ky).equalsIgnoreCase("auto")
+//                                    ? ASXPlaylist.BannerBar.Auto : ASXPlaylist.BannerBar.Fixed);
                         }
                     }
                     break;
@@ -93,6 +93,7 @@ public class ASXHandler implements SAXHandler {
                             repeat.getEntryRefs().add(href);
                     }
                     break;
+                    /*
                 case _base:
                     it = attr.keySet().iterator();
                     while (it.hasNext()) {
@@ -114,6 +115,7 @@ public class ASXHandler implements SAXHandler {
                             }
                     }
                     break;
+                    */
                 case _duration:
                     it = attr.keySet().iterator();
                     while (it.hasNext()) {
@@ -214,12 +216,12 @@ public class ASXHandler implements SAXHandler {
                     break;
             }
         } catch (Exception e) {
-            GWT.log("Parse Error : " + nodeName, e);
+            throw new ParseException("Parse Error : " + nodeName, e);
         }
     }
 
     @Override
-    public void setNodeValue(String nodeName, String value) {
+    public void setNodeValue(String nodeName, String value) throws ParseException {
         try {
             switch (getNodeName(nodeName.toLowerCase())) {
                 case _abstract:
@@ -276,12 +278,12 @@ public class ASXHandler implements SAXHandler {
                     break;
             }
         } catch (Exception e) {
-            GWT.log("Parse Error : " + nodeName, e);
+            throw new ParseException("Parse Error : " + nodeName, e);
         }
     }
 
     @Override
-    public void onNodeEnd(String nodeName) {
+    public void onNodeEnd(String nodeName) throws ParseException {
         try {
             switch (getNodeName(nodeName.toLowerCase())) {
                 case _entry:
@@ -306,11 +308,11 @@ public class ASXHandler implements SAXHandler {
                     parentNodes.pop();
             }
         } catch (Exception e) {
-            GWT.log("Parse Error : " + nodeName, e);
+            throw new ParseException("Parse Error : " + nodeName, e);
         }
     }
 
-    public ASXPlaylist getPlaylist(String asx) {
+    public ASXPlaylist getPlaylist(String asx) throws ParseException {
         playlist = new ASXPlaylist();
         SAXParser sax = new SAXParser(this);
         sax.parseDocument(XMLParser.parse(asx));
@@ -318,7 +320,6 @@ public class ASXHandler implements SAXHandler {
     }
 
     private enum ASXNodeNames {
-
         _abstract, _asx, _author, _base, _copyright, _duration, _endmarker, _entry,
         _entryref, _event, _moreinfo, _param, _ref, _repeat, _startmarker, _starttime,
         _title

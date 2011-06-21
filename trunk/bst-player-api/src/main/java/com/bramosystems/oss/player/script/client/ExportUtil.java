@@ -45,6 +45,7 @@ import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.Widget;
 import java.util.EnumMap;
 import java.util.HashMap;
+import java.util.List;
 
 /**
  * Utility class to export the player and seek bar widgets as Javascript objects
@@ -88,7 +89,7 @@ public class ExportUtil {
     if($wnd.bstplayer == null){
     $wnd.bstplayer = new Object();
     }
-
+    
     $wnd.bstplayer.Player = function(plugin, mediaURL, autoplay, width, height, options){
     // init the player ...
     var _player = @com.bramosystems.oss.player.script.client.ExportUtil::getPlayer(Ljava/lang/String;Ljava/lang/String;ZLjava/lang/String;Ljava/lang/String;Lcom/google/gwt/core/client/JavaScriptObject;)(plugin,mediaURL,autoplay,width,height,options);
@@ -219,11 +220,11 @@ public class ExportUtil {
     if($wnd.bstplayer == null){
     $wnd.bstplayer = new Object();
     }
-
+    
     $wnd.bstplayer.SeekBar = function(height, containerId, options){
     // init the seekbar ...
     var _seek = @com.bramosystems.oss.player.script.client.ExportUtil::getSeekBar(ILjava/lang/String;Lcom/google/gwt/core/client/JavaScriptObject;)(height,containerId,options);
-
+    
     this.setLoadingProgress = function(progress) {
     _seek.@com.bramosystems.oss.player.script.client.ExportUtil.ScriptSeekBar::setLoadingProgress(D)(progress);
     }
@@ -353,7 +354,7 @@ public class ExportUtil {
                     }
                 });
                 /*                player.addMediaInfoHandler(new MediaInfoHandler() {
-
+                
                 public void onMediaInfoAvailable(MediaInfoEvent event) {
                 JavaScriptObject evt = JavaScriptObject.createObject();
                 //                        putEventValue(evt, "playState", event.getMediaInfo().name());
@@ -572,6 +573,11 @@ public class ExportUtil {
 
         @Override
         public void addToPlaylist(String... mediaURLs) {
+            // not supported in javascript
+        }
+
+        @Override
+        public void addToPlaylist(List<MRL> mediaLocators) {
             // not supported in javascript
         }
 

@@ -102,7 +102,7 @@ public class Dev extends FlowPanel implements EntryPoint {
         RootPanel.get().add(this);
 //                addPlayer(Plugin.QuickTimePlayer);
 
-                    add(new MimeStuffs());
+ //                   add(new MimeStuffs());
         //        addUTube();
         //               issueDialog();
          add(pb.createAndBindUi(this)); //TODO: requires GWT 2.1
@@ -212,7 +212,7 @@ public class Dev extends FlowPanel implements EntryPoint {
                 }
             });
             mmp.showLogger(true);
-            mmp.setConfigParameter(ConfigParameter.QTScale, QuickTimePlayer.Scale.Aspect);
+//            mmp.setConfigParameter(ConfigParameter.QTScale, QuickTimePlayer.Scale.Aspect);
             mmp.setConfigParameter(ConfigParameter.BackgroundColor, "#ffffff");
 //                      ((PlaylistSupport) mmp).addToPlaylist(mrl.getNextResource(false));
 //            mmp.setResizeToVideoSize(true);

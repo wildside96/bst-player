@@ -33,6 +33,7 @@ import com.google.gwt.user.client.ui.DockPanel;
 import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
+import java.util.List;
 
 /**
  * Abstract base class for HTML based custom audio players.
@@ -258,6 +259,13 @@ public abstract class CustomAudioPlayer extends AbstractMediaPlayer implements P
     public void addToPlaylist(String... mediaURLs) {
         if (engine instanceof PlaylistSupport) {
             ((PlaylistSupport) engine).addToPlaylist(mediaURLs);
+        }
+    }
+
+    @Override
+    public void addToPlaylist(List<MRL> mediaLocators) {
+        if (engine instanceof PlaylistSupport) {
+            ((PlaylistSupport) engine).addToPlaylist(mediaLocators);
         }
     }
 

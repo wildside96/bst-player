@@ -17,6 +17,8 @@ package com.bramosystems.oss.player.youtube.client;
 
 import com.bramosystems.oss.player.core.client.PluginNotFoundException;
 import com.bramosystems.oss.player.core.client.PluginVersionException;
+import com.bramosystems.oss.player.core.client.spi.Player;
+import com.bramosystems.oss.player.youtube.client.impl.YouTubePlayerProvider;
 
 /**
  * Widget to embed the chromeless YouTube video player.  The player is particularly useful
@@ -47,6 +49,7 @@ import com.bramosystems.oss.player.core.client.PluginVersionException;
  * @author Sikirulai Braheem <sbraheem at bramosystems dot com>
  * @since 1.1
  */
+@Player(name="Chromeless", minPluginVersion="9.0.0", widgetFactory=YouTubePlayerProvider.class)
 public class ChromelessPlayer extends YouTubePlayer {
 
     private String videoURL;

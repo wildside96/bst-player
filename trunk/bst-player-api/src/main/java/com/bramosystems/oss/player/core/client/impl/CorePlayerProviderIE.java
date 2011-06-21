@@ -15,8 +15,7 @@
  */
 package com.bramosystems.oss.player.core.client.impl;
 
-import com.bramosystems.oss.player.core.client.impl.QTStateManagerIE;
-import com.google.gwt.dom.client.Element;
+import com.bramosystems.oss.player.core.client.spi.PlayerElement;
 import java.util.HashMap;
 import java.util.Iterator;
 
@@ -28,28 +27,20 @@ import java.util.Iterator;
  */
 public class CorePlayerProviderIE extends CorePlayerProvider {
 
-    protected class XObjectIE extends XObject {
-
-        public XObjectIE(String id, String classId) {
-            super(id);
-            getElement().setPropertyString("classid", classId);
-        }
-    }
-
     @Override
-    protected Element getVLCElement(String playerId, String mediaURL, boolean autoplay) {
-        XObjectIE axo = new XObjectIE(playerId, "clsid:9BE31822-FDAD-461B-AD51-BE1D1C159921");
+    protected PlayerElement getVLCElement(String playerId, String mediaURL, boolean autoplay) {
+        PlayerElement axo = new PlayerElement(PlayerElement.Type.ObjectElementIE, playerId, "clsid:9BE31822-FDAD-461B-AD51-BE1D1C159921");
         axo.getElement().setPropertyString("events", "True");
         axo.addParam("AutoPlay", "False");
         axo.addParam("AutoLoop", "False");
         axo.addParam("Src", "");
-        return axo.getElement();
+        return axo;
     }
 
     @Override
-    protected Element getWMPElement(String playerId, String mediaURL, boolean autoplay,
+    protected PlayerElement getWMPElement(String playerId, String mediaURL, boolean autoplay,
             HashMap<String, String> params) {
-        XObjectIE xo = new XObjectIE(playerId, "clsid:6BF52A52-394A-11d3-B153-00C04F79FAA6");
+        PlayerElement xo = new PlayerElement(PlayerElement.Type.ObjectElementIE, playerId, "clsid:6BF52A52-394A-11d3-B153-00C04F79FAA6");
         xo.addParam("autostart", Boolean.toString(autoplay));
         xo.addParam("URL", mediaURL);
 
@@ -58,13 +49,13 @@ public class CorePlayerProviderIE extends CorePlayerProvider {
             String name = keys.next();
             xo.addParam(name, params.get(name));
         }
-        return xo.getElement();
+        return xo;
     }
 
     @Override
-    protected Element getQTElement(String playerId, String mediaURL, boolean autoplay,
+    protected PlayerElement getQTElement(String playerId, String mediaURL, boolean autoplay,
             HashMap<String, String> params) {
-        XObjectIE xo = new XObjectIE(playerId, "clsid:02BF25D5-8C17-4B23-BC80-D3488ABDDC6B");
+        PlayerElement xo = new PlayerElement(PlayerElement.Type.ObjectElementIE, playerId, "clsid:02BF25D5-8C17-4B23-BC80-D3488ABDDC6B");
         xo.getElement().getStyle().setProperty("BEHAVIOR", "url(#" + QTStateManagerIE.behaviourObjId + ")");
         xo.addParam("AutoPlay", Boolean.toString(autoplay));
 //        xo.addParam("Src", mediaURL);
@@ -74,12 +65,12 @@ public class CorePlayerProviderIE extends CorePlayerProvider {
             String name = keys.next();
             xo.addParam(name, params.get(name));
         }
-        return xo.getElement();
+        return xo;
     }
 
     @Override
-    protected Element getSWFElement(String playerId, String swfURL, HashMap<String, String> params) {
-        XObjectIE xo = new XObjectIE(playerId, "clsid:D27CDB6E-AE6D-11cf-96B8-444553540000");
+    protected PlayerElement getSWFElement(String playerId, String swfURL, HashMap<String, String> params) {
+        PlayerElement xo = new PlayerElement(PlayerElement.Type.ObjectElementIE, playerId, "clsid:D27CDB6E-AE6D-11cf-96B8-444553540000");
         xo.addParam("src", swfURL);
 
         Iterator<String> keys = params.keySet().iterator();
@@ -87,13 +78,13 @@ public class CorePlayerProviderIE extends CorePlayerProvider {
             String name = keys.next();
             xo.addParam(name, params.get(name));
         }
-        return xo.getElement();
+        return xo;
     }
 
     @Override
-    protected Element getDivXElement(String playerId, String mediaURL, boolean autoplay,
+    protected PlayerElement getDivXElement(String playerId, String mediaURL, boolean autoplay,
             HashMap<String, String> params) {
-        XObjectIE xo = new XObjectIE(playerId, "clsid:67DABFBF-D0AB-41fa-9C46-CC0F21721616");
+        PlayerElement xo = new PlayerElement(PlayerElement.Type.ObjectElementIE, playerId, "clsid:67DABFBF-D0AB-41fa-9C46-CC0F21721616");
         xo.addParam("autoPlay", Boolean.toString(autoplay));
 //        xo.addParam("src", mediaURL);
 
@@ -102,7 +93,7 @@ public class CorePlayerProviderIE extends CorePlayerProvider {
             String name = keys.next();
             xo.addParam(name, params.get(name));
         }
-        return xo.getElement();
+        return xo;
     }
 
     @Override

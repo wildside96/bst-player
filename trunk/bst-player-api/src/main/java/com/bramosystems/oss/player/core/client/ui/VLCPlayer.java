@@ -18,11 +18,10 @@ package com.bramosystems.oss.player.core.client.ui;
 import com.bramosystems.oss.player.core.client.playlist.MRL;
 import com.bramosystems.oss.player.core.client.*;
 import com.bramosystems.oss.player.core.client.MediaInfo.MediaInfoKey;
-import com.bramosystems.oss.player.core.client.impl.BeforeUnloadCallback;
 import com.bramosystems.oss.player.core.client.impl.LoopManager;
 import com.bramosystems.oss.player.core.client.impl.VLCPlayerImpl;
 import com.bramosystems.oss.player.core.client.impl.VLCStateManager;
-import com.bramosystems.oss.player.core.client.impl.PlayerWidget;
+import com.bramosystems.oss.player.core.client.spi.PlayerWidget;
 import com.bramosystems.oss.player.core.client.impl.CorePlayerProvider;
 import com.bramosystems.oss.player.core.client.skin.CustomPlayerControl;
 import com.bramosystems.oss.player.core.event.client.*;
@@ -31,6 +30,7 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.ui.FlowPanel;
+import java.util.List;
 
 /**
  * Widget to embed VLC Media Player&trade; plugin.
@@ -62,7 +62,7 @@ import com.google.gwt.user.client.ui.FlowPanel;
  *
  * @author Sikirulai Braheem
  */
-@Player(name="VLCPlayer", widgetFactory=CorePlayerProvider.class, minPluginVersion="1.0.0")
+@Player(name = "VLCPlayer", widgetFactory = CorePlayerProvider.class, minPluginVersion = "1.0.0")
 public class VLCPlayer extends AbstractMediaPlayer implements PlaylistSupport {
 
     private VLCPlayerImpl impl;
@@ -113,69 +113,69 @@ public class VLCPlayer extends AbstractMediaPlayer implements PlaylistSupport {
         stateHandler.init(new VLCStateManager.VLCStateCallback() {
 
 ///           @Override
-                    public void onLoadingComplete() {
-                        fireLoadingProgress(1.0);
-                    }
+            public void onLoadingComplete() {
+                fireLoadingProgress(1.0);
+            }
 
-                    @Override
-                    public void onIdle() {
-                        fireDebug("Player Idle");
-                    }
+            @Override
+            public void onIdle() {
+                fireDebug("Player Idle");
+            }
 
-                    @Override
-                    public void onOpening() {
-                        fireDebug("Opening playlist item #" + 
-                                stateHandler.getPlaylistManager().getPlaylistIndex());
-                    }
+            @Override
+            public void onOpening() {
+                fireDebug("Opening playlist item #"
+                        + stateHandler.getPlaylistManager().getPlaylistIndex());
+            }
 
-                    @Override
-                    public void onBuffering(boolean started) {
-                        firePlayerStateEvent(started ? PlayerStateEvent.State.BufferingStarted
-                                : PlayerStateEvent.State.BufferingFinished);
-                    }
+            @Override
+            public void onBuffering(boolean started) {
+                firePlayerStateEvent(started ? PlayerStateEvent.State.BufferingStarted
+                        : PlayerStateEvent.State.BufferingFinished);
+            }
 
-                    @Override
-                    public void onPlaying() {
-                        fireDebug("Playback started - '" + stateHandler.getPlaylistManager().getCurrentItem() + "'");
-                        firePlayStateEvent(PlayStateEvent.State.Started, 
-                                stateHandler.getPlaylistManager().getPlaylistIndex());
-                    }
+            @Override
+            public void onPlaying() {
+                fireDebug("Playback started - '" + stateHandler.getPlaylistManager().getCurrentItem() + "'");
+                firePlayStateEvent(PlayStateEvent.State.Started,
+                        stateHandler.getPlaylistManager().getPlaylistIndex());
+            }
 
-                    @Override
-                    public void onPaused() {
-                        fireDebug("Playback paused");
-                        firePlayStateEvent(PlayStateEvent.State.Paused,
-                                stateHandler.getPlaylistManager().getPlaylistIndex());
-                    }
+            @Override
+            public void onPaused() {
+                fireDebug("Playback paused");
+                firePlayStateEvent(PlayStateEvent.State.Paused,
+                        stateHandler.getPlaylistManager().getPlaylistIndex());
+            }
 
-                    @Override
-                    public void onError(String message) {
-                        fireError(message);
-                    }
+            @Override
+            public void onError(String message) {
+                fireError(message);
+            }
 
-                    @Override
-                    public void onInfo(String message) {
-                        fireDebug(message);
-                    }
+            @Override
+            public void onInfo(String message) {
+                fireDebug(message);
+            }
 
-                    @Override
-                    public void onEndReached() {
-                        loopManager.notifyPlayFinished();
-                    }
+            @Override
+            public void onEndReached() {
+                loopManager.notifyPlayFinished();
+            }
 
-                    @Override
-                    public void onStopped() {
-                        firePlayStateEvent(PlayStateEvent.State.Stopped,
-                                stateHandler.getPlaylistManager().getPlaylistIndex());
-                        fireDebug("Playback stopped");
-                    }
+            @Override
+            public void onStopped() {
+                firePlayStateEvent(PlayStateEvent.State.Stopped,
+                        stateHandler.getPlaylistManager().getPlaylistIndex());
+                fireDebug("Playback stopped");
+            }
 
-                    @Override
-                    public void onMediaInfo(MediaInfo info) {
-                        fireDebug("MediaInfo available");
-                        fireMediaInfoAvailable(info);
-                    }
-                },
+            @Override
+            public void onMediaInfo(MediaInfo info) {
+                fireDebug("MediaInfo available");
+                fireMediaInfoAvailable(info);
+            }
+        },
                 new VLCStateManager.VLCPlayerImplCallback() {
 
                     @Override
@@ -217,14 +217,7 @@ public class VLCPlayer extends AbstractMediaPlayer implements PlaylistSupport {
         FlowPanel panel = new FlowPanel();
         initWidget(panel);
 
-        playerWidget = new PlayerWidget("core", Plugin.VLCPlayer.name(), playerId, "", autoplay,
-                new BeforeUnloadCallback() {
-
-                    @Override
-                    public void onBeforeUnload() {
-                        stateHandler.close();
-                    }
-                });
+        playerWidget = new PlayerWidget("core", Plugin.VLCPlayer.name(), playerId, "", autoplay);
 //        playerWidget.getElement().getStyle().setProperty("backgroundColor", "#000000");   // IE workaround
         panel.add(playerWidget);
 
@@ -318,6 +311,14 @@ public class VLCPlayer extends AbstractMediaPlayer implements PlaylistSupport {
         if (autoplay) {
             stateHandler.getPlaylistManager().play(0);
         }
+    }
+
+    /**
+     * Overridden to release resources
+     */
+    @Override
+    protected void onUnload() {
+        stateHandler.close();
     }
 
     @Override
@@ -452,7 +453,7 @@ public class VLCPlayer extends AbstractMediaPlayer implements PlaylistSupport {
     public void addToPlaylist(String mediaURL) {
         stateHandler.getPlaylistManager().addToPlaylist(mediaURL);
     }
-    
+
     @Override
     public void addToPlaylist(MRL mediaLocator) {
         stateHandler.getPlaylistManager().addToPlaylist(mediaLocator);
@@ -462,7 +463,12 @@ public class VLCPlayer extends AbstractMediaPlayer implements PlaylistSupport {
     public void addToPlaylist(String... mediaURLs) {
         stateHandler.getPlaylistManager().addToPlaylist(mediaURLs);
     }
-    
+
+    @Override
+    public void addToPlaylist(List<MRL> mediaLocators) {
+        stateHandler.getPlaylistManager().addToPlaylist(mediaLocators);
+    }
+
     @Override
     public boolean isShuffleEnabled() {
         checkAvailable();
@@ -575,7 +581,7 @@ public class VLCPlayer extends AbstractMediaPlayer implements PlaylistSupport {
     throw new IllegalStateException("No video input can be found");
     }
     }
-
+    
     public void setAspectRatio(AspectRatio aspectRatio) {
     checkAvailable();
     if (impl.hasVideo(playerId)) {

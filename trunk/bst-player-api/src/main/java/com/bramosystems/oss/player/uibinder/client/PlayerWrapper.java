@@ -25,6 +25,7 @@ import com.bramosystems.oss.player.util.client.RegExp.RegexException;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.user.client.ui.Widget;
+import java.util.List;
 
 /**
  * Provides the base implementation of player widgets with UiBinder support
@@ -32,6 +33,7 @@ import com.google.gwt.user.client.ui.Widget;
  * @author Sikiru Braheem <sbraheem at bramosystems . com>
  * @param <T> the player implementation type
  * @since 1.1
+ * @deprecated Replaced with {@link Player}, will be removed in future.
  */
 public abstract class PlayerWrapper<T extends AbstractMediaPlayer> extends AbstractMediaPlayer
         implements MatrixSupport, com.bramosystems.oss.player.core.client.PlaylistSupport {
@@ -346,6 +348,13 @@ public abstract class PlayerWrapper<T extends AbstractMediaPlayer> extends Abstr
     public void addToPlaylist(String... mediaURLs) {
         if ((_engine != null) && (_engine instanceof com.bramosystems.oss.player.core.client.PlaylistSupport)) {
             ((com.bramosystems.oss.player.core.client.PlaylistSupport) _engine).addToPlaylist(mediaURLs);
+        }
+    }
+
+    @Override
+    public void addToPlaylist(List<MRL> mediaLocators) {
+        if (_engine instanceof com.bramosystems.oss.player.core.client.PlaylistSupport) {
+            ((com.bramosystems.oss.player.core.client.PlaylistSupport) _engine).addToPlaylist(mediaLocators);
         }
     }
 

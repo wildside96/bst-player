@@ -31,10 +31,9 @@ import com.bramosystems.oss.player.core.client.PluginVersionException;
 import com.bramosystems.oss.player.core.client.MediaInfo.MediaInfoKey;
 import com.bramosystems.oss.player.core.client.PlaylistSupport;
 import com.bramosystems.oss.player.core.client.RepeatMode;
-import com.bramosystems.oss.player.core.client.impl.BeforeUnloadCallback;
 import com.bramosystems.oss.player.core.client.playlist.PlaylistManager;
 import com.bramosystems.oss.player.core.client.impl.LoopManager;
-import com.bramosystems.oss.player.core.client.impl.PlayerWidget;
+import com.bramosystems.oss.player.core.client.spi.PlayerWidget;
 import com.bramosystems.oss.player.core.client.PluginInfo;
 import com.bramosystems.oss.player.core.client.impl.WMPStateManager;
 import com.bramosystems.oss.player.core.client.impl.WinMediaPlayerImpl;
@@ -55,6 +54,7 @@ import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.ui.FlowPanel;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Widget to embed Windows Media Player&trade; plugin.
@@ -93,7 +93,7 @@ import java.util.ArrayList;
  *
  * @author Sikirulai Braheem
  */
-@Player(minPluginVersion="1.1.1", name="WinMediaPlayerX", widgetFactory=DevProvider.class)
+@Player(minPluginVersion = "1.1.1", name = "WinMediaPlayerX", widgetFactory = DevProvider.class)
 public class WinMediaPlayerX extends AbstractMediaPlayer implements PlaylistSupport {
 
     private static WMPStateManager stateManager;
@@ -113,7 +113,7 @@ public class WinMediaPlayerX extends AbstractMediaPlayer implements PlaylistSupp
     private WinMediaPlayerX(EmbedMode embedMode, boolean autoplay)
             throws PluginNotFoundException, PluginVersionException {
         if (embedMode.equals(EmbedMode.PROGRAMMABLE)
-                && !((CorePlayerProvider)getWidgetFactory("core")).isWMPProgrammableEmbedModeSupported()) {
+                && !((CorePlayerProvider) getWidgetFactory("core")).isWMPProgrammableEmbedModeSupported()) {
             throw new PluginNotFoundException("'Media Player plugin for Firefox' is required");
         }
 
@@ -132,7 +132,7 @@ public class WinMediaPlayerX extends AbstractMediaPlayer implements PlaylistSupp
         urls = new ArrayList<String>();
 
         playlistManager = new WMPPlaylistManager(autoplay);
-        loopManager = new LoopManager(new LoopManager.LoopCallback()       {
+        loopManager = new LoopManager(new LoopManager.LoopCallback() {
 
             @Override
             public void onLoopFinished() {
@@ -159,7 +159,7 @@ public class WinMediaPlayerX extends AbstractMediaPlayer implements PlaylistSupp
                 playlistManager.playNext();
             }
         });
-        eventProcessor = stateManager.init(playerId, playlistManager, new WMPStateManager.WMPImplCallback()       {
+        eventProcessor = stateManager.init(playerId, playlistManager, new WMPStateManager.WMPImplCallback() {
 
             @Override
             public WinMediaPlayerImpl getImpl() {
@@ -209,15 +209,7 @@ public class WinMediaPlayerX extends AbstractMediaPlayer implements PlaylistSupp
         FlowPanel panel = new FlowPanel();
         initWidget(panel);
 
-        playerWidget = new PlayerWidget("core", Plugin.WinMediaPlayer.name(), playerId, "", false,
-                new BeforeUnloadCallback()       {
-
-                    @Override
-                    public void onBeforeUnload() {
-                        stateManager.close(playerId);
-                        impl.close();
-                    }
-                });
+        playerWidget = new PlayerWidget("core", Plugin.WinMediaPlayer.name(), playerId, "", false);
         panel.add(playerWidget);
 
         isEmbedded = (height == null) || (width == null);
@@ -226,14 +218,14 @@ public class WinMediaPlayerX extends AbstractMediaPlayer implements PlaylistSupp
             logger.setVisible(false);
             panel.add(logger);
 
-            addDebugHandler(new DebugHandler()       {
+            addDebugHandler(new DebugHandler() {
 
                 @Override
                 public void onDebug(DebugEvent event) {
                     logger.log(event.getMessage(), false);
                 }
             });
-            addMediaInfoHandler(new MediaInfoHandler()       {
+            addMediaInfoHandler(new MediaInfoHandler() {
 
                 @Override
                 public void onMediaInfoAvailable(MediaInfoEvent event) {
@@ -335,16 +327,16 @@ public class WinMediaPlayerX extends AbstractMediaPlayer implements PlaylistSupp
             playerWidget.replace("core", Plugin.WinMediaPlayer.name(), playerId, playlistManager.getCurrentItem(), false);
         }
 
-        Timer tt = new Timer()      {
+        Timer tt = new Timer() {
 
             @Override
             public void run() {
                 impl = WinMediaPlayerImpl.getPlayer(playerId);
                 try {
- //                   String v = impl.getPlayerVersion();
-                   playlist = impl.createPlaylist("webplaylist");
-                            fireDebug("Playlist 2 : " + playlist);
-                   if (playlist != null) {
+                    //                   String v = impl.getPlayerVersion();
+                    playlist = impl.createPlaylist("webplaylist");
+                    fireDebug("Playlist 2 : " + playlist);
+                    if (playlist != null) {
                         cancel();
                         stateManager.registerMediaStateHandlers(impl);
                         eventProcessor.setEnabled(true);
@@ -360,7 +352,7 @@ public class WinMediaPlayerX extends AbstractMediaPlayer implements PlaylistSupp
                         }
 
                         if (!replaceWidget) {
- //                           fireDebug("Plugin Version : " + v);
+                            //                           fireDebug("Plugin Version : " + v);
                             firePlayerStateEvent(PlayerStateEvent.State.Ready);
                             playlistManager._start();
                         }
@@ -382,6 +374,12 @@ public class WinMediaPlayerX extends AbstractMediaPlayer implements PlaylistSupp
 //        fireDebug("Plugin Version : " + impl.getPlayerVersion());
 //        firePlayerStateEvent(PlayerStateEvent.State.Ready);
 //        playlistManager._start();
+    }
+
+    @Override
+    protected void onUnload() {
+        stateManager.close(playerId);
+        impl.close();
     }
 
     @Override
@@ -503,7 +501,7 @@ public class WinMediaPlayerX extends AbstractMediaPlayer implements PlaylistSupp
         if (isAvailable()) {
             loopManager.setLoopCount(loop);
         } else {
-            addToPlayerReadyCommandQueue("loopcount", new Command()       {
+            addToPlayerReadyCommandQueue("loopcount", new Command() {
 
                 @Override
                 public void execute() {
@@ -599,7 +597,7 @@ public class WinMediaPlayerX extends AbstractMediaPlayer implements PlaylistSupp
         if (isAvailable()) {
             impl.requestMediaAccessRight(accessRights.name().toLowerCase());
         } else {
-            addToPlayerReadyCommandQueue("accessright", new Command()       {
+            addToPlayerReadyCommandQueue("accessright", new Command() {
 
                 @Override
                 public void execute() {
@@ -626,7 +624,7 @@ public class WinMediaPlayerX extends AbstractMediaPlayer implements PlaylistSupp
         if (isAvailable()) {
             impl.setUIMode(uiMode.name().toLowerCase());
         } else {
-            addToPlayerReadyCommandQueue("uimode", new Command()       {
+            addToPlayerReadyCommandQueue("uimode", new Command() {
 
                 @Override
                 public void execute() {
@@ -682,7 +680,7 @@ public class WinMediaPlayerX extends AbstractMediaPlayer implements PlaylistSupp
         if (isPlayerOnPage(playerId)) {
             impl.setRate(rate);
         } else {
-            addToPlayerReadyCommandQueue("rate", new Command()       {
+            addToPlayerReadyCommandQueue("rate", new Command() {
 
                 @Override
                 public void execute() {
@@ -703,7 +701,7 @@ public class WinMediaPlayerX extends AbstractMediaPlayer implements PlaylistSupp
         if (isPlayerOnPage(playerId)) {
             playlistManager.setShuffleEnabled(enable);
         } else {
-            addToPlayerReadyCommandQueue("shuffle", new Command()       {
+            addToPlayerReadyCommandQueue("shuffle", new Command() {
 
                 @Override
                 public void execute() {
@@ -783,6 +781,11 @@ public class WinMediaPlayerX extends AbstractMediaPlayer implements PlaylistSupp
     @Override
     public void setRepeatMode(RepeatMode mode) {
         loopManager.setRepeatMode(mode);
+    }
+
+    @Override
+    public void addToPlaylist(List<MRL> mediaLocators) {
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 
     /**
@@ -885,7 +888,7 @@ public class WinMediaPlayerX extends AbstractMediaPlayer implements PlaylistSupp
 
         @Override
         protected PlayerCallback initCallback() {
-            return new PlayerCallback()       {
+            return new PlayerCallback() {
 
                 @Override
                 public void play() throws PlayException {

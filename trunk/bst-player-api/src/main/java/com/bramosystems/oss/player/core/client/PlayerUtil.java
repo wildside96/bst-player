@@ -21,6 +21,7 @@ import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Event;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
+import java.util.Set;
 
 /**
  * Utility class for various media player related functions.
@@ -411,16 +412,51 @@ public class PlayerUtil {
     
     }
 
+    /**
+     * Returns the {@code PluginInfo} object describing the features of the specified {@code plugin}
+     * 
+     * @param plugin the plugin
+     * @return PluginInfo object
+     * @throws PluginNotFoundException if the specified plugin is not available
+     * @since 1.3
+     * @see PluginInfo
+     */
     public static PluginInfo getPluginInfo(Plugin plugin) throws PluginNotFoundException {
         return PluginManager.getPluginInfo(plugin);
     }
+    
+    /**
+     * Returns the name of all available player providers.
+     * 
+     * @return names of player providers
+     * @since 1.3
+     */
+    public static Set<String> getPlayerProviderNames() {
+        return PlayerManager.getInstance().getProviders();
+    }
+    
+    /**
+     * Returns the name of all players available from the specified {@code playerProvider}
+     * 
+     * @param playerProvider the name of the player provider
+     * @return names of available players
+     * @throws IllegalArgumentException if {@code playerProvider} is not registered
+     * @since 1.3
+     */
+    public static Set<String> getPlayerNames(String playerProvider) {
+        return PlayerManager.getInstance().getPlayerNames(playerProvider);
+    }
 
     /**
+     * Returns the {@code PlayerInfo} object describing the features of the specified {@code playerName} from
+     * the specified {@code providerName}.
      * 
-     * @param playerName
-     * @return
-     * @throws IllegalArgumentException if {@code playerName} is not available 
+     * @param providerName name of the player provider
+     * @param playerName name of player
+     * @return the {@code PlayerInfo} object
+     * @throws IllegalArgumentException if {@code providerName} and/or {@code playerName} is not available
      * @since 1.3
+     * @see PlayerInfo
      */
     public static PlayerInfo getPlayerInfo(String providerName, String playerName) {
         return PlayerManager.getInstance().getPlayerInfo(providerName, playerName);

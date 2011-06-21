@@ -21,9 +21,9 @@ import com.bramosystems.oss.player.core.client.PlayerUtil;
 import com.bramosystems.oss.player.core.client.PluginNotFoundException;
 import com.bramosystems.oss.player.core.client.PluginVersion;
 import com.bramosystems.oss.player.core.client.PluginVersionException;
+import com.bramosystems.oss.player.core.client.spi.PlayerElement;
 import com.bramosystems.oss.player.core.client.spi.PlayerProvider;
 import com.bramosystems.oss.player.core.client.spi.PlayerProviderFactory;
-import com.google.gwt.dom.client.Element;
 import java.util.HashMap;
 
 /**
@@ -34,7 +34,7 @@ import java.util.HashMap;
 public class DevProvider implements PlayerProviderFactory {
 
     @Override
-    public Element getWidgetElement(String playerName, String playerId, String mediaURL, boolean autoplay, HashMap<String, String> params) {
+    public PlayerElement getPlayerElement(String playerName, String playerId, String mediaURL, boolean autoplay, HashMap<String, String> params) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
