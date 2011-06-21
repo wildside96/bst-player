@@ -16,6 +16,9 @@
 package com.bramosystems.oss.player.youtube.client.impl;
 
 import com.bramosystems.oss.player.core.client.impl.CallbackUtility;
+import com.bramosystems.oss.player.util.client.RegExp;
+import com.bramosystems.oss.player.util.client.RegExp.RegexException;
+import com.bramosystems.oss.player.util.client.RegExp.RegexResult;
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.user.client.Command;
 
@@ -26,7 +29,22 @@ import com.google.gwt.user.client.Command;
  */
 public class YouTubeEventManager {
 
+    private RegExp reg;
+
     public YouTubeEventManager() {
+        try {
+            reg = RegExp.getRegExp("http(s)?\\\\www\\.youtube\\.com\\v)\\(\\w+)(\\?\\w+)?", "gi");
+        } catch (RegexException ex) {
+        }
+    }
+
+    public final boolean isYouTubeURL(String url) {
+        return reg.test(url);
+    }
+
+    public final String getVideoId(String url) throws RegexException {
+        RegexResult rr = reg.exec(url);
+        return rr.getMatch(2);
     }
 
     public final void init(String playerApiId, Command initCommand) {

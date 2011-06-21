@@ -15,11 +15,12 @@
  */
 package com.bramosystems.oss.player.playlist.client.impl;
 
+import com.bramosystems.oss.player.playlist.client.ParseException;
 import com.bramosystems.oss.player.playlist.client.spf.Attribution;
 import com.bramosystems.oss.player.playlist.client.spf.SPFPlaylist;
 import com.bramosystems.oss.player.playlist.client.spf.Track;
-import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.JsArray;
+import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.xml.client.XMLParser;
 import java.util.HashMap;
 
@@ -35,13 +36,11 @@ public class XSPFHandler implements SAXHandler {
     private XSPFNodeNames parentNode;
 
     @Override
-    public void onNodeStart(String nodeName, HashMap<String, String> attr, String namespaceURI) {
+    public void onNodeStart(String nodeName, HashMap<String, String> attr, String namespaceURI) throws ParseException {
         try {
             switch (XSPFNodeNames.valueOf(nodeName.toLowerCase())) {
                 case playlist:
-                    JsArray<Attribution> a = JsArray.createArray().cast();
                     JsArray<Track> t = JsArray.createArray().cast();
-                    playlist.setAttribution(a);
                     playlist.setTracks(t);
                     parentNode = XSPFNodeNames.playlist;
                     break;
@@ -55,12 +54,12 @@ public class XSPFHandler implements SAXHandler {
                     break;
             }
         } catch (Exception e) {
-            GWT.log("Parse Error : " + nodeName, e);
+            throw new ParseException("Parse Error : " + nodeName, e);
         }
     }
 
     @Override
-    public void setNodeValue(String nodeName, String value) {
+    public void setNodeValue(String nodeName, String value) throws ParseException {
         try {
             switch (XSPFNodeNames.valueOf(nodeName.toLowerCase())) {
                 case title:
@@ -135,7 +134,8 @@ public class XSPFHandler implements SAXHandler {
                 case date:
                     switch (parentNode) {
                         case playlist:
-                            playlist.setDate(value);
+                            DateTimeFormat dt = DateTimeFormat.getFormat(DateTimeFormat.PredefinedFormat.ISO_8601);
+                            playlist.setDate(dt.parse(value));
                             break;
                     }
                     break;
@@ -169,12 +169,12 @@ public class XSPFHandler implements SAXHandler {
                     break;
             }
         } catch (Exception e) {
-            GWT.log("Parse Error : " + nodeName, e);
+            throw new ParseException("Parse Error : " + nodeName, e);
         }
     }
 
     @Override
-    public void onNodeEnd(String nodeName) {
+    public void onNodeEnd(String nodeName) throws ParseException {
         try {
             switch (XSPFNodeNames.valueOf(nodeName.toLowerCase())) {
                 case track:
@@ -182,16 +182,16 @@ public class XSPFHandler implements SAXHandler {
                     parentNode = XSPFNodeNames.playlist;
                     break;
                 case attribution:
-                    playlist.getAttributions().push(attribution);
+                    playlist.setAttribution(attribution);
                     parentNode = XSPFNodeNames.playlist;
                     break;
             }
         } catch (Exception e) {
-            GWT.log("Parse Error : " + nodeName, e);
+            throw new ParseException("Parse Error : " + nodeName, e);
         }
     }
 
-    public SPFPlaylist getPlaylist(String xspf) {
+    public SPFPlaylist getPlaylist(String xspf) throws ParseException {
         playlist = SPFPlaylist.createObject().cast();
         SAXParser sax = new SAXParser(this);
         sax.parseDocument(XMLParser.parse(xspf));

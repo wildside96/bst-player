@@ -89,6 +89,7 @@ public abstract class PlayerManager {
                 pnames = playlistSupports;
                 break;
             case Auto:
+            default:
                 pnames = allPlayers;
                 break;
         }

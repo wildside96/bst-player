@@ -20,12 +20,14 @@ import com.bramosystems.oss.player.core.client.ConfigParameter;
 import com.bramosystems.oss.player.core.client.ConfigValue;
 import com.bramosystems.oss.player.core.client.LoadException;
 import com.bramosystems.oss.player.core.client.PlayException;
-import com.bramosystems.oss.player.core.client.Plugin;
+import com.bramosystems.oss.player.core.client.PlaylistSupport;
 import com.bramosystems.oss.player.core.client.PluginNotFoundException;
 import com.bramosystems.oss.player.core.client.PluginVersionException;
+import com.bramosystems.oss.player.core.client.RepeatMode;
 import com.bramosystems.oss.player.core.client.TransparencyMode;
-import com.bramosystems.oss.player.core.client.impl.BeforeUnloadCallback;
-import com.bramosystems.oss.player.core.client.impl.PlayerWidget;
+import com.bramosystems.oss.player.core.client.playlist.MRL;
+import com.bramosystems.oss.player.core.client.spi.PlayerWidget;
+import com.bramosystems.oss.player.core.client.spi.Player;
 import com.bramosystems.oss.player.core.client.ui.Logger;
 import com.bramosystems.oss.player.core.event.client.DebugEvent;
 import com.bramosystems.oss.player.core.event.client.DebugHandler;
@@ -33,8 +35,11 @@ import com.bramosystems.oss.player.core.event.client.LoadingProgressEvent;
 import com.bramosystems.oss.player.core.event.client.PlayStateEvent;
 import com.bramosystems.oss.player.core.event.client.PlayerStateEvent;
 import com.bramosystems.oss.player.core.event.client.PlayerStateHandler;
+import com.bramosystems.oss.player.util.client.RegExp.RegexException;
 import com.bramosystems.oss.player.youtube.client.impl.YouTubeEventManager;
 import com.bramosystems.oss.player.youtube.client.impl.YouTubePlayerImpl;
+import com.bramosystems.oss.player.youtube.client.impl.YouTubePlayerProvider;
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.JsArrayString;
 import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.user.client.Command;
@@ -42,6 +47,9 @@ import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.ui.FlowPanel;
 import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.logging.Level;
 
 /**
  * Widget to embed YouTube video
@@ -73,14 +81,17 @@ import java.util.ArrayList;
  * 
  * TODO: work on playlist ...
  */
-public class YouTubePlayer extends AbstractMediaPlayer {
+@Player(name = "YouTube", minPluginVersion = "9.0.0", widgetFactory = YouTubePlayerProvider.class)
+public class YouTubePlayer extends AbstractMediaPlayer implements PlaylistSupport {
 
     private static YouTubeEventManager eventMgr = new YouTubeEventManager();
     protected YouTubePlayerImpl impl;
-    protected String playerId, _width, _height;
+    protected String playerId, _width, _height, _vURL;
     private Timer bufferingTimer;
     private Logger logger;
     private PlayerWidget swf;
+    private PlayerParameters pps;
+    private ArrayList<String> _playlist;
 
     /**
      * Constructs <code>YouTubePlayer</code> with the specified {@code height} and
@@ -131,26 +142,11 @@ public class YouTubePlayer extends AbstractMediaPlayer {
 
         _width = width;
         _height = height;
+        _vURL = videoURL;
+        pps = playerParameters;
+        _playlist = new ArrayList<String>();
 
         playerId = DOM.createUniqueId().replace("-", "");
-        swf = new PlayerWidget("core", Plugin.FlashPlayer.name(), playerId,
-                getNormalizedVideoAppURL(videoURL, playerParameters), false,
-                new BeforeUnloadCallback() {
-
-            @Override
-            public void onBeforeUnload() {
-                if (impl != null) {
-                    impl.stop();
-                    impl.clear();
-                }
-                eventMgr.close(playerId);
-            }
-        });
-        swf.addParam("allowScriptAccess", "always");
-        swf.addParam("bgcolor", "#000000");
-        if (playerParameters.isFullScreenEnabled()) {
-            swf.addParam("allowFullScreen", "true");
-        }
 
         logger = new Logger();
         logger.setVisible(false);
@@ -162,11 +158,7 @@ public class YouTubePlayer extends AbstractMediaPlayer {
             }
         });
 
-        FlowPanel panel = new FlowPanel();
-        panel.add(swf);
-        panel.add(logger);
-        initWidget(panel);
-        setWidth(width);
+        initWidget(new FlowPanel());
 
         // register for DOM events ...
         eventMgr.init(playerId, new Command() {
@@ -206,7 +198,30 @@ public class YouTubePlayer extends AbstractMediaPlayer {
 
     @Override
     protected void onLoad() {
+        swf = new PlayerWidget(YouTubePlayerProvider.PROVIDER_NAME, "YouTube", playerId,
+                getNormalizedVideoAppURL(_vURL, pps), false);
+        swf.addParam("allowScriptAccess", "always");
+        swf.addParam("bgcolor", "#000000");
+        if (pps.isFullScreenEnabled()) {
+            swf.addParam("allowFullScreen", "true");
+        }
+
+        FlowPanel fp = (FlowPanel) getWidget();
+        fp.add(swf);
+        fp.add(logger);
+
+        GWT.log("yt : onload");
         swf.setSize(_width, _height);
+        setWidth(_width);
+    }
+
+    @Override
+    protected void onUnload() {
+        if (impl != null) {
+            impl.stop();
+            impl.clear();
+        }
+        eventMgr.close(playerId);
     }
 
     /**
@@ -224,7 +239,23 @@ public class YouTubePlayer extends AbstractMediaPlayer {
         parseURLParams(videoURL, playerParameters);
         playerParameters.setJSApiEnabled(true);
         playerParameters.setPlayerAPIId(playerId);
-        return videoURL + paramsToString(playerParameters);
+        StringBuilder vurl = new StringBuilder(videoURL).append(paramsToString(playerParameters));
+        vurl.append("&playlist=");
+        if (_playlist.size() > 0) {
+            Iterator<String> pit = _playlist.iterator();
+            while (pit.hasNext()) {
+                try {
+                    vurl.append(eventMgr.getVideoId(pit.next())).append(",");
+                } catch (RegexException ex) {
+                }
+            }
+        } else {
+            try {
+                vurl.append(eventMgr.getVideoId(_vURL));
+            } catch (RegexException ex) {
+            }
+        }
+        return vurl.toString();
     }
 
     /**
@@ -467,6 +498,16 @@ public class YouTubePlayer extends AbstractMediaPlayer {
     public void setLoopCount(int loop) {
     }
 
+    @Override
+    public RepeatMode getRepeatMode() {
+        return super.getRepeatMode();
+    }
+
+    @Override
+    public void setRepeatMode(RepeatMode mode) {
+ //       RepeatMode.REPEAT_ALL;
+    }
+
     /**
      * Checks whether the player controls are visible.  This implementation <b>always</b> return true.
      */
@@ -560,6 +601,94 @@ public class YouTubePlayer extends AbstractMediaPlayer {
                     swf.addParam("wmode", null);
                 }
         }
+    }
+
+    @Override
+    public void addToPlaylist(String mediaURL) {
+        if (eventMgr.isYouTubeURL(mediaURL)) {
+            try {
+                _playlist.add(eventMgr.getVideoId(mediaURL));
+            } catch (RegexException ex) {
+                fireError("URL not added to playlist - " + ex.getMessage());
+            }
+        }
+    }
+
+    @Override
+    public void addToPlaylist(String... mediaURLs) {
+        addToPlaylist(mediaURLs[0]);
+    }
+
+    @Override
+    public void addToPlaylist(MRL mediaLocator) {
+        addToPlaylist(mediaLocator.getNextResource(true));
+    }
+
+    @Override
+    public void addToPlaylist(List<MRL> mediaLocators) {
+        Iterator<MRL> it = mediaLocators.iterator();
+        while (it.hasNext()) {
+            addToPlaylist(it.next());
+        }
+    }
+
+    @Override
+    public void clearPlaylist() {
+        if (!isPlayerOnPage(playerId)) {
+            _playlist.clear();
+        }
+    }
+
+    @Override
+    public int getPlaylistSize() {
+        return _playlist.size() + 1;
+
+    }
+
+    /**
+     * Not supported yet.  This method always return <code>false</code>
+     */
+    @Override
+    public boolean isShuffleEnabled() {
+        return false;
+    }
+
+    /**
+     * Not supported yet.  Method call is ignored.
+     */
+    @Override
+    public void play(int index) throws IndexOutOfBoundsException {
+    }
+
+    /**
+     * Not supported yet.  Method call is ignored.
+     */
+    @Override
+    public void playNext() throws PlayException {
+    }
+
+    /**
+     * Not supported yet.  Method call is ignored.
+     */
+    @Override
+    public void playPrevious() throws PlayException {
+    }
+
+    /**
+     * 
+     */
+    @Override
+    public void removeFromPlaylist(int index) {
+        if(!isPlayerOnPage(playerId)) {
+            _playlist.remove(index);
+        }
+    }
+
+    /**
+     * Not supported yet.  Method call is ignored.
+     */
+    @Override
+    public void setShuffleEnabled(boolean enable) {
     }
 
     private void onYTStateChanged(int state) {

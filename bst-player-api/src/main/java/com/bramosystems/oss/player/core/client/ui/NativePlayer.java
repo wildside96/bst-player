@@ -17,8 +17,6 @@ package com.bramosystems.oss.player.core.client.ui;
 
 import com.bramosystems.oss.player.core.client.AbstractMediaPlayer;
 import com.bramosystems.oss.player.core.client.playlist.MRL;
-import java.util.ArrayList;
-
 import com.bramosystems.oss.player.core.client.LoadException;
 import com.bramosystems.oss.player.core.client.MediaInfo;
 import com.bramosystems.oss.player.core.client.MediaInfo.MediaInfoKey;
@@ -32,7 +30,7 @@ import com.bramosystems.oss.player.core.client.playlist.PlaylistManager;
 import com.bramosystems.oss.player.core.client.impl.LoopManager;
 import com.bramosystems.oss.player.core.client.impl.NativePlayerImpl;
 import com.bramosystems.oss.player.core.client.impl.NativePlayerUtil;
-import com.bramosystems.oss.player.core.client.impl.PlayerWidget;
+import com.bramosystems.oss.player.core.client.spi.PlayerWidget;
 import com.bramosystems.oss.player.core.client.impl.CorePlayerProvider;
 import com.bramosystems.oss.player.core.event.client.DebugEvent;
 import com.bramosystems.oss.player.core.event.client.DebugHandler;
@@ -45,6 +43,8 @@ import com.google.gwt.i18n.client.NumberFormat;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.ui.FlowPanel;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Widget to embed media files with HTML 5 video elements in compliant browsers.
@@ -71,7 +71,7 @@ import com.google.gwt.user.client.ui.FlowPanel;
  *
  * @author Sikirulai Braheem <sbraheem at bramosystems dot com>
  */
-@Player(name="Native", widgetFactory=CorePlayerProvider.class, minPluginVersion="5.0.0")
+@Player(name = "Native", widgetFactory = CorePlayerProvider.class, minPluginVersion = "5.0.0")
 public class NativePlayer extends AbstractMediaPlayer implements PlaylistSupport {
 
     private NumberFormat volFmt = NumberFormat.getPercentFormat();
@@ -301,7 +301,7 @@ public class NativePlayer extends AbstractMediaPlayer implements PlaylistSupport
     public NativePlayer(String mediaURL, boolean autoplay, String height, String width)
             throws LoadException, PluginNotFoundException {
         this();
-        playerWidget = new PlayerWidget("core", Plugin.Native.name(), playerId, "", autoplay, null);
+        playerWidget = new PlayerWidget("core", Plugin.Native.name(), playerId, "", autoplay);
         _init(width, height);
         playlistManager.addToPlaylist(mediaURL);
     }
@@ -327,9 +327,9 @@ public class NativePlayer extends AbstractMediaPlayer implements PlaylistSupport
     public NativePlayer(ArrayList<String> mediaSources, boolean autoplay, String height, String width)
             throws LoadException, PluginNotFoundException {
         this();
-        playerWidget = new PlayerWidget("core", Plugin.Native.name(), playerId, "", autoplay, null);
+        playerWidget = new PlayerWidget("core", Plugin.Native.name(), playerId, "", autoplay);
         _init(width, height);
-        playlistManager.addToPlaylist(mediaSources);
+        playlistManager.addToPlaylist(new MRL(mediaSources));
     }
 
     /**
@@ -585,6 +585,11 @@ public class NativePlayer extends AbstractMediaPlayer implements PlaylistSupport
     @Override
     public void addToPlaylist(MRL mediaLocator) {
         playlistManager.addToPlaylist(mediaLocator);
+    }
+
+    @Override
+    public void addToPlaylist(List<MRL> mediaLocators) {
+        playlistManager.addToPlaylist(mediaLocators);
     }
 
     @Override

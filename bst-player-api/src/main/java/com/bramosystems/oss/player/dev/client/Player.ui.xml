@@ -19,7 +19,7 @@
     </ui:style>
 
     <g:SimplePanel styleName='{x.panel}' >
-        <p:Player name='Native' mediaURL='gwt-module::big-buck-bunny.mp4' height='300px' width='90%' autoplay='false'
+        <p:Player name='yt:YouTube' mediaURL='http://www.youtube.com/v/MrsGEz4NtBk' height='300px' width='90%' autoplay='false'
         showLogger='true'>
             <p:missingPluginNotice>
                 <g:Label styleName='{x.title}'>Required Quicktime Plugin not available !</g:Label>

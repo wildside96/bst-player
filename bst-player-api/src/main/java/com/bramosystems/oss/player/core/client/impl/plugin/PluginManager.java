@@ -19,8 +19,7 @@ import com.bramosystems.oss.player.core.client.PluginInfo;
 import com.bramosystems.oss.player.core.client.Plugin;
 import com.bramosystems.oss.player.core.client.PluginNotFoundException;
 import com.bramosystems.oss.player.core.client.PluginVersion;
-import com.bramosystems.oss.player.core.client.impl.BeforeUnloadCallback;
-import com.bramosystems.oss.player.core.client.impl.PlayerWidget;
+import com.bramosystems.oss.player.core.client.spi.PlayerWidget;
 import com.bramosystems.oss.player.core.client.impl.WinMediaPlayerImpl;
 import com.bramosystems.oss.player.util.client.BrowserPlugin;
 import com.bramosystems.oss.player.util.client.MimeType;
@@ -39,7 +38,7 @@ public class PluginManager {
 
     private static final EnumMap<Plugin, PluginInfo> corePluginInfoMap = new EnumMap<Plugin, PluginInfo>(Plugin.class);
 
-    static { 
+    static {
         // init core plugin infoMap ...
         PluginManagerImpl pmi = GWT.create(PluginManagerImpl.class);
         for (Plugin p : Plugin.values()) {
@@ -72,14 +71,12 @@ public class PluginManager {
     public static HashMap<String, String> getRegisteredMimeTypes() {
         return MimeParserBase.instance.getMimeTypes();
     }
-    
-    protected static class PluginManagerImpl {
 
-        private WinMediaPlayerImpl impl;
+    protected static class PluginManagerImpl {
 
         public PluginInfo getPluginInfo(Plugin plugin) throws PluginNotFoundException {
             BrowserPlugin plug = null;
-            PluginInfo.PlayerPluginWrapperType pwt =  PluginInfo.PlayerPluginWrapperType.Native;
+            PluginInfo.PlayerPluginWrapperType pwt = PluginInfo.PlayerPluginWrapperType.Native;
             PluginVersion pv = new PluginVersion();
 
             if (plugin.equals(Plugin.Native) || plugin.equals(Plugin.WinMediaPlayer)) {
@@ -147,7 +144,7 @@ public class PluginManager {
                     String name = mt.getEnabledPlugin().getName();
                     if (name.toLowerCase().contains(pt.whois)) { // who has it?
                         RegExp.RegexResult res = RegExp.getRegExp(pt.regex, "").exec(pt.versionInName ? name : desc);
-                        pv = new PluginVersion(Integer.parseInt(res.getMatch(1)), 
+                        pv = new PluginVersion(Integer.parseInt(res.getMatch(1)),
                                 Integer.parseInt(res.getMatch(2)), Integer.parseInt(res.getMatch(3)));
                         if (mt.getEnabledPlugin().getFileName().toLowerCase().contains("totem")
                                 || desc.toLowerCase().contains("totem")) {
@@ -165,21 +162,12 @@ public class PluginManager {
         private void updateWMPVersion(PluginVersion pi) {
             try {
                 String pid = "bstwmpdetectid";
-                PlayerWidget pw = new PlayerWidget("core", Plugin.WinMediaPlayer.name(), pid, "", false, new BeforeUnloadCallback()       {
-
-                    @Override
-                    public void onBeforeUnload() {
-                        if (impl != null) {
-                            impl.close();
-                        }
-                    }
-                });
+                PlayerWidget pw = new PlayerWidget("core", Plugin.WinMediaPlayer.name(), pid, "", false);
                 pw.setHeight("100px");
                 pw.setWidth("100px");
                 RootPanel.get().add(pw);
-                impl = WinMediaPlayerImpl.getPlayer(pid);
+                WinMediaPlayerImpl impl = WinMediaPlayerImpl.getPlayer(pid);
                 String ver = impl.getPlayerVersion();
-
                 if (ver != null) {
                     RegExp.RegexResult res = RegExp.getRegExp("(\\d+).(\\d+).(\\d+)*", "").exec(ver);
                     pi.setMajor(Integer.parseInt(res.getMatch(1)));
@@ -190,6 +178,7 @@ public class PluginManager {
                     pi.setMinor(1);
                     pi.setRevision(1);
                 }
+                impl.close();
                 RootPanel.get().remove(pw);
             } catch (Exception e) {
 //                pi.setVersion(PluginVersion.get(1, 1, 1));

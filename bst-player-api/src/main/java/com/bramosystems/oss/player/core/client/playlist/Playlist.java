@@ -19,28 +19,53 @@ package com.bramosystems.oss.player.core.client.playlist;
 import java.util.ArrayList;
 
 /**
+ * Represents a playlist of MRLs
  *
  * @author Sikiru Braheem
+ * @since 1.3
  */
 public class Playlist extends ArrayList<MRL> {
     
     private String name, author;
 
+    /**
+     * Creates a Playlist object
+     */
     public Playlist() {
     }
 
+    /**
+     * Returns the author of the playlist
+     * 
+     * @return the author of the playlist
+     */
     public String getAuthor() {
         return author;
     }
 
+    /**
+     * Sets the author of the playlist
+     * 
+     * @param author the playlist author
+     */
     public void setAuthor(String author) {
         this.author = author;
     }
 
+    /**
+     * Returns the name of the playlist
+     * 
+     * @return the name of the playlist
+     */
     public String getName() {
         return name;
     }
 
+    /**
+     * Sets the name of the playlist
+     * 
+     * @param name the name of the playlist
+     */
     public void setName(String name) {
         this.name = name;
     }

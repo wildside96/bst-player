@@ -73,6 +73,14 @@ public interface PlaylistSupport {
     public void addToPlaylist(MRL mediaLocator);
 
     /**
+     * Adds the media locators to the players' playlist.  
+     * 
+     * @param mediaLocators list of alternative URLs of the same media
+     * @since 1.3
+     */
+    public void addToPlaylist(List<MRL> mediaLocators);
+
+    /**
      * Removes the entry at the specified index from the players' playlist.
      *
      * @param index the index of the playlist entry.

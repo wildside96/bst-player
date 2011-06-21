@@ -25,8 +25,7 @@ import com.bramosystems.oss.player.core.event.client.DebugHandler;
 import com.bramosystems.oss.player.core.client.*;
 import com.bramosystems.oss.player.core.client.MediaInfo.MediaInfoKey;
 import com.bramosystems.oss.player.core.client.impl.VLCPlayerImpl;
-import com.bramosystems.oss.player.core.client.impl.BeforeUnloadCallback;
-import com.bramosystems.oss.player.core.client.impl.PlayerWidget;
+import com.bramosystems.oss.player.core.client.spi.PlayerWidget;
 import com.bramosystems.oss.player.core.client.skin.CustomPlayerControl;
 import com.bramosystems.oss.player.core.client.ui.Logger;
 import com.bramosystems.oss.player.core.event.client.PlayStateEvent.State;
@@ -35,6 +34,7 @@ import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.ui.*;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Widget to embed VLC Media Player&trade; plugin.
@@ -191,14 +191,7 @@ public class VLCPlayer1 extends AbstractMediaPlayer implements PlaylistSupport {
         FlowPanel panel = new FlowPanel();
         initWidget(panel);
 
-        playerWidget = new PlayerWidget("core", Plugin.VLCPlayer.name(), playerId, mediaURL, autoplay,
-                new BeforeUnloadCallback() {
-
-                    @Override
-                    public void onBeforeUnload() {
-//                        stateHandler.close();
-                    }
-                });
+        playerWidget = new PlayerWidget("core", Plugin.VLCPlayer.name(), playerId, mediaURL, autoplay);
 //        playerWidget.getElement().getStyle().setProperty("backgroundColor", "#000000");   // IE workaround
         panel.add(playerWidget);
 
@@ -620,6 +613,11 @@ public class VLCPlayer1 extends AbstractMediaPlayer implements PlaylistSupport {
         if (!_height.equals(_h) && !_width.equals(_w)) {
             firePlayerStateEvent(PlayerStateEvent.State.DimensionChangedOnVideo);
         }
+    }
+
+    @Override
+    public void addToPlaylist(List<MRL> mediaLocators) {
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 
     private class _MRL {

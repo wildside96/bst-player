@@ -16,6 +16,7 @@
  */
 package com.bramosystems.oss.player.core.client.ui;
 
+import com.bramosystems.oss.player.core.client.spi.PlayerWidget;
 import com.bramosystems.oss.player.core.client.playlist.PlaylistManager;
 import com.bramosystems.oss.player.core.client.playlist.MRL;
 import com.bramosystems.oss.player.core.client.*;
@@ -27,6 +28,7 @@ import com.bramosystems.oss.player.core.client.spi.Player;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.ui.FlowPanel;
+import java.util.List;
 
 /**
  * Widget to embed DivX&reg; Web Player plugin.
@@ -61,7 +63,7 @@ import com.google.gwt.user.client.ui.FlowPanel;
  * @since 1.2
  * @author Sikiru Braheem
  */
-@Player(name="DivXPlayer", widgetFactory=CorePlayerProvider.class, minPluginVersion="2.0.0")
+@Player(name = "DivXPlayer", widgetFactory = CorePlayerProvider.class, minPluginVersion = "2.0.0")
 public class DivXPlayer extends AbstractMediaPlayer implements PlaylistSupport {
 
     private DivXStateManager manager;
@@ -228,14 +230,7 @@ public class DivXPlayer extends AbstractMediaPlayer implements PlaylistSupport {
             _width = "0px";
         }
 
-        playerWidget = new PlayerWidget("core", Plugin.DivXPlayer.name(), playerId, "",
-                autoplay, new BeforeUnloadCallback() {
-
-            @Override
-            public void onBeforeUnload() {
-                manager.clearCallbacks(playerId);
-            }
-        });
+        playerWidget = new PlayerWidget("core", Plugin.DivXPlayer.name(), playerId, "", autoplay);
         playerWidget.addParam("statusCallback", "bstplayer.handlers.divx." + playerId + ".stateChanged");
         playerWidget.addParam("downloadCallback", "bstplayer.handlers.divx." + playerId + ".downloadState");
         playerWidget.addParam("timeCallback", "bstplayer.handlers.divx." + playerId + ".timeState");
@@ -348,6 +343,14 @@ public class DivXPlayer extends AbstractMediaPlayer implements PlaylistSupport {
         setWidth(_width);
         playlistManager.load(0);
         firePlayerStateEvent(PlayerStateEvent.State.Ready);
+    }
+
+    /**
+     * Overridden to release resources
+     */
+    @Override
+    protected void onUnload() {
+        manager.clearCallbacks(playerId);
     }
 
     @Override
@@ -647,6 +650,11 @@ public class DivXPlayer extends AbstractMediaPlayer implements PlaylistSupport {
     @Override
     public void addToPlaylist(String... mediaURLs) {
         playlistManager.addToPlaylist(mediaURLs);
+    }
+
+    @Override
+    public void addToPlaylist(List<MRL> mediaLocators) {
+        playlistManager.addToPlaylist(mediaLocators);
     }
 
     @Override

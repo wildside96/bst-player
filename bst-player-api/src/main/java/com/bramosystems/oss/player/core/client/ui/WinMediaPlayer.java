@@ -15,6 +15,7 @@
  */
 package com.bramosystems.oss.player.core.client.ui;
 
+import com.bramosystems.oss.player.core.client.spi.PlayerWidget;
 import com.bramosystems.oss.player.core.client.playlist.PlaylistManager;
 import com.bramosystems.oss.player.core.client.playlist.MRL;
 import com.bramosystems.oss.player.core.client.*;
@@ -30,6 +31,7 @@ import com.google.gwt.event.dom.client.DomEvent;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.ui.FlowPanel;
+import java.util.List;
 
 /**
  * Widget to embed Windows Media Player&trade; plugin.
@@ -68,7 +70,7 @@ import com.google.gwt.user.client.ui.FlowPanel;
  *
  * @author Sikirulai Braheem
  */
-@Player(name="WinMediaPlayer", widgetFactory=CorePlayerProvider.class, minPluginVersion="1.1.1")
+@Player(name = "WinMediaPlayer", widgetFactory = CorePlayerProvider.class, minPluginVersion = "1.1.1")
 public class WinMediaPlayer extends AbstractMediaPlayer implements PlaylistSupport {
 
     private static WMPStateManager stateManager;
@@ -85,7 +87,7 @@ public class WinMediaPlayer extends AbstractMediaPlayer implements PlaylistSuppo
 
     private WinMediaPlayer(EmbedMode embedMode, boolean autoplay)
             throws PluginNotFoundException, PluginVersionException {
-        CorePlayerProvider cwf = (CorePlayerProvider)getWidgetFactory("core");
+        CorePlayerProvider cwf = (CorePlayerProvider) getWidgetFactory("core");
         if (embedMode.equals(EmbedMode.PROGRAMMABLE) && !cwf.isWMPProgrammableEmbedModeSupported()) {
             throw new PluginNotFoundException(Plugin.WinMediaPlayer, "'Media Player plugin for Firefox' is required");
         }
@@ -178,20 +180,7 @@ public class WinMediaPlayer extends AbstractMediaPlayer implements PlaylistSuppo
         FlowPanel panel = new FlowPanel();
         initWidget(panel);
 
-        playerWidget = new PlayerWidget("core", Plugin.WinMediaPlayer.name(), playerId, "", false,
-                new BeforeUnloadCallback() {
-
-                    @Override
-                    public void onBeforeUnload() {
-                        try {
-                            stateManager.close(playerId);
-                            impl.close();
-                        } catch (Exception e) {
-                            // See Issue 38: suppress exceptions.
-                            // Browser should release resources not present in DOM anyway
-                        }
-                    }
-                });
+        playerWidget = new PlayerWidget("core", Plugin.WinMediaPlayer.name(), playerId, "", false);
         panel.add(playerWidget);
 
         isEmbedded = (height == null) || (width == null);
@@ -326,6 +315,20 @@ public class WinMediaPlayer extends AbstractMediaPlayer implements PlaylistSuppo
         fireDebug("Plugin Version : " + impl.getPlayerVersion());
         firePlayerStateEvent(PlayerStateEvent.State.Ready);
         playlistManager._start();
+    }
+
+    /**
+     * Overridden to release resources
+     */
+    @Override
+    protected void onUnload() {
+        try {
+            stateManager.close(playerId);
+            impl.close();
+        } catch (Exception e) {
+            // See Issue 38: suppress exceptions.
+            // Browser should release resources not present in DOM anyway
+        }
     }
 
     @Override
@@ -676,6 +679,11 @@ public class WinMediaPlayer extends AbstractMediaPlayer implements PlaylistSuppo
     @Override
     public void addToPlaylist(String... mediaURLs) {
         playlistManager.addToPlaylist(mediaURLs);
+    }
+
+    @Override
+    public void addToPlaylist(List<MRL> mediaLocators) {
+        playlistManager.addToPlaylist(mediaLocators);
     }
 
     @Override

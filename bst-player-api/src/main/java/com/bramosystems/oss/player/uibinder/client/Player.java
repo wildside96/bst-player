@@ -28,13 +28,31 @@ import com.google.gwt.uibinder.client.UiChild;
 import com.google.gwt.uibinder.client.UiConstructor;
 import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.user.client.ui.Widget;
+import java.util.List;
 
 /**
- * Provides the base implementation of player widgets with UiBinder support
+ * UiBinder wrapper class for player widget implementations
  *
- * @author Sikiru Braheem <sbraheem at bramosystems . com>
- * @param <T> the player implementation type
- * @since 1.1
+ * <h3>Usage Example</h3>
+ *
+ * <p>
+ * <code><pre>
+ * &lt;ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
+ *      xmlns:g='urn:import:com.google.gwt.user.client.ui'
+ *      xmlns:player='urn:import:com.bramosystems.oss.player.uibinder.client'&gt;
+ *         ...
+ *         &lt;player:Player name='Auto' autoplay='true' height='20px' width='100%'
+ *                 mediaURL='GWT-HOST::media/cool-media.mp3' &gt;
+ *              &lt;p:missingPluginNotice&gt;
+                    &lt;g:Label styleName='{some-style}'&gt;Required player plugin not available !&lt;/g:Label&gt;
+                &lt;/p:missingPluginNotice&gt;
+ *         &lt;/player &gt;
+ *         ...
+ * &lt;/ui:UiBinder&gt;
+ * </pre></code>
+ *
+ * @since 1.3
+ * @author Sikirulai Braheem <sbraheem at bramosystems.com>
  */
 public class Player extends AbstractMediaPlayer
         implements MatrixSupport, com.bramosystems.oss.player.core.client.PlaylistSupport {
@@ -42,7 +60,7 @@ public class Player extends AbstractMediaPlayer
     private AbstractMediaPlayer _engine;
     private static String GWT_HOST_URL_ID = "(gwt-host::)\\S", GWT_MODULE_URL_ID = "(gwt-module::)\\S";
     protected Widget missingPluginNotice, missingPluginVersionNotice, loadWidget;
-    private String _url, _height, _width, _playerName, _provider;
+    private String _url, _height, _width, _playerName, _provider = "core";
     private boolean _autoplay;
     private SimplePanel _panel;
 
@@ -101,12 +119,13 @@ public class Player extends AbstractMediaPlayer
             RegExp re = RegExp.getRegExp("((\\w+):)?(\\w+)", "");
             RegExp.RegexResult rr = re.exec(name);
             _provider = rr.getMatch(2);
-            if (_provider == null) {
+            if ((_provider == null) || (_provider.length() == 0)) {
                 _provider = "core";
             }
             _playerName = rr.getMatch(3);
-        } catch (RegexException ex) {}
-        
+        } catch (RegexException ex) {
+        }
+
         try {
             _engine = PlayerManager.getInstance().getProviderFactory(_provider).getPlayer(_playerName, _url, _autoplay, _height, _width);
             _engine.addDebugHandler(new DebugHandler() {
@@ -145,7 +164,6 @@ public class Player extends AbstractMediaPlayer
                 }
             });
             loadWidget = _engine;
-//            _panel.setWidget(_engine);
         } catch (LoadException ex) {
         } catch (PluginNotFoundException ex) {
             missingPluginNotice = PlayerUtil.getMissingPluginNotice(ex.getPlugin());
@@ -154,59 +172,12 @@ public class Player extends AbstractMediaPlayer
             missingPluginVersionNotice = PlayerUtil.getMissingPluginNotice(ex.getPlugin(), ex.getRequiredVersion());
             loadWidget = missingPluginVersionNotice;
         }
-        
+
     }
 
     @Override
     public void onLoad() {
-            _panel.setWidget(loadWidget);
-        /*
-        try {
-            _engine = PlayerManager.getInstance().getProviderFactory(_provider).getPlayer(_playerName, _url, _autoplay, _height, _width);
-            _engine.addDebugHandler(new DebugHandler() {
-
-                @Override
-                public void onDebug(DebugEvent event) {
-                    fireEvent(event);
-                }
-            });
-            _engine.addLoadingProgressHandler(new LoadingProgressHandler() {
-
-                @Override
-                public void onLoadingProgress(LoadingProgressEvent event) {
-                    fireEvent(event);
-                }
-            });
-            _engine.addMediaInfoHandler(new MediaInfoHandler() {
-
-                @Override
-                public void onMediaInfoAvailable(MediaInfoEvent event) {
-                    fireEvent(event);
-                }
-            });
-            _engine.addPlayStateHandler(new PlayStateHandler() {
-
-                @Override
-                public void onPlayStateChanged(PlayStateEvent event) {
-                    fireEvent(event);
-                }
-            });
-            _engine.addPlayerStateHandler(new PlayerStateHandler() {
-
-                @Override
-                public void onPlayerStateChanged(PlayerStateEvent event) {
-                    fireEvent(event);
-                }
-            });
-            _panel.setWidget(_engine);
-        } catch (LoadException ex) {
-        } catch (PluginNotFoundException ex) {
-            _panel.setWidget(missingPluginNotice == null ? PlayerUtil.getMissingPluginNotice(ex.getPlugin()) : missingPluginNotice);
-        } catch (PluginVersionException ex) {
-            _panel.setWidget(missingPluginVersionNotice == null
-                    ? PlayerUtil.getMissingPluginNotice(ex.getPlugin(), ex.getRequiredVersion()) : missingPluginVersionNotice);
-        }
-        */
+        _panel.setWidget(loadWidget);
     }
 
     @UiChild(limit = 1, tagname = "missingPluginNotice")
@@ -374,6 +345,20 @@ public class Player extends AbstractMediaPlayer
     }
 
     @Override
+    public void setConfigParameter(ConfigParameter param, Number value) {
+       if (_engine != null) {
+            _engine.setConfigParameter(param, value);
+        }
+    }
+
+    @Override
+    public void setConfigParameter(ConfigParameter param, String value) {
+       if (_engine != null) {
+            _engine.setConfigParameter(param, value);
+        }
+    }
+
+    @Override
     public void setControllerVisible(boolean show) {
         if (_engine != null) {
             _engine.setControllerVisible(show);
@@ -405,6 +390,13 @@ public class Player extends AbstractMediaPlayer
     public void addToPlaylist(String... mediaURLs) {
         if ((_engine != null) && (_engine instanceof com.bramosystems.oss.player.core.client.PlaylistSupport)) {
             ((com.bramosystems.oss.player.core.client.PlaylistSupport) _engine).addToPlaylist(mediaURLs);
+        }
+    }
+
+    @Override
+    public void addToPlaylist(List<MRL> mediaLocators) {
+        if (_engine instanceof com.bramosystems.oss.player.core.client.PlaylistSupport) {
+            ((com.bramosystems.oss.player.core.client.PlaylistSupport) _engine).addToPlaylist(mediaLocators);
         }
     }
 

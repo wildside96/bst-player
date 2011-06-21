@@ -26,7 +26,7 @@ import java.io.Serializable;
 public class PluginInfo implements Serializable {
 
     /**
-     * An enum of javascript API wrappers available for the plugin
+     * An enum of Javascript API wrappers available for media player plugin
      *
      * @since 1.2.1
      */
@@ -42,7 +42,7 @@ public class PluginInfo implements Serializable {
          */
         WMPForFirefox,
         /**
-         * The player plugin wrapped and exposed to javascript by the Totem plugin
+         * The player is exposed to javascript by the Totem plugin
          */
         Totem
     }
@@ -53,6 +53,7 @@ public class PluginInfo implements Serializable {
     /**
      * Creates a <code>PluginInfo</code> with the specified version and wrapperType
      *
+     * @param plugin the plugin
      * @param version the plugin version
      * @param wrapperType the wrapper type in use by the plugin
      */
@@ -62,18 +63,38 @@ public class PluginInfo implements Serializable {
         this.plugin = plugin;
     }
 
+    /**
+     * Returns the plugin version
+     * 
+     * @return the plugin version
+     */
     public PluginVersion getVersion() {
         return version;
     }
 
+    /**
+     * Returns the wrapper type used by the plugin
+     * 
+     * @return the wrapper type
+     */
     public PlayerPluginWrapperType getWrapperType() {
         return wrapperType;
     }
 
+    /**
+     * Returns the plugin
+     * 
+     * @return the plugin
+     */
     public Plugin getPlugin() {
         return plugin;
     }
 
+    /**
+     * Returns the string representation of this object in the form {@code PluginInfo{plugin, version, wrapperType}}
+     * 
+     * @return the string representation of this object
+     */
     @Override
     public String toString() {
         return "PluginInfo{plugin=" + plugin + ", version=" + version + ",  wrapperType=" + wrapperType + "} ";

@@ -16,5 +16,15 @@
 <!--                                                                        -->
 
 <module>
-    <inherits name="com.bramosystems.oss.player.core.Core"/>
+    <inherits name="com.bramosystems.oss.player.core.CoreLite"/>
+
+   <!-- YouTubePlayerProvider mapping for IE6/7/8/9 -->
+    <replace-with class="com.bramosystems.oss.player.youtube.client.impl.YouTubePlayerProviderIE">
+        <when-type-is class="com.bramosystems.oss.player.youtube.client.impl.YouTubePlayerProvider"/>
+        <any>
+            <when-property-is name="user.agent" value="ie6"/>
+            <when-property-is name="user.agent" value="ie9"/>
+            <when-property-is name="user.agent" value="ie8"/>
+        </any>
+    </replace-with>
 </module>

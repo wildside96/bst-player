@@ -15,6 +15,7 @@
  */
 package com.bramosystems.oss.player.playlist.client.impl;
 
+import com.bramosystems.oss.player.playlist.client.ParseException;
 import java.util.HashMap;
 
 /**
@@ -23,9 +24,9 @@ import java.util.HashMap;
  */
 public interface SAXHandler {
 
-    public void onNodeStart(String nodeName, HashMap<String, String> attr, String namespaceURI);
+    public void onNodeStart(String nodeName, HashMap<String, String> attr, String namespaceURI) throws ParseException;
 
-    public void setNodeValue(String nodeName, String value);
+    public void setNodeValue(String nodeName, String value) throws ParseException;
 
-    public void onNodeEnd(String nodeName);
+    public void onNodeEnd(String nodeName) throws ParseException;
 }

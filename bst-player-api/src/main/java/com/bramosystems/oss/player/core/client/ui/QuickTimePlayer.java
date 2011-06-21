@@ -23,7 +23,7 @@ import com.bramosystems.oss.player.core.client.playlist.PlaylistManager;
 import com.bramosystems.oss.player.core.client.impl.QTStateManager;
 import com.bramosystems.oss.player.core.client.impl.QuickTimePlayerImpl;
 import com.bramosystems.oss.player.core.client.impl.LoopManager;
-import com.bramosystems.oss.player.core.client.impl.PlayerWidget;
+import com.bramosystems.oss.player.core.client.spi.PlayerWidget;
 import com.bramosystems.oss.player.core.client.impl.CorePlayerProvider;
 import com.bramosystems.oss.player.core.event.client.DebugEvent;
 import com.bramosystems.oss.player.core.event.client.DebugHandler;
@@ -38,6 +38,7 @@ import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.ui.*;
+import java.util.List;
 
 /**
  * Widget to embed QuickTime&trade; plugin.
@@ -69,7 +70,7 @@ import com.google.gwt.user.client.ui.*;
  *
  * @author Sikirulai Braheem
  */
-@Player(name="QuickTimePlayer", widgetFactory=CorePlayerProvider.class, minPluginVersion="7.2.1")
+@Player(name = "QuickTimePlayer", widgetFactory = CorePlayerProvider.class, minPluginVersion = "7.2.1")
 public class QuickTimePlayer extends AbstractMediaPlayer implements MatrixSupport, PlaylistSupport {
 
     private static QTStateManager manager = GWT.create(QTStateManager.class);
@@ -208,7 +209,7 @@ public class QuickTimePlayer extends AbstractMediaPlayer implements MatrixSuppor
         FlowPanel panel = new FlowPanel();
         initWidget(panel);
 
-        playerWidget = new PlayerWidget("core", Plugin.QuickTimePlayer.name(), playerId, "", autoplay, null);
+        playerWidget = new PlayerWidget("core", Plugin.QuickTimePlayer.name(), playerId, "", autoplay);
         playerWidget.addParam("BGCOLOR", "#000000");
         playerWidget.addParam("ENABLEJAVASCRIPT", "True");
         playerWidget.addParam("KIOSKMODE", "True");
@@ -687,6 +688,11 @@ public class QuickTimePlayer extends AbstractMediaPlayer implements MatrixSuppor
     @Override
     public void addToPlaylist(String... mediaURLs) {
         playlistManager.addToPlaylist(mediaURLs);
+    }
+
+    @Override
+    public void addToPlaylist(List<MRL> mediaLocators) {
+        playlistManager.addToPlaylist(mediaLocators);
     }
 
     @Override

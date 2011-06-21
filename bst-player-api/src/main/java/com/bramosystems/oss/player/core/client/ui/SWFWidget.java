@@ -20,7 +20,7 @@ import com.bramosystems.oss.player.core.client.PlayerUtil;
 import com.bramosystems.oss.player.core.client.PluginVersionException;
 import com.bramosystems.oss.player.core.client.PluginNotFoundException;
 import com.bramosystems.oss.player.core.client.Plugin;
-import com.bramosystems.oss.player.core.client.impl.PlayerWidget;
+import com.bramosystems.oss.player.core.client.spi.PlayerWidget;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.ui.*;
 
@@ -103,7 +103,7 @@ public class SWFWidget extends Composite {
         this.height = height;
         playerId = DOM.createUniqueId().replace("-", "");
 
-        widget = new PlayerWidget("core", Plugin.FlashPlayer.name(), playerId, swfURL, false, null);
+        widget = new PlayerWidget("core", Plugin.FlashPlayer.name(), playerId, swfURL, false);
         initWidget(widget);
         setSize(width, height);
     }

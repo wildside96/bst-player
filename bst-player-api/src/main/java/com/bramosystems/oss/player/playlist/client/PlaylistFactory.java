@@ -23,7 +23,7 @@ import com.bramosystems.oss.player.playlist.client.spf.SPFPlaylist;
 import com.google.gwt.core.client.JsonUtils;
 
 /**
- * Factory class handles parsing various playlist formats
+ * Factory class handles parsing of various playlist formats
  * 
  * @since 1.3
  * @author Sikirulai Braheem <sbraheem at bramosystems.com>
@@ -31,24 +31,29 @@ import com.google.gwt.core.client.JsonUtils;
 public class PlaylistFactory {
 
     /**
-     * Parses JSPF data to SPFPlaylist object
+     * Parses playlist data in JSPF format to SPFPlaylist object
      * 
      * @param jspf playlist data in JSPF format
      * 
      * @return SPFPlaylist object
+     * @throws ParseException if an error occurs during parsing
      */
-    public static SPFPlaylist parseJspfPlaylist(String jspf) {
-        return ((JSPFPlaylist) JsonUtils.safeEval(jspf)).getPlaylist();
+    public static SPFPlaylist parseJspfPlaylist(String jspf) throws ParseException {
+        try {
+            return ((JSPFPlaylist) JsonUtils.safeEval(jspf)).getPlaylist();
+        } catch (Exception e) {
+            throw new ParseException("Parse Error", e);
+        }
     }
 
     /**
      * Parses XML playlist in XSPF format to SPFPlaylist object
      * 
      * @param xspf playlist data in XSPF format
-     * 
      * @return SPFPlaylist object
+     * @throws ParseException if a error occurs during parsing
      */
-    public static SPFPlaylist parseXspfPlaylist(String xspf) {
+    public static SPFPlaylist parseXspfPlaylist(String xspf) throws ParseException {
         return new XSPFHandler().getPlaylist(xspf);
     }
 
@@ -58,8 +63,9 @@ public class PlaylistFactory {
      * @param asx playlist data in ASX format
      * 
      * @return ASXPlaylist object
+     * @throws ParseException if an error occurs during parsing 
      */
-    public static ASXPlaylist parseAsxPlaylist(String asx) {
+    public static ASXPlaylist parseAsxPlaylist(String asx) throws ParseException {
         return new ASXHandler().getPlaylist(asx);
     }
 }

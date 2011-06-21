@@ -31,34 +31,42 @@ import java.util.List;
  */
 public class PlaylistManager implements PlaylistSupport {
 
-    private ArrayList<MRL> urls;
+    private Playlist urls;
     private ArrayList<String> msgCache;
     private PlayerCallback callback;
     private PlaylistIndexOracle indexOracle;
     private int pIndex;
     private boolean useCache;
 
+    /**
+     * Creates the PlaylistManager object.
+     */
     public PlaylistManager() {
-        urls = new ArrayList<MRL>();
+        urls = new Playlist();
         msgCache = new ArrayList<String>();
         indexOracle = new PlaylistIndexOracle();
         useCache = true;
         callback = initCallback();
     }
 
-    public PlaylistManager(final AbstractMediaPlayer _player) {
+    /**
+     * Creates PlaylistManager for the specified player widget.
+     * 
+     * @param player the player widget
+     */
+    public PlaylistManager(final AbstractMediaPlayer player) {
         this();
         callback = new PlayerCallback() {
 
             @Override
             public void play() throws PlayException {
-                _player.playMedia();
+                player.playMedia();
             }
 
             @Override
             public void load(String url) {
                 try {
-                    _player.loadMedia(url);
+                    player.loadMedia(url);
                 } catch (LoadException ex) {
                     onDebug(ex.getMessage());
                 }
@@ -66,10 +74,10 @@ public class PlaylistManager implements PlaylistSupport {
 
             @Override
             public void onDebug(String message) {
-                DebugEvent.fire(_player, DebugEvent.MessageType.Info, message);
+                DebugEvent.fire(player, DebugEvent.MessageType.Info, message);
             }
         };
-        _player.addPlayerStateHandler(new PlayerStateHandler() {
+        player.addPlayerStateHandler(new PlayerStateHandler() {
 
             @Override
             public void onPlayerStateChanged(PlayerStateEvent event) {
@@ -81,6 +89,13 @@ public class PlaylistManager implements PlaylistSupport {
         });
     }
 
+    /**
+     * Returns a player callback handler links this manager to its associated player.
+     * 
+     * <p>This is a convenience method that should be overridden by sub-classes.
+     * 
+     * @return a PlayerCallback implementation
+     */
     protected PlayerCallback initCallback() {
         return new PlayerCallback() {
 
@@ -98,6 +113,11 @@ public class PlaylistManager implements PlaylistSupport {
         };
     }
 
+    /**
+     * Fires debug events with messages that have been cached since the manager is created. 
+     * 
+     * <p>This method should ONLY be called by subclasses when the attached player is ready.
+     */
     protected void flushMessageCache() {
         if (msgCache != null) {
             useCache = false;
@@ -128,8 +148,11 @@ public class PlaylistManager implements PlaylistSupport {
         addToPlaylist(new MRL(mediaURLs));
     }
 
-    public void addToPlaylist(List<String> mediaURLs) {
-        addToPlaylist(new MRL(mediaURLs));
+    @Override
+    public void addToPlaylist(List<MRL> mediaLocators) {
+        for (MRL mrl : mediaLocators) {
+            addToPlaylist(mrl);
+        }
     }
 
     @Override
@@ -161,6 +184,12 @@ public class PlaylistManager implements PlaylistSupport {
         playPrevious(false);
     }
 
+    /**
+     * Plays the next item in the playlist
+     * 
+     * @param force <code>true</code> if an end-of-playlist should roll over to the beginning, {@code false} otherwise.
+     * @throws PlayException if an end-of-playlist is reached.  Only thrown if {@code force} is false
+     */
     public void playNext(boolean force) throws PlayException {
         int ind = indexOracle.suggestIndex(true, force);
         if (ind < 0) {
@@ -170,7 +199,13 @@ public class PlaylistManager implements PlaylistSupport {
         _playOrLoadMedia(ind, true);
     }
 
-    public void playPrevious(boolean force) throws PlayException {
+    /**
+     * Plays the previous item in the playlist
+     * 
+     * @param force <code>true</code> if a start-of-playlist should roll over to the end, {@code false} otherwise.
+     * @throws PlayException if a start-of-playlist is reached.  Only thrown if {@code force} is false
+     */
+     public void playPrevious(boolean force) throws PlayException {
         int ind = indexOracle.suggestIndex(false, force);
         if (ind < 0) {
             throw new PlayException("Beginning of playlist reached");
@@ -190,7 +225,9 @@ public class PlaylistManager implements PlaylistSupport {
     }
 
     /**
-     * Play another alternative URL for the current resource index ...
+     * Play another alternative URL for the current resource index
+     * 
+     * @throws LoadException if no alternative URL can be found
      */
     public void loadAlternative() throws LoadException {
         try {
@@ -200,6 +237,11 @@ public class PlaylistManager implements PlaylistSupport {
         }
     }
 
+    /**
+     * Load the URL at the specified {@code index}
+     * 
+     * @param index the index
+     */
     public void load(int index) {
         try {
             indexOracle.setCurrentIndex(index);
@@ -209,6 +251,9 @@ public class PlaylistManager implements PlaylistSupport {
         }
     }
 
+    /**
+     * Load the next URL in the playlist
+     */
     public void loadNext() {
         pIndex = indexOracle.suggestIndex(true, true);
         try {
@@ -218,6 +263,11 @@ public class PlaylistManager implements PlaylistSupport {
         }
     }
 
+    /**
+     * Returns the URL at the current playlist reference index
+     * 
+     * @return the URL at the current playlist index
+     */
     public String getCurrentItem() {
         return urls.get(getPlaylistIndex()).getCurrentResource();
     }
@@ -227,6 +277,11 @@ public class PlaylistManager implements PlaylistSupport {
         return urls.size();
     }
 
+    /**
+     * Returns the current playlist index
+     * 
+     * @return the current playlist index
+     */
     public int getPlaylistIndex() {
         int ind = indexOracle.getCurrentIndex();
         return ind < 0 ? pIndex : ind;
@@ -246,13 +301,36 @@ public class PlaylistManager implements PlaylistSupport {
             callback.onDebug(msg);
         }
     }
-
+    
+    /**
+     * Interface defines the methods required by the PlaylistManager to interact 
+     * with a player widget
+     * 
+     * @author Sikirulai Braheem
+     * @since 1.2
+     */
     public static interface PlayerCallback {
 
+        /**
+         * Called by the playlist manager to start playback on the attached player
+         * 
+         * @throws PlayException if a playback error occurs. 
+         */
         public void play() throws PlayException;
 
+        /**
+         * Called by the playlist manager to load the attached player with the
+         * specified URL
+         * 
+         * @param url the media URL to load in the player
+         */
         public void load(String url);
 
+        /**
+         * Called when the playlist manager needs to propagate a debug message.
+         * 
+         * @param message the message
+         */
         public void onDebug(String message);
     }
 }

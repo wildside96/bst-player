@@ -14,7 +14,7 @@
  *  limitations under the License.
  *  under the License.
  */
-package com.bramosystems.oss.player.core.client.impl;
+package com.bramosystems.oss.player.core.client.spi;
 
 import com.bramosystems.oss.player.core.client.impl.plugin.PlayerManager;
 import com.google.gwt.dom.client.Element;
@@ -28,7 +28,6 @@ import java.util.HashMap;
  */
 public class PlayerWidget extends Widget {
 
-    private BeforeUnloadCallback callback;
     private HashMap<String, String> params;
     private String playerName, playerProvider, playerId, mediaURL, _height, _width;
     private boolean autoplay;
@@ -40,10 +39,8 @@ public class PlayerWidget extends Widget {
         _height = "10px";
     }
 
-    public PlayerWidget(String playerProvider, String playerName, String playerId, String mediaURL,
-            boolean autoplay, BeforeUnloadCallback callback) {
+    public PlayerWidget(String playerProvider, String playerName, String playerId, String mediaURL, boolean autoplay) {
         this();
-        this.callback = callback;
         this.playerId = playerId;
         this.autoplay = autoplay;
         this.mediaURL = mediaURL;
@@ -66,13 +63,6 @@ public class PlayerWidget extends Widget {
     @Override
     protected void onLoad() {
         injectWidget(false);
-    }
-
-    @Override
-    protected void onUnload() {
-        if (callback != null) {
-            callback.onBeforeUnload();
-        }
     }
 
     @Override
@@ -107,8 +97,8 @@ public class PlayerWidget extends Widget {
     }
 
     private void injectWidget(boolean updateDimension) {
-        Element e = PlayerManager.getInstance().getProviderFactory(playerProvider).getWidgetElement(
-                playerName, playerId, mediaURL, autoplay, params);
+        Element e = PlayerManager.getInstance().getProviderFactory(playerProvider).getPlayerElement(
+                playerName, playerId, mediaURL, autoplay, params).getElement();
         if (updateDimension) {
             String curHeight = getElement().getFirstChildElement().getAttribute("height");
             String curWidth = getElement().getFirstChildElement().getAttribute("width");

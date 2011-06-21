@@ -15,12 +15,13 @@
  */
 package com.bramosystems.oss.player.core.client;
 
+import com.bramosystems.oss.player.core.client.geom.MatrixSupport;
 import java.io.Serializable;
 import java.util.Set;
 import java.util.TreeSet;
 
 /**
- * Wraps basic information about player widget registered with the APi.
+ * Wraps basic information about a player widget registered with the API.
  *
  * @author Sikirulai Braheem
  * @since 1.3
@@ -32,10 +33,26 @@ public class PlayerInfo implements Serializable {
     private boolean hasPlaylistSupport, hasMatrixSupport;
     private Set<String> registeredExtensions = new TreeSet<String>(), registeredProtocols = new TreeSet<String>();
 
+    /**
+     * Creates PlayerInfo object
+     * 
+     * @param providerName the provider of the player
+     * @param playerName the name of the player
+     * @param requiredPluginVersion the minimum plugin version required by the player 
+     */
     public PlayerInfo(String providerName, String playerName, PluginVersion requiredPluginVersion) {
         this(providerName, playerName, requiredPluginVersion, false, false);
-     }
+    }
 
+    /**
+     * Creates PlayerInfo object
+     * 
+     * @param providerName the provider of the player
+     * @param playerName the name of the player
+     * @param requiredPluginVersion the minimum plugin version required by the player 
+     * @param hasPlaylistSupport {@code true} if player supports playlists, {@code false} otherwise.
+     * @param hasMatrixSupport {@code true} if player supports matrix, {@code false} otherwise.
+     */
     public PlayerInfo(String providerName, String playerName, PluginVersion requiredPluginVersion,
             boolean hasPlaylistSupport, boolean hasMatrixSupport) {
         this.playerName = playerName;
@@ -46,52 +63,104 @@ public class PlayerInfo implements Serializable {
         detectedPluginVersion = new PluginVersion();
     }
 
+    /**
+     * Returns the provider name of the player
+     * 
+     * @return the provider name
+     */
     public String getProviderName() {
         return providerName;
     }
 
+    /**
+     * Returns the name of the player
+     * 
+     * @return the player name
+     */
     public String getPlayerName() {
         return playerName;
     }
 
+    /**
+     * Returns the minimum plugin version required by the player
+     * 
+     * @return the required minimum plugin version
+     */
     public PluginVersion getRequiredPluginVersion() {
         return requiredPluginVersion;
     }
 
+    /**
+     * Returns {@code true} if player has matrix support, {@code false} otherwise
+     * 
+     * @return {@code true} if player has matrix support, {@code false} otherwise
+     * @see MatrixSupport
+     */
     public boolean isHasMatrixSupport() {
         return hasMatrixSupport;
     }
 
+    /**
+     * Returns {@code true} if player has playlist support, {@code false} otherwise
+     * 
+     * @return @code true} if player has playlist support, {@code false} otherwise
+     * @see PlaylistSupport
+     */
     public boolean isHasPlaylistSupport() {
         return hasPlaylistSupport;
     }
 
+    /**
+     * Returns the version of the required player plugin detected on the browser
+     * 
+     * @return the player plugin version detected on the browser
+     */
     public PluginVersion getDetectedPluginVersion() {
         return detectedPluginVersion;
     }
 
+    /**
+     * Sets the version of the required player plugin detected on the browser
+     * 
+     * @param detectedPluginVersion the player plugin version detected on the browser
+     */
     public void setDetectedPluginVersion(PluginVersion detectedPluginVersion) {
         this.detectedPluginVersion = detectedPluginVersion;
     }
 
+    /**
+     * Returns the media format file extensions supported by the player
+     * 
+     * @return media file extensions supported by the player
+     */
     public Set<String> getRegisteredExtensions() {
         return registeredExtensions;
     }
 
+    /**
+     * Sets the media format file extensions supported by the player
+     * 
+     * @param registeredExtensions the supported media file format extensions
+     */
     protected void setRegisteredExtensions(Set<String> registeredExtensions) {
         this.registeredExtensions = registeredExtensions;
     }
 
+    /**
+     * Returns the streaming protocols supported by the player
+     * 
+     * @return the supported streaming protocols
+     */
     public Set<String> getRegisteredProtocols() {
         return registeredProtocols;
     }
 
+    /**
+     * Sets the streaming protocols supported by the player
+     * 
+     * @param registeredProtocols the supported streaming protocols
+     */
     protected void setRegisteredProtocols(Set<String> registeredProtocols) {
         this.registeredProtocols = registeredProtocols;
-    }
-
-    @Override
-    public String toString() {
-        return "PlayerInfo{player=" + playerName + ", required plugin version=" + requiredPluginVersion + "} ";
     }
 }

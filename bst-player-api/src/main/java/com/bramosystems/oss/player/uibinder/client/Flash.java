@@ -71,7 +71,7 @@ public class Flash extends Composite {
             } catch (RegexException ex) {
             }
 
-            swf = new SWFWidget(PlayerWrapper.resolveMediaURL(mediaURL), width, height, version);
+            swf = new SWFWidget(Player.resolveMediaURL(mediaURL), width, height, version);
             w = swf;
         } catch (PluginNotFoundException ex) {
             w = PlayerUtil.getMissingPluginNotice(ex.getPlugin());

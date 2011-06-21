@@ -39,6 +39,7 @@ import java.util.ArrayList;
  * &lt;/ui:UiBinder&gt;
  * </pre></code>
  *
+ * @deprecated Replaced with {@link Player}, will be removed in future.
  * @author Sikiru Braheem <sbraheem at bramosystems . com>
  * @since 1.1
  */

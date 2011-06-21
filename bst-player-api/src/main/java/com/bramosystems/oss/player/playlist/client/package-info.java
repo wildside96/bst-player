@@ -16,5 +16,9 @@
 
 /**
  * Provides classes for working with various playlist file formats
+ * 
+ * <h3>Required Module</h3>
+ * Modules that use the classes and interfaces in this package and its sub-packages
+ * should inherit the <code>com.bramosystems.oss.player.playlist.Playlist</code> module.
  */
 package com.bramosystems.oss.player.playlist.client;

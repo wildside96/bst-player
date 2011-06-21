@@ -668,7 +668,8 @@ public abstract class AbstractMediaPlayer extends Composite implements HasMediaS
      * @since 1.2
      * @see RepeatMode
      */
-    public void setRepeatMode(RepeatMode mode) {}
+    public void setRepeatMode(RepeatMode mode) {
+    }
 
     /**
      * Returns the current playback repeat mode
@@ -680,11 +681,15 @@ public abstract class AbstractMediaPlayer extends Composite implements HasMediaS
     public RepeatMode getRepeatMode() {
         return RepeatMode.REPEAT_OFF;
     }
-    
+
     /**
+     * Returns a reference to the {@linkplain PlayerProviderFactory} implementation with the 
+     * specified {@code providerName}
      * 
-     * @param playerName
-     * @return 
+     * <p>This method is provided for the convenience of player implementation classes.
+     * 
+     * @param providerName the provider name
+     * @return PlayerProviderFactory implementation with the specified {@code providerName} or {@code null} if no such provider exists.
      * @since 1.3
      */
     protected final PlayerProviderFactory getWidgetFactory(String providerName) {
