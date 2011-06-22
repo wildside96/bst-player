@@ -297,7 +297,7 @@ try {
 } catch(LoadException e) {
      // catch loading exception and alert user
      Window.alert("An error occured while loading");
-} catch (PluginVersionException ex) {
+} catch (PluginVersionException e) {
      // catch PluginVersionException, thrown if required plugin version is not found
      panel.setWidget(PlayerUtil.getMissingPluginNotice(e.getPlugin()));
 } catch(PluginNotFoundException e) {
