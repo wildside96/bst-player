@@ -497,7 +497,7 @@ seekbar = new bstplayer.SeekBar(10, '_progress', null);
                             player.setPlayPosition(evt.seekPosition * player.getMediaDuration());
                         });
 
-                        player = new bstplayer.Player('Auto', 'tools/applause.mp3', false, null, null, null);
+                        player = new bstplayer.Player('WinMediaPlayer', 'tools/applause.mp3', false, null, null, null);
                         player.addEventListener('onPlayState', function(evt){
                             switch(evt.playState) {
                                 case 'Paused':
