@@ -20,6 +20,7 @@
                 <artifactId>gwt-maven-plugin</artifactId>
                 <configuration>
                     <module>com.bramosystems.oss.player.jscript.Exporter</module>
+                    <style>DETAILED</style>
                 </configuration>
                 <executions>
                     <execution>
@@ -61,4 +62,7 @@
             <classifier>sources</classifier>
         </dependency>
     </dependencies>
+    <properties>
+        <netbeans.hint.deploy.server>Tomcat70</netbeans.hint.deploy.server>
+    </properties>
 </project>
