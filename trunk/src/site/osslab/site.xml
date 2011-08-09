@@ -10,6 +10,7 @@
             <item name="Event Handling" href="events.html" />
             <item name="Release Notes" href="release-note.html" />
             <item name="UiBinder Support" href="ui-binder.html" />
+            <item name="JSON/XML Playlists" href="playlists.html" />
             <item name="Javascript Support" href="javascript-support.html" />
             <item name="Migration Guide" href="migration.html" />
             <item name="Download" href="http://code.google.com/p/bst-player/downloads/list" />
@@ -18,7 +19,8 @@
             <item name="Building from source" href="build-from-source.html" />
         </menu>
         <menu name="Custom Players">
-            <item name="Create your own player" href="custom-player.html" />
+            <item name="Custom Player Controls" href="custom-player.html" />
+            <item name="Wrap your own plugin" href="custom-plugin.html" />
             <item name="Export to Javascript" href="script-exporter.html" />
             <item name="Dynamic Players" href="dynamic-players.html" />
         </menu>
