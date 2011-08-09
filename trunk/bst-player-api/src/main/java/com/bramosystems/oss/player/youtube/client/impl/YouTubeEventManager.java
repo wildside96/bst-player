@@ -20,7 +20,6 @@ import com.bramosystems.oss.player.util.client.RegExp;
 import com.bramosystems.oss.player.util.client.RegExp.RegexException;
 import com.bramosystems.oss.player.util.client.RegExp.RegexResult;
 import com.google.gwt.core.client.JavaScriptObject;
-import com.google.gwt.user.client.Command;
 
 /**
  * Handles global events for the YouTubePlayer
@@ -29,26 +28,28 @@ import com.google.gwt.user.client.Command;
  */
 public class YouTubeEventManager {
 
-    private RegExp reg;
+    private String utubeRegex = "http(s)?\\\\www\\.youtube\\.com\\v)\\(\\w+)(\\?\\w+)?";
 
     public YouTubeEventManager() {
-        try {
-            reg = RegExp.getRegExp("http(s)?\\\\www\\.youtube\\.com\\v)\\(\\w+)(\\?\\w+)?", "gi");
-        } catch (RegexException ex) {
-        }
     }
 
     public final boolean isYouTubeURL(String url) {
-        return reg.test(url);
+        try {
+            RegExp reg = RegExp.getRegExp(utubeRegex, "gi");
+            return reg.test(url);
+        } catch (RegexException ex) {
+            return false;
+        }
     }
 
     public final String getVideoId(String url) throws RegexException {
+        RegExp reg = RegExp.getRegExp(utubeRegex, "gi");
         RegexResult rr = reg.exec(url);
         return rr.getMatch(2);
     }
 
-    public final void init(String playerApiId, Command initCommand) {
-        initImpl(playerApiId, CallbackUtility.getUTubeCallbackHandlers(), initCommand);
+    public final void init(String playerApiId, EventHandler handler) {
+        initImpl(playerApiId, CallbackUtility.getUTubeCallbackHandlers(), handler);
     }
 
     public final void close(String playerApiId) {
@@ -59,10 +60,19 @@ public class YouTubeEventManager {
     delete utube[playerApiId];
     }-*/;
 
-    private native void initImpl(String playerApiId, JavaScriptObject utube, Command initCommand) /*-{
+    private native void initImpl(String playerApiId, JavaScriptObject utube, EventHandler handler) /*-{
     utube[playerApiId] = new Object();
-    utube[playerApiId].init = function(){
-    initCommand.@com.google.gwt.user.client.Command::execute()();
+    utube[playerApiId].onInit = function(){
+    handler.@com.bramosystems.oss.player.youtube.client.impl.YouTubeEventManager.EventHandler::onInit()();
+    }
+    utube[playerApiId].onStateChanged = function(changeCode){
+    handler.@com.bramosystems.oss.player.youtube.client.impl.YouTubeEventManager.EventHandler::onYTStateChanged(I)(changeCode);
+    }
+    utube[playerApiId].onQualityChanged = function(quality){
+    handler.@com.bramosystems.oss.player.youtube.client.impl.YouTubeEventManager.EventHandler::onYTQualityChanged(Ljava/lang/String;)(quality);
+    }
+    utube[playerApiId].onError = function(errorCode){
+    handler.@com.bramosystems.oss.player.youtube.client.impl.YouTubeEventManager.EventHandler::onYTError(I)(errorCode);
     }
     }-*/;
 
@@ -72,7 +82,18 @@ public class YouTubeEventManager {
 
     private static native void initGlobalCallback(JavaScriptObject utube) /*-{
     $wnd.onYouTubePlayerReady = function(playerApiId){
-    utube[playerApiId].init();
+    utube[playerApiId].onInit();
     }
     }-*/;
+
+    public static interface EventHandler {
+
+        public void onInit();
+
+        public void onYTStateChanged(int state);
+
+        public void onYTQualityChanged(String quality);
+
+        public void onYTError(int errorCode);
+    }
 }

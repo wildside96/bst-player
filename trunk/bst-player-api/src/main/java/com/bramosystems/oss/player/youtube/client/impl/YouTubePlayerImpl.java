@@ -131,18 +131,9 @@ public class YouTubePlayerImpl extends JavaScriptObject {
     this.setPlaybackQuality(quality);
     }-*/;
 
-    public final native void registerHandlers(YouTubePlayer player, String playerId) /*-{
-    $wnd[playerId + "_bstytSTChanged"] = function(changeCode) {
-    player.@com.bramosystems.oss.player.youtube.client.YouTubePlayer::onYTStateChanged(I)(changeCode);
-    };
-    $wnd[playerId + "_bstytPQChanged"] = function(quality) {
-    player.@com.bramosystems.oss.player.youtube.client.YouTubePlayer::onYTQualityChanged(Ljava/lang/String;)(quality);
-    };
-    $wnd[playerId + "_bstytError"] = function(errorCode){
-    player.@com.bramosystems.oss.player.youtube.client.YouTubePlayer::onYTError(I)(errorCode);
-    };
-    this.addEventListener("onStateChange", playerId + "_bstytSTChanged");
-    this.addEventListener("onPlaybackQualityChange", playerId + "_bstytPQChanged");
-    this.addEventListener("onError", playerId + "_bstytError");
+    public final native void registerHandlers(String playerId) /*-{
+    this.addEventListener("onStateChange", "bstplayer.handlers.utube." + playerId + ".onStateChanged");
+    this.addEventListener("onPlaybackQualityChange", "bstplayer.handlers.utube." + playerId + ".onQualityChanged");
+    this.addEventListener("onError", "bstplayer.handlers.utube." + playerId + ".onError");
     }-*/;
 }

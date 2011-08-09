@@ -63,7 +63,7 @@ import java.util.List;
  * @since 1.2
  * @author Sikiru Braheem
  */
-@Player(name = "DivXPlayer", widgetFactory = CorePlayerProvider.class, minPluginVersion = "2.0.0")
+@Player(name = "DivXPlayer", providerFactory = CorePlayerProvider.class, minPluginVersion = "2.0.0")
 public class DivXPlayer extends AbstractMediaPlayer implements PlaylistSupport {
 
     private DivXStateManager manager;

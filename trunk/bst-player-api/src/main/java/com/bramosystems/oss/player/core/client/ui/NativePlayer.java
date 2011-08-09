@@ -71,7 +71,7 @@ import java.util.List;
  *
  * @author Sikirulai Braheem <sbraheem at bramosystems dot com>
  */
-@Player(name = "Native", widgetFactory = CorePlayerProvider.class, minPluginVersion = "5.0.0")
+@Player(name = "Native", providerFactory = CorePlayerProvider.class, minPluginVersion = "5.0.0")
 public class NativePlayer extends AbstractMediaPlayer implements PlaylistSupport {
 
     private NumberFormat volFmt = NumberFormat.getPercentFormat();

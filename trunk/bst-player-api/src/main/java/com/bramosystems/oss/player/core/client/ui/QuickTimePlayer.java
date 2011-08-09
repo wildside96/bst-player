@@ -70,7 +70,7 @@ import java.util.List;
  *
  * @author Sikirulai Braheem
  */
-@Player(name = "QuickTimePlayer", widgetFactory = CorePlayerProvider.class, minPluginVersion = "7.2.1")
+@Player(name = "QuickTimePlayer", providerFactory = CorePlayerProvider.class, minPluginVersion = "7.2.1")
 public class QuickTimePlayer extends AbstractMediaPlayer implements MatrixSupport, PlaylistSupport {
 
     private static QTStateManager manager = GWT.create(QTStateManager.class);

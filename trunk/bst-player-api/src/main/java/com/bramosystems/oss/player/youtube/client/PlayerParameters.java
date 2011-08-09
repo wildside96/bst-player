@@ -13,7 +13,6 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-
 package com.bramosystems.oss.player.youtube.client;
 
 /**
@@ -23,9 +22,10 @@ package com.bramosystems.oss.player.youtube.client;
  * @since 1.1
  */
 public class PlayerParameters {
-    private int loadRelatedVideos = 1, autoplay, loop, enableJsApi, disableKeyboardControls,
+
+    int loadRelatedVideos = 1, autoplay, loop, enableJsApi, disableKeyboardControls,
             egm, showBorder, fullScreen, highDef, showSearch = 1, showInfo = 1,
-            ivLoadPolicy = 1, closedCaptionPolicy, startTime, showControls = 1;
+            ivLoadPolicy = 1, closedCaptionPolicy, startTime, showControls = 1, modestBranding;
     private AutoHideMode autoHide = AutoHideMode.AUTOHIDE_PROGRESS_BAR;
     private String color1 = "", color2 = "", playerAPIId = "";
 
@@ -54,11 +54,9 @@ public class PlayerParameters {
 //    public boolean isClosedCaptionPolicy() {
 //        return closedCaptionPolicy;
 //    }
-
 //    public void showClosedCaptions(boolean show) {
 //        this.closedCaptionPolicy = show ? 1 : 0;
 //    }
-
     /**
      * Returns the players primary border color.
      *
@@ -389,7 +387,27 @@ public class PlayerParameters {
     public void setShowControls(boolean showControls) {
         this.showControls = showControls ? 1 : 0;
     }
-    
+
+    /**
+     * Returns the status of the YouTube logo on the control bar
+     * 
+     * @return <coode>true</code> if YouTube logo is not showed on control bar, <code>false</code> otherwise
+     * @since 1.3
+     */
+    public boolean isModestBranding() {
+        return modestBranding == 1;
+    }
+
+    /**
+     * Shows or hides the YouTube logo on the control bar
+     * 
+     * @param modestBranding <code>true</code> to show video player controls and <code>false</code> otherwise
+     * @since 1.3
+     */
+    public void setModestBranding(boolean modestBranding) {
+        this.modestBranding = modestBranding ? 1 : 0;
+    }
+
     /**
      * An enum of autohide parameters for YouTubePlayer
      * 
@@ -397,16 +415,15 @@ public class PlayerParameters {
      * @since 1.3
      */
     public static enum AutoHideMode {
+
         /**
          * Video player controls and video progress bar are visible throughout video playback
          */
-        NO_AUTOHIDE, 
-        
+        NO_AUTOHIDE,
         /**
          * Video player controls and video progress bar are automatically hidden during video playback
          */
-        AUTOHIDE_ALL_CONTROLS, 
-        
+        AUTOHIDE_ALL_CONTROLS,
         /**
          * Video progress bar fades out during video playback while video player controls remain visible
          */

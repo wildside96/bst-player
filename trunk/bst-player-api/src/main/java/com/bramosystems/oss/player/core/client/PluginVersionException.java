@@ -93,4 +93,4 @@ public class PluginVersionException extends Exception {
     public Plugin getPlugin() {
         return plugin;
     }
-}
+    }

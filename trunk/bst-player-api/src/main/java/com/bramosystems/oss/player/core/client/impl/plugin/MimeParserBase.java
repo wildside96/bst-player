@@ -49,11 +49,11 @@ public abstract class MimeParserBase {
         if(info.getPlayerName().equals(Plugin.Native.name())) {
             addNativeExtensions();
         } else {
-            processPlayer(info.getPlayerName());
+            processPlayer(info.getProviderName(), info.getPlayerName());
         }
     }
 
-    protected abstract void processPlayer(String playerName);
+    protected abstract void processPlayer(String provName, String playerName);
 
     /**
      * Called by the constructor method to populate all known audio/video

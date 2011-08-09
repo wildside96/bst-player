@@ -93,7 +93,7 @@ import java.util.List;
  *
  * @author Sikirulai Braheem
  */
-@Player(minPluginVersion = "1.1.1", name = "WinMediaPlayerX", widgetFactory = DevProvider.class)
+@Player(minPluginVersion = "1.1.1", name = "WinMediaPlayerX", providerFactory = DevProvider.class)
 public class WinMediaPlayerX extends AbstractMediaPlayer implements PlaylistSupport {
 
     private static WMPStateManager stateManager;

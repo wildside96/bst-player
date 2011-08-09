@@ -15,6 +15,8 @@
  */
 package com.bramosystems.oss.player.core.client;
 
+import com.bramosystems.oss.player.util.client.RegExp;
+import com.bramosystems.oss.player.util.client.RegExp.RegexException;
 import com.google.gwt.user.client.rpc.IsSerializable;
 import java.io.Serializable;
 
@@ -60,6 +62,23 @@ public class PluginVersion implements IsSerializable, Serializable, Comparable<P
      */
     public static PluginVersion get(int major, int minor, int revision) {
         return new PluginVersion(major, minor, revision);
+    }
+
+    /**
+     * Static method to create a <code>PluginVersion</code> with the specified version string.
+     * 
+     * @param version the version in the format <code>major.minor.revision</code>.
+     * 
+     * @return <code>PluginVersion</code> object with specified version numbers.
+     * @throws com.bramosystems.oss.player.util.client.RegExp.RegexException if {@code version} is not in the required format
+     * @since 1.3
+     */
+    public static PluginVersion get(String version) throws RegexException {
+        RegExp r = RegExp.getRegExp("(\\d+).(\\d+).(\\d+)", "");
+        RegExp.RegexResult res = r.exec(version);
+        return new PluginVersion(Integer.parseInt(res.getMatch(1)),
+                Integer.parseInt(res.getMatch(2)), 
+                Integer.parseInt(res.getMatch(3)));
     }
 
     /**

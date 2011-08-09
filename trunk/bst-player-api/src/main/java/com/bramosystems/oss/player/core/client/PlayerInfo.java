@@ -1,5 +1,5 @@
 /*
- * Copyright 2009 Sikirulai Braheem
+ * Copyright 2011 Sikirulai Braheem
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,17 +32,6 @@ public class PlayerInfo implements Serializable {
     private PluginVersion requiredPluginVersion, detectedPluginVersion;
     private boolean hasPlaylistSupport, hasMatrixSupport;
     private Set<String> registeredExtensions = new TreeSet<String>(), registeredProtocols = new TreeSet<String>();
-
-    /**
-     * Creates PlayerInfo object
-     * 
-     * @param providerName the provider of the player
-     * @param playerName the name of the player
-     * @param requiredPluginVersion the minimum plugin version required by the player 
-     */
-    public PlayerInfo(String providerName, String playerName, PluginVersion requiredPluginVersion) {
-        this(providerName, playerName, requiredPluginVersion, false, false);
-    }
 
     /**
      * Creates PlayerInfo object

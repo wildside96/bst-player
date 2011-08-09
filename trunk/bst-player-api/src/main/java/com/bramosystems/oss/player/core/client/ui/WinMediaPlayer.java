@@ -70,7 +70,7 @@ import java.util.List;
  *
  * @author Sikirulai Braheem
  */
-@Player(name = "WinMediaPlayer", widgetFactory = CorePlayerProvider.class, minPluginVersion = "1.1.1")
+@Player(name = "WinMediaPlayer", providerFactory = CorePlayerProvider.class, minPluginVersion = "1.1.1")
 public class WinMediaPlayer extends AbstractMediaPlayer implements PlaylistSupport {
 
     private static WMPStateManager stateManager;
@@ -311,6 +311,7 @@ public class WinMediaPlayer extends AbstractMediaPlayer implements PlaylistSuppo
     @Override
     protected final void onLoad() {
         fireDebug("Windows Media Player plugin");
+        playerWidget.setSize("100%", _height);
         setupPlayer(false);
         fireDebug("Plugin Version : " + impl.getPlayerVersion());
         firePlayerStateEvent(PlayerStateEvent.State.Ready);

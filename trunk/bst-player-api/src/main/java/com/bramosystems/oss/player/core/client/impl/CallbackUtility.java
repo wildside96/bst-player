@@ -30,7 +30,9 @@ public class CallbackUtility {
     }
     
     private static native void initHandlers() /*-{
+    if($wnd.bstplayer == null){
     $wnd.bstplayer = new Object();
+    }
     $wnd.bstplayer.handlers = new Object();
     $wnd.bstplayer.handlers.swf = new Object();
     $wnd.bstplayer.handlers.divx = new Object();

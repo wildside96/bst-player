@@ -79,7 +79,7 @@ import java.util.List;
  * @author Sikirulai Braheem
  * @since 1.0
  */
-@Player(name = "FlashPlayer", widgetFactory = CorePlayerProvider.class, minPluginVersion = "9.0.0")
+@Player(name = "FlashPlayer", providerFactory = CorePlayerProvider.class, minPluginVersion = "9.0.0")
 public class FlashMediaPlayer extends AbstractMediaPlayer implements PlaylistSupport, MatrixSupport {
 
     private FMPStateManager manager;

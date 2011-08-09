@@ -461,4 +461,30 @@ public class PlayerUtil {
     public static PlayerInfo getPlayerInfo(String providerName, String playerName) {
         return PlayerManager.getInstance().getPlayerInfo(providerName, playerName);
     }
+    
+    /**
+     * Utility method to get the player with the specified {@code playerInfo}.
+     *
+     * <p>This method acts as a factory to instantiate player widgets from various providers.
+     * 
+     * @param playerInfo the required player widget
+     * @param mediaURL the URL of the media to playback
+     * @param autoplay {@code true} to start playing automatically, {@code false} otherwise
+     * @param height the height of the player
+     * @param width the width of the player.
+     *
+     * @return the player implementation
+     *
+     * @throws LoadException if an error occurs while loading the media.
+     * @throws PluginVersionException if the required plugin version is not installed on the client.
+     * @throws PluginNotFoundException if the required plugin is not installed on the client.
+     *
+     * @since 1.3
+     * @see #getPlayer(String, boolean, String, String)
+     */
+    public static AbstractMediaPlayer getPlayer(PlayerInfo playerInfo, String mediaURL,
+            boolean autoplay, String height, String width) throws LoadException, PluginNotFoundException, PluginVersionException {
+        return PlayerManager.getInstance().getProviderFactory(
+                playerInfo.getProviderName()).getPlayer(playerInfo.getPlayerName(), mediaURL, autoplay, height, width);
+    }
 }
