@@ -25,8 +25,8 @@
 
             <subsection name="CustomAudioPlayer or CustomVideoPlayer ?">
                 <p>
-                    As the names suggest, <code>CustomAudioPlayer</code> is meant for custom audio player
-                    controls while <code>CustomVideoPlayer</code> is meant for custom video player controls.
+                    As the names suggest, <code>CustomAudioPlayer</code> is provided for custom audio player
+                    controls while <code>CustomVideoPlayer</code> is provided for custom video player controls.
                 </p>
 
                 <p>

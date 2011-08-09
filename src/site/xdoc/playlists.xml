@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document NS1:schemaLocation="http://maven.apache.org/XDOC/2.0 http://maven.apache.org/xsd/xdoc-2.0.xsd" xmlns="http://maven.apache.org/XDOC/2.0" xmlns:NS1="http://www.w3.org/2001/XMLSchema-instance">
+<document NS1:schemaLocation="http://maven.apache.org/XDOC/2.0 http://maven.apache.org/xsd/xdoc-2.0.xsd" 
+xmlns="http://maven.apache.org/XDOC/2.0" xmlns:NS1="http://www.w3.org/2001/XMLSchema-instance">
     <properties>
         <title>XML / JSON Playlist Support</title>
     </properties>
@@ -7,235 +8,102 @@
         <meta name="description" content="Parse ASX / XSPF playlist formats"></meta>
     </head>
     <body>
-        <section name="UiBinder Support">
-            <p>As of version 2.0, GWT offers the
-                <a href="http://code.google.com/webtoolkit/doc/latest/DevGuideUiBinder.html">UiBinderframework</a>- a declarative means of composing application UI widgets with XML files                 in a manner similar to developing HTML pages.
-            </p>
-            <p>The following sections describe the ways of using the player widgets with UiBinder</p>
+        <section name="JSON / XML Playlist Support">
+            <p>BST Player 1.3 instroduced support for XML/JSON based playlist formats. 
+            Currently only ASX, XSPF and JSPF playlist formats are supported. </p>
+            
             <subsection name="The required module">
-                <p>For this description to work, your application should inherit the
-                    <i>com.bramosystems.oss.player.uibinder.UiBinder</i>module.  This is as simple as                 putting the following line in your module XML file:
+                <p>Your application should inherit the
+                    <i>com.bramosystems.oss.player.playlist.Playlist</i> module for this to work.
                 </p>
-                <source>&lt;inherits name="com.bramosystems.oss.player.uibinder.UiBinder"/&gt;</source>
-                <p style="color: #ff6600">However, it should be obvious, the module requires GWT 2.0 or later.</p>
             </subsection>
-            <subsection name="The widgets namespace">
-                <p>The player widgets with UiBinder support are placed in the
-                    <code>com.bramosystems.oss.player.uibinder.client</code>package.  Consequently,                     in order to use the player widgets in a ui.xml template file, you need to tie                     the package to an XML namespace prefix.
+            
+            <subsection name="The playlist parser factory">
+                <p>The <code>com.bramosystems.oss.player.playlist.client.PlaylistFactory</code> class 
+                provides static methods to parse the supported plalist formats to POJO objects.  The POJO
+                objects provide methods and properties to access the underlying data.
                 </p>
-                <source>&lt;ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'     xmlns:player='urn:import:com.bramosystems.oss.player.uibinder.client'&gt;     ... &lt;/ui:uibinder&gt;</source>
             </subsection>
-            <subsection name="The supported players">
-                <p>The following widgets are the supported:</p>
-                <table>
-                    <tr>
-                        <th>Instance name</th>
-                        <th>Description</th>
-                    </tr>
-                    <tr>
-                        <td>WinMediaPlayer</td>
-                        <td>Embeds Windows Media Player plugin</td>
-                    </tr>
-                    <tr>
-                        <td>QuickTimePlayer</td>
-                        <td>Embeds QuickTime plugin</td>
-                    </tr>
-                    <tr>
-                        <td>Flash</td>
-                        <td>Embeds a generic Adobe Flash application</td>
-                    </tr>
-                    <tr>
-                        <td>FlashMediaPlayer</td>
-                        <td>Embeds Adobe Flash plugin for playing Flash supported file formats</td>
-                    </tr>
-                    <tr>
-                        <td>VLCPlayer</td>
-                        <td>Embeds VLC Media Player plugin</td>
-                    </tr>
-                    <tr>
-                        <td>Native</td>
-                        <td>Embeds media with HTML 5 video handler in supported browsers</td>
-                    </tr>
-                    <tr>
-                        <td>DivXPlayer</td>
-                        <td>Embeds DivX® Web Player plugin</td>
-                    </tr>
-                    <tr>
-                        <td>YouTube</td>
-                        <td>Embeds YouTube video</td>
-                    </tr>
-                    <tr>
-                        <td>Chromeless</td>
-                        <td>Embeds YouTube video using the Chromeless player</td>
-                    </tr>
-                    <tr>
-                        <td>Auto</td>
-                        <td>Embeds media using any of the avaliable media plugins on the client</td>
-                    </tr>
-                    <tr>
-                        <td>PlaylistSupport</td>
-                        <td>Embeds media using any available media plugin that supports client side playlist                         management</td>
-                    </tr>
-                    <tr>
-                        <td>MatrixSupport</td>
-                        <td>Embeds media using any available media plugin that supports matrix transformation</td>
-                    </tr>
-                </table>
-                <p>Note: The YouTube and Chromeless widgets are placed in the
-                    <code>com.bramosystems.oss.player.uibinder.client.youtube</code>package, and thus                     requires a different XML namespace.
+            <subsection name="Working with playlists">
+                <p>Assuming we have the following playlist in JSPF format generated by some server side code 
+                (it is also possible to have it as a JSON file anyway):
                 </p>
-                <source>&lt;ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'     xmlns:utube='urn:import:com.bramosystems.oss.player.uibinder.client.youtube'&gt;     ... &lt;/ui:uibinder&gt;</source>
-            </subsection>
-            <subsection name="The supported attributes">
-                <p>Each of the widgets support the following attributes (except stated otherwise)</p>
-                <table>
-                    <tr>
-                        <th>Attribute</th>
-                        <th>Required</th>
-                        <th>Type</th>
-                        <th>Default</th>
-                        <th>Comment</th>
-                    </tr>
-                    <tr>
-                        <td>mediaURL</td>
-                        <td>true</td>
-                        <td>String</td>
-                        <td>-</td>
-                        <td>The URL of the media.
-                            <br></br>Note: The
-                            <code>YouTube</code>widget uses
-                            <code>videoURL</code>instead
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>height</td>
-                        <td>true</td>
-                        <td>String</td>
-                        <td>-</td>
-                        <td>The height of the widget (CSS units)</td>
-                    </tr>
-                    <tr>
-                        <td>width</td>
-                        <td>true</td>
-                        <td>String</td>
-                        <td>-</td>
-                        <td>The width of the widget (CSS units)</td>
-                    </tr>
-                    <tr>
-                        <td>autoplay</td>
-                        <td>true</td>
-                        <td>boolean</td>
-                        <td>-</td>
-                        <td>If the media should be played automatically.
-                            <br></br>Note:
-                            <code>Flash</code>widget does not support this attribute
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>showLogger</td>
-                        <td>false</td>
-                        <td>boolean</td>
-                        <td>false</td>
-                        <td>If the Logger widget should show
-                            <br></br>Note:
-                            <code>Flash</code>widget does not support this attribute
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>resizeToVideoSize</td>
-                        <td>false</td>
-                        <td>boolean</td>
-                        <td>false</td>
-                        <td>If the player should resize to match the size of the video                         (if embedded media is a video file).
-                            <br></br>Note:
-                            <code>Flash</code>widget does not support this attribute
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>controllerVisible</td>
-                        <td>false</td>
-                        <td>boolean</td>
-                        <td>true</td>
-                        <td>If the player controls should be visible
-                            <br></br>Note:
-                            <code>Flash, YouTube and Chromeless</code>widgets does not support this attribute
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>loopCount</td>
-                        <td>false</td>
-                        <td>int</td>
-                        <td>1</td>
-                        <td>Number of times to repeat playback before stopping
-                            <br></br>Note:
-                            <code>Flash, YouTube and Chromeless</code>widgets does not support this attribute
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>params</td>
-                        <td>false</td>
-                        <td>String</td>
-                        <td>-</td>
-                        <td>Supported ONLY by
-                            <code>Flash</code>widget.  A comma separated list of                         name/value pairs of Adobe Flash parameters. E.g.
-                            <code>params='allowScriptAccess=sameDomain,bgcolor=#000000'</code>
-                            <br></br>Note: Do not pass
-                            <code>flashVars</code>parameter with this attribute,                         use the
-                            <code>flashVars</code>attribute instead.
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>flashVars</td>
-                        <td>false</td>
-                        <td>String</td>
-                        <td>-</td>
-                        <td>Supported ONLY by
-                            <code>Flash</code>widget.  A list of name/value pairs                         parameters that is passed to the Flash application. E.g.
-                            <code>flashVars='param1=value1&amp;param2=value2'</code>
-                        </td>
-                    </tr>
-                </table>
-            </subsection>
-            <subsection name="Relative URLs">
-                <p>The player widgets define special URL prefixes to make media files relative to the                     application host page accessible. The prefixes are resolved to the fully qualified                     names during compilation.</p>
-                <table>
-                    <tr>
-                        <th>Prefix</th>
-                        <th>Fully Qualified Name</th>
-                    </tr>
-                    <tr>
-                        <td>gwt-host::</td>
-                        <td>The URL of the application's host page as returned by
-                            <code>GWT.getHostPageBaseURL()</code>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>gwt-module::</td>
-                        <td>The URL of the application's module as returned by
-                            <code>GWT.getModuleBaseURL()</code>
-                        </td>
-                    </tr>
-                </table>
-            </subsection>
-            <subsection name="Example Usage">
-                <p>Embed media with Windows Media Player plugin</p>
-                <source>&lt;ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'     xmlns:g='urn:import:com.google.gwt.user.client.ui'     xmlns:player='urn:import:com.bramosystems.oss.player.uibinder.client'&gt;         ...         &lt;player:WinMediaPlayer autoplay='true' height='50px' width='100%'             mediaURL='gwt-host::media/applause.mp3' /&gt;         ... &lt;/ui:UiBinder&gt;</source>
-                <p>Embed MP3 media with the HTML 5 video elements with the logger showing</p>
-                <source>&lt;ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'     xmlns:g='urn:import:com.google.gwt.user.client.ui'     xmlns:player='urn:import:com.bramosystems.oss.player.uibinder.client'&gt;         ...         &lt;player:Native autoplay='true' height='20px' width='100%'             showLogger='true' mediaURL='gwt-host::media/o-na-som.mp3' /&gt;         ... &lt;/ui:UiBinder&gt;</source>
-                <p>Embed YouTube video with the YouTube widget</p>
-                <source>&lt;ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'     xmlns:g='urn:import:com.google.gwt.user.client.ui'     xmlns:player='urn:import:com.bramosystems.oss.player.uibinder.client.youtube'&gt;         ...         &lt;player:YouTube height='350px' width='100%' showLogger='true'                     videoURL='http://www.youtube.com/v/QbwZL-EK6CY' /&gt;         ... &lt;/ui:UiBinder&gt;</source>
-            </subsection>
-            <subsection name="Programmatic Access">
-                <p>UiBinder offers owner classes programmatic access to widgets defined in UI templates.                     The player can be injected into the owner class with the
-                    <code>ui:field</code>attribute.
-                </p>
-                <p>With UiBinder, the player widgets only support the methods defined in the
-                    <a href="bst-player-api/apidocs/com/bramosystems/oss/player/core/client/AbstractMediaPlayer.html">AbstractMediaPlayer</a>class and the
-                    <a href="bst-player/bst-player-api/apidocs/com/bramosystems/oss/player/core/client/PlaylistSupport.html">PlaylistSupport</a>/
-                    <a href="bst-player/bst-player-api/apidocs/com/bramosystems/oss/player/core/client/geom/MatrixSupport.html">MatrixSupport</a>interfaces.However, you can access player specific methods by calling
-                    <code>player.getEngine()</code>.The following example demonstrates this:
-                </p>
-                <source>&lt;!-- WMPExample.ui.xml --&gt; &lt;ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'     xmlns:g='urn:import:com.google.gwt.user.client.ui'     xmlns:player='urn:import:com.bramosystems.oss.player.uibinder.client'&gt;      &lt;g:VerticalPanel spacing='10'&gt;         ...         &lt;player:WinMediaPlayer autoplay='true' height='50px' width='100%'             mediaURL='gwt-host::media/applause.mp3' ui:field='player' /&gt;         ...     &lt;/g:VerticalPanel&gt; &lt;/ui:UiBinder&gt;   &lt;!-- WMPExample.java --&gt; public class WMPExample extends Composite {   interface WMPBinder extends UiBinder&lt;VerticalPanel, WMPExample&gt; {}    private static WMPBinder _binder = GWT.create(WMPBinder.class);    @UiField WinMediaPlayer player;   // UiBinder injects the created instance...    public WMPExample() {     initWidget(_binder.createAndBindUi(this));      // access general methods directly     player.addPlayerStateHandler( ... );      // access WinMediaPlayer specific methods...     player.getEngine().setUIMode(UIMode.MINI);   } }</source>
+                <source>{
+    "playlist" : {
+       "title"         : "Sample JSPF Playlist Example",
+       "creator"       : "Sikiru Braheem",
+       "annotation"    : "Sample playlist created for BST Player API",
+       "info"          : "http://oss.bramosystems.com/bst-player",
+       "location"      : "http://oss.bramosystems.com/bst-player/demo/showcase/",
+       "identifier"    : "201106_playlists_jspf",
+       "date"          : "2011-05-08T17:10:47+01:00",
+       "license"       : "http://creativecommons.org/licenses/by/3.0/",
+       "track"         : [
+        {  "location"      : ["applause.mp3"],
+           "identifier"    : ["idx1"],
+           "title"         : "Applause",
+           "creator"       : "Unknown",
+           "annotation"    : "Just an applause",
+           "album"         : "Sample Playlist",
+           "trackNum"      : 1,
+           "duration"      : 5000 },
+ 
+       {   "location"      : ["big-buck-bunny.mp4"],
+           "identifier"    : ["idx2"],
+           "title"         : "Big Buck Bunny",
+           "creator"       : "Blender Foundation | www.blender.org",
+           "annotation"    : "Big Buck Bunny Preview",
+           "info"          : "www.bigbuckbunny.org",
+           "album"         : "Sample Playlist",
+           "trackNum"      : 2,
+           "duration"      : 60000 },
+ 
+       {   "location"      : ["traffic.flv"],
+           "identifier"    : ["idx3"],
+           "title"         : "Evening traffic shot",
+           "creator"       : "Sikiru Braheem",
+           "annotation"    : "Evening Traffic Shot",
+           "info"          : "sbraheem /at/ bramosystems /dot/ com",
+           "album"         : "Sample Playlist",
+           "trackNum"      : 3,
+           "duration"      : 10000 }
+       ]
+   }
+ }</source>
+
+ <p>The example below illustrates how to use the playlist with the player widgets:</p>
+ 
+<source>
+RequestBuilder rb = new RequestBuilder(RequestBuilder.GET, 
+        "http://example.com/playlists/sample-playlist-in-jspf-format.json");
+rb.sendRequest(null, new RequestCallback() {
+  
+    public void onResponseReceived(Request request, Response response) {
+        // parse playlist data to SPFPlaylist object
+        SPFPlaylist pl = PlaylistFactory.parseJspfPlaylist(response.getText());
+  
+        // once available we can work with the various fields ...
+        GWT.log("Playlist Title   : " + pl.getTitle());
+        GWT.log("Playlist Creator : " + pl.getInfo());
+  
+        // see the entries in the playlist ...
+        JsArray&lt;Track&gt; ts = pl.getTracks();
+        for (int i = 0; i &lt; ts.length(); i++) {
+            Track t = ts.get(i);
+            GWT.log("Track Title   : " + t.getTitle());
+            GWT.log("Track Creator : " + t.getCreator());
+            GWT.log("Track URL     : " + t.getLocation());
+        }
+  
+        // if we had an existing player widget, we can add this playlist 
+        // to the player as well ...
+        playerWidget.addToPlaylist(pl.toPlaylist());
+   }
+  
+   public void onError(Request request, Throwable exception) {}
+});</source>
+
+<p>Other supported playlist formats can be used in a similar way with the <code>PlaylistFactory</code>.</p>
             </subsection>
         </section>
     </body>

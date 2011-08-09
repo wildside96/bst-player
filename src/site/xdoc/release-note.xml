@@ -17,12 +17,12 @@
                 This page contains information on the various released packages of the project.
             </p>
 
-            <subsection name="xx xxxx 2011 - Version 1.3 / 1.3-le">
+            <!--subsection name="xx xxxx 2011 - Version 1.3 / 1.3-le">
                 <p>
                     <b>New Features</b>
                 </p>
                 <ul>
-                    <li>Introduces ASX and XSPF/JSPF playlist parsers</li>
+                    <li>Introduces <a href='playlists.html'>ASX and XSPF/JSPF playlist parsers</a></li>
                     <li>Introduces support for custom player/plugin integration based on the API</li>
                 </ul>
 
@@ -33,6 +33,8 @@
                     <li>Enhanced UiBinder support</li>
                     <li>Adds playlist support to YouTubePlayer widget</li>
                     <li>YouTubePlayer widget now wraps YouTube's AS3 player version</li>
+                    <li>Added support for <code>autohide, controls</code> and <code>modestbranding</code> parameters on the 
+                    YouTubePlayer widget</li>
                 </ul>
 
                 <p>
@@ -53,7 +55,7 @@
                         feature works fine in IE browsers.
                     </li>
                 </ul>
-            </subsection>
+            </subsection-->
 
             <subsection name="24 February 2011 - Version 1.2.1 / 1.2.1-le">
                 <p>

@@ -1,7 +1,7 @@
 .top {
     text-align:right;
 }
-.source, code {
+.source, code, tt {
     font-size: 120%;
 }
 
