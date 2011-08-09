@@ -79,26 +79,7 @@ public abstract class CustomAudioPlayer extends AbstractMediaPlayer implements P
     public CustomAudioPlayer(Plugin playerPlugin, String mediaURL, boolean autoplay,
             String height, String width) throws PluginNotFoundException,
             PluginVersionException, LoadException {
-        switch (playerPlugin) {
-            case VLCPlayer:
-                engine = new VLCPlayer(mediaURL, autoplay, null, null);
-                break;
-            case FlashPlayer:
-                engine = new FlashMediaPlayer(mediaURL, autoplay, null, null);
-                break;
-            case QuickTimePlayer:
-                engine = new QuickTimePlayer(mediaURL, autoplay, null, null);
-                break;
-            case WinMediaPlayer:
-                engine = new WinMediaPlayer(mediaURL, autoplay, null, null);
-                break;
-            case Native:
-                engine = new NativePlayer(mediaURL, autoplay, null, null);
-                break;
-            default:
-                engine = PlayerUtil.getPlayer(playerPlugin, mediaURL, autoplay, null, null);
-                break;
-        }
+        engine = PlayerUtil.getPlayer(playerPlugin, mediaURL, autoplay, null, null);
         engine.addDebugHandler(new DebugHandler() {
 
             @Override

@@ -48,6 +48,8 @@ public class MimePoolGenerator extends Generator {
     private TreeLogger logger;
     private final Pattern PLUGIN_REGEX = Pattern.compile("plugin\\.([a-zA-Z]+)(\\.(\\d+)_(\\d+)_(\\d+))?");
     private final Pattern PROTO_REGEX = Pattern.compile("protocols\\.([a-zA-Z]+)(\\.(\\d+)_(\\d+)_(\\d+))?");
+    private final Pattern PLUGIN_PROVIDER_REGEX = Pattern.compile("plugin\\.([a-zA-Z]+)\\.([a-zA-Z]+)(\\.(\\d+)_(\\d+)_(\\d+))?");
+    private final Pattern PROTO_PROVIDER_REGEX = Pattern.compile("protocols\\.([a-zA-Z]+)\\.([a-zA-Z]+)(\\.(\\d+)_(\\d+)_(\\d+))?");
 
     public MimePoolGenerator() {
     }
@@ -90,11 +92,11 @@ public class MimePoolGenerator extends Generator {
 
             types = p.stringPropertyNames().iterator();
             while (types.hasNext()) {
-                String key = types.next();
+                String key = types.next(), playerName = null;
                 Matcher m = PLUGIN_REGEX.matcher(key);
                 if (m.matches()) {
                     try {
-                        String playerName = m.group(1);
+                        playerName = "core:" + m.group(1);
                         PlayerPropsCollection ppc = pluginMap.get(playerName);
                         if (ppc == null) {
                             ppc = new PlayerPropsCollection();
@@ -119,10 +121,38 @@ public class MimePoolGenerator extends Generator {
                     continue;
                 }
 
+                m = PLUGIN_PROVIDER_REGEX.matcher(key);
+                if (m.matches()) {
+                    try {
+                        playerName = m.group(1) + ":" + m.group(2);
+                        PlayerPropsCollection ppc = pluginMap.get(playerName);
+                        if (ppc == null) {
+                            ppc = new PlayerPropsCollection();
+                            pluginMap.put(playerName, ppc);
+                        }
+                        PluginVersion pv = m.group(3) != null
+                                ? PluginVersion.get(Integer.parseInt(m.group(4)), Integer.parseInt(m.group(5)), Integer.parseInt(m.group(6)))
+                                : new PluginVersion();
+                        String[] mimes = p.getProperty(key).split(",");
+                        String exts = null;
+                        for (String mime : mimes) {
+                            if (exts == null) {
+                                exts = mimeMap.get(mime.trim());
+                            } else {
+                                exts += "," + mimeMap.get(mime.trim());
+                            }
+                        }
+                        ppc.getProps(pv).setMimes(exts);
+                    } catch (Exception e) {
+                        logger.log(TreeLogger.WARN, "Invalid plugin type - '" + key + "'", e);
+                    }
+                    continue;
+                }
+                
                 m = PROTO_REGEX.matcher(key);
                 if (m.matches()) {
                     try {
-                        String playerName = m.group(1);
+                        playerName = "core:" + m.group(1);
                         PlayerPropsCollection ppc = pluginMap.get(playerName);
                         if (ppc == null) {
                             ppc = new PlayerPropsCollection();
@@ -130,6 +160,25 @@ public class MimePoolGenerator extends Generator {
                         }
                         PluginVersion pv = m.group(2) != null
                                 ? PluginVersion.get(Integer.parseInt(m.group(3)), Integer.parseInt(m.group(4)), Integer.parseInt(m.group(5)))
+                                : new PluginVersion();
+                        ppc.getProps(pv).setProtos(p.getProperty(key));
+                    } catch (Exception e) {
+                        logger.log(TreeLogger.WARN, "Invalid plugin type - '" + key + "'", e);
+                    }
+                    continue;
+                }
+                
+                m = PROTO_PROVIDER_REGEX.matcher(key);
+                if (m.matches()) {
+                    try {
+                        playerName = m.group(1) + ":" + m.group(2);
+                        PlayerPropsCollection ppc = pluginMap.get(playerName);
+                        if (ppc == null) {
+                            ppc = new PlayerPropsCollection();
+                            pluginMap.put(playerName, ppc);
+                        }
+                        PluginVersion pv = m.group(3) != null
+                                ? PluginVersion.get(Integer.parseInt(m.group(4)), Integer.parseInt(m.group(5)), Integer.parseInt(m.group(6)))
                                 : new PluginVersion();
                         ppc.getProps(pv).setProtos(p.getProperty(key));
                     } catch (Exception e) {
@@ -192,16 +241,17 @@ public class MimePoolGenerator extends Generator {
 
         // process mime pools ...
         sourceWriter.println("@Override");
-        sourceWriter.println("protected void processPlayer(String playerName) {");
+        sourceWriter.println("protected void processPlayer(String provName, String playerName) {");
         sourceWriter.indent();
         Iterator<String> pNames = pluginMap.keySet().iterator();
         boolean firstRun = true;
         while (pNames.hasNext()) {
             String pName = pNames.next();
+            String pvPn[] = pName.split(":");
             if (firstRun) {
-                sourceWriter.println("if(playerName.equals(\"" + pName + "\")) {");
+                sourceWriter.println("if(provName.equals(\"" + pvPn[0] + "\") && playerName.equals(\"" + pvPn[1] + "\")) {");
             } else {
-                sourceWriter.println("else if(playerName.equals(\"" + pName + "\")) {");
+                sourceWriter.println("else if(provName.equals(\"" + pvPn[0] + "\") && playerName.equals(\"" + pvPn[1] + "\")) {");
             }
             sourceWriter.indent();
             PlayerPropsCollection ppc = pluginMap.get(pName);

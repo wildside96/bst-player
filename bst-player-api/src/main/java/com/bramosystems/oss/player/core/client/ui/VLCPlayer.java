@@ -62,7 +62,7 @@ import java.util.List;
  *
  * @author Sikirulai Braheem
  */
-@Player(name = "VLCPlayer", widgetFactory = CorePlayerProvider.class, minPluginVersion = "1.0.0")
+@Player(name = "VLCPlayer", providerFactory = CorePlayerProvider.class, minPluginVersion = "1.0.0")
 public class VLCPlayer extends AbstractMediaPlayer implements PlaylistSupport {
 
     private VLCPlayerImpl impl;

@@ -49,7 +49,7 @@ import com.bramosystems.oss.player.youtube.client.impl.YouTubePlayerProvider;
  * @author Sikirulai Braheem <sbraheem at bramosystems dot com>
  * @since 1.1
  */
-@Player(name="Chromeless", minPluginVersion="9.0.0", widgetFactory=YouTubePlayerProvider.class)
+@Player(name="Chromeless", minPluginVersion="9.0.0", providerFactory=YouTubePlayerProvider.class)
 public class ChromelessPlayer extends YouTubePlayer {
 
     private String videoURL;

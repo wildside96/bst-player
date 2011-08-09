@@ -78,8 +78,9 @@ public abstract class PlayerManager {
     private PlayerInfo getSupportedPlayer(Plugin plugin, String mediaURL) {
         String protocol = extractProtocol(mediaURL);
         String ext = extractExt(mediaURL);
-        HashSet<PlayerInfo> pnames = null;
+        HashSet<PlayerInfo> pnames = new HashSet<PlayerInfo>();
         PlayerInfo pname = null;
+        boolean isSpecificPlug = false;
 
         switch (plugin) {
             case MatrixSupport:
@@ -89,15 +90,20 @@ public abstract class PlayerManager {
                 pnames = playlistSupports;
                 break;
             case Auto:
-            default:
                 pnames = allPlayers;
                 break;
+            default:
+                isSpecificPlug = true;
+        }
+
+        if (isSpecificPlug) {
+            return getPlayerInfo("core", plugin.name());
         }
 
         Iterator<PlayerInfo> it = pnames.iterator();
         while (it.hasNext()) {
             PlayerInfo pn = it.next();
-            if (canHandleMedia(pn.getProviderName(), pn.getPlayerName(), protocol, ext)) {
+            if (canHandleMedia(pn, protocol, ext)) {
                 pname = pn;
                 break;
             }
@@ -106,7 +112,10 @@ public abstract class PlayerManager {
     }
 
     protected final boolean canHandleMedia(String playerProvider, String playerName, String protocol, String ext) {
-        PlayerInfo pif = getPlayerInfo(playerProvider, playerName);
+        return canHandleMedia(getPlayerInfo(playerProvider, playerName), protocol, ext);
+    }
+    
+    protected final boolean canHandleMedia(PlayerInfo pif, String protocol, String ext) {
         if (pif.getDetectedPluginVersion().compareTo(pif.getRequiredPluginVersion()) >= 0) {   // req plugin found...
             // check for streaming protocol & extension ...
             Set<String> types = pif.getRegisteredExtensions();

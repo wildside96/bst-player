@@ -86,7 +86,7 @@ public class PlayerManagerGenerator extends Generator {
         logger.log(TreeLogger.Type.INFO, "Searching for Player widgets");
         for (int i = 0; i < a.length; i++) {
             if (a[i].isAnnotationPresent(Player.class)) {
-                String name = a[i].getAnnotation(Player.class).widgetFactory().getName();
+                String name = a[i].getAnnotation(Player.class).providerFactory().getName();
                 if (provClassMap.containsKey(name)) {
                     logger.log(TreeLogger.Type.INFO, "Processing Player widget : " + a[i].getQualifiedSourceName());
                     playerMap2.get(provClassMap.get(name)).add(a[i].getQualifiedSourceName());

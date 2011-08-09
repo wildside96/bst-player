@@ -42,14 +42,12 @@ import com.bramosystems.oss.player.youtube.client.impl.YouTubePlayerProvider;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.JsArrayString;
 import com.google.gwt.event.shared.HandlerRegistration;
-import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.ui.FlowPanel;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.logging.Level;
 
 /**
  * Widget to embed YouTube video
@@ -81,7 +79,7 @@ import java.util.logging.Level;
  * 
  * TODO: work on playlist ...
  */
-@Player(name = "YouTube", minPluginVersion = "9.0.0", widgetFactory = YouTubePlayerProvider.class)
+@Player(name = "YouTube", minPluginVersion = "9.0.0", providerFactory = YouTubePlayerProvider.class)
 public class YouTubePlayer extends AbstractMediaPlayer implements PlaylistSupport {
 
     private static YouTubeEventManager eventMgr = new YouTubeEventManager();
@@ -161,14 +159,69 @@ public class YouTubePlayer extends AbstractMediaPlayer implements PlaylistSuppor
         initWidget(new FlowPanel());
 
         // register for DOM events ...
-        eventMgr.init(playerId, new Command() {
+        eventMgr.init(playerId, new YouTubeEventManager.EventHandler() {
 
             @Override
-            public void execute() {
+            public void onInit() {
                 impl = YouTubePlayerImpl.getPlayerImpl(playerId);
-                impl.registerHandlers(YouTubePlayer.this, playerId);
+                impl.registerHandlers(playerId);
                 fireDebug("YouTube Player");
                 playerInit();
+            }
+
+            @Override
+            public void onYTStateChanged(int state) {
+                switch (state) {
+                    case -1: // unstarted
+                        fireDebug("Waiting for video...");
+                        break;
+                    case 0: // ended
+                        firePlayStateEvent(PlayStateEvent.State.Finished, 0);
+                        fireDebug("Playback finished");
+                        break;
+                    case 1: // playing
+                        firePlayerStateEvent(PlayerStateEvent.State.BufferingFinished);
+                        firePlayStateEvent(PlayStateEvent.State.Started, 0);
+                        fireDebug("Playback started");
+                        break;
+                    case 2: // paused
+                        firePlayStateEvent(PlayStateEvent.State.Paused, 0);
+                        fireDebug("Playback paused");
+                        break;
+                    case 3: // buffering
+                        firePlayerStateEvent(PlayerStateEvent.State.BufferingStarted);
+                        fireDebug("Buffering...");
+                        break;
+                    case 5: // video cued
+                        firePlayerStateEvent(PlayerStateEvent.State.Ready);
+                        fireDebug("Video ready for playback");
+                        break;
+                }
+            }
+
+            @Override
+            public void onYTQualityChanged(String quality) {
+                PlaybackQuality pq = PlaybackQuality.Default;
+                for (PlaybackQuality _pq : PlaybackQuality.values()) {
+                    if (_pq.name().toLowerCase().equals(quality)) {
+                        pq = _pq;
+                    }
+                }
+                PlaybackQualityChangeEvent.fire(YouTubePlayer.this, pq);
+                fireDebug("Playback quality changed : " + quality);
+            }
+
+            @Override
+            public void onYTError(int errorCode) {
+                switch (errorCode) {
+                    case 100: // video not found. Occurs when video is removed (for any reason), or marked private.
+                        fireError("Video not found! It may have been removed or marked private");
+                        break;
+                    case 101: // video does not allow playback in the embedded players.
+                    case 150: // is the same as 101, it's just 101 in disguise!
+                        fireError("Video playback not allowed");
+                        break;
+                }
             }
         });
 
@@ -342,6 +395,9 @@ public class YouTubePlayer extends AbstractMediaPlayer implements PlaylistSuppor
                         case start:
                             playerParameters.setStartTime(Integer.parseInt(value[1]));
                             break;
+                        case modestbranding:
+                            playerParameters.setModestBranding(value[1].equals("1"));
+                            break;
                     }
                 } catch (Exception e) {
                 }
@@ -361,10 +417,10 @@ public class YouTubePlayer extends AbstractMediaPlayer implements PlaylistSuppor
             url.append("&").append(_param.name()).append("=");
             switch (_param) {
                 case autoplay:
-                    url.append(playerParameters.isAutoplay() ? "1" : "0");
+                    url.append(playerParameters.autoplay);
                     break;
                 case border:
-                    url.append(playerParameters.isShowBorder() ? "1" : "0");
+                    url.append(playerParameters.showBorder);
                     break;
 //                case cc_load_policy:
 //                    url.append(playerParameters.() ? "1" : "0");
@@ -376,37 +432,37 @@ public class YouTubePlayer extends AbstractMediaPlayer implements PlaylistSuppor
                     url.append(playerParameters.getSecondaryBorderColor());
                     break;
                 case disablekb:
-                    url.append(playerParameters.isKeyboardControlsEnabled() ? "0" : "1");
+                    url.append(playerParameters.disableKeyboardControls);
                     break;
                 case egm:
-                    url.append(playerParameters.isEnhancedGenieMenuEnabled() ? "1" : "0");
+                    url.append(playerParameters.egm);
                     break;
                 case enablejsapi:
-                    url.append(playerParameters.isJSApiEnabled() ? "1" : "0");
+                    url.append(playerParameters.enableJsApi);
                     break;
                 case fs:
-                    url.append(playerParameters.isFullScreenEnabled() ? "1" : "0");
+                    url.append(playerParameters.fullScreen);
                     break;
                 case hd:
-                    url.append(playerParameters.isHDEnabled() ? "1" : "0");
+                    url.append(playerParameters.highDef);
                     break;
                 case iv_load_policy:
-                    url.append(playerParameters.isShowVideoAnnotations() ? "1" : "3");
+                    url.append(playerParameters.ivLoadPolicy);
                     break;
                 case loop:
-                    url.append(playerParameters.isLoopEnabled() ? "1" : "0");
+                    url.append(playerParameters.loop);
                     break;
                 case playerapiid:
                     url.append(playerParameters.getPlayerAPIId());
                     break;
                 case rel:
-                    url.append(playerParameters.isLoadRelatedVideos() ? "1" : "0");
+                    url.append(playerParameters.loadRelatedVideos);
                     break;
                 case showinfo:
-                    url.append(playerParameters.isShowVideoInformation() ? "1" : "0");
+                    url.append(playerParameters.showInfo);
                     break;
                 case showsearch:
-                    url.append(playerParameters.isShowSearchBox() ? "1" : "0");
+                    url.append(playerParameters.showSearch);
                     break;
                 case start:
                     url.append(playerParameters.getStartTime());
@@ -415,7 +471,10 @@ public class YouTubePlayer extends AbstractMediaPlayer implements PlaylistSuppor
                     url.append(playerParameters.getAutoHide().ordinal());
                     break;
                 case controls:
-                    url.append(playerParameters.isShowControls() ? "1" : "0");
+                    url.append(playerParameters.showControls);
+                    break;
+                case modestbranding:
+                    url.append(playerParameters.modestBranding);
                     break;
             }
         }
@@ -505,7 +564,7 @@ public class YouTubePlayer extends AbstractMediaPlayer implements PlaylistSuppor
 
     @Override
     public void setRepeatMode(RepeatMode mode) {
- //       RepeatMode.REPEAT_ALL;
+        //       RepeatMode.REPEAT_ALL;
     }
 
     /**
@@ -679,7 +738,7 @@ public class YouTubePlayer extends AbstractMediaPlayer implements PlaylistSuppor
      */
     @Override
     public void removeFromPlaylist(int index) {
-        if(!isPlayerOnPage(playerId)) {
+        if (!isPlayerOnPage(playerId)) {
             _playlist.remove(index);
         }
     }
@@ -691,63 +750,11 @@ public class YouTubePlayer extends AbstractMediaPlayer implements PlaylistSuppor
     public void setShuffleEnabled(boolean enable) {
     }
 
-    private void onYTStateChanged(int state) {
-        switch (state) {
-            case -1: // unstarted
-                fireDebug("Waiting for video...");
-                break;
-            case 0: // ended
-                firePlayStateEvent(PlayStateEvent.State.Finished, 0);
-                fireDebug("Playback finished");
-                break;
-            case 1: // playing
-                firePlayerStateEvent(PlayerStateEvent.State.BufferingFinished);
-                firePlayStateEvent(PlayStateEvent.State.Started, 0);
-                fireDebug("Playback started");
-                break;
-            case 2: // paused
-                firePlayStateEvent(PlayStateEvent.State.Paused, 0);
-                fireDebug("Playback paused");
-                break;
-            case 3: // buffering
-                firePlayerStateEvent(PlayerStateEvent.State.BufferingStarted);
-                fireDebug("Buffering...");
-                break;
-            case 5: // video cued
-                firePlayerStateEvent(PlayerStateEvent.State.Ready);
-                fireDebug("Video ready for playback");
-                break;
-        }
-    }
-
-    private void onYTQualityChanged(String quality) {
-        PlaybackQuality pq = PlaybackQuality.Default;
-        for (PlaybackQuality _pq : PlaybackQuality.values()) {
-            if (_pq.name().toLowerCase().equals(quality)) {
-                pq = _pq;
-            }
-        }
-        PlaybackQualityChangeEvent.fire(this, pq);
-        fireDebug("Playback quality changed : " + quality);
-    }
-
-    private void onYTError(int errorCode) {
-        switch (errorCode) {
-            case 100: // video not found. Occurs when video is removed (for any reason), or marked private.
-                fireError("Video not found! It may have been removed or marked private");
-                break;
-            case 101: // video does not allow playback in the embedded players.
-            case 150: // is the same as 101, it's just 101 in disguise!
-                fireError("Video playback not allowed");
-                break;
-        }
-    }
-
     private enum URLParameters {
 
         rel, autoplay, loop, enablejsapi, playerapiid, disablekb, egm, border,
         color1, color2, start, fs, hd, showsearch, showinfo, iv_load_policy, autohide,
-        controls, origin, playlist
+        controls, origin, playlist, modestbranding
         //cc_load_policy
     }
 }

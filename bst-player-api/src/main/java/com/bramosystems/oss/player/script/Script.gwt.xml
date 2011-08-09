@@ -17,4 +17,21 @@
 
 <module>
     <inherits name="com.bramosystems.oss.player.core.Core"/>
+    
+    <define-property name="bstplayer.script.useProviderFramework" values="false, true"/>
+    
+    <!-- Use new AbstractExportProvider if "useProviderFramework" is enabled -->
+    <replace-with class="com.bramosystems.oss.player.script.client.impl.ScriptUtil.ProviderOld">
+        <when-type-is class="com.bramosystems.oss.player.script.client.impl.ScriptUtil.Provider"/>
+        <when-property-is name="bstplayer.script.useProviderFramework" value="false" />
+    </replace-with>
+    
+    <!-- Provide NullExportProvider if "useProviderFramework" is enabled for backward compatibility -->
+   <replace-with class="com.bramosystems.oss.player.script.client.impl.NullExportProvider">
+        <when-type-is class="com.bramosystems.oss.player.script.client.ExportProvider"/>
+        <when-property-is name="bstplayer.script.useProviderFramework" value="true" />
+    </replace-with>
+    
+    <!-- Disable Provider Framework for Scripts by default -->
+    <set-property name="bstplayer.script.useProviderFramework" value="false"/>
 </module>
