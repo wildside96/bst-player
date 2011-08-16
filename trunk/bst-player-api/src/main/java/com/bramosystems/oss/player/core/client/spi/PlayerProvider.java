@@ -17,11 +17,18 @@
 package com.bramosystems.oss.player.core.client.spi;
 
 /**
+ * Annotation for player providers.  It provides the name of the player provider
  *
  * @author Sikirulai Braheem <sbraheem at bramosystems.com>
+ * @since 1.3
  */
 public @interface PlayerProvider {
     
+    /**
+     * The name of the player provider
+     * 
+     * @return the name of the player provider
+     */
     public String value();
 
 }

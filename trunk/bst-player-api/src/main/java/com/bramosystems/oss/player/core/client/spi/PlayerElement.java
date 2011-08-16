@@ -20,19 +20,56 @@ import com.google.gwt.dom.client.Element;
 import com.google.gwt.dom.client.ParamElement;
 
 /**
+ * Low level helper class to create DOM-style objects for player widgets.
+ * 
+ * <p>This class is tied to the {@link PlayerProviderFactory} to provide 
+ * browser-specific implementations via deferred binding.
  *
  * @author Sikirulai Braheem <sbraheem at bramosystems.com>
+ * @see PlayerWidget
+ * @since 1.3
  */
 public class PlayerElement {
 
+    /**
+     * Enumeration of HTML object element types
+     * 
+     * @author Sikirulai Braheem <sbraheem at bramosystems.com>
+     * @since 1.3
+     */
     public static enum Type {
 
-        EmbedElement, ObjectElement, ObjectElementIE, VideoElement
+        /**
+         * HTML embed element type
+         */
+        EmbedElement, 
+        
+        /**
+         * HTML object element type
+         */
+        ObjectElement, 
+        
+        /**
+         * HTML object element type, specifically for Internet Explorer
+         */
+        ObjectElementIE, 
+        
+        /**
+         * HTML5 video element type
+         */
+        VideoElement
     }
     private Document _doc = Document.get();
     private Element e;
     private Type type;
 
+    /**
+     * Creates a new PlayerElement object
+     * 
+     * @param type the element type
+     * @param id the DOM ID of the element
+     * @param typeOrClassId the HTML type (mime-type), or the CLASSID (if in Internet Explorer) of the element
+     */
     public PlayerElement(Type type, String id, String typeOrClassId) {
         this.type = type;
         switch (type) {
@@ -54,6 +91,13 @@ public class PlayerElement {
         e.setId(id);
     }
 
+    /**
+     * Adds the specified parameters to the element.  The parameters are used as HTML params tags in the
+     * eventual HTML DOM object
+     * 
+     * @param name the name of the parameter
+     * @param value the value of the parameter
+     */
     public final void addParam(String name, String value) {
         switch (type) {
             case ObjectElement:
@@ -69,6 +113,11 @@ public class PlayerElement {
         }
     }
 
+    /**
+     * Returns the DOM element representation of this player object
+     * 
+     * @return the DOM element representation
+     */
     public Element getElement() {
         return e;
     }

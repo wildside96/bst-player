@@ -23,8 +23,14 @@ import com.google.gwt.user.client.ui.Widget;
 import java.util.HashMap;
 
 /**
+ * High level helper class to create widget for players.
+ * 
+ * <p>The widget manages the DOM object of players as created by the {@link PlayerElement} helper
+ * class.
  *
  * @author Sikiru Braheem <sbraheem at bramosystems . com>
+ * @since 1.3
+ * @see PlayerElement
  */
 public class PlayerWidget extends Widget {
 
@@ -39,6 +45,15 @@ public class PlayerWidget extends Widget {
         _height = "10px";
     }
 
+    /**
+     * Creates a PlayerWidget
+     * 
+     * @param playerProvider the player provider to consult for browser-specific implementations
+     * @param playerName the name of the player to be created
+     * @param playerId the DOM ID of the player
+     * @param mediaURL the URL of the media to be embedded
+     * @param autoplay {@code true} to autoplay the media, {@code false} otherwise.
+     */
     public PlayerWidget(String playerProvider, String playerName, String playerId, String mediaURL, boolean autoplay) {
         this();
         this.playerId = playerId;
@@ -48,14 +63,32 @@ public class PlayerWidget extends Widget {
         this.playerProvider = playerProvider;
     }
 
+    /**
+     * Adds the specified parameters to the element.  The parameters are used as HTML params tags in the
+     * eventual HTML DOM object
+     * 
+     * @param name the name of the parameter
+     * @param value the value of the parameter
+     */
     public void addParam(String name, String value) {
         params.put(name, value);
     }
 
+    /**
+     * Removes the specified parameter from the parameter map.
+     * 
+     * @param name the parameter to be removed from the parameter map
+     */
     public void removeParam(String name) {
         params.remove(name);
     }
 
+    /**
+     * Returns the value of the specified parameter
+     * 
+     * @param name the parameter
+     * @return the value of the parameter
+     */
     public String getParam(String name) {
         return params.get(name);
     }
@@ -87,6 +120,15 @@ public class PlayerWidget extends Widget {
         }
     }
 
+    /**
+     * Replaces the DOM object of this widget with another created with the specified information
+     * 
+     * @param playerProvider the player provider to consult for browser-specific implementations
+     * @param playerName the name of the player to be created
+     * @param playerId the DOM ID of the player
+     * @param mediaURL the URL of the media to be embedded
+     * @param autoplay {@code true} to autoplay the media, {@code false} otherwise.
+     */
     public void replace(String playerProvider, String playerName, String playerId, String mediaURL, boolean autoplay) {
         this.playerId = playerId;
         this.autoplay = autoplay;

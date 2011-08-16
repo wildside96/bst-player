@@ -25,6 +25,7 @@ import com.bramosystems.oss.player.core.client.PluginNotFoundException;
 import com.bramosystems.oss.player.core.client.PluginVersionException;
 import com.bramosystems.oss.player.core.client.RepeatMode;
 import com.bramosystems.oss.player.core.client.TransparencyMode;
+import com.bramosystems.oss.player.core.client.impl.LoopManager;
 import com.bramosystems.oss.player.core.client.playlist.MRL;
 import com.bramosystems.oss.player.core.client.spi.PlayerWidget;
 import com.bramosystems.oss.player.core.client.spi.Player;
@@ -39,7 +40,6 @@ import com.bramosystems.oss.player.util.client.RegExp.RegexException;
 import com.bramosystems.oss.player.youtube.client.impl.YouTubeEventManager;
 import com.bramosystems.oss.player.youtube.client.impl.YouTubePlayerImpl;
 import com.bramosystems.oss.player.youtube.client.impl.YouTubePlayerProvider;
-import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.JsArrayString;
 import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.user.client.DOM;
@@ -76,8 +76,6 @@ import java.util.List;
  *
  * @author Sikirulai Braheem <sbraheem at bramosystems dot com>
  * @since 1.1
- * 
- * TODO: work on playlist ...
  */
 @Player(name = "YouTube", minPluginVersion = "9.0.0", providerFactory = YouTubePlayerProvider.class)
 public class YouTubePlayer extends AbstractMediaPlayer implements PlaylistSupport {
@@ -90,6 +88,8 @@ public class YouTubePlayer extends AbstractMediaPlayer implements PlaylistSuppor
     private PlayerWidget swf;
     private PlayerParameters pps;
     private ArrayList<String> _playlist;
+    private boolean _shuffleEnabled;
+    private RepeatMode repeatMode = RepeatMode.REPEAT_OFF;
 
     /**
      * Constructs <code>YouTubePlayer</code> with the specified {@code height} and
@@ -263,8 +263,7 @@ public class YouTubePlayer extends AbstractMediaPlayer implements PlaylistSuppor
         fp.add(swf);
         fp.add(logger);
 
-        GWT.log("yt : onload");
-        swf.setSize(_width, _height);
+        swf.setSize("100%", _height);
         setWidth(_width);
     }
 
@@ -555,16 +554,29 @@ public class YouTubePlayer extends AbstractMediaPlayer implements PlaylistSuppor
 
     @Override
     public void setLoopCount(int loop) {
+        if((impl != null) && (loop < 0)) {
+            setRepeatMode(RepeatMode.REPEAT_ALL);
+        }
     }
 
     @Override
     public RepeatMode getRepeatMode() {
-        return super.getRepeatMode();
+        return repeatMode;
     }
 
     @Override
     public void setRepeatMode(RepeatMode mode) {
-        //       RepeatMode.REPEAT_ALL;
+        if (impl != null) {
+            switch (mode) {
+                case REPEAT_ALL:
+                    impl.setLoop(true);
+                    repeatMode = mode;
+                    break;
+                case REPEAT_OFF:
+                    impl.setLoop(false);
+                    repeatMode = mode;
+            }
+        }
     }
 
     /**
@@ -670,6 +682,8 @@ public class YouTubePlayer extends AbstractMediaPlayer implements PlaylistSuppor
             } catch (RegexException ex) {
                 fireError("URL not added to playlist - " + ex.getMessage());
             }
+        } else {
+            _playlist.add(mediaURL);
         }
     }
 
@@ -697,45 +711,7 @@ public class YouTubePlayer extends AbstractMediaPlayer implements PlaylistSuppor
             _playlist.clear();
         }
     }
-
-    @Override
-    public int getPlaylistSize() {
-        return _playlist.size() + 1;
-
-    }
-
-    /**
-     * Not supported yet.  This method always return <code>false</code>
-     */
-    @Override
-    public boolean isShuffleEnabled() {
-        return false;
-    }
-
-    /**
-     * Not supported yet.  Method call is ignored.
-     */
-    @Override
-    public void play(int index) throws IndexOutOfBoundsException {
-    }
-
-    /**
-     * Not supported yet.  Method call is ignored.
-     */
-    @Override
-    public void playNext() throws PlayException {
-    }
-
-    /**
-     * Not supported yet.  Method call is ignored.
-     */
-    @Override
-    public void playPrevious() throws PlayException {
-    }
-
-    /**
-     * 
-     */
+    
     @Override
     public void removeFromPlaylist(int index) {
         if (!isPlayerOnPage(playerId)) {
@@ -743,11 +719,47 @@ public class YouTubePlayer extends AbstractMediaPlayer implements PlaylistSuppor
         }
     }
 
-    /**
-     * Not supported yet.  Method call is ignored.
-     */
+    @Override
+    public int getPlaylistSize() {
+        if (impl != null) {
+            return impl.getPlaylist().length();
+        }
+        return 0;
+
+    }
+
+    @Override
+    public boolean isShuffleEnabled() {
+        return _shuffleEnabled;
+    }
+
+    @Override
+    public void play(int index) throws IndexOutOfBoundsException {
+        if (impl != null) {
+            impl.playVideoAt(index);
+        }
+    }
+
+    @Override
+    public void playNext() throws PlayException {
+        if (impl != null) {
+            impl.nextVideo();
+        }
+    }
+
+    @Override
+    public void playPrevious() throws PlayException {
+        if (impl != null) {
+            impl.previousVideo();
+        }
+    }
+
     @Override
     public void setShuffleEnabled(boolean enable) {
+        if (impl != null) {
+            _shuffleEnabled = enable;
+            impl.setShuffle(enable);
+        }
     }
 
     private enum URLParameters {

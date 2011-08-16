@@ -15,7 +15,7 @@
  */
 
 /**
- * Provides the classes and interfaces to integrate custom plugin/player widgets into
+ * Provides the classes and interfaces to integrate plugin/player widgets into
  * the API
  */
 package com.bramosystems.oss.player.core.client.spi;
