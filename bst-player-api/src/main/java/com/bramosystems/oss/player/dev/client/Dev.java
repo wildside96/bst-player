@@ -95,8 +95,10 @@ public class Dev extends FlowPanel implements EntryPoint {
         //        RootPanel.get().add(new ScrollPanel(this));
         RootPanel.get().add(this);
 //                addPlayer(Plugin.QuickTimePlayer);
+        
+//                addPlayer(Plugin.QuickTimePlayer);
 
- //                   add(new MimeStuffs());
+//                    add(new MimeStuffs());
         //        addUTube();
         //               issueDialog();
          add(pb.createAndBindUi(this)); //TODO: requires GWT 2.1

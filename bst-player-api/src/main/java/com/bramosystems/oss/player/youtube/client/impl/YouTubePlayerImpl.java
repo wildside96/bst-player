@@ -43,7 +43,7 @@ public class YouTubePlayerImpl extends JavaScriptObject {
     return this.getVideoEmbedCode();
     }-*/;
 
-    public final native void cueVideoById(String vId, double startTime) /*-{
+    public final native void cueVideoById(String vid, double startTime) /*-{
     this.cueVideoById(vid, startTime);
     }-*/;
 
@@ -51,7 +51,7 @@ public class YouTubePlayerImpl extends JavaScriptObject {
     this.cueVideoByUrl(url, startTime);
     }-*/;
 
-    public final native void loadVideoById(String vId, double startTime) /*-{
+    public final native void loadVideoById(String vid, double startTime) /*-{
     this.loadVideoById(vid, startTime);
     }-*/;
 
@@ -135,5 +135,41 @@ public class YouTubePlayerImpl extends JavaScriptObject {
     this.addEventListener("onStateChange", "bstplayer.handlers.utube." + playerId + ".onStateChanged");
     this.addEventListener("onPlaybackQualityChange", "bstplayer.handlers.utube." + playerId + ".onQualityChanged");
     this.addEventListener("onError", "bstplayer.handlers.utube." + playerId + ".onError");
+    }-*/;
+
+    public final native void cuePlaylist(JsArrayString vids) /*-{
+    this.cuePlaylist(vids);
+    }-*/;
+
+    public final native void loadPlaylist(String pid) /*-{
+    this.loadPlaylist(pid);
+    }-*/;
+
+    public final native void nextVideo() /*-{
+    this.nextVideo();
+    }-*/;
+
+    public final native void previousVideo() /*-{
+    this.previousVideo();
+    }-*/;
+
+    public final native void playVideoAt(double index) /*-{
+    this.playVideoAt(index);
+    }-*/;
+
+    public final native void setLoop(boolean loop) /*-{
+    this.setLoop(loop);
+    }-*/;
+
+    public final native void setShuffle(boolean shuffle) /*-{
+    this.setShuffle(shuffle);
+    }-*/;
+
+    public final native JsArrayString getPlaylist() /*-{
+    return this.getPlaylist();
+    }-*/;
+
+    public final native double getPlaylistIndex() /*-{
+    return this.getPlaylistIndex();
     }-*/;
 }

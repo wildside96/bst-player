@@ -114,7 +114,7 @@ public abstract class PlayerManager {
     protected final boolean canHandleMedia(String playerProvider, String playerName, String protocol, String ext) {
         return canHandleMedia(getPlayerInfo(playerProvider, playerName), protocol, ext);
     }
-    
+
     protected final boolean canHandleMedia(PlayerInfo pif, String protocol, String ext) {
         if (pif.getDetectedPluginVersion().compareTo(pif.getRequiredPluginVersion()) >= 0) {   // req plugin found...
             // check for streaming protocol & extension ...
@@ -127,6 +127,7 @@ public abstract class PlayerManager {
     }
 
     protected final String extractExt(String mediaURL) {
+        mediaURL = mediaURL.replaceAll("[\\?;#].*$", "");
         return mediaURL.substring(mediaURL.lastIndexOf(".") + 1);
     }
 

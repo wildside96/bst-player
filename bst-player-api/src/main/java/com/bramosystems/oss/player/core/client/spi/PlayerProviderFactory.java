@@ -39,6 +39,9 @@ public interface PlayerProviderFactory {
      * Returns the DOM element structure for the specified {@code playerName}.  The DOM element structure 
      * will be inserted into the page when required.
      * 
+     * <p>Implementation classes should throw {@link IllegalArgumentException} if the {@code playerName}
+     * is not supported by the factory
+     *
      * @param playerName the name of the required player
      * @param playerId the HTML element {@code id/name} that should be used for the player
      * @param mediaURL the first URL of the media to be loaded by the player
@@ -56,6 +59,9 @@ public interface PlayerProviderFactory {
      * 
      * <p>The detection methods in the {@link PlayerUtil} class may be used by implementation classes if applicable. 
      * 
+     * <p>Implementation classes should throw {@link IllegalArgumentException} if the {@code playerName}
+     * is not supported by the factory
+     *
      * @param playerName the name of the player
      * @return the version of the required plugin that is installed and enabled on the browser
      * @throws PluginNotFoundException if the required plugin is not installed AND enabled
@@ -65,6 +71,9 @@ public interface PlayerProviderFactory {
 
     /**
      * Returns the player with the specified {@code playerName}.
+     * 
+     * <p>Implementation classes should throw {@link IllegalArgumentException} if the {@code playerName}
+     * is not supported by the factory
      *
      * @param playerName
      * @param mediaURL the URL of the media to playback
@@ -84,6 +93,9 @@ public interface PlayerProviderFactory {
 
     /**
      * Returns the player with the specified {@code playerName}.
+     *
+     * <p>Implementation classes should throw {@link IllegalArgumentException} if the {@code playerName}
+     * is not supported by the factory
      *
      * @param playerName
      * @param mediaURL the URL of the media to playback

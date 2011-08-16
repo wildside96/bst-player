@@ -51,13 +51,13 @@ public class YouTubePlayerProvider implements PlayerProviderFactory {
         } else if (playerName.equals("Chromeless")) {
             player = new ChromelessPlayer(mediaURL, pp, width, height);
         } else {
-            throw new LoadException("Unknown player - '" + playerName + "'");
+            throw new IllegalArgumentException("Unknown player - '" + playerName + "'");
         }
         return player;
     }
 
     @Override
-    public AbstractMediaPlayer getPlayer(String playerName, String mediaURL, boolean autoplay) 
+    public AbstractMediaPlayer getPlayer(String playerName, String mediaURL, boolean autoplay)
             throws LoadException, PluginNotFoundException, PluginVersionException {
         AbstractMediaPlayer player = null;
         PlayerParameters pp = new PlayerParameters();
@@ -68,14 +68,18 @@ public class YouTubePlayerProvider implements PlayerProviderFactory {
         } else if (playerName.equals("Chromeless")) {
             player = new ChromelessPlayer(mediaURL, pp, w, h);
         } else {
-            throw new LoadException("Unknown player - '" + playerName + "'");
+            throw new IllegalArgumentException("Unknown player - '" + playerName + "'");
         }
         return player;
     }
 
     @Override
     public PluginVersion getDetectedPluginVersion(String playerName) throws PluginNotFoundException {
-        return PlayerUtil.getFlashPlayerVersion();
+        if (playerName.equals("YouTube") || playerName.equals("Chromeless")) {
+            return PlayerUtil.getFlashPlayerVersion();
+        } else {
+            throw new IllegalArgumentException("Unknown player - '" + playerName + "'");
+        }
     }
 
     @Override

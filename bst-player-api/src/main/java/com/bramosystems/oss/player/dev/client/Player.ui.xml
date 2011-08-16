@@ -1,5 +1,9 @@
 <!DOCTYPE ui:UiBinder SYSTEM "http://dl.google.com/gwt/DTD/xhtml.ent">
 
+<!--
+youtube: http://www.youtube.com/v/MrsGEz4NtBk
+-->
+
 <ui:UiBinder xmlns:ui="urn:ui:com.google.gwt.uibinder"
         xmlns:g="urn:import:com.google.gwt.user.client.ui"
         xmlns:p="urn:import:com.bramosystems.oss.player.uibinder.client">
@@ -19,8 +23,8 @@
     </ui:style>
 
     <g:SimplePanel styleName='{x.panel}' >
-        <p:Player name='yt:YouTube' mediaURL='http://www.youtube.com/v/MrsGEz4NtBk' height='300px' width='90%' autoplay='false'
-        showLogger='true'>
+        <p:Player name='QuickTimePlayer' mediaURL='gwt-module::big-buck-bunny.mp4' height='400px' width='90%' autoplay='false'
+        showLogger='true' controllerVisible="true" resizeToVideoSize="true">
             <p:missingPluginNotice>
                 <g:Label styleName='{x.title}'>Required Quicktime Plugin not available !</g:Label>
             </p:missingPluginNotice>

@@ -48,7 +48,7 @@ public class PluginManager {
                 // plugin not available ...
             }
         }
-    }
+   }
 
     public static PluginInfo getPluginInfo(Plugin plugin) throws PluginNotFoundException {
         if (corePluginInfoMap.containsKey(plugin)) {
@@ -145,7 +145,7 @@ public class PluginManager {
                     if (name.toLowerCase().contains(pt.whois)) { // who has it?
                         RegExp.RegexResult res = RegExp.getRegExp(pt.regex, "").exec(pt.versionInName ? name : desc);
                         pv = new PluginVersion(Integer.parseInt(res.getMatch(1)),
-                                Integer.parseInt(res.getMatch(2)), Integer.parseInt(res.getMatch(3)));
+                                Integer.parseInt(res.getMatch(2)), res.getMatch(3) != null ? Integer.parseInt(res.getMatch(4)) : 0);
                         if (mt.getEnabledPlugin().getFileName().toLowerCase().contains("totem")
                                 || desc.toLowerCase().contains("totem")) {
                             pwt = PluginInfo.PlayerPluginWrapperType.Totem;
@@ -292,10 +292,10 @@ public class PluginManager {
     private enum PluginMimeTypes {
 
         none("", "", "", false),
-        divx("video/divx", "divx", "(\\d+).(\\d+).(\\d+)", false),
-        flash("application/x-shockwave-flash", "shockwave flash", "(\\d+).(\\d+)\\s*[r|d|b](\\d+)", false),
-        vlc("application/x-vlc-plugin", "vlc", "(\\d+).(\\d+).(\\d+)", false),
-        quicktime("video/quicktime", "quicktime", "(\\d+).(\\d+).(\\d+)", true);
+        divx("video/divx", "divx", "(\\d+).(\\d+)(.(\\d+))?", false),
+        flash("application/x-shockwave-flash", "shockwave flash", "(\\d+).(\\d+)(\\s*[r|d|b](\\d+))", false),
+        vlc("application/x-vlc-plugin", "vlc", "(\\d+).(\\d+)(.(\\d+))?", false),
+        quicktime("video/quicktime", "quicktime", "(\\d+).(\\d+)(.(\\d+))?", true);
 
         private PluginMimeTypes(String mime, String whois, String regex, boolean versionInName) {
             this.mime = mime;

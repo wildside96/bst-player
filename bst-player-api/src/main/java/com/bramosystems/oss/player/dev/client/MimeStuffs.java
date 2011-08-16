@@ -162,18 +162,20 @@ public class MimeStuffs extends FlexTable {
     private void doMimePool2() {
         int row = 0;
 
-        setHTML(row, 0, "Player");
-        setHTML(row, 1, "Plugin Version");
-        setHTML(row, 2, "Suffixes");
-        setHTML(row++, 3, "Protocols");
+        setHTML(row, 0, "Provider");
+        setHTML(row, 1, "Player");
+        setHTML(row, 2, "Plugin Version");
+        setHTML(row, 3, "Suffixes");
+        setHTML(row++, 4, "Protocols");
 
         for (String prov : PlayerManager.getInstance().getProviders()) {
             for (String plyr : PlayerManager.getInstance().getPlayerNames(prov)) {
                 PlayerInfo suf = PlayerManager.getInstance().getPlayerInfo(prov, plyr);
-                setHTML(row, 0, suf.getPlayerName());
-                setHTML(row, 1, suf.getDetectedPluginVersion().toString());
-                setHTML(row, 2, suf.getRegisteredExtensions().toString());
-                setHTML(row++, 3, suf.getRegisteredProtocols().toString());
+                setHTML(row, 0, prov);
+                setHTML(row, 1, suf.getPlayerName());
+                setHTML(row, 2, suf.getDetectedPluginVersion().toString());
+                setHTML(row, 3, suf.getRegisteredExtensions().toString());
+                setHTML(row++, 4, suf.getRegisteredProtocols().toString());
             }
         }
     }
