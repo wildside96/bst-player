@@ -41,7 +41,14 @@
                     <b>Bug Fixes</b>
                 </p>
                 <ul>
-                    <li></li>
+                     <li>
+                        <a href="http://code.google.com/p/bst-player/issues/detail?id=50">Issue #50</a> -
+                        Error getting plugin if URL contains sessionid parameter
+                    </li>
+                     <li>
+                        <a href="http://code.google.com/p/bst-player/issues/detail?id=51">Issue #51</a> -
+                        Transparent Mode for CustomVideoPlayer
+                    </li>
                </ul>
 
                 <p>

@@ -26,4 +26,16 @@
             <activatedProfile>oss-lab-site-m3</activatedProfile>
         </activatedProfiles>
     </action>
+    <action>
+            <actionName>CUSTOM-snapshot-deploy</actionName>
+            <displayName>snapshot-deploy</displayName>
+            <goals>
+                <goal>clean</goal>
+                <goal>deploy</goal>
+            </goals>
+            <activatedProfiles>
+                <activatedProfile>dev-mode</activatedProfile>
+                <activatedProfile>m3-build</activatedProfile>
+            </activatedProfiles>
+        </action>
 </actions>
