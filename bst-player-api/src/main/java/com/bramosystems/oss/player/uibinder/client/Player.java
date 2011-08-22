@@ -44,8 +44,8 @@ import java.util.List;
  *         &lt;player:Player name='Auto' autoplay='true' height='20px' width='100%'
  *                 mediaURL='GWT-HOST::media/cool-media.mp3' &gt;
  *              &lt;p:missingPluginNotice&gt;
-                    &lt;g:Label styleName='{some-style}'&gt;Required player plugin not available !&lt;/g:Label&gt;
-                &lt;/p:missingPluginNotice&gt;
+&lt;g:Label styleName='{some-style}'&gt;Required player plugin not available !&lt;/g:Label&gt;
+&lt;/p:missingPluginNotice&gt;
  *         &lt;/player &gt;
  *         ...
  * &lt;/ui:UiBinder&gt;
@@ -56,7 +56,7 @@ import java.util.List;
  */
 public class Player extends AbstractMediaPlayer
         implements MatrixSupport, com.bramosystems.oss.player.core.client.PlaylistSupport {
-
+    
     private AbstractMediaPlayer _engine;
     private static String GWT_HOST_URL_ID = "(gwt-host::)\\S", GWT_MODULE_URL_ID = "(gwt-module::)\\S";
     protected Widget missingPluginNotice, missingPluginVersionNotice, loadWidget;
@@ -85,7 +85,7 @@ public class Player extends AbstractMediaPlayer
                 rr = re.exec(mediaURL);
                 mediaURL = mediaURL.replaceAll(rr.getMatch(1), GWT.getHostPageBaseURL());
             }
-
+            
             re = RegExp.getRegExp(GWT_MODULE_URL_ID, "i");
             if (re.test(mediaURL)) {
                 rr = re.exec(mediaURL);
@@ -114,7 +114,7 @@ public class Player extends AbstractMediaPlayer
         _height = height;
         _width = width;
         _autoplay = autoplay;
-
+        
         try {
             RegExp re = RegExp.getRegExp("((\\w+):)?(\\w+)", "");
             RegExp.RegexResult rr = re.exec(name);
@@ -125,39 +125,39 @@ public class Player extends AbstractMediaPlayer
             _playerName = rr.getMatch(3);
         } catch (RegexException ex) {
         }
-
+        
         try {
             _engine = PlayerManager.getInstance().getProviderFactory(_provider).getPlayer(_playerName, _url, _autoplay, _height, _width);
             _engine.addDebugHandler(new DebugHandler() {
-
+                
                 @Override
                 public void onDebug(DebugEvent event) {
                     fireEvent(event);
                 }
             });
             _engine.addLoadingProgressHandler(new LoadingProgressHandler() {
-
+                
                 @Override
                 public void onLoadingProgress(LoadingProgressEvent event) {
                     fireEvent(event);
                 }
             });
             _engine.addMediaInfoHandler(new MediaInfoHandler() {
-
+                
                 @Override
                 public void onMediaInfoAvailable(MediaInfoEvent event) {
                     fireEvent(event);
                 }
             });
             _engine.addPlayStateHandler(new PlayStateHandler() {
-
+                
                 @Override
                 public void onPlayStateChanged(PlayStateEvent event) {
                     fireEvent(event);
                 }
             });
             _engine.addPlayerStateHandler(new PlayerStateHandler() {
-
+                
                 @Override
                 public void onPlayerStateChanged(PlayerStateEvent event) {
                     fireEvent(event);
@@ -172,19 +172,19 @@ public class Player extends AbstractMediaPlayer
             missingPluginVersionNotice = PlayerUtil.getMissingPluginNotice(ex.getPlugin(), ex.getRequiredVersion());
             loadWidget = missingPluginVersionNotice;
         }
-
+        
     }
-
+    
     @Override
     public void onLoad() {
         _panel.setWidget(loadWidget);
     }
-
+    
     @UiChild(limit = 1, tagname = "missingPluginNotice")
     public void setMissingPluginNotice(Widget w) {
         missingPluginNotice = w;
     }
-
+    
     @UiChild(limit = 1, tagname = "missingPluginVersionNotice")
     public void setMissingPluginVersionNotice(Widget w) {
         missingPluginVersionNotice = w;
@@ -198,7 +198,7 @@ public class Player extends AbstractMediaPlayer
     public AbstractMediaPlayer getEngine() {
         return _engine;
     }
-
+    
     @Override
     public long getMediaDuration() {
         if (_engine == null) {
@@ -206,7 +206,7 @@ public class Player extends AbstractMediaPlayer
         }
         return _engine.getMediaDuration();
     }
-
+    
     @Override
     public double getPlayPosition() {
         if (_engine == null) {
@@ -214,42 +214,42 @@ public class Player extends AbstractMediaPlayer
         }
         return _engine.getPlayPosition();
     }
-
+    
     @Override
     public void setPlayPosition(double position) {
         if (_engine != null) {
             _engine.setPlayPosition(position);
         }
     }
-
+    
     @Override
     public void loadMedia(String mediaURL) throws LoadException {
         if (_engine != null) {
             _engine.loadMedia(mediaURL);
         }
     }
-
+    
     @Override
     public void pauseMedia() {
         if (_engine != null) {
             _engine.pauseMedia();
         }
     }
-
+    
     @Override
     public void playMedia() throws PlayException {
         if (_engine != null) {
             _engine.playMedia();
         }
     }
-
+    
     @Override
     public void stopMedia() {
         if (_engine != null) {
             _engine.stopMedia();
         }
     }
-
+    
     @Override
     public double getVolume() {
         if (_engine == null) {
@@ -257,7 +257,7 @@ public class Player extends AbstractMediaPlayer
         }
         return _engine.getVolume();
     }
-
+    
     @Override
     public void setVolume(double volume) {
         if (_engine != null) {
@@ -285,7 +285,7 @@ public class Player extends AbstractMediaPlayer
             _engine.setLoopCount(loop);
         }
     }
-
+    
     @Override
     public void showLogger(boolean show) {
         if (_engine == null) {
@@ -304,7 +304,7 @@ public class Player extends AbstractMediaPlayer
             _engine.showLogger(show);
         }
     }
-
+    
     @Override
     public int getVideoHeight() {
         if (_engine == null) {
@@ -312,7 +312,7 @@ public class Player extends AbstractMediaPlayer
         }
         return _engine.getVideoHeight();
     }
-
+    
     @Override
     public int getVideoWidth() {
         if (_engine == null) {
@@ -320,7 +320,7 @@ public class Player extends AbstractMediaPlayer
         }
         return _engine.getVideoWidth();
     }
-
+    
     @Override
     public boolean isControllerVisible() {
         if (_engine == null) {
@@ -328,7 +328,7 @@ public class Player extends AbstractMediaPlayer
         }
         return _engine.isControllerVisible();
     }
-
+    
     @Override
     public boolean isResizeToVideoSize() {
         if (_engine == null) {
@@ -336,70 +336,70 @@ public class Player extends AbstractMediaPlayer
         }
         return _engine.isResizeToVideoSize();
     }
-
+    
     @Override
     public <T extends ConfigValue> void setConfigParameter(ConfigParameter param, T value) {
         if (_engine != null) {
             _engine.setConfigParameter(param, value);
         }
     }
-
+    
     @Override
     public void setConfigParameter(ConfigParameter param, Number value) {
-       if (_engine != null) {
+        if (_engine != null) {
             _engine.setConfigParameter(param, value);
         }
     }
-
+    
     @Override
     public void setConfigParameter(ConfigParameter param, String value) {
-       if (_engine != null) {
+        if (_engine != null) {
             _engine.setConfigParameter(param, value);
         }
     }
-
+    
     @Override
     public void setControllerVisible(boolean show) {
         if (_engine != null) {
             _engine.setControllerVisible(show);
         }
     }
-
+    
     @Override
     public void setResizeToVideoSize(boolean resize) {
         if (_engine != null) {
             _engine.setResizeToVideoSize(resize);
         }
     }
-
+    
     @Override
     public void addToPlaylist(String mediaURL) {
         if ((_engine != null) && (_engine instanceof com.bramosystems.oss.player.core.client.PlaylistSupport)) {
             ((com.bramosystems.oss.player.core.client.PlaylistSupport) _engine).addToPlaylist(mediaURL);
         }
     }
-
+    
     @Override
     public void addToPlaylist(MRL mediaLocator) {
         if ((_engine != null) && (_engine instanceof com.bramosystems.oss.player.core.client.PlaylistSupport)) {
             ((com.bramosystems.oss.player.core.client.PlaylistSupport) _engine).addToPlaylist(mediaLocator);
         }
     }
-
+    
     @Override
     public void addToPlaylist(String... mediaURLs) {
         if ((_engine != null) && (_engine instanceof com.bramosystems.oss.player.core.client.PlaylistSupport)) {
             ((com.bramosystems.oss.player.core.client.PlaylistSupport) _engine).addToPlaylist(mediaURLs);
         }
     }
-
+    
     @Override
     public void addToPlaylist(List<MRL> mediaLocators) {
         if (_engine instanceof com.bramosystems.oss.player.core.client.PlaylistSupport) {
             ((com.bramosystems.oss.player.core.client.PlaylistSupport) _engine).addToPlaylist(mediaLocators);
         }
     }
-
+    
     @Override
     public boolean isShuffleEnabled() {
         if (_engine == null) {
@@ -410,28 +410,28 @@ public class Player extends AbstractMediaPlayer
         }
         return false;
     }
-
+    
     @Override
     public void removeFromPlaylist(int index) {
         if ((_engine != null) && (_engine instanceof com.bramosystems.oss.player.core.client.PlaylistSupport)) {
             ((com.bramosystems.oss.player.core.client.PlaylistSupport) _engine).removeFromPlaylist(index);
         }
     }
-
+    
     @Override
     public void setShuffleEnabled(boolean enable) {
         if ((_engine != null) && (_engine instanceof com.bramosystems.oss.player.core.client.PlaylistSupport)) {
             ((com.bramosystems.oss.player.core.client.PlaylistSupport) _engine).setShuffleEnabled(enable);
         }
     }
-
+    
     @Override
     public void clearPlaylist() {
         if ((_engine != null) && (_engine instanceof com.bramosystems.oss.player.core.client.PlaylistSupport)) {
             ((com.bramosystems.oss.player.core.client.PlaylistSupport) _engine).clearPlaylist();
         }
     }
-
+    
     @Override
     public int getPlaylistSize() {
         if (_engine == null) {
@@ -442,28 +442,28 @@ public class Player extends AbstractMediaPlayer
         }
         return 1;
     }
-
+    
     @Override
     public void play(int index) throws IndexOutOfBoundsException {
         if ((_engine != null) && (_engine instanceof com.bramosystems.oss.player.core.client.PlaylistSupport)) {
             ((com.bramosystems.oss.player.core.client.PlaylistSupport) _engine).play(index);
         }
     }
-
+    
     @Override
     public void playNext() throws PlayException {
         if ((_engine != null) && (_engine instanceof com.bramosystems.oss.player.core.client.PlaylistSupport)) {
             ((com.bramosystems.oss.player.core.client.PlaylistSupport) _engine).playNext();
         }
     }
-
+    
     @Override
     public void playPrevious() throws PlayException {
         if ((_engine != null) && (_engine instanceof com.bramosystems.oss.player.core.client.PlaylistSupport)) {
             ((com.bramosystems.oss.player.core.client.PlaylistSupport) _engine).playPrevious();
         }
     }
-
+    
     @Override
     public void setMatrix(TransformationMatrix matrix) {
         if (_engine == null) {
@@ -473,7 +473,7 @@ public class Player extends AbstractMediaPlayer
             ((MatrixSupport) _engine).setMatrix(matrix);
         }
     }
-
+    
     @Override
     public TransformationMatrix getMatrix() {
         if (_engine == null) {
@@ -483,5 +483,35 @@ public class Player extends AbstractMediaPlayer
             return ((MatrixSupport) _engine).getMatrix();
         }
         return null;
+    }
+    
+    @Override
+    public double getRate() {
+        if (_engine != null) {
+            return _engine.getRate();
+        }
+        return 0;
+    }
+    
+    @Override
+    public RepeatMode getRepeatMode() {
+        if (_engine != null) {
+            return _engine.getRepeatMode();
+        }
+        return RepeatMode.REPEAT_OFF;
+    }
+    
+    @Override
+    public void setRate(double rate) {
+        if (_engine != null) {
+            _engine.setRate(rate);
+        }
+    }
+    
+    @Override
+    public void setRepeatMode(RepeatMode mode) {
+        if (_engine != null) {
+            _engine.setRepeatMode(mode);
+        }
     }
 }

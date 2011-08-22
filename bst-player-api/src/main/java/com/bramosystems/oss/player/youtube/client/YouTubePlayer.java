@@ -25,7 +25,6 @@ import com.bramosystems.oss.player.core.client.PluginNotFoundException;
 import com.bramosystems.oss.player.core.client.PluginVersionException;
 import com.bramosystems.oss.player.core.client.RepeatMode;
 import com.bramosystems.oss.player.core.client.TransparencyMode;
-import com.bramosystems.oss.player.core.client.impl.LoopManager;
 import com.bramosystems.oss.player.core.client.playlist.MRL;
 import com.bramosystems.oss.player.core.client.spi.PlayerWidget;
 import com.bramosystems.oss.player.core.client.spi.Player;
@@ -36,17 +35,16 @@ import com.bramosystems.oss.player.core.event.client.LoadingProgressEvent;
 import com.bramosystems.oss.player.core.event.client.PlayStateEvent;
 import com.bramosystems.oss.player.core.event.client.PlayerStateEvent;
 import com.bramosystems.oss.player.core.event.client.PlayerStateHandler;
-import com.bramosystems.oss.player.util.client.RegExp.RegexException;
 import com.bramosystems.oss.player.youtube.client.impl.YouTubeEventManager;
 import com.bramosystems.oss.player.youtube.client.impl.YouTubePlayerImpl;
 import com.bramosystems.oss.player.youtube.client.impl.YouTubePlayerProvider;
+import com.bramosystems.oss.player.youtube.client.impl.YouTubePlaylistManager;
 import com.google.gwt.core.client.JsArrayString;
 import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.ui.FlowPanel;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -87,9 +85,8 @@ public class YouTubePlayer extends AbstractMediaPlayer implements PlaylistSuppor
     private Logger logger;
     private PlayerWidget swf;
     private PlayerParameters pps;
-    private ArrayList<String> _playlist;
-    private boolean _shuffleEnabled;
     private RepeatMode repeatMode = RepeatMode.REPEAT_OFF;
+    private YouTubePlaylistManager ypm;
 
     /**
      * Constructs <code>YouTubePlayer</code> with the specified {@code height} and
@@ -142,7 +139,23 @@ public class YouTubePlayer extends AbstractMediaPlayer implements PlaylistSuppor
         _height = height;
         _vURL = videoURL;
         pps = playerParameters;
-        _playlist = new ArrayList<String>();
+        ypm = new YouTubePlaylistManager(new YouTubePlaylistManager.CallbackHandler() {
+
+            @Override
+            public void onError(String message) {
+                fireError(message);
+            }
+
+            @Override
+            public YouTubePlayerImpl getPlayerImpl() {
+                return impl;
+            }
+
+            @Override
+            public void onInfo(String info) {
+                fireDebug(info);
+            }
+        });
 
         playerId = DOM.createUniqueId().replace("-", "");
 
@@ -166,7 +179,8 @@ public class YouTubePlayer extends AbstractMediaPlayer implements PlaylistSuppor
                 impl = YouTubePlayerImpl.getPlayerImpl(playerId);
                 impl.registerHandlers(playerId);
                 fireDebug("YouTube Player");
-                playerInit();
+                ypm.commitPlaylist();
+//                playerInit();
             }
 
             @Override
@@ -292,21 +306,6 @@ public class YouTubePlayer extends AbstractMediaPlayer implements PlaylistSuppor
         playerParameters.setJSApiEnabled(true);
         playerParameters.setPlayerAPIId(playerId);
         StringBuilder vurl = new StringBuilder(videoURL).append(paramsToString(playerParameters));
-        vurl.append("&playlist=");
-        if (_playlist.size() > 0) {
-            Iterator<String> pit = _playlist.iterator();
-            while (pit.hasNext()) {
-                try {
-                    vurl.append(eventMgr.getVideoId(pit.next())).append(",");
-                } catch (RegexException ex) {
-                }
-            }
-        } else {
-            try {
-                vurl.append(eventMgr.getVideoId(_vURL));
-            } catch (RegexException ex) {
-            }
-        }
         return vurl.toString();
     }
 
@@ -676,47 +675,32 @@ public class YouTubePlayer extends AbstractMediaPlayer implements PlaylistSuppor
 
     @Override
     public void addToPlaylist(String mediaURL) {
-        if (eventMgr.isYouTubeURL(mediaURL)) {
-            try {
-                _playlist.add(eventMgr.getVideoId(mediaURL));
-            } catch (RegexException ex) {
-                fireError("URL not added to playlist - " + ex.getMessage());
-            }
-        } else {
-            _playlist.add(mediaURL);
-        }
+         ypm.addToPlaylist(mediaURL);
     }
 
     @Override
     public void addToPlaylist(String... mediaURLs) {
-        addToPlaylist(mediaURLs[0]);
+        ypm.addToPlaylist(mediaURLs);
     }
 
     @Override
     public void addToPlaylist(MRL mediaLocator) {
-        addToPlaylist(mediaLocator.getNextResource(true));
+        ypm.addToPlaylist(mediaLocator);
     }
 
     @Override
     public void addToPlaylist(List<MRL> mediaLocators) {
-        Iterator<MRL> it = mediaLocators.iterator();
-        while (it.hasNext()) {
-            addToPlaylist(it.next());
-        }
+        ypm.addToPlaylist(mediaLocators);
     }
 
     @Override
     public void clearPlaylist() {
-        if (!isPlayerOnPage(playerId)) {
-            _playlist.clear();
-        }
+        ypm.clearPlaylist();
     }
     
     @Override
     public void removeFromPlaylist(int index) {
-        if (!isPlayerOnPage(playerId)) {
-            _playlist.remove(index);
-        }
+        ypm.removeFromPlaylist(index);
     }
 
     @Override
@@ -725,12 +709,11 @@ public class YouTubePlayer extends AbstractMediaPlayer implements PlaylistSuppor
             return impl.getPlaylist().length();
         }
         return 0;
-
     }
 
     @Override
     public boolean isShuffleEnabled() {
-        return _shuffleEnabled;
+        return ypm.isShuffleEnabled();
     }
 
     @Override
@@ -757,7 +740,7 @@ public class YouTubePlayer extends AbstractMediaPlayer implements PlaylistSuppor
     @Override
     public void setShuffleEnabled(boolean enable) {
         if (impl != null) {
-            _shuffleEnabled = enable;
+            ypm.setShuffleEnabled(enable);
             impl.setShuffle(enable);
         }
     }
