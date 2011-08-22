@@ -362,4 +362,39 @@ public abstract class CustomVideoPlayer extends AbstractMediaPlayer implements P
      * @param height the height of the media (in pixels)
      */
     protected abstract void onVideoDimensionChanged(int width, int height);
+
+    @Override
+    public double getRate() {
+        return engine.getRate();
+    }
+
+    @Override
+    public RepeatMode getRepeatMode() {
+        return engine.getRepeatMode();
+    }
+
+    @Override
+    public <T extends ConfigValue> void setConfigParameter(ConfigParameter param, T value) {
+        engine.setConfigParameter(param, value);
+    }
+
+    @Override
+    public void setConfigParameter(ConfigParameter param, Number value) {
+        engine.setConfigParameter(param, value);
+    }
+
+    @Override
+    public void setConfigParameter(ConfigParameter param, String value) {
+        engine.setConfigParameter(param, value);
+    }
+
+    @Override
+    public void setRate(double rate) {
+        engine.setRate(rate);
+    }
+
+    @Override
+    public void setRepeatMode(RepeatMode mode) {
+        engine.setRepeatMode(mode);
+    }
 }

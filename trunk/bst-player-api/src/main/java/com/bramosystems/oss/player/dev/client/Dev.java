@@ -33,13 +33,13 @@ import com.bramosystems.oss.player.core.client.ui.QuickTimePlayer;
 import com.bramosystems.oss.player.core.client.ui.VLCPlayer;
 import com.bramosystems.oss.player.core.client.ui.WinMediaPlayer;
 import com.bramosystems.oss.player.core.event.client.PlayStateEvent;
-import com.bramosystems.oss.player.core.event.client.PlayStateEvent.State;
 import com.bramosystems.oss.player.core.event.client.PlayStateHandler;
 //import com.bramosystems.oss.player.flat.client.FlatVideoPlayer;
 import com.bramosystems.oss.player.playlist.client.asx.ASXEntry;
 import com.bramosystems.oss.player.playlist.client.asx.ASXPlaylist;
 import com.bramosystems.oss.player.playlist.client.spf.SPFPlaylist;
 import com.bramosystems.oss.player.playlist.client.spf.Track;
+import com.bramosystems.oss.player.youtube.client.YouTubePlayer;
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.JsArray;
@@ -99,9 +99,9 @@ public class Dev extends FlowPanel implements EntryPoint {
 //                addPlayer(Plugin.QuickTimePlayer);
 
 //                    add(new MimeStuffs());
-        //        addUTube();
+                addUTube();
         //               issueDialog();
-         add(pb.createAndBindUi(this)); //TODO: requires GWT 2.1
+//         add(pb.createAndBindUi(this)); //TODO: requires GWT 2.1
 /*
         try {
             RequestBuilder rb = new RequestBuilder(RequestBuilder.GET, GWT.getModuleBaseURL() + "jspf.json");
@@ -240,66 +240,17 @@ public class Dev extends FlowPanel implements EntryPoint {
     }
 
     private void addUTube() {
-        final PlayStateHandler psh = new PlayStateHandler() {
-
-            @Override
-            public void onPlayStateChanged(PlayStateEvent event) {
-
-                if (event.getPlayState() == State.Finished) {
-                    GWT.log("finished");
-                }
-                if (event.getPlayState() == State.Stopped) {
-                    GWT.log("stopped");
-                }
-                if (event.getPlayState() == State.Paused) {
-                    GWT.log("paused");
-                }
-                if (event.getPlayState() == State.Started) {
-                    GWT.log("started");
-                }
-            }
-        };
-
-        add(new Button("[1] click to create player", new ClickHandler() {
-
-            @Override
-            public void onClick(ClickEvent event) {
-                try {
-                    NativePlayer np = new NativePlayer(GWT.getModuleBaseURL() + "big-buck-bunny.mp4", false, "260px", "80%");
-                    np.showLogger(true);
-                    np.addPlayStateHandler(psh);
-                    add(np);
-                } catch (LoadException ex) {
-                } catch (PluginNotFoundException ex) {
-                    add(PlayerUtil.getMissingPluginNotice(ex.getPlugin()));
-                }
-            }
-        }));
-
         try {
-            npp = new NativePlayer(null, false);
-            npp.setResizeToVideoSize(true);
-            npp.showLogger(true);
-            npp.addPlayStateHandler(psh);
-            npp.setVisible(false);
-            add(npp);
-        } catch (LoadException ex) {
+            YouTubePlayer pl = new YouTubePlayer("http://www.youtube.com/v/MrsGEz4NtBk", "100%", "200px");
+            pl.addToPlaylist("u1zgFlCw8Aw");
+            pl.showLogger(true);
+            add(pl);
+        } catch (PluginVersionException ex) {
+            add(PlayerUtil.getMissingPluginNotice(ex.getPlugin(), ex.getRequiredVersion()));
         } catch (PluginNotFoundException ex) {
+            add(PlayerUtil.getMissingPluginNotice(ex.getPlugin()));
         }
-
-        add(new Button("[2] click to set player url", new ClickHandler() {
-
-            @Override
-            public void onClick(ClickEvent event) {
-                try {
-                    npp.setVisible(true);
-                    npp.loadMedia(GWT.getModuleBaseURL() + "big-buck-bunny.mp4");
-                } catch (LoadException ex) {
-                }
-            }
-        }));
     }
-    NativePlayer npp = null;
 
     private String getURL(String path) {
         return Location.createUrlBuilder().setPort(8080).setPath(path).buildString();

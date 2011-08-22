@@ -330,6 +330,11 @@ public abstract class CustomAudioPlayer extends AbstractMediaPlayer implements P
     }
 
     @Override
+    public void setConfigParameter(ConfigParameter param, String value) {
+        engine.setConfigParameter(param, value);
+    }
+
+    @Override
     public void setRate(double rate) {
         engine.setRate(rate);
     }
