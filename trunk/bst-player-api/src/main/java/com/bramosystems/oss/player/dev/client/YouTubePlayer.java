@@ -13,17 +13,20 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-package com.bramosystems.oss.player.youtube.client;
+package com.bramosystems.oss.player.dev.client;
 
+import com.bramosystems.oss.player.youtube.client.*;
 import com.bramosystems.oss.player.core.client.AbstractMediaPlayer;
 import com.bramosystems.oss.player.core.client.ConfigParameter;
 import com.bramosystems.oss.player.core.client.ConfigValue;
 import com.bramosystems.oss.player.core.client.LoadException;
 import com.bramosystems.oss.player.core.client.PlayException;
+import com.bramosystems.oss.player.core.client.PlaylistSupport;
 import com.bramosystems.oss.player.core.client.PluginNotFoundException;
 import com.bramosystems.oss.player.core.client.PluginVersionException;
 import com.bramosystems.oss.player.core.client.RepeatMode;
 import com.bramosystems.oss.player.core.client.TransparencyMode;
+import com.bramosystems.oss.player.core.client.playlist.MRL;
 import com.bramosystems.oss.player.core.client.spi.PlayerWidget;
 import com.bramosystems.oss.player.core.client.spi.Player;
 import com.bramosystems.oss.player.core.client.ui.Logger;
@@ -36,12 +39,14 @@ import com.bramosystems.oss.player.core.event.client.PlayerStateHandler;
 import com.bramosystems.oss.player.youtube.client.impl.YouTubeEventManager;
 import com.bramosystems.oss.player.youtube.client.impl.YouTubePlayerImpl;
 import com.bramosystems.oss.player.youtube.client.impl.YouTubePlayerProvider;
+import com.bramosystems.oss.player.youtube.client.impl.YouTubePlaylistManager;
 import com.google.gwt.core.client.JsArrayString;
 import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.ui.FlowPanel;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Widget to embed YouTube video
@@ -72,7 +77,7 @@ import java.util.ArrayList;
  * @since 1.1
  */
 @Player(name = "YouTube", minPluginVersion = "9.0.0", providerFactory = YouTubePlayerProvider.class)
-public class YouTubePlayer extends AbstractMediaPlayer {
+public class YouTubePlayer {// extends AbstractMediaPlayer implements PlaylistSupport {
 
     private static YouTubeEventManager eventMgr = new YouTubeEventManager();
     protected YouTubePlayerImpl impl;
@@ -82,7 +87,7 @@ public class YouTubePlayer extends AbstractMediaPlayer {
     private PlayerWidget swf;
     private PlayerParameters pps;
     private RepeatMode repeatMode = RepeatMode.REPEAT_OFF;
-//    private YouTubePlaylistManager ypm;
+    private YouTubePlaylistManager ypm;
 
     /**
      * Constructs <code>YouTubePlayer</code> with the specified {@code height} and
@@ -97,7 +102,7 @@ public class YouTubePlayer extends AbstractMediaPlayer {
      * @throws PluginNotFoundException if the required Flash player plugin is not found
      * @throws PluginVersionException if Flash player version 8 and above is not found
      * @throws NullPointerException if either {@code videoURL}, {@code height} or {@code width} is null
-     */
+     *
     public YouTubePlayer(String videoURL, String width, String height)
             throws PluginNotFoundException, PluginVersionException {
         this(videoURL, new PlayerParameters(), width, height);
@@ -118,7 +123,7 @@ public class YouTubePlayer extends AbstractMediaPlayer {
      * @throws PluginNotFoundException if the required Flash player plugin is not found
      * @throws PluginVersionException if Flash player version 8 and above is not found
      * @throws NullPointerException if either {@code videoURL}, {@code height} or {@code width} is null
-     */
+     *
     public YouTubePlayer(String videoURL, PlayerParameters playerParameters, String width, String height)
             throws PluginNotFoundException, PluginVersionException {
         if (height == null) {
@@ -135,7 +140,6 @@ public class YouTubePlayer extends AbstractMediaPlayer {
         _height = height;
         _vURL = videoURL;
         pps = playerParameters;
-        /*
         ypm = new YouTubePlaylistManager(new YouTubePlaylistManager.CallbackHandler() {
 
             @Override
@@ -153,7 +157,7 @@ public class YouTubePlayer extends AbstractMediaPlayer {
                 fireDebug(info);
             }
         });
-         */
+
         playerId = DOM.createUniqueId().replace("-", "");
 
         logger = new Logger();
@@ -176,8 +180,8 @@ public class YouTubePlayer extends AbstractMediaPlayer {
                 impl = YouTubePlayerImpl.getPlayerImpl(playerId);
                 impl.registerHandlers(playerId);
                 fireDebug("YouTube Player");
-//                ypm.commitPlaylist();
-                playerInit();
+                ypm.commitPlaylist();
+//                playerInit();
             }
 
             @Override
@@ -297,7 +301,7 @@ public class YouTubePlayer extends AbstractMediaPlayer {
      * @param videoURL the URL of the YouTube&trade; video
      * @param playerParameters the parameters of the video
      * @return the normalized URL of the video
-     */
+     *
     protected String getNormalizedVideoAppURL(String videoURL, PlayerParameters playerParameters) {
         parseURLParams(videoURL, playerParameters);
         playerParameters.setJSApiEnabled(true);
@@ -308,7 +312,7 @@ public class YouTubePlayer extends AbstractMediaPlayer {
 
     /**
      * Called when player initialization is completed.
-     */
+     *
     protected void playerInit() {
     }
 
@@ -324,7 +328,7 @@ public class YouTubePlayer extends AbstractMediaPlayer {
      *
      * @param videoURL the URL of the YouTube&trade; video
      * @param playerParameters the parameters of the video
-     */
+     *
     protected final void parseURLParams(String videoURL, PlayerParameters playerParameters) {
         String _params[] = videoURL.split("&");
         videoURL = _params[0];
@@ -405,7 +409,7 @@ public class YouTubePlayer extends AbstractMediaPlayer {
      *
      * @param playerParameters the player parameters
      * @return the parameters in YouTube&trade; video URL format
-     */
+     *
     protected final String paramsToString(PlayerParameters playerParameters) {
         StringBuilder url = new StringBuilder("&version=3");
         for (URLParameters _param : URLParameters.values()) {
@@ -577,7 +581,7 @@ public class YouTubePlayer extends AbstractMediaPlayer {
 
     /**
      * Checks whether the player controls are visible.  This implementation <b>always</b> return true.
-     */
+     *
     @Override
     public boolean isControllerVisible() {
         return true;
@@ -604,7 +608,7 @@ public class YouTubePlayer extends AbstractMediaPlayer {
      * set to {@linkplain PlaybackQuality#large} if that quality level is available.
      *
      * @param suggestedQuality the suggested video quality for the current video
-     */
+     *
     public void setPlaybackQuality(PlaybackQuality suggestedQuality) {
         if (impl != null) {
             impl.setPlaybackQuality(suggestedQuality.name().toLowerCase());
@@ -652,7 +656,7 @@ public class YouTubePlayer extends AbstractMediaPlayer {
      *
      * @param handler handler for the PlaybackQualityChangeEvent event
      * @return {@link HandlerRegistration} used to remove the handler
-     */
+     *
     public HandlerRegistration addPlaybackQualityChangeHandler(PlaybackQualityChangeHandler handler) {
         return addHandler(handler, PlaybackQualityChangeEvent.TYPE);
     }
@@ -669,9 +673,7 @@ public class YouTubePlayer extends AbstractMediaPlayer {
                 }
         }
     }
-/*
-     * Roll into v 2.0
-     * 
+
     @Override
     public void addToPlaylist(String mediaURL) {
          ypm.addToPlaylist(mediaURL);
@@ -743,7 +745,7 @@ public class YouTubePlayer extends AbstractMediaPlayer {
             impl.setShuffle(enable);
         }
     }
-*/
+
     private enum URLParameters {
 
         rel, autoplay, loop, enablejsapi, playerapiid, disablekb, egm, border,
@@ -751,4 +753,5 @@ public class YouTubePlayer extends AbstractMediaPlayer {
         controls, origin, playlist, modestbranding
         //cc_load_policy
     }
+    */
 }
