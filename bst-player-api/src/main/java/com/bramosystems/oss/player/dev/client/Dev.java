@@ -241,8 +241,8 @@ public class Dev extends FlowPanel implements EntryPoint {
 
     private void addUTube() {
         try {
-            YouTubePlayer pl = new YouTubePlayer("http://www.youtube.com/v/MrsGEz4NtBk", "100%", "200px");
-            pl.addToPlaylist("u1zgFlCw8Aw");
+            YouTubePlayer pl = new YouTubePlayer("http://www.youtube.com/v/MrsGEz4NtBk", "100%", "350px");
+//            pl.addToPlaylist("u1zgFlCw8Aw");
             pl.showLogger(true);
             add(pl);
         } catch (PluginVersionException ex) {
