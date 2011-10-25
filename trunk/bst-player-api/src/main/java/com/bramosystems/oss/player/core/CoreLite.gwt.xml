@@ -18,6 +18,7 @@
 "http://google-web-toolkit.googlecode.com/svn/tags/1.6.4/distro-source/core/src/gwt-module.dtd">
 <module>
     <inherits name="com.google.gwt.user.User"/>
+    <inherits name="com.google.gwt.http.HTTP"/>
     <inherits name="com.bramosystems.oss.player.core.event.Event" />
     <inherits name="com.bramosystems.oss.player.util.Util" />
     <stylesheet src="custom-control-styles.css" />
