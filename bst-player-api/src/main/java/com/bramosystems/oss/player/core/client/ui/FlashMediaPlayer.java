@@ -13,6 +13,7 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
+// TODO:  media duration not updated on time bar after loading b4 playing
 package com.bramosystems.oss.player.core.client.ui;
 
 import com.bramosystems.oss.player.core.client.playlist.MRL;
@@ -34,6 +35,7 @@ import com.bramosystems.oss.player.core.client.spi.Player;
 import com.google.gwt.dom.client.Document;
 import com.google.gwt.dom.client.NativeEvent;
 import com.google.gwt.event.dom.client.DomEvent;
+import com.google.gwt.http.client.URL;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.ui.*;
@@ -165,13 +167,13 @@ public class FlashMediaPlayer extends AbstractMediaPlayer implements PlaylistSup
                                 ctrl, alt, shift, cmd);
                         break;
                     case 20: // key down
-                        event = _doc.createKeyDownEvent(ctrl, alt, shift, cmd, stageX, stageY);
+                        event = _doc.createKeyDownEvent(ctrl, alt, shift, cmd, stageX);
                         break;
                     case 21: // key press
-                        event = _doc.createKeyPressEvent(ctrl, alt, shift, cmd, stageX, stageY);
+                        event = _doc.createKeyPressEvent(ctrl, alt, shift, cmd, stageX);
                         break;
                     case 22: // key up
-                        event = _doc.createKeyUpEvent(ctrl, alt, shift, cmd, stageX, stageY);
+                        event = _doc.createKeyUpEvent(ctrl, alt, shift, cmd, stageX);
                         break;
                 }
                 DomEvent.fireNativeEvent(event, FlashMediaPlayer.this);
@@ -240,10 +242,10 @@ public class FlashMediaPlayer extends AbstractMediaPlayer implements PlaylistSup
             _height = "0px";
             _width = "0px";
         }
-
+        
         swf = new PlayerWidget("core", Plugin.FlashPlayer.name(), playerId, FMPStateManager.getSWFImpl(), autoplay);
         swf.addParam("flashVars", "playerId=" + playerId + "&autoplay="
-                + autoplay + "&mediaURL=" + mediaURL);
+                + autoplay + "&mediaURL=" + URL.encodePathSegment(mediaURL)); // encode mediaURL to avoid ampersand conflict with flashvars
         swf.addParam("allowScriptAccess", "always");
         swf.addParam("allowFullScreen", "true");
         swf.addParam("bgcolor", "#000000");
