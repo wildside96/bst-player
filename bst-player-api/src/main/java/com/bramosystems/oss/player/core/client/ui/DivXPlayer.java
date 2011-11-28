@@ -127,9 +127,11 @@ public class DivXPlayer extends AbstractMediaPlayer implements PlaylistSupport {
                         loopManager.notifyPlayFinished();
                         break;
                     case 8: // FULLSCREEN_START
+                        fireDebug("Fullscreen started");
                         firePlayerStateEvent(PlayerStateEvent.State.FullScreenStarted);
                         break;
                     case 9: // FULLSCREEN_END
+                        fireDebug("Fullscreen ended");
                         firePlayerStateEvent(PlayerStateEvent.State.FullScreenFinished);
                         break;
                     case 10: // STATUS_PLAYING
@@ -166,6 +168,7 @@ public class DivXPlayer extends AbstractMediaPlayer implements PlaylistSupport {
                         fireDebug("Download finished");
                         fireLoadingProgress(1.0);
                         break;
+                        /*
                     case 4: // EMBEDDED_START
                     case 5: // EMBEDDED_END
                     case 6: // WINDOWED_START
@@ -177,6 +180,7 @@ public class DivXPlayer extends AbstractMediaPlayer implements PlaylistSupport {
                     case 3: // SHUT_DONE
                     default:
 //                        fireDebug("DEV: Status Changed : " + statusId);
+                         */
                 }
             }
 
@@ -318,13 +322,13 @@ public class DivXPlayer extends AbstractMediaPlayer implements PlaylistSupport {
         if (resizeToVideoSize) {
             if ((vidHeight > 0) && (vidWidth > 0)) {
                 fireDebug("Resizing Player : " + vidWidth + " x " + vidHeight);
-                _h = vidHeight + "px";
+                _h = (vidHeight + displayMode.controllerHeight) + "px";
                 _w = vidWidth + "px";
             }
         }
 
         playerWidget.setSize("100%", _h);
-        setSize(_w, _h);
+        setWidth(_w);
 
         if (!_height.equals(_h) && !_width.equals(_w)) {
             firePlayerStateEvent(PlayerStateEvent.State.DimensionChangedOnVideo);
@@ -582,6 +586,16 @@ public class DivXPlayer extends AbstractMediaPlayer implements PlaylistSupport {
     }
 
     /**
+     * Returns the skin mode of the player which is used to display playback controls.
+     *
+     * @return the display mode
+     * @since 1.3
+     */
+    public DisplayMode getDisplayMode() {
+         return displayMode;
+    }
+
+    /**
      * Specifies an image, text and text size to use as a preview for the video. 
      * 
      * <p>The image file which should be in PNG, JPEG or GIF format is used as a preview
@@ -709,7 +723,7 @@ public class DivXPlayer extends AbstractMediaPlayer implements PlaylistSupport {
     }
 
     /**
-     * An enum of buffering modes.  The mode is used to specify how the DivX Web Player should
+     * An enum of buffering modes for DivXPlayer widget.  The mode is used to specify how the DivX Web Player should
      * buffer downloaded data before attempting to start playback.
      */
     public static enum BufferingMode {
@@ -731,7 +745,7 @@ public class DivXPlayer extends AbstractMediaPlayer implements PlaylistSupport {
     }
 
     /**
-     * An enum of display modes.  The display mode is used to specify which skin mode
+     * An enum of display modes for DivXPlayer widget.  The display mode is used to specify which skin mode
      * the plugin should use to display playback controls
      */
     public static enum DisplayMode {
@@ -739,24 +753,30 @@ public class DivXPlayer extends AbstractMediaPlayer implements PlaylistSupport {
         /**
          * The player shows absolutely no controls.
          */
-        NULL,
+        NULL(0),
         /**
          * The player only shows a small floating controls bar in the bottom left corner of
          * the allocated video area.
          */
-        ZERO,
+        ZERO(0),
         /**
          * The player shows a more elaborate control bar at the bottom of the video area.
          */
-        MINI,
+        MINI(20),
         /**
          * The player shows a complete control bar at the bottom of the video area
          */
-        LARGE,
+        LARGE(65),
         /**
          * The player displays the complete control bar at the bottom of the video area and
          * an additional control bar at the top of the video area
          */
-        FULL
+        FULL(90);
+        
+        private int controllerHeight;
+
+        private DisplayMode(int controllerHeight) {
+            this.controllerHeight = controllerHeight;
+        }
     }
 }

@@ -81,7 +81,7 @@ import java.util.List;
  * @author Sikirulai Braheem
  * @since 1.0
  */
-@Player(name = "FlashPlayer", providerFactory = CorePlayerProvider.class, minPluginVersion = "9.0.0")
+@Player(name = "FlashPlayer", providerFactory = CorePlayerProvider.class, minPluginVersion = "10.0.0")
 public class FlashMediaPlayer extends AbstractMediaPlayer implements PlaylistSupport, MatrixSupport {
 
     private FMPStateManager manager;
@@ -242,7 +242,7 @@ public class FlashMediaPlayer extends AbstractMediaPlayer implements PlaylistSup
             _height = "0px";
             _width = "0px";
         }
-        
+
         swf = new PlayerWidget("core", Plugin.FlashPlayer.name(), playerId, FMPStateManager.getSWFImpl(), autoplay);
         swf.addParam("flashVars", "playerId=" + playerId + "&autoplay="
                 + autoplay + "&mediaURL=" + URL.encodePathSegment(mediaURL)); // encode mediaURL to avoid ampersand conflict with flashvars

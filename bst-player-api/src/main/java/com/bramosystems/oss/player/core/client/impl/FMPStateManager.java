@@ -72,7 +72,7 @@ public class FMPStateManager {
     // year[$]albumTitle[$]artists[$]comment[$]genre[$]title[$]
     // contentProviders[$]copyright[$]duration[$]hardwareSoftwareRequirements[$]
     // publisher[$]internetStationOwner[$]internetStationName[$]videoWidth[$]videoHeight
-
+    
     csv = infoCSV.split("[$]");
     mData.@com.bramosystems.oss.player.core.client.MediaInfo::year = csv[0];
     mData.@com.bramosystems.oss.player.core.client.MediaInfo::albumTitle = csv[1];
@@ -108,14 +108,14 @@ public class FMPStateManager {
 
         public void onFullScreen(boolean fullscreen);
     }
-    
+
     public static String getSWFImpl() {
         StringBuilder swf = new StringBuilder(GWT.getModuleBaseURL() + "bst-flash-player-");
-        
+
         //TODO: remove b4 release ...
-        swf.append("1.3-SNAPSHOT");   // inject bst-flash-player version via maven resources filter...
- //       swf.append("${version}");   // inject bst-flash-player version via maven resources filter...
-        if(Location.getProtocol().toLowerCase().startsWith("file")) {
+//        swf.append("1.3-SNAPSHOT");   // inject bst-flash-player version via maven resources filter...
+        swf.append("${version}");   // inject bst-flash-player version via maven resources filter...
+        if (Location.getProtocol().toLowerCase().startsWith("file")) {
             swf.append("-lo");
         }
         swf.append(".swf");
