@@ -17,21 +17,26 @@
 package com.bramosystems.oss.player.control {
 
     import com.bramosystems.oss.player.*;
+    import com.bramosystems.oss.player.external.Log;
     import com.bramosystems.oss.player.events.SeekChangedEvent;
 
     import flash.events.*;
 
     import mx.containers.*;
     import mx.controls.*;
+    import mx.controls.scrollClasses.ScrollThumb;
+    import mx.events.FlexEvent;
     import mx.managers.ToolTipManager;
 
-    public class Seekbar extends Canvas {
+    public class SeekbarX extends Canvas {
         private const HEIGHT:uint = 8;
         private var loading:Canvas, playing:Canvas;
         private var tip:ToolTip;
         private var _duration:Number;
+        private var thumb:ScrollThumb;
+        private var thumbDragging:Boolean;
 
-        public function Seekbar() {
+        public function SeekbarX() {
             x = 0;
             y = 0;
             height = HEIGHT;
@@ -48,6 +53,21 @@ package com.bramosystems.oss.player.control {
 
             addChild(loading);
             addChild(playing);
+
+            thumb = new ScrollThumb();
+            thumb.autoRepeat = true;
+            thumb.width = 10;
+            thumb.height = 10;
+            thumb.addEventListener(MouseEvent.MOUSE_DOWN, onThumbDrag);
+            thumb.addEventListener(MouseEvent.MOUSE_UP, onThumbDrag);
+            thumb.addEventListener(MouseEvent.MOUSE_MOVE, onThumbDrag);
+ //           thumb.addEventListener(FlexEvent.BUTTON_DOWN, onThumbDown);
+            addChild(thumb);
+ 
+            loading.addEventListener(MouseEvent.MOUSE_UP, onThumbDrag);
+            playing.addEventListener(MouseEvent.MOUSE_UP, onThumbDrag);
+            loading.addEventListener(MouseEvent.MOUSE_MOVE, onThumbDrag);
+            playing.addEventListener(MouseEvent.MOUSE_MOVE, onThumbDrag);
        }
 
         /********************** Events Callback Hooks *************************/
@@ -57,12 +77,42 @@ package com.bramosystems.oss.player.control {
 
         public function updatePlayingProgress(progress:Number, duration:Number):void {
             playing.percentWidth = progress / duration * 100;
+            var tbpos:Number = progress / duration * width;
+            if(tbpos < 5)
+                thumb.x = 0;
+            else if(tbpos >= (width - 5))
+                thumb.x = tbpos - 10;
+            else
+                thumb.x = tbpos - 5;
             _duration = duration;
         }
+
         /**************** BUTTON CLICK EVENTS ****************************/
         private function onPrev(event:MouseEvent):void {
         }
 
+        private function onThumbDrag(evt:MouseEvent):void {
+            var pos:int = 0;
+            switch(evt.type) {
+                case MouseEvent.MOUSE_DOWN:
+                    thumbDragging = true;
+                    break;
+                case MouseEvent.MOUSE_UP:
+                    thumbDragging = false;
+                    break;
+                case MouseEvent.MOUSE_MOVE:
+                        pos = evt.stageX - x - evt.localX;
+                    if(thumbDragging) {
+                      thumb.x = pos;
+                    }
+                    break;
+            }
+            Log.info("Seek: dragging - " + thumbDragging + "; pos - " + pos);
+        }
+
+         private function onThumbDown(evt:FlexEvent):void {
+             Log.info("Seek: button down - ");
+        }
        /********************** UI Stuffs *******************************/
         private function initProgressBar(bar:Canvas, playing:Boolean):void {
             bar.x = 0;

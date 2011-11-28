@@ -76,7 +76,7 @@ package com.bramosystems.oss.player.control {
             addChild(new VolumeControl(_setting));
             addChild(getScreenToggler());
 
-            Application.application.stage.addEventListener(FullScreenEvent.FULL_SCREEN, onFullScreen);
+            FlexGlobals.topLevelApplication.stage.addEventListener(FullScreenEvent.FULL_SCREEN, onFullScreen);
             updateDisplay(false);
             _attachEffect();
             _ahTimer.addEventListener(TimerEvent.TIMER, onAHTimer);
@@ -216,13 +216,13 @@ package com.bramosystems.oss.player.control {
         }
 
         private function onToggleScreen(event:MouseEvent):void {
-            switch(Application.application.stage.displayState) {
+            switch(FlexGlobals.topLevelApplication.stage.displayState) {
                 case StageDisplayState.NORMAL:
-                    Application.application.stage.displayState = StageDisplayState.FULL_SCREEN;
+                    FlexGlobals.topLevelApplication.stage.displayState = StageDisplayState.FULL_SCREEN;
                     break;
                 case StageDisplayState.FULL_SCREEN:
                 default:
-                    Application.application.stage.displayState = StageDisplayState.NORMAL;
+                    FlexGlobals.topLevelApplication.stage.displayState = StageDisplayState.NORMAL;
             setAutoHide(false);
                     break;
             }

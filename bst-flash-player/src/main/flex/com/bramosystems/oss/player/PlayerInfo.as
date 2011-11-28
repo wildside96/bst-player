@@ -45,11 +45,11 @@ package com.bramosystems.oss.player {
         }
 
         public static function getPlayerInfo():String {
-            return "BST Player 1.2.1";
+            return "BST Player 1.3";
         }
 
         public static function getPlayerVersion():String {
-            return "1.2.1";
+            return "1.3";
         }
     }
 }

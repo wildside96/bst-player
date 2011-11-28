@@ -15,28 +15,28 @@
  */
 
 package com.bramosystems.oss.player {
-    import mx.core.Application;
+    import mx.core.FlexGlobals;
 
     public class PlayerOptions {
 
         public static function get playerId():String {
-            return Application.application.parameters.playerId;
+            return FlexGlobals.topLevelApplication.parameters.playerId;
         }
 
         public static function get autoplay():Boolean {
-            return Application.application.parameters.autoplay == "true";
+            return FlexGlobals.topLevelApplication.parameters.autoplay == "true";
         }
 
         public static function get mediaURL():String {
-            return Application.application.parameters.mediaURL;
+            return FlexGlobals.topLevelApplication.parameters.mediaURL;
         }
 
         public static function get isDebug():Boolean {
-            return Application.application.parameters.debug == "true";
+            return FlexGlobals.topLevelApplication.parameters.debug == "true";
         }
 
         public static function get isMouseEventsEnabled():Boolean {
-            return Application.application.parameters.enableMouseEvent == "true";
+            return FlexGlobals.topLevelApplication.parameters.enableMouseEvent == "true";
         }
     }
 }
