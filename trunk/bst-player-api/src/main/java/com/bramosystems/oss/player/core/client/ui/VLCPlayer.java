@@ -224,9 +224,11 @@ public class VLCPlayer extends AbstractMediaPlayer implements PlaylistSupport {
         isEmbedded = (height == null) || (width == null);
         if (!isEmbedded) {
             control = new CustomPlayerControl(this);
+            control.setWidth("100%");
             panel.add(control);
 
             logger = new Logger();
+            logger.setWidth("100%");
             logger.setVisible(false);
             panel.add(logger);
 
@@ -624,6 +626,11 @@ public class VLCPlayer extends AbstractMediaPlayer implements PlaylistSupport {
 
         if (resizeToVideoSize) {
             if ((vidHeight > 0) && (vidWidth > 0)) {
+                if ((vidWidth <= 180) && control.isVisible()) {
+                    vidWidth = 180; // not lower than controller min width ...
+                    fireDebug("Player width cannot be less than 180px");
+                }
+
                 // adjust to video size ...
                 fireDebug("Resizing Player : " + vidWidth + " x " + vidHeight);
                 _h = vidHeight + "px";
@@ -631,7 +638,7 @@ public class VLCPlayer extends AbstractMediaPlayer implements PlaylistSupport {
             }
         }
 
-        playerWidget.setSize("100%", _h);
+        playerWidget.setHeight(_h);
         setWidth(_w);
 
         if (!_height.equals(_h) && !_width.equals(_w)) {

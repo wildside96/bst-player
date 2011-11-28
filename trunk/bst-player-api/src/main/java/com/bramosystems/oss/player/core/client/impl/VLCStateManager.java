@@ -154,6 +154,7 @@ public class VLCStateManager {
         public void onPlaying();
 
         public void onPaused();
+
         public void onEndReached();
 
         public void onStopped();
@@ -167,7 +168,6 @@ public class VLCStateManager {
 //        public void onMouseGrabed(double x, double y);
 //        public void onForward();
 //        public void onBackward();
-
         public void onMediaInfo(MediaInfo info);
     }
 
