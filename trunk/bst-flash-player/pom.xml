@@ -22,6 +22,7 @@
                 <groupId>org.sonatype.flexmojos</groupId>
                 <artifactId>flexmojos-maven-plugin</artifactId>
                 <extensions>true</extensions>
+                <version>${flexmojo.version}</version>
                 <dependencies>
                     <dependency>
                         <groupId>com.adobe.flex</groupId>
@@ -31,7 +32,7 @@
                     </dependency>
                 </dependencies>
                 <configuration>
-                    <incremental>false</incremental>
+                    <targetPlayer>10.0.0</targetPlayer>
                 </configuration>                                      
                 <executions>
                     <execution>
@@ -48,26 +49,72 @@
             </plugin>
         </plugins>
     </build>
-    
+        
     <properties>
-        <flex.version>3.2.0.3958</flex.version>
+        <flex.version>4.5.0.20967</flex.version>
+        <flexmojo.version>4.0-RC2</flexmojo.version>
     </properties>
 
     <dependencies>
-        <dependency>
+        <dependency> 
             <groupId>com.adobe.flex.framework</groupId>
             <artifactId>flex-framework</artifactId>
             <version>${flex.version}</version>
             <type>pom</type>
-        </dependency>
-        <dependency>
+        </dependency> 
+        <dependency> 
             <groupId>com.adobe.flexunit</groupId>
             <artifactId>flexunit</artifactId>
             <version>0.90</version>
-            <type>swc</type>
+            <type>swc</type> 
             <scope>test</scope>
-        </dependency>
+        </dependency> 
     </dependencies>
+
+    <pluginRepositories>
+        <pluginRepository>
+            <id>flexmojos-plugin</id>
+            <url>http://repository.sonatype.org/content/groups/flexgroup/</url>
+            <releases> 
+                <enabled>true</enabled> 
+            </releases>
+            <snapshots> 
+                <enabled>false</enabled> 
+            </snapshots>
+        </pluginRepository>
+        <pluginRepository>
+            <id>sonatype-plugin</id>
+            <url>http://repository.sonatype.org/content/groups/public/</url>
+            <releases> 
+                <enabled>true</enabled> 
+            </releases>
+            <snapshots> 
+                <enabled>false</enabled> 
+            </snapshots>
+        </pluginRepository>
+    </pluginRepositories>
+    <repositories>
+        <repository>
+            <id>flexmojos-repo</id>
+            <url>http://repository.sonatype.org/content/groups/flexgroup/</url>
+            <releases> 
+                <enabled>true</enabled> 
+            </releases>
+            <snapshots> 
+                <enabled>false</enabled> 
+            </snapshots>
+        </repository>
+        <repository>
+            <id>sonatype-repo</id>
+            <url>http://repository.sonatype.org/content/groups/public/</url>
+            <releases> 
+                <enabled>true</enabled> 
+            </releases>
+            <snapshots> 
+                <enabled>false</enabled> 
+            </snapshots>
+        </repository>
+    </repositories>
 
     <profiles>
         <profile>

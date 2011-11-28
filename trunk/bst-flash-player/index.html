@@ -30,7 +30,7 @@
                 document.getElementById("trace1").innerHTML += type + " - " + message + "<br/>";
             }
            bstplayer.handlers.swf.gwtuid1.onStateChanged = function(state, index) {
-                document.getElementById("trace1").innerHTML += "state: " + state + " - " + index + "<br/>";
+ //               document.getElementById("trace1").innerHTML += "state: " + state + " - " + index + "<br/>";
             }
             bstplayer.handlers.swf.gwtuid2 = new Object();
             bstplayer.handlers.swf.gwtuid2.onMessage = function(type, message) {
@@ -68,41 +68,38 @@
         </div>
         <div style="width: 42%; float: left">
             <object id="gwtuid1" classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000" style="width: 100%; height: 400px" >
-                <param name="src" value="target/bst-flash-player-1.2.2-SNAPSHOT.swf"/>
-                <param name="flashvars" value="playerId=gwtuid1&autoplay=false&debug=true&mediaURL=http://192.168.19.135:8080/traffic.flv">
+                <param name="src" value="target/bst-flash-player-1.3-SNAPSHOT.swf"/>
+                <param name="flashvars" value="playerId=gwtuid1&autoplay=false&mediaURL=http://localhost:8080/u2intro.mp4">
                 <!--param name="allowScriptAccess" value="always"-->
                 <param name="allowNetworking" value="all">
                 <param name="allowfullscreen" value="true">                
                 <param name="wmode" value="opaque">                
 
             <embed id="gwtuid1"  type="application/x-shockwave-flash"
-                   src="target/bst-flash-player-1.2.2-SNAPSHOT.swf"  name="gwtuid1"
-                   flashvars="playerId=gwtuid1&autoplay=false&mediaURL=http://192.168.20.68:8080/traffic.flv"
+                   src="target/bst-flash-player-1.3-SNAPSHOT.swf"  name="gwtuid1"
+                   flashvars="playerId=gwtuid1&autoplay=false&mediaURL=http://localhost:8080/u2intro.mp4"
                    allowscriptaccess="always" allowfullscreen="true" style="width: 100%; height: 400px" wmode="opaque"/>
             </object> 
             <div id="trace1" style="margin-top: 5px; font-size: 12px;overflow: scroll;height: 150px"></div>
         </div>
 
-<!--
+
         <div style="width: 42%; float: right">
             <object id="gwtuid2" classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000" style="width: 100%; height: 400px" >
-                <param name="src" value="target/bst-flash-player-1.2.1-SNAPSHOT-lo.swf">
-                <param name="flashvars" value="playerId=gwtuid2&autoplay=false&debug=true&mediaURL=file:///C:/SPEC/traffic.flv">
+                <param name="src" value="target/bst-flash-player-1.3-SNAPSHOT-lo.swf">
+                <param name="flashvars" value="playerId=gwtuid2&autoplay=false&mediaURL=file://E:/Lib/Apps/OSSProjects/bst-player/bst-flash-player/u2intro.mp4">
                 <param name="allowNetworking" value="all">
                 <param name="allowfullscreen" value="true">                
                 <param name="wmode" value="opaque">                
 
             <embed id="gwtuid2"  type="application/x-shockwave-flash"
-                   src="target/bst-flash-player-1.2.1-SNAPSHOT-lo.swf"  name="gwtuid2"
-                   flashvars="playerId=gwtuid2&autoplay=false&mediaURL=file:///C:/SPEC/projects/oss/bst-player/bst-flash-player/traffic.flv"
+                   src="target/bst-flash-player-1.3-SNAPSHOT-lo.swf"  name="gwtuid2"
+                   flashvars="playerId=gwtuid2&autoplay=false&mediaURL=file://E:/Lib/Apps/OSSProjects/bst-player/bst-flash-player/u2intro.mp4"
                    allowscriptaccess="always" allowfullscreen="true" style="width: 100%; height: 400px" wmode="opaque"/>
             </object>
             <div id="trace2" style="margin-top: 5px; font-size: 12px;overflow: scroll;height: 150px"></div>
         </div>
-
-<param name="flashvars" value="playerId=gwtuid2&autoplay=false&debug=false&mediaURL=file:///C:/SPEC/projects/oss/bst-player/bst-flash-player/traffic.flv">
-                   flashvars="playerId=gwtuid2&autoplay=false&mediaURL=file:///C:/SPEC/projects/oss/bst-player/bst-flash-player/traffic.flv"
-                   flashvars="playerId=gwtuid2&autoplay=false&mediaURL=file:///C:/Users/User/Documents/Sikiru/Lib/Apps/OSSProjects/bst-player-r120/bst-player-showcase/target/bst-player-showcase/media
+<!--
 -->
     </body>
 </html>

@@ -16,13 +16,10 @@
  * the License.
  *
 -->
+<s:Application xmlns:fx="http://ns.adobe.com/mxml/2009" xmlns:s="library://ns.adobe.com/flex/spark" xmlns:mx="library://ns.adobe.com/flex/mx"
+        applicationComplete="initApp()" backgroundAlpha="0.0" backgroundColor="0x000000">
 
-<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml" xmlns="*" applicationComplete="initApp()"
-        horizontalAlign="center" verticalAlign="bottom" backgroundAlpha="0.0" layout="absolute"
-        horizontalScrollPolicy="off" verticalScrollPolicy="off" backgroundColor="0x000000"
-        paddingLeft="0" paddingTop="0" paddingBottom="0" paddingRight="0">
-
-    <mx:Script>
+    <fx:Script>
         <![CDATA[
             import com.bramosystems.oss.player.*;
             import com.bramosystems.oss.player.control.*;
@@ -34,6 +31,7 @@
             import flash.events.*;
             import flash.display.*;
             import flash.geom.*;
+            import mx.core.FlexGlobals;
             import mx.events.*;
 
             private var debug:Boolean = true;
@@ -53,8 +51,8 @@
                     controller = new Controller(player, setting, playlist);
                     EventUtil.controller = controller;
 
-                    addChild(player);
-                    addChild(controller);
+                    addElement(player);
+                    addElement(controller);
 
                     /********************** ADD EVENT LISTENERS ************************/
                     addEventListener(MouseEvent.MOUSE_DOWN, EventUtil.fireMouseDownEvent);
@@ -63,8 +61,8 @@
                     addEventListener(MouseEvent.MOUSE_MOVE, controller.onAHMouseMove);
                     addEventListener(MouseEvent.CLICK, EventUtil.fireClickEvent);
                     addEventListener(MouseEvent.DOUBLE_CLICK, EventUtil.fireDoubleClickEvent);
-                    application.addEventListener(KeyboardEvent.KEY_UP, EventUtil.fireKeyUpEvent);
-                    application.addEventListener(KeyboardEvent.KEY_DOWN, EventUtil.fireKeyDownEvent);
+                    FlexGlobals.topLevelApplication.addEventListener(KeyboardEvent.KEY_UP, EventUtil.fireKeyUpEvent);
+                    FlexGlobals.topLevelApplication.addEventListener(KeyboardEvent.KEY_DOWN, EventUtil.fireKeyDownEvent);
 
                     /********************** SETUP JS-INTERFACE FUNCTIONS ************************/
                     attachJSInterface(setting, playlist);
@@ -73,7 +71,7 @@
                     contextMenu = new PlayerInfo().getMenu();
                     Log.info(PlayerInfo.getPlayerInfo());
                     Log.info("Flash Plugin Version " + getFlashVersion());
-                    Log.debug("Security Zone " + Security.sandboxType);
+                    Log.debug("Security Zone : " + Security.sandboxType);
                     playlist.add(PlayerOptions.mediaURL);
                     EventUtil.fireApplicationInitialized();
 
@@ -156,5 +154,5 @@
                 return vers;
             }
         ]]>
-    </mx:Script>
-</mx:Application>
+    </fx:Script>
+</s:Application>

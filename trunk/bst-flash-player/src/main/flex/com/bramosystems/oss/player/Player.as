@@ -66,7 +66,7 @@ package com.bramosystems.oss.player {
             updateVolume(setting.getVolume());
 
             playlist = _playlist;
-            Application.application.stage.addEventListener(FullScreenEvent.FULL_SCREEN, onFullScreen);
+            FlexGlobals.topLevelApplication.stage.addEventListener(FullScreenEvent.FULL_SCREEN, onFullScreen);
         }
 
         public function setDebugEnabled(enabled:Boolean):void {
@@ -91,7 +91,6 @@ package com.bramosystems.oss.player {
         }
 
         public function play():void {
-            Log.debug("state : " + state);
             switch(state) {
                 case LOADED:
                 case PAUSED:
@@ -293,8 +292,8 @@ package com.bramosystems.oss.player {
         public function updateVDUSize():void {
             var _vduHeight:int = vdu.metadata ? vdu.metadata.height : vdu.height;
             var _vduWidth:int = vdu.metadata ? vdu.metadata.width : vdu.width;
-            var _aHeight:int = Application.application.height;
-            var _aWidth:int = Application.application.width;
+            var _aHeight:int = FlexGlobals.topLevelApplication.height;
+            var _aWidth:int = FlexGlobals.topLevelApplication.width;
 
             if((_aHeight < _vduHeight) || (_aWidth < _vduWidth)) {  // avoid cropping
                 vdu.percentHeight = 100;

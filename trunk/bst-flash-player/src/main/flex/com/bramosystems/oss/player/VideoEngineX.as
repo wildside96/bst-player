@@ -25,15 +25,26 @@ package com.bramosystems.oss.player {
     import mx.events.VideoEvent;
     import mx.events.MetadataEvent;
 
-    public class VideoEngine extends VideoDisplay implements Engine {
+    import spark.components.VideoPlayer;
+    import org.osmf.events.LoadEvent;
+    import org.osmf.events.MediaPlayerStateChangeEvent;
+    import org.osmf.events.TimeEvent;
+    import org.osmf.media.MediaPlayerState;
 
-            public function VideoEngine() {
-                addEventListener(ProgressEvent.PROGRESS, loadingProgressHandler);
+    public class VideoEngineX extends VideoPlayer implements Engine {
+
+            public function VideoEngineX() {
+                addEventListener(LoadEvent.BYTES_LOADED_CHANGE, loadingProgressHandler);
+                addEventListener(LoadEvent.BYTES_TOTAL_CHANGE, loadingProgressHandler);
+                addEventListener(MediaPlayerStateChangeEvent.MEDIA_PLAYER_STATE_CHANGE, stateHandler);
+                addEventListener(TimeEvent.COMPLETE, onCompleteHandler);
+
                 addEventListener(MetadataEvent.METADATA_RECEIVED, metadataHandler);
-                addEventListener(VideoEvent.STATE_CHANGE, stateHandler);
                 addEventListener(VideoEvent.PLAYHEAD_UPDATE, playingProgressHandler);
-                playheadUpdateInterval = 500;
-                live = true; // needed to make live streams visible [- wankes2000]
+                percentHeight = 100;
+                percentWidth = 100;
+ //               playheadUpdateInterval = 500;
+ //               live = true; // needed to make live streams visible [- wankes2000]
             }
 
             /**************************** PLAYER IMPL ******************************/
@@ -48,7 +59,7 @@ package com.bramosystems.oss.player {
                     this.mediaURL = url;
                     propagateMeta = true;
                     source = url;
-                    playerReadyHandler();
+//                    playerReadyHandler();
                 }
             }
 
@@ -59,6 +70,9 @@ package com.bramosystems.oss.player {
                 }
                 _canFireFinished = true;
                 super.play();
+            }
+
+            public function close():void {
             }
 
             public function _stop(fireEvent:Boolean):void {
@@ -72,15 +86,15 @@ package com.bramosystems.oss.player {
             }
 
             public function getDuration():Number {
-                return totalTime * 1000.0;
+                return duration * 1000.0;
             }
 
             public function getPlayPosition():Number {
-                return playheadTime * 1000.0;
+                return currentTime * 1000.0;
             }
 
             public function setPlayPosition(pos:Number):void {
-                playheadTime = pos / 1000.0;
+//                playheadTime = pos / 1000.0;
             }
 
             /********************* Javascript call impls. *************************/
@@ -134,29 +148,38 @@ package com.bramosystems.oss.player {
                 }
             }
 
-            private function stateHandler(event:VideoEvent):void {
+            private function onCompleteHandler(event:TimeEvent):void {
+                switch(event.type){
+                    case TimeEvent.COMPLETE:
+                        dispatchEvent(new PlayStateEvent(PlayStateEvent.PLAY_FINISHED));
+                }
+            }
+
+            private function stateHandler(event:MediaPlayerStateChangeEvent):void {
                 switch(event.state) {
-                    case VideoEvent.DISCONNECTED: // The video stream has timed out or is idle.
-                    case VideoEvent.BUFFERING:
-                    case VideoEvent.LOADING:
-                    case VideoEvent.RESIZING:  // The control is resizing.
-                    case VideoEvent.SEEKING: // a seek occurring due to the playHeadTime property being set.
+                    case MediaPlayerState.READY: // The player is ready.
+                        EventUtil.fireMediaStateChanged(1);
                         break;
-                    case VideoEvent.REWINDING: // The autorewind triggered when play stops.
-                        if(_canFireFinished) {
-                            dispatchEvent(new PlayStateEvent(PlayStateEvent.PLAY_FINISHED));
-                        }
+                    case MediaPlayerState.BUFFERING:
+                    case MediaPlayerState.LOADING:
+//                   case VideoEvent.RESIZING:  // The control is resizing.
+//                    case VideoEvent.SEEKING: // a seek occurring due to the playHeadTime property being set.
                         break;
-                    case VideoEvent.PLAYING:
+ //                   case VideoEvent.REWINDING: // The autorewind triggered when play stops.
+  //                      if(_canFireFinished) {
+  //                          dispatchEvent(new PlayStateEvent(PlayStateEvent.PLAY_FINISHED));
+  //                      }
+  //                      break;
+                    case MediaPlayerState.PLAYING:
                         dispatchEvent(new PlayStateEvent(PlayStateEvent.PLAY_STARTED));
                         break;
-                    case VideoEvent.STOPPED:
-                        if(_canFireStopped) {
-                            dispatchEvent(new PlayStateEvent(PlayStateEvent.PLAY_STOPPED));
-                            _canFireStopped = false;
-                        }
-                        break;
-                    case VideoEvent.PAUSED:
+ //                   case VideoEvent.STOPPED:
+ //                       if(_canFireStopped) {
+ //                           dispatchEvent(new PlayStateEvent(PlayStateEvent.PLAY_STOPPED));
+ //                           _canFireStopped = false;
+ //                       }
+ //                       break;
+                    case MediaPlayerState.PAUSED:
                         dispatchEvent(new PlayStateEvent(PlayStateEvent.PLAY_PAUSED));
                         break;
 //                    case NetStream.Play.StreamNotFound:
@@ -164,19 +187,28 @@ package com.bramosystems.oss.player {
 //                        "Internet, connect to the Internet. If the file is located on a " +
 //                        "removable storage media, insert the storage media.");
 //                        break;
-                    case VideoEvent.CONNECTION_ERROR:
-                        Log.error("Connection cannot be established!");
-                        dispatchEvent(new PlayStateEvent(PlayStateEvent.PLAY_FINISHED));
+                    case MediaPlayerState.PLAYBACK_ERROR:
+                        Log.error("An error has occured !");
+ //                       dispatchEvent(new PlayStateEvent(PlayStateEvent.PLAY_FINISHED));
                         break;
                 }
             }
-
+/*
             private function playerReadyHandler():void {
                 EventUtil.fireMediaStateChanged(1);
             }
+*/
+            private var byteLoaded:Number, byteTotal:Number
+            private function loadingProgressHandler(event:LoadEvent):void {
+                switch(event.type) {
+                    case LoadEvent.BYTES_LOADED_CHANGE:
+                        byteLoaded = event.bytes;
+                        break;
+                    case LoadEvent.BYTES_TOTAL_CHANGE:
+                        byteTotal = event.bytes;
+                }
 
-            private function loadingProgressHandler(event:ProgressEvent):void {
-                var prog:Number = event.bytesLoaded / event.bytesTotal;
+                var prog:Number = byteLoaded / byteTotal;
                 if(prog < 1.0) {
                     EventUtil.fireLoadingProgress(prog);
                 } else {
