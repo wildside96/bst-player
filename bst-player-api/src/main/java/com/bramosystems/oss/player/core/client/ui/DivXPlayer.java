@@ -126,6 +126,12 @@ public class DivXPlayer extends AbstractMediaPlayer implements PlaylistSupport {
                         fireDebug("Playback ended");
                         loopManager.notifyPlayFinished();
                         break;
+                    case 6: // WINDOWED_START
+                        fireDebug("Window mode started");
+                        break;
+                    case 7: // WINDOWED_END
+                        fireDebug("Window mode ended");
+                        break;
                     case 8: // FULLSCREEN_START
                         fireDebug("Fullscreen started");
                         firePlayerStateEvent(PlayerStateEvent.State.FullScreenStarted);
@@ -168,19 +174,17 @@ public class DivXPlayer extends AbstractMediaPlayer implements PlaylistSupport {
                         fireDebug("Download finished");
                         fireLoadingProgress(1.0);
                         break;
-                        /*
+                    /*
                     case 4: // EMBEDDED_START
                     case 5: // EMBEDDED_END
-                    case 6: // WINDOWED_START
-                    case 7: // WINDOWED_END
                     case 12: // STATUS_FF
                     case 13: // STATUS_RW
-//                        break;
+                    //                        break;
                     case 0: // INIT_DONE
                     case 3: // SHUT_DONE
                     default:
-//                        fireDebug("DEV: Status Changed : " + statusId);
-                         */
+                    //                        fireDebug("DEV: Status Changed : " + statusId);
+                     */
                 }
             }
 
@@ -240,6 +244,7 @@ public class DivXPlayer extends AbstractMediaPlayer implements PlaylistSupport {
         playerWidget.addParam("timeCallback", "bstplayer.handlers.divx." + playerId + ".timeState");
 
         FlowPanel panel = new FlowPanel();
+        initWidget(panel);
         panel.add(playerWidget);
 
         if (!isEmbedded) {
@@ -268,9 +273,8 @@ public class DivXPlayer extends AbstractMediaPlayer implements PlaylistSupport {
                 }
             });
         }
-
-        initWidget(panel);
-
+        playerWidget.setSize("100%", _height);
+        setWidth(_width);
         playlistManager.addToPlaylist(mediaURL);
     }
 
@@ -341,12 +345,10 @@ public class DivXPlayer extends AbstractMediaPlayer implements PlaylistSupport {
     @Override
     protected final void onLoad() {
         fireDebug("DivX Web Player plugin");
-        playerWidget.setSize("100%", _height);
         impl = DivXPlayerImpl.getPlayer(playerId);
         fireDebug("Plugin Version : " + impl.getPluginVersion());
-        setWidth(_width);
-        playlistManager.load(0);
         firePlayerStateEvent(PlayerStateEvent.State.Ready);
+        playlistManager.load(0);
     }
 
     /**
@@ -592,7 +594,7 @@ public class DivXPlayer extends AbstractMediaPlayer implements PlaylistSupport {
      * @since 1.3
      */
     public DisplayMode getDisplayMode() {
-         return displayMode;
+        return displayMode;
     }
 
     /**
@@ -772,7 +774,6 @@ public class DivXPlayer extends AbstractMediaPlayer implements PlaylistSupport {
          * an additional control bar at the top of the video area
          */
         FULL(90);
-        
         private int controllerHeight;
 
         private DisplayMode(int controllerHeight) {

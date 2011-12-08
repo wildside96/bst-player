@@ -282,7 +282,7 @@ public class NativePlayer extends AbstractMediaPlayer implements PlaylistSupport
         this(mediaURL, autoplay, NativePlayerUtil.get.getPlayerHeight(), "100%");
     }
 
-    // TODO: if player does not support URL throw LoadException...
+    // TODO: 2.x remove LoadException from throws clause ....
     /**
      * Constructs <code>NativePlayer</code> with the specified {@code height} and
      * {@code width} to playback media located at {@code mediaURL}. Media playback

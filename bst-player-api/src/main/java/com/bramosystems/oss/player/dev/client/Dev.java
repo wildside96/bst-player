@@ -27,6 +27,7 @@ import com.bramosystems.oss.player.core.client.Plugin;
 import com.bramosystems.oss.player.core.client.PluginNotFoundException;
 import com.bramosystems.oss.player.core.client.PluginVersionException;
 import com.bramosystems.oss.player.core.client.ui.FlashMediaPlayer;
+import com.bramosystems.oss.player.core.client.ui.QuickTimePlayer;
 import com.bramosystems.oss.player.core.client.ui.WinMediaPlayer;
 import com.bramosystems.oss.player.core.event.client.PlayStateEvent;
 import com.bramosystems.oss.player.core.event.client.PlayStateHandler;
@@ -35,7 +36,6 @@ import com.bramosystems.oss.player.playlist.client.asx.ASXEntry;
 import com.bramosystems.oss.player.playlist.client.asx.ASXPlaylist;
 import com.bramosystems.oss.player.playlist.client.spf.SPFPlaylist;
 import com.bramosystems.oss.player.playlist.client.spf.Track;
-import com.bramosystems.oss.player.youtube.client.YouTubePlayer;
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.JsArray;
@@ -58,12 +58,13 @@ import java.util.Iterator;
  *
  * @author Sikirulai Braheem <sbraheem at gmail.com>
  * 
- * TODO:  2.x - Remove mediaURL from constructor methods, use with playlist
- * TODO:  2.x - Remove LoadException from constructor methods
+ * TODO: 2.x - Remove mediaURL from constructor methods, use with playlist
+ * TODO: 2.x - Remove LoadException from constructor methods
+ * TODO: Fix WMP display on Firefox
  */
 public class Dev extends FlowPanel implements EntryPoint {
 
-    private final String HEIGHT = "350px", WIDTH = "90%";
+    private final String HEIGHT = "50px", WIDTH = "60%";
     private AbstractMediaPlayer mmp;
     private ArrayList<MRL> mrls;
 
@@ -81,9 +82,10 @@ public class Dev extends FlowPanel implements EntryPoint {
         });
 
         mrls = new ArrayList<MRL>();
-//        mrls.add(new MRL(GWT.getModuleBaseURL() + "applause.mp3"));
+        mrls.add(new MRL(GWT.getModuleBaseURL() + "applause.mp3"));
 //        mrl.addURL(GWT.getModuleBaseURL() + "DSCF1780.AVI");
-        mrls.add(new MRL(GWT.getModuleBaseURL() + "big-buck-bunny.mp4"));
+ //       mrls.add(new MRL(GWT.getModuleBaseURL() + "big-buck-bunny.mp4"));
+//        mrls.add(new MRL(GWT.getModuleBaseURL() + "u2intro.mp4"));
 //        mrls.add(new MRL(GWT.getModuleBaseURL() + "traffic.flv"));
 //        mrls.add(new MRL(GWT.getModuleBaseURL() + "traffic.avi"));
 //        mrl.addURL("applause.mp3");
@@ -94,7 +96,7 @@ public class Dev extends FlowPanel implements EntryPoint {
     public void onModuleLoad() {
         //        RootPanel.get().add(new ScrollPanel(this));
         RootPanel.get().add(this);
-        addPlayer(Plugin.FlashPlayer);
+        addPlayer(Plugin.WinMediaPlayer);
 
 //                    add(new MimeStuffs());
 //                addUTube();
@@ -182,10 +184,10 @@ public class Dev extends FlowPanel implements EntryPoint {
                 }
             });
             mmp.showLogger(true);
-//            mmp.setConfigParameter(ConfigParameter.QTScale, QuickTimePlayer.Scale.Aspect);
+            mmp.setConfigParameter(ConfigParameter.QTScale, QuickTimePlayer.Scale.Aspect);
             mmp.setConfigParameter(ConfigParameter.BackgroundColor, "#ffffff");
-            ((PlaylistSupport) mmp).addToPlaylist(mrls);
-            mmp.setResizeToVideoSize(true);
+//            ((PlaylistSupport) mmp).addToPlaylist(mrls);
+//            mmp.setResizeToVideoSize(true);
 //            mmp.setLoopCount(2);
 //            mmp.setRepeatMode(RepeatMode.REPEAT_ALL);
             ((PlaylistSupport) mmp).setShuffleEnabled(false);
@@ -212,7 +214,7 @@ public class Dev extends FlowPanel implements EntryPoint {
             GWT.log("Missing Plugin Version >>>>>", ex);
         }
     }
-
+/*
     private void addUTube() {
         try {
             YouTubePlayer pl = new YouTubePlayer("http://www.youtube.com/v/MrsGEz4NtBk", "100%", "350px");
@@ -225,7 +227,7 @@ public class Dev extends FlowPanel implements EntryPoint {
             add(PlayerUtil.getMissingPluginNotice(ex.getPlugin()));
         }
     }
-
+*/
     private String getURL(String path) {
         return Location.createUrlBuilder().setPort(8080).setPath(path).buildString();
     }

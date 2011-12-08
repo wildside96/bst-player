@@ -122,8 +122,6 @@ public class VLCStateManager {
                     _callback.onPaused();
                     break;
                 case 5:    // stopping
-                    _callback.onInfo("stopping ...");
-                    break;
                 case 6:    // finished
                     if (playlistMgr.isStoppedByUser()) {
                         playlistMgr.setCurrentState(State.Stopped);

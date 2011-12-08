@@ -29,7 +29,7 @@ import com.google.gwt.user.client.ui.RootPanel;
  */
 public class QTStateManagerIE extends QTStateManager {
 
-    public static String behaviourObjId = "qt_event_source";
+    public static String behaviourObjId = "bstqtevtmgr";
 
     public QTStateManagerIE() {
         // inject event source object...
