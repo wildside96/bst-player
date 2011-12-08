@@ -13,7 +13,6 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  * 
- * TODO:  video screen shows on simple widget addition ...
  */
 package com.bramosystems.oss.player.core.client.ui;
 
@@ -313,7 +312,6 @@ public class WinMediaPlayer extends AbstractMediaPlayer implements PlaylistSuppo
     @Override
     protected final void onLoad() {
         fireDebug("Windows Media Player plugin");
-        playerWidget.setSize("100%", _height);
         setupPlayer(false);
         fireDebug("Plugin Version : " + impl.getPlayerVersion());
         firePlayerStateEvent(PlayerStateEvent.State.Ready);

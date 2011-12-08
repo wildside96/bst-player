@@ -13,7 +13,6 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-// TODO:  media duration not updated on time bar after loading b4 playing
 package com.bramosystems.oss.player.core.client.ui;
 
 import com.bramosystems.oss.player.core.client.playlist.MRL;

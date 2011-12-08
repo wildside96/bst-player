@@ -33,11 +33,11 @@ import java.util.HashMap;
  * @see PlayerElement
  */
 public class PlayerWidget extends Widget {
-
+    
     private HashMap<String, String> params;
     private String playerName, playerProvider, playerId, mediaURL, _height, _width;
     private boolean autoplay;
-
+    
     private PlayerWidget() {
         setElement(DOM.createDiv());
         params = new HashMap<String, String>();
@@ -92,12 +92,12 @@ public class PlayerWidget extends Widget {
     public String getParam(String name) {
         return params.get(name);
     }
-
+    
     @Override
     protected void onLoad() {
         injectWidget(false);
     }
-
+    
     @Override
     public void setHeight(String height) {
         super.setHeight(height);
@@ -108,7 +108,7 @@ public class PlayerWidget extends Widget {
             _height = height;
         }
     }
-
+    
     @Override
     public void setWidth(String width) {
         super.setWidth(width);
@@ -137,18 +137,24 @@ public class PlayerWidget extends Widget {
         this.playerName = playerName;
         injectWidget(true);
     }
-
+    
     private void injectWidget(boolean updateDimension) {
         Element e = PlayerManager.getInstance().getProviderFactory(playerProvider).getPlayerElement(
                 playerName, playerId, mediaURL, autoplay, params).getElement();
         if (updateDimension) {
             String curHeight = getElement().getFirstChildElement().getAttribute("height");
             String curWidth = getElement().getFirstChildElement().getAttribute("width");
-            e.setAttribute("height", curHeight);
-            e.getStyle().setProperty("height", curHeight);
-            e.setAttribute("width", curWidth);
-            e.getStyle().setProperty("width", curWidth);
+            setElementSize(e, curWidth, curHeight);
+        } else {
+            setElementSize(e, _width, _height);
         }
         getElement().setInnerHTML(e.getString());
+    }
+    
+    private void setElementSize(Element e, String width, String height) {
+        e.setAttribute("height", height);
+        e.getStyle().setProperty("height", height);
+        e.setAttribute("width", width);
+        e.getStyle().setProperty("width", width);
     }
 }

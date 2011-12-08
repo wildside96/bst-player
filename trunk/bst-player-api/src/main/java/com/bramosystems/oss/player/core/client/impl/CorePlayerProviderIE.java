@@ -56,9 +56,8 @@ public class CorePlayerProviderIE extends CorePlayerProvider {
     protected PlayerElement getQTElement(String playerId, String mediaURL, boolean autoplay,
             HashMap<String, String> params) {
         PlayerElement xo = new PlayerElement(PlayerElement.Type.ObjectElementIE, playerId, "clsid:02BF25D5-8C17-4B23-BC80-D3488ABDDC6B");
-        xo.getElement().getStyle().setProperty("BEHAVIOR", "url(#" + QTStateManagerIE.behaviourObjId + ")");
+        xo.getElement().setAttribute("style", "BEHAVIOR:url(#" + QTStateManagerIE.behaviourObjId + ")");
         xo.addParam("AutoPlay", Boolean.toString(autoplay));
-//        xo.addParam("Src", mediaURL);
 
         Iterator<String> keys = params.keySet().iterator();
         while (keys.hasNext()) {

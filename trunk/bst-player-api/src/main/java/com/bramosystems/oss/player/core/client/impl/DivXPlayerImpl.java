@@ -86,6 +86,10 @@ public class DivXPlayerImpl extends JavaScriptObject {
     return this.volume;
     }-*/;
 
+    public native final void setAutoplay(boolean autoplay) /*-{
+    this.SetAutoPlay(autoplay);
+    }-*/;
+
     public native final void setBufferingMode(String mode) /*-{
     this.SetBufferingMode(mode);
     }-*/;

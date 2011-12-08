@@ -463,7 +463,7 @@ public abstract class AbstractMediaPlayer extends Composite implements HasMediaS
     public <T extends ConfigValue> void setConfigParameter(ConfigParameter param, T value) {
         if ((value != null) && (!Arrays.asList(param.getValueType()).contains(value.getClass()))) {
             throw new IllegalArgumentException("Found ConfigParameter type "
-                    + value.getClass() + ", Requires " + param.getValueType() + " for value!");
+                    + value.getClass() + ", Permissible value types : " + Arrays.asList(param.getValueType()));
         }
     }
 
@@ -485,7 +485,7 @@ public abstract class AbstractMediaPlayer extends Composite implements HasMediaS
     public void setConfigParameter(ConfigParameter param, Number value) {
         if ((value != null) && (!Arrays.asList(param.getValueType()).contains(value.getClass()))) {
             throw new IllegalArgumentException("Found ConfigParameter type "
-                    + value.getClass() + ", Requires " + param.getValueType() + " for value!");
+                    + value.getClass() + ", Permissible value types : " + Arrays.asList(param.getValueType()));
         }
     }
 
@@ -507,7 +507,7 @@ public abstract class AbstractMediaPlayer extends Composite implements HasMediaS
     public void setConfigParameter(ConfigParameter param, String value) {
         if ((value != null) && (!Arrays.asList(param.getValueType()).contains(value.getClass()))) {
             throw new IllegalArgumentException("Found ConfigParameter type "
-                    + value.getClass() + ", Requires " + param.getValueType() + " for value!");
+                    + value.getClass() + ", Permissible value types : " + Arrays.asList(param.getValueType()));
         }
     }
 

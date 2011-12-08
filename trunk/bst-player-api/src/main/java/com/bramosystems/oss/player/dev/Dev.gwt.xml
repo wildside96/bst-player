@@ -19,9 +19,8 @@
 
 <module rename-to="dev">
     <inherits name="com.google.gwt.xml.XML"/>
-    <inherits name="com.bramosystems.oss.player.capsule.Capsule"/>
-    <inherits name="com.bramosystems.oss.player.flat.FlatVideoPlayer"/>
-    <inherits name="com.bramosystems.oss.player.youtube.YouTube"/>
+    
+    <inherits name="com.bramosystems.oss.player.core.Core"/>
     <inherits name="com.bramosystems.oss.player.playlist.Playlist"/>
     <inherits name="com.bramosystems.oss.player.uibinder.UiBinder"/>
 

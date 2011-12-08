@@ -122,7 +122,7 @@ public class CorePlayerProvider implements PlayerProviderFactory {
             HashMap<String, String> params) {
         PlayerElement e = new PlayerElement(PlayerElement.Type.EmbedElement, playerId, hasWMPFFPlugin() ? wmpFFMimeType : wmpAppMimeType);
         e.addParam("autostart", hasWMPFFPlugin() ? Boolean.toString(autoplay) : (autoplay ? "1" : "0"));
-        e.addParam(hasWMPFFPlugin() ? "URL" : "SRC", mediaURL);
+ //       e.addParam(hasWMPFFPlugin() ? "URL" : "SRC", mediaURL);
 
         Iterator<String> keys = params.keySet().iterator();
         while (keys.hasNext()) {
