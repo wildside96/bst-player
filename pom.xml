@@ -109,11 +109,6 @@
                         </dependency>
                     </dependencies>                    
                 </plugin>
-                <plugin>
-                    <groupId>org.sonatype.flexmojos</groupId>
-                    <artifactId>flexmojos-maven-plugin</artifactId>
-                    <version>3.9</version>
-                </plugin>
             </plugins>
         </pluginManagement>
 
@@ -128,7 +123,7 @@
 
     <properties>
         <gwtMojoPluginVersion>2.2.0</gwtMojoPluginVersion>
-        <gwtVersion>2.3.0</gwtVersion>
+        <gwtVersion>2.2.0</gwtVersion>
     </properties>
 
     <dependencyManagement>
@@ -151,20 +146,6 @@
                 <groupId>com.google.gwt</groupId>
                 <artifactId>gwt-dev</artifactId>
                 <version>${gwtVersion}</version>
-                <scope>provided</scope>
-            </dependency>
-
-            <dependency>
-                <groupId>javax.validation</groupId>
-                <artifactId>validation-api</artifactId>
-                <version>1.0.0.GA</version>
-                <scope>provided</scope>
-            </dependency>
-            <dependency>
-                <groupId>javax.validation</groupId>
-                <artifactId>validation-api</artifactId>
-                <version>1.0.0.GA</version>
-                <classifier>sources</classifier>
                 <scope>provided</scope>
             </dependency>
         </dependencies>
@@ -229,31 +210,6 @@
             <activation>
                 <activeByDefault>false</activeByDefault>
             </activation>
-
-            <repositories>
-                <repository>
-                    <id>flex-mojos-repository</id>
-                    <url>http://repository.sonatype.org/content/groups/flexgroup/</url>
-                    <releases> 
-                        <enabled>true</enabled> 
-                    </releases>
-                    <snapshots> 
-                        <enabled>false</enabled> 
-                    </snapshots>
-                </repository>
-            </repositories>
-            <pluginRepositories>
-                <pluginRepository>
-                    <id>flex-mojos-plugin</id>
-                    <url>http://repository.sonatype.org/content/groups/flexgroup/</url>
-                    <releases> 
-                        <enabled>true</enabled> 
-                    </releases>
-                    <snapshots> 
-                        <enabled>false</enabled> 
-                    </snapshots>
-                </pluginRepository>
-            </pluginRepositories>
         </profile>
         <profile>
             <id>m3-build</id>
