@@ -206,25 +206,25 @@ package com.bramosystems.oss.player {
         }
 
         /*************************** PLAY STATE HANDLERS *********************/
+        private var __pIndex:int;
         private function playFinished(event:PlayStateEvent):void {
-            EventUtil.fireMediaStateChanged(9, playlist.getIndex());
+            EventUtil.fireMediaStateChanged(9, __pIndex);
             if(!playNextLoop()) {
                 Log.info("Media playback finished");
-                EventUtil.fireMediaStateChanged(9);
                 state = FINISHED;
             }
         }
-
+ 
         private function playStopped(event:PlayStateEvent):void {
             state = STOPPED;
             Log.info("Playback stopped");
-            EventUtil.fireMediaStateChanged(3, playlist.getIndex());
+            EventUtil.fireMediaStateChanged(3, __pIndex);
         }
 
         private function playPaused(event:PlayStateEvent):void {
             state = PAUSED;
             Log.info("Playback paused");
-            EventUtil.fireMediaStateChanged(4, playlist.getIndex());
+            EventUtil.fireMediaStateChanged(4, __pIndex);
         }
 
         private function playStarted(event:PlayStateEvent):void {
@@ -233,10 +233,11 @@ package com.bramosystems.oss.player {
                     Log.info("Playback resumed");
                     break;
                 default:
-                    Log.info("Playlist #" + playlist.getIndex() + " playback started");
+                    __pIndex = playlist.getIndex();
+                    Log.info("Playlist #" + __pIndex + " playback started");
             }
             state = PLAYING;
-            EventUtil.fireMediaStateChanged(2, playlist.getIndex());
+            EventUtil.fireMediaStateChanged(2, __pIndex);
         }
 
         /************************** HELPER FUNCTIONS *****************************/
