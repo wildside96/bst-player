@@ -13,12 +13,21 @@
     <body>
         <section name="Migrating to version 1.3">
             <p>
-                Version 1.3 introduced many enhancements to the API and is backwards compatible.
+                Version 1.3 introduced many enhancements to the API and is backwards compatible.  However the following
+                is worth taking note of:
             </p>
 
             <subsection name="GWT 2.2 dependency">
                 <p>
                     The library now depends on GWT 2.2 or later.
+                </p>
+            </subsection>
+            
+            <subsection name="Flash Player 10 dependency">
+                <p>
+                    The FlashMediaPlayer widget now requires Flash Player 10 or later.  PluginVersionException will be
+                    thrown if lower versions were found.  This may not be an issue anyway since most browsers have upgraded Flash Player 
+                    to version 10 or higher
                 </p>
             </subsection>
         </section>

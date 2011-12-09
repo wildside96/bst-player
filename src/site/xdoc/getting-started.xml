@@ -136,7 +136,7 @@ player.setVolume(0.8); // sets the playback volume to 80% of maximum</source>
                     <tr>
                         <td>FlashMediaPlayer</td>
                         <td>Flash&#174; Player plugin</td>
-                        <td>9.0</td>
+                        <td>10.0</td>
                     </tr>
                     <tr>
                         <td>QuickTimePlayer</td>
