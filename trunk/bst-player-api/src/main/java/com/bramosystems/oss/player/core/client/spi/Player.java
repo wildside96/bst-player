@@ -17,8 +17,6 @@
 package com.bramosystems.oss.player.core.client.spi;
 
 import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
@@ -28,7 +26,6 @@ import java.lang.annotation.Target;
  * @author Sikirulai Braheem <sbraheem at bramosystems.com>
  * @since 1.3
  */
-@Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
 public @interface Player {
     

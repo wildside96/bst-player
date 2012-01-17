@@ -28,8 +28,6 @@ import com.bramosystems.oss.player.core.client.RepeatMode;
 import com.bramosystems.oss.player.core.client.TransparencyMode;
 import com.bramosystems.oss.player.core.client.playlist.MRL;
 import com.bramosystems.oss.player.core.client.skin.MediaSeekBar;
-import com.bramosystems.oss.player.core.client.ui.QuickTimePlayer.Scale;
-import com.bramosystems.oss.player.core.client.ui.WinMediaPlayer;
 import com.bramosystems.oss.player.core.event.client.DebugEvent;
 import com.bramosystems.oss.player.core.event.client.DebugHandler;
 import com.bramosystems.oss.player.core.event.client.LoadingProgressEvent;
@@ -398,12 +396,16 @@ public class ScriptUtil {
 
         public void setConfigParameter(String param, String value) {
             if (player != null) {
+                /*  TODO: autoinject ...
                 try {
                     ConfigParameter cfg = ConfigParameter.valueOf(param);
                     switch (cfg) {
                         case TransparencyMode:
                             player.setConfigParameter(cfg, TransparencyMode.valueOf(value));
                             break;
+                            /*
+                             * TODO: check structure
+                             * 
                         case WMPUIMode:
                             player.setConfigParameter(cfg, WinMediaPlayer.UIMode.valueOf(value));
                             break;
@@ -414,9 +416,12 @@ public class ScriptUtil {
                                 player.setConfigParameter(cfg, Scale.valueOf(value));
                             }
                             break;
+                            *
                     }
                 } catch (Exception e) {
                 }
+                 * 
+                 */
             }
         }
 
