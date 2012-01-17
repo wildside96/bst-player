@@ -16,5 +16,5 @@
 <!--                                                                        -->
 
 <module>
-    <inherits name="com.bramosystems.oss.player.core.CoreLite"/>
+    <inherits name="com.bramosystems.oss.player.core.Core"/>
 </module>

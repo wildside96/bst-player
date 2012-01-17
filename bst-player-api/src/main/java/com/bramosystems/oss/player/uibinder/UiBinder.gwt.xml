@@ -17,5 +17,4 @@
 
 <module>
     <inherits name="com.bramosystems.oss.player.core.Core" />
-    <inherits name="com.bramosystems.oss.player.youtube.YouTube" />
 </module>

@@ -15,8 +15,8 @@
  */
 package com.bramosystems.oss.player.core.client.impl.plugin;
 
-import com.bramosystems.oss.player.core.client.impl.*;
 import com.bramosystems.oss.player.core.client.*;
+import com.bramosystems.oss.player.core.client.impl.NativePlayerTestUtil;
 import com.google.gwt.core.client.GWT;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -104,7 +104,7 @@ public abstract class MimeParserBase {
      */
     protected final void addNativeExtensions() {
         if (PlayerUtil.isHTML5CompliantClient()) {
-            NativePlayerUtil.TestUtil test = NativePlayerUtil.getTestUtil();
+            NativePlayerTestUtil.TestUtil test = NativePlayerTestUtil.getTestUtil();
             Iterator<String> mimeKeys = mimeTypes.keySet().iterator();
             while (mimeKeys.hasNext()) {
                 String mime = mimeKeys.next();

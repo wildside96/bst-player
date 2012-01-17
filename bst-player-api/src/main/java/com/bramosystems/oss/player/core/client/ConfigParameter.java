@@ -16,11 +16,8 @@
  */
 package com.bramosystems.oss.player.core.client;
 
-import com.bramosystems.oss.player.core.client.ui.QuickTimePlayer.Scale;
-import com.bramosystems.oss.player.core.client.ui.WinMediaPlayer.UIMode;
-
 /**
- * An enum of player configuration parameters.
+ * Interface for player configuration parameters.
  *
  * <p>The parameters are applied as HTML param tags on the underlying player
  * plugin.</p>
@@ -28,60 +25,23 @@ import com.bramosystems.oss.player.core.client.ui.WinMediaPlayer.UIMode;
  * @author Sikiru Braheem <sbraheem at bramosystems . com>
  * @since 1.1
  * @see AbstractMediaPlayer#setConfigParameter(ConfigParameter, ConfigValue)
+ * 
+ * TODO:  document changes ...
  */
-public enum ConfigParameter {
+public interface ConfigParameter {
 
     /**
-     * Parameter for the transparency mode for a player (if available).
-     *
-     * <p>This parameter requires a {@linkplain TransparencyMode} value type
+     * Returns the name of the parameter
+     * 
+     * @return the name of the parameter
+     * @since 1.4
      */
-    TransparencyMode(TransparencyMode.class),
-    
-    /**
-     * Parameter for WinMediaPlayers' UI Mode property.
-     *
-     * <p>The mode indicates which controls are shown on the user interface.</p>
-     * <p>This parameter requires a {@linkplain UIMode} value type
-     */
-    WMPUIMode(UIMode.class),
-    
-    /**
-     * Parameter for QuickTimePlayers' Scale property.
-     *
-     * <p>This parameter is used to scale the dimensions of a QuickTime movie. It requires either a
-     * {@linkplain Scale} value type or a double value</p>
-     *
-     * <p>A double value scales the movie by a factor of the value. For example, to play a movie at 
-     * half its normal size, use QTScale with a value of 0.5</p>
-     *
-     * @see Scale
-     * @since 1.2
-     */
-    QTScale(Scale.class, Double.class),
-    
-    /**
-     * Parameter for the background color property or a player.
-     *
-     * <p>This parameter is used to specify the background color for the exposed part of a players' alloted space
-     * The value should be specified as a CSS color value (i.e. hexadecimal RGB values)</p>
-     *
-     * @since 1.2.1
-     */
-    BackgroundColor(String.class);
-    
-    private Class[] valueType;
-
-    private ConfigParameter(Class... valueType) {
-        this.valueType = valueType;
-    }
+    public String getName();
 
     /**
      * Returns the required value type for this parameter.
      *
      * @return the required type of value
      */
-    public Class[] getValueType() {
-        return valueType;
-    }
+    public Class[] getValueType();
 }

@@ -70,6 +70,7 @@
             <plugins>
                 <plugin>
                     <artifactId>maven-compiler-plugin</artifactId>
+                    <version>2.3.2</version>
                     <configuration>
                         <source>1.6</source>
                         <target>1.6</target>
@@ -155,7 +156,6 @@
                 <groupId>com.google.gwt</groupId>
                 <artifactId>gwt-user</artifactId>
                 <version>${gwtVersion}</version>
-                <scope>provided</scope>
             </dependency>
 
             <dependency>
@@ -172,7 +172,11 @@
         <module>bst-player-api</module>
         <module>bst-player-js</module>
         <module>bst-player-showcase</module>
-    </modules>
+        <module>core-player-provider</module>
+        <module>sample-players-provider</module>
+        <module>youtube-player-provider</module>
+    <module>bst-player-apt</module>
+  </modules>
 
     <reporting>
         <plugins>

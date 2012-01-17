@@ -129,7 +129,7 @@ public class PlayerManagerGenerator extends Generator {
         while (fact.hasNext()) {
             String provClass = fact.next();
             String provName = provClassMap.get(provClass);
-            sourceWriter.println("private static PlayerProviderFactory pwf_" + provName + " = GWT.create(" + provClass + ".class);");
+            sourceWriter.println("private static PlayerProviderFactory pwf_" + escapeProviderName(provName) + " = GWT.create(" + provClass + ".class);");
         }
         sourceWriter.println();
 
@@ -222,7 +222,7 @@ public class PlayerManagerGenerator extends Generator {
                 sourceWriter.println("else if(\"" + provName + "\".equals(provider)) {");
             }
             sourceWriter.indent();
-            sourceWriter.println("wf = pwf_" + provName + ";");
+            sourceWriter.println("wf = pwf_" + escapeProviderName(provName) + ";");
             sourceWriter.outdent();
             sourceWriter.println("}");
             firstRun = false;
@@ -238,5 +238,10 @@ public class PlayerManagerGenerator extends Generator {
 
         // commit generated class
         context.commit(logger, printWriter);
+    }
+    
+    // replace chars [.] with escaped strings ...
+    private String escapeProviderName(String provName) {
+        return provName.replace(".", "$");
     }
 }
