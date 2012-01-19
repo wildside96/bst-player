@@ -117,6 +117,8 @@ public class PlayerManagerGenerator extends Generator {
         composer.setSuperclass("PlayerManager");
         composer.addImport("com.google.gwt.core.client.GWT");
         composer.addImport("com.bramosystems.oss.player.core.client.spi.PlayerProviderFactory");
+        composer.addImport("com.bramosystems.oss.player.core.client.impl.CallbackUtility");
+        composer.addImport("com.bramosystems.oss.player.core.client.spi.ConfigurationContext");
         composer.addImport("com.bramosystems.oss.player.core.client.*");
         composer.addImport("java.util.*");
 
@@ -138,6 +140,17 @@ public class PlayerManagerGenerator extends Generator {
         // generate constructor source code
         sourceWriter.println("public " + className + "() { ");
         sourceWriter.indent();
+        
+       // init widget factories ...
+        fact = provClassMap.keySet().iterator();
+        while (fact.hasNext()) {
+            String provClass = fact.next();
+            String provName = escapeProviderName(provClassMap.get(provClass));
+            sourceWriter.println("pwf_" + provName + ".init(new ConfigurationContext(CallbackUtility.initCallbackHandlers(\"" + 
+                    provName + "\"), \"bstplayer.handlers." + provName + "\"));");
+        }
+        
+        sourceWriter.println();
         fact = playerMap2.keySet().iterator();
         while (fact.hasNext()) {
             String provName = fact.next();

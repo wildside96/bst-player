@@ -34,6 +34,13 @@ import java.util.HashMap;
  * @since 1.3
  */
 public interface PlayerProviderFactory {
+    
+    /**
+     * @since 1.4
+     */
+    public void init(ConfigurationContext context);
+    
+    public ConfigurationContext getConfigurationContext();
 
     /**
      * Returns the DOM element structure for the specified {@code playerName}.  The DOM element structure 

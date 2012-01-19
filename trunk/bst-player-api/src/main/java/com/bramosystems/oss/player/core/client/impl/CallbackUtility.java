@@ -34,25 +34,41 @@ public class CallbackUtility {
     $wnd.bstplayer = new Object();
     }
     $wnd.bstplayer.handlers = new Object();
+    }-*/;
+    
+    /*
+    private static native void initHandlersx() /*-{
+    if($wnd.bstplayer == null){
+    $wnd.bstplayer = new Object();
+    }
+    $wnd.bstplayer.handlers = new Object();
     $wnd.bstplayer.handlers.swf = new Object();
     $wnd.bstplayer.handlers.divx = new Object();
     $wnd.bstplayer.handlers.vlc = new Object();
     $wnd.bstplayer.handlers.utube = new Object();
-    }-*/;
+    }-;
 
     public static native JavaScriptObject getSWFCallbackHandlers() /*-{
     return $wnd.bstplayer.handlers.swf;
-    }-*/;
+    }-/;
 
     public static native JavaScriptObject getDivxCallbackHandlers() /*-{
     return $wnd.bstplayer.handlers.divx;
-    }-*/;
+    }-/;
 
     public static native JavaScriptObject getVLCCallbackHandlers() /*-{
     return $wnd.bstplayer.handlers.vlc;
-    }-*/;
+    }-/;
 
     public static native JavaScriptObject getUTubeCallbackHandlers() /*-{
     return $wnd.bstplayer.handlers.utube;
+    }-/;
+    */
+    
+    public static native JavaScriptObject initCallbackHandlers(String id) /*-{
+    if($wnd.bstplayer.handlers[id] == null){
+    $wnd.bstplayer.handlers[id] = new Object();
+    }
+    return $wnd.bstplayer.handlers[id];
     }-*/;
 }
