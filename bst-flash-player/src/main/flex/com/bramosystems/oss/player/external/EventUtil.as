@@ -25,12 +25,11 @@ package com.bramosystems.oss.player.external {
     import com.bramosystems.oss.player.PlayerOptions;
 
     public class EventUtil {
-        private static var playerId:String = PlayerOptions.playerId;
         public static var controller:Controller;
 
         public static function fireApplicationInitialized():void {
             try {
-                ExternalInterface.call("bstplayer.handlers.swf." + playerId + ".onInit");
+                ExternalInterface.call(PlayerOptions.eventPrefix + ".onInit");
             } catch(err:SecurityError) {
             } catch(err:Error) {
             }            
@@ -48,7 +47,7 @@ package com.bramosystems.oss.player.external {
         public static function fireMediaStateChanged(state:int, playlistIndex:int = 0):void {
             controller.onMediaStateChanged(state, playlistIndex);
             try {
-                ExternalInterface.call("bstplayer.handlers.swf." + playerId + ".onStateChanged", state, playlistIndex);
+                ExternalInterface.call(PlayerOptions.eventPrefix + ".onStateChanged", state, playlistIndex);
             } catch(err:SecurityError) {
             } catch(err:Error) {
             }            
@@ -57,7 +56,7 @@ package com.bramosystems.oss.player.external {
         public static function fireLoadingProgress(progress:Number):void {
             controller.onLoadingProgress(progress);
             try {
-                ExternalInterface.call("bstplayer.handlers.swf." + playerId + ".onLoadingProgress", progress);
+                ExternalInterface.call(PlayerOptions.eventPrefix + ".onLoadingProgress", progress);
             } catch(err:SecurityError) {
             } catch(err:Error) {
             }            
@@ -65,7 +64,7 @@ package com.bramosystems.oss.player.external {
 
         public static function fireFullScreenChanged(fullscreen:Boolean):void {
             try {
-                ExternalInterface.call("bstplayer.handlers.swf." + playerId + ".onFullscreen", fullscreen);
+                ExternalInterface.call(PlayerOptions.eventPrefix + ".onFullscreen", fullscreen);
             } catch(err:SecurityError) {
             } catch(err:Error) {
             }            
@@ -74,7 +73,7 @@ package com.bramosystems.oss.player.external {
         public static function firePlayingProgress(progress:Number):void {
             controller.onPlayingProgress(progress);
             try {
-                ExternalInterface.call("bstplayer.handlers.swf." + playerId + ".onPlayingProgress", progress);
+                ExternalInterface.call(PlayerOptions.eventPrefix + ".onPlayingProgress", progress);
             } catch(err:SecurityError) {
             } catch(err:Error) {
             }            
@@ -94,7 +93,7 @@ package com.bramosystems.oss.player.external {
                                 info.TSSE + "[$]" + info.TPUB + "[$]" + info.TRSO + "[$]" +
                                 info.TRSN + "[$]0[$]0";
             try {
-                ExternalInterface.call("bstplayer.handlers.swf." + playerId + ".onMetadata", id3);
+                ExternalInterface.call(PlayerOptions.eventPrefix + ".onMetadata", id3);
             } catch(err:SecurityError) {
             } catch(err:Error) {
             }            
@@ -112,7 +111,7 @@ package com.bramosystems.oss.player.external {
                              "[$]" + info + "[$] [$] [$] [$]" + (isNaN(width) ? 0 : width) + "[$]" +
                             (isNaN(height) ? 0 : height);
             try {
-                ExternalInterface.call("bstplayer.handlers.swf." + playerId + ".onMetadata", id3);
+                ExternalInterface.call(PlayerOptions.eventPrefix + ".onMetadata", id3);
             } catch(err:SecurityError) {
             } catch(err:Error) {
             }            
@@ -121,7 +120,7 @@ package com.bramosystems.oss.player.external {
         public static function fireMouseDownEvent(event:MouseEvent):void {
             try {
                 if(PlayerOptions.isMouseEventsEnabled)
-                    ExternalInterface.call("bstplayer.handlers.swf." + playerId + ".onEvent", 1, event.buttonDown,
+                    ExternalInterface.call(PlayerOptions.eventPrefix + ".onEvent", 1, event.buttonDown,
                         event.altKey, event.ctrlKey, event.shiftKey, false, //event.commandKey,
                         int(event.stageX), int(event.stageY));
             } catch(err:SecurityError) {
@@ -131,7 +130,7 @@ package com.bramosystems.oss.player.external {
         public static function fireMouseUpEvent(event:MouseEvent):void {
             try {
                 if(PlayerOptions.isMouseEventsEnabled)
-                    ExternalInterface.call("bstplayer.handlers.swf." + playerId + ".onEvent", 2, event.buttonDown,
+                    ExternalInterface.call(PlayerOptions.eventPrefix + ".onEvent", 2, event.buttonDown,
                         event.altKey, event.ctrlKey, event.shiftKey, false, //event.commandKey,
                         int(event.stageX), int(event.stageY));
             } catch(err:SecurityError) {
@@ -141,7 +140,7 @@ package com.bramosystems.oss.player.external {
         public static function fireMouseMoveEvent(event:MouseEvent):void {
             try {
                 if(PlayerOptions.isMouseEventsEnabled)
-                    ExternalInterface.call("bstplayer.handlers.swf." + playerId + ".onEvent", 3, event.buttonDown,
+                    ExternalInterface.call(PlayerOptions.eventPrefix + ".onEvent", 3, event.buttonDown,
                         event.altKey, event.ctrlKey, event.shiftKey, false, //event.commandKey,
                         int(event.stageX), int(event.stageY));
             } catch(err:SecurityError) {
@@ -151,7 +150,7 @@ package com.bramosystems.oss.player.external {
         public static function fireClickEvent(event:MouseEvent):void {
             try {
                 if(PlayerOptions.isMouseEventsEnabled)
-                    ExternalInterface.call("bstplayer.handlers.swf." + playerId + ".onEvent", 10, event.buttonDown,
+                    ExternalInterface.call(PlayerOptions.eventPrefix + ".onEvent", 10, event.buttonDown,
                         event.altKey, event.ctrlKey, event.shiftKey, false, //event.commandKey,
                         int(event.stageX), int(event.stageY));
             } catch(err:SecurityError) {
@@ -161,7 +160,7 @@ package com.bramosystems.oss.player.external {
         public static function fireDoubleClickEvent(event:MouseEvent):void {
             try {
                 if(PlayerOptions.isMouseEventsEnabled)
-                    ExternalInterface.call("bstplayer.handlers.swf." + playerId + ".onEvent", 11, event.buttonDown,
+                    ExternalInterface.call(PlayerOptions.eventPrefix + ".onEvent", 11, event.buttonDown,
                         event.altKey, event.ctrlKey, event.shiftKey, false, //event.commandKey,
                         int(event.stageX), int(event.stageY));
             } catch(err:SecurityError) {
@@ -171,10 +170,10 @@ package com.bramosystems.oss.player.external {
         public static function fireKeyDownEvent(event:KeyboardEvent):void {
             Log.debug("Firing KeyDown Event : " + event.charCode);
             try {
-                ExternalInterface.call("bstplayer.handlers.swf." + playerId + ".onEvent", 20, false, //event.buttonDown,
+                ExternalInterface.call(PlayerOptions.eventPrefix + ".onEvent", 20, false, //event.buttonDown,
                     event.altKey, event.ctrlKey, event.shiftKey, false, //event.commandKey,
                     event.keyCode, event.charCode);
-                ExternalInterface.call("bstplayer.handlers.swf." + playerId + ".onEvent", 21, false, //event.buttonDown,
+                ExternalInterface.call(PlayerOptions.eventPrefix + ".onEvent", 21, false, //event.buttonDown,
                     event.altKey, event.ctrlKey, event.shiftKey, false, //event.commandKey,
                     event.keyCode, event.charCode);
             } catch(err:SecurityError) {
@@ -183,7 +182,7 @@ package com.bramosystems.oss.player.external {
         }
         public static function fireKeyUpEvent(event:KeyboardEvent):void {
             try {
-                ExternalInterface.call("bstplayer.handlers.swf." + playerId + ".onEvent", 22, false, //event.buttonDown,
+                ExternalInterface.call(PlayerOptions.eventPrefix + ".onEvent", 22, false, //event.buttonDown,
                     event.altKey, event.ctrlKey, event.shiftKey, false, //event.commandKey,
                     event.keyCode, event.charCode);
             } catch(err:SecurityError) {
