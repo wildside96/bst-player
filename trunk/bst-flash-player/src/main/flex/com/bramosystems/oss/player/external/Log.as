@@ -19,11 +19,10 @@ package com.bramosystems.oss.player.external {
     import com.bramosystems.oss.player.PlayerOptions;
 
     public class Log {
-        private static var playerId:String = PlayerOptions.playerId;
 
         public static function info(message:String):void {
             try {
-                ExternalInterface.call("bstplayer.handlers.swf." + playerId + ".onMessage", 0, message);
+                ExternalInterface.call(PlayerOptions.eventPrefix + ".onMessage", 0, message);
             } catch(err:SecurityError) {
             } catch(err:Error) {
             }            
@@ -31,7 +30,7 @@ package com.bramosystems.oss.player.external {
 
         public static function error(message:String):void {
             try {
-               ExternalInterface.call("bstplayer.handlers.swf." + playerId + ".onMessage", 1, message);
+               ExternalInterface.call(PlayerOptions.eventPrefix + ".onMessage", 1, message);
             } catch(err:SecurityError) {
             } catch(err:Error) {
             }            
@@ -40,7 +39,7 @@ package com.bramosystems.oss.player.external {
         public static function debug(message:String):void {
             try {
                 if(PlayerOptions.isDebug)
-                   ExternalInterface.call("bstplayer.handlers.swf." + playerId + ".onMessage", 0, message);
+                   ExternalInterface.call(PlayerOptions.eventPrefix + ".onMessage", 0, message);
             } catch(err:SecurityError) {
             } catch(err:Error) {
             }            

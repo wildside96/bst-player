@@ -49,26 +49,26 @@
             </plugin>
         </plugins>
     </build>
-        
+    
     <properties>
         <flex.version>4.5.0.20967</flex.version>
         <flexmojo.version>4.0-RC2</flexmojo.version>
     </properties>
 
     <dependencies>
-        <dependency> 
+        <dependency>
             <groupId>com.adobe.flex.framework</groupId>
             <artifactId>flex-framework</artifactId>
             <version>${flex.version}</version>
             <type>pom</type>
-        </dependency> 
-        <dependency> 
+        </dependency>
+        <dependency>
             <groupId>com.adobe.flexunit</groupId>
             <artifactId>flexunit</artifactId>
             <version>0.90</version>
-            <type>swc</type> 
+            <type>swc</type>
             <scope>test</scope>
-        </dependency> 
+        </dependency>
     </dependencies>
 
     <pluginRepositories>
