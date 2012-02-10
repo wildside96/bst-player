@@ -24,12 +24,12 @@ import com.google.gwt.core.client.JavaScriptObject;
  * @author Sikirulai Braheem
  * @since 1.4
  */
-public class VimeoPlayerImpl extends JavaScriptObject {
+public class VimeoPlayerAFImpl extends JavaScriptObject {
 
-    protected VimeoPlayerImpl() {
+    protected VimeoPlayerAFImpl() {
     }
 
-    public static native VimeoPlayerImpl getPlayerImpl(String playerId)/*-{
+    public static native VimeoPlayerAFImpl getPlayerImpl(String playerId)/*-{
     return $doc.getElementById(playerId);
     }-*/;
 

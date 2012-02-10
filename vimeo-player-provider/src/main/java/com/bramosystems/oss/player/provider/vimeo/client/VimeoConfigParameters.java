@@ -25,7 +25,8 @@ public enum VimeoConfigParameters implements ConfigParameter {
 
     ShowByline(Boolean.class),
     ShowTitle(Boolean.class),
-    ShowPortrait(Boolean.class);
+    ShowPortrait(Boolean.class),
+    EnableFullscreen(Boolean.class);
     private Class[] valueTypes;
 
     private VimeoConfigParameters(Class... valueTypes) {

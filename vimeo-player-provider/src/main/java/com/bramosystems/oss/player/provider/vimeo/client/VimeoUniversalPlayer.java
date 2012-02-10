@@ -17,52 +17,37 @@ package com.bramosystems.oss.player.provider.vimeo.client;
 
 import com.bramosystems.oss.player.core.client.*;
 import com.bramosystems.oss.player.core.client.spi.Player;
-import com.bramosystems.oss.player.core.client.ui.SWFWidget;
+import com.bramosystems.oss.player.core.client.spi.PlayerWidget;
 import com.bramosystems.oss.player.core.event.client.PlayStateEvent.State;
 import com.bramosystems.oss.player.core.event.client.PlayerStateEvent;
-import com.bramosystems.oss.player.provider.vimeo.client.impl.VimeoPlayerAFImpl;
+import com.bramosystems.oss.player.provider.vimeo.client.impl.VimeoPlayerIFImpl;
 import com.bramosystems.oss.player.provider.vimeo.client.impl.VimeoPlayerProvider;
+import com.google.gwt.user.client.DOM;
 
 /**
  *
  * @author sbraheem
  */
-@Player(name = "FlashPlayer", minPluginVersion = "10.0.0", providerFactory = VimeoPlayerProvider.class)
-public class VimeoFlashPlayer extends AbstractMediaPlayer {
+@Player(name = VimeoPlayerProvider.UNIVERSAL_PLAYER, providerFactory = VimeoPlayerProvider.class, minPluginVersion = "5.0.0")
+public class VimeoUniversalPlayer extends AbstractMediaPlayer {
 
-    private SWFWidget swf;
-    private VimeoPlayerAFImpl impl;
+    private PlayerWidget upf;
+    private String playerId;
+    private VimeoPlayerIFImpl impl;
     private VimeoPlayerProvider provider;
     private RepeatMode repeatMode;
 
-    private VimeoFlashPlayer() {
-        provider = ((VimeoPlayerProvider) getWidgetFactory(VimeoPlayerProvider.PROVIDER_NAME));
+    private VimeoUniversalPlayer() {
+        playerId = DOM.createUniqueId().replace("-", "");
         repeatMode = RepeatMode.REPEAT_OFF;
-    }
 
-    public VimeoFlashPlayer(String clipId, boolean autoplay, String width, String height) throws PluginNotFoundException, PluginVersionException {
-        this();
-        swf = new SWFWidget("http://vimeo.com/moogaloop.swf?server=vimeo.com&clip_id=" + clipId, width, height, PluginVersion.get(10, 0, 0));
-        swf.addProperty("allowScriptAccess", "always");
-        swf.addProperty("allowFullScreen", "true");
-        swf.setFlashVar("autoplay", autoplay ? 1 : 0);
-        swf.setFlashVar("api", 1);
-        swf.setFlashVar("player_id", swf.getId());
-        swf.setFlashVar("api_ready", provider.getInitFunctionRef(swf.getId()));
-        swf.commitFlashVars();
-        initWidget(swf);
-        
-        provider.initHandlers(swf.getId(), new VimeoPlayerProvider.EventHandler() {
-
-            @Override
-            public void onMsg(String msg) {
-                throw new UnsupportedOperationException("Not supported yet.");
-            }
+        provider = ((VimeoPlayerProvider) getWidgetFactory(VimeoPlayerProvider.PROVIDER_NAME));
+        provider.initHandlers(playerId, new VimeoPlayerProvider.EventHandler() {
 
             @Override
             public void onInit() {
-                impl = VimeoPlayerAFImpl.getPlayerImpl(swf.getId());
-                impl.registerHandlers(provider.getEvtFunctionBaseName(swf.getId()));
+                impl = VimeoPlayerIFImpl.getPlayerImpl(playerId);
+                impl.registerHandlers(provider.getEvtFunctionBaseName(playerId));
                 firePlayerStateEvent(PlayerStateEvent.State.Ready);
             }
 
@@ -93,12 +78,26 @@ public class VimeoFlashPlayer extends AbstractMediaPlayer {
             @Override
             public void onSeek() {
             }
+
+            @Override
+            public void onMsg(String msg) {
+                fireDebug(playerId + "- " + msg);
+            }
         });
+    }
+
+    public VimeoUniversalPlayer(String clipId, boolean autoplay, String width, String height) throws PluginNotFoundException, PluginVersionException {
+        this();
+        upf = new PlayerWidget(VimeoPlayerProvider.PROVIDER_NAME, VimeoPlayerProvider.UNIVERSAL_PLAYER, playerId, clipId, autoplay);
+        upf.addParam("autoplay", autoplay ? "1" : "0");
+        upf.addParam("api", "1");
+        upf.setSize(width, height);
+        initWidget(upf);
     }
 
     @Override
     public void loadMedia(String mediaURL) throws LoadException {
-        if (isPlayerOnPage(swf.getId())) {
+        if (isPlayerOnPage(playerId)) {
 //            impl.
         }
     }
@@ -155,18 +154,18 @@ public class VimeoFlashPlayer extends AbstractMediaPlayer {
     public void setRepeatMode(RepeatMode mode) {
         switch (mode) {
             case REPEAT_ALL:
-                if (isPlayerOnPage(swf.getId())) {
+                if (isPlayerOnPage(playerId)) {
                     impl.setLoop(true);
                 } else {
-                    swf.setFlashVar("loop", 1);
+                    upf.addParam("loop", "1");
                 }
                 repeatMode = mode;
                 break;
             case REPEAT_OFF:
-                if (isPlayerOnPage(swf.getId())) {
+                if (isPlayerOnPage(playerId)) {
                     impl.setLoop(false);
                 } else {
-                    swf.setFlashVar("loop", 0);
+                    upf.addParam("loop", "0");
                 }
                 repeatMode = mode;
         }
@@ -197,35 +196,26 @@ public class VimeoFlashPlayer extends AbstractMediaPlayer {
     @Override
     public <T> void setConfigParameter(ConfigParameter param, T value) {
         super.setConfigParameter(param, value);
-        if (param instanceof DefaultConfigParameter) {
-            switch (DefaultConfigParameter.valueOf(param.getName())) {
-                case TransparencyMode:
-                    swf.addProperty("wmode", ((TransparencyMode) value).name().toLowerCase());
-                    break;
-                case BackgroundColor:
-                    swf.addProperty("bgcolor", (String) value);
-            }
-        } else if (param instanceof VimeoConfigParameters) {
+        if (param instanceof VimeoConfigParameters) {
             switch (VimeoConfigParameters.valueOf(param.getName())) {
                 case ShowByline:
-                    swf.setFlashVar("byline", (Boolean) value ? 1 : 0);
+                    upf.addParam("byline", (Boolean) value ? "1" : "0");
                     break;
                 case ShowPortrait:
-                    swf.setFlashVar("portrait", (Boolean) value ? 1 : 0);
+                    upf.addParam("portrait", (Boolean) value ? "1" : "0");
                     break;
                 case ShowTitle:
-                    swf.setFlashVar("title", (Boolean) value ? 1 : 0);
+                    upf.addParam("title", (Boolean) value ? "1" : "0");
                     break;
                 case EnableFullscreen:
-                    swf.setFlashVar("fullscreen", (Boolean) value ? 1 : 0);
+                    upf.addParam("fullscreen", (Boolean) value ? "1" : "0");
                     break;
             }
-            swf.commitFlashVars();
         }
     }
 
     private void checkAvailable() {
-        if (!isPlayerOnPage(swf.getId())) {
+        if (!isPlayerOnPage(playerId)) {
             String message = "Player not available, create an instance";
             fireDebug(message);
             throw new IllegalStateException(message);
