@@ -19,8 +19,8 @@ import com.bramosystems.oss.player.core.client.PluginInfo;
 import com.bramosystems.oss.player.core.client.Plugin;
 import com.bramosystems.oss.player.core.client.PluginNotFoundException;
 import com.bramosystems.oss.player.core.client.PluginVersion;
-import com.bramosystems.oss.player.core.client.impl.WinMediaPlayerImplBase;
 import com.bramosystems.oss.player.core.client.spi.PlayerWidget;
+import com.bramosystems.oss.player.core.client.impl.WinMediaPlayerImpl;
 import com.bramosystems.oss.player.util.client.BrowserPlugin;
 import com.bramosystems.oss.player.util.client.MimeType;
 import com.bramosystems.oss.player.util.client.RegExp;
@@ -166,7 +166,7 @@ public class PluginManager {
                 pw.setHeight("100px");
                 pw.setWidth("100px");
                 RootPanel.get().add(pw);
-                WinMediaPlayerImplBase impl = WinMediaPlayerImplBase.getPlayer(pid);
+                WinMediaPlayerImpl impl = WinMediaPlayerImpl.getPlayer(pid);
                 String ver = impl.getPlayerVersion();
                 if (ver != null) {
                     RegExp.RegexResult res = RegExp.getRegExp("(\\d+).(\\d+).(\\d+)*", "").exec(ver);

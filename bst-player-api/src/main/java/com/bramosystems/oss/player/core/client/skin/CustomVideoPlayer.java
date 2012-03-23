@@ -19,6 +19,9 @@ import com.bramosystems.oss.player.core.client.playlist.MRL;
 import com.bramosystems.oss.player.core.client.geom.MatrixSupport;
 import com.bramosystems.oss.player.core.client.geom.TransformationMatrix;
 import com.bramosystems.oss.player.core.client.*;
+import com.bramosystems.oss.player.core.client.ui.FlashMediaPlayer;
+import com.bramosystems.oss.player.core.client.ui.QuickTimePlayer;
+import com.bramosystems.oss.player.core.client.ui.WinMediaPlayer;
 import com.bramosystems.oss.player.core.event.client.*;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.SimplePanel;
@@ -115,7 +118,7 @@ public abstract class CustomVideoPlayer extends AbstractMediaPlayer implements P
             }
         });
 
-//        engine.setConfigParameter(ConfigParameter.WMPUIMode, WinMediaPlayer.UIMode.NONE);
+        engine.setConfigParameter(ConfigParameter.WMPUIMode, WinMediaPlayer.UIMode.NONE);
         engine.setControllerVisible(false);
         engine.showLogger(false);
 

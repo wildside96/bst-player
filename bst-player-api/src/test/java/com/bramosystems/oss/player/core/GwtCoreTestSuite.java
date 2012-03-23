@@ -17,6 +17,7 @@
 package com.bramosystems.oss.player.core;
 
 import com.bramosystems.oss.player.core.client.TxtPlayTime;
+import com.bramosystems.oss.player.core.client.TxtPlayerUtil;
 import com.bramosystems.oss.player.core.client.TxtTransformationMatrix;
 import com.google.gwt.junit.tools.GWTTestSuite;
 import junit.framework.Test;
@@ -29,6 +30,7 @@ public class GwtCoreTestSuite extends GWTTestSuite {
 
     public static Test suite() {
         GWTTestSuite suite = new GWTTestSuite("Test Core Module");
+        suite.addTestSuite(TxtPlayerUtil.class);
         suite.addTestSuite(TxtPlayTime.class);
         suite.addTestSuite(TxtTransformationMatrix.class);
         return suite;

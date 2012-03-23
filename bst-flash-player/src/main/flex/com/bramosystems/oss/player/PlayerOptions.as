@@ -38,9 +38,5 @@ package com.bramosystems.oss.player {
         public static function get isMouseEventsEnabled():Boolean {
             return FlexGlobals.topLevelApplication.parameters.enableMouseEvent == "true";
         }
-
-        public static function get eventPrefix():String {
-            return FlexGlobals.topLevelApplication.parameters.evtPfx;
-        }
     }
 }

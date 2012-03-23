@@ -35,18 +35,4 @@
                 <activatedProfile>dev-mode</activatedProfile>
             </activatedProfiles>
         </action>
-        <action>
-            <actionName>CUSTOM-build-no-test</actionName>
-            <displayName>build-no-test</displayName>
-            <goals>
-                <goal>clean</goal>
-                <goal>install</goal>
-            </goals>
-            <properties>
-                <skipTests>true</skipTests>
-            </properties>
-            <activatedProfiles>
-                <activatedProfile>dev-mode</activatedProfile>
-            </activatedProfiles>
-        </action>
     </actions>
