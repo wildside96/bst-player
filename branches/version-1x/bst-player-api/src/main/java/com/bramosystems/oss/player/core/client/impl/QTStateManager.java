@@ -32,6 +32,12 @@ public class QTStateManager {
         impl.resetPropertiesOnReload(false);
         registerMediaStateListenerImpl(impl, handler);
     }
+        
+    public void initOnLoad(final String playerId, final OnLoadHandler onLoadHandler) {
+        QuickTimePlayerImpl impl = QuickTimePlayerImpl.getPlayer(playerId);
+        onLoadHandler.onDebug("Plugin Version : " + impl.getPluginVersion());
+        onLoadHandler.initImpl(impl);
+    }
 
     protected native void registerMediaStateListenerImpl(QuickTimePlayerImpl playr, QTEventHandler handler) /*-{
     playr.addEventListener('qt_begin', function(){  // plugin init complete
@@ -74,5 +80,12 @@ public class QTStateManager {
 
     public static interface QTEventHandler {
         public void onStateChange(int newState);
+    }
+    
+    public static interface OnLoadHandler {
+
+        void initImpl(QuickTimePlayerImpl impl);
+
+        void onDebug(String message);
     }
 }

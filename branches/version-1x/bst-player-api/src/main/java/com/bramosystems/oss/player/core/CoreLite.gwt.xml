@@ -19,15 +19,15 @@
 <module>
     <inherits name="com.google.gwt.user.User"/>
     <inherits name="com.google.gwt.http.HTTP"/>
+    <inherits name="com.bramosystems.oss.player.core.Properties" />
     <inherits name="com.bramosystems.oss.player.core.event.Event" />
     <inherits name="com.bramosystems.oss.player.util.Util" />
     <stylesheet src="custom-control-styles.css" />
+    
+    <!-- Enable Logger by default -->
+    <set-property name="bstplayer.enableLogger" value="true"/>
 
-    <!-- define configuration properties -->
-    <define-property name="bstplayer.enableLogger" values="true, false"/>
-    <define-configuration-property name="bstplayer.media.mimeTypes" is-multi-valued="false" />
-
-	<!-- WMPStateManager mapping for IE6/7/8 -->
+    <!-- WMPStateManager mapping for IE6/7/8 -->
     <replace-with class="com.bramosystems.oss.player.core.client.impl.WMPStateManagerIE">
         <when-type-is class="com.bramosystems.oss.player.core.client.impl.WMPStateManager"/>
         <any>
@@ -53,6 +53,13 @@
             <when-property-is name="user.agent" value="ie8"/>
             <when-property-is name="user.agent" value="ie9"/>
         </any>
+    </replace-with>
+    
+    <!-- QTStateManager mapping for Firefox on Mac -->
+    <replace-with class="com.bramosystems.oss.player.core.client.impl.QTStateManagerMacMozilla">
+        <when-type-is class="com.bramosystems.oss.player.core.client.impl.QTStateManager"/>
+        <when-property-is name="user.agent" value="gecko1_8"/>
+        <when-property-is name="bstplayer.platform" value="mac"/>
     </replace-with>
 
     <!-- VLCStateManager mapping for IE6/7/8 -->
@@ -108,6 +115,4 @@
         <when-property-is name="bstplayer.enableLogger" value="false"/>
     </replace-with>
 
-    <!-- Enable Logger by default -->
-    <set-property name="bstplayer.enableLogger" value="true"/>
 </module>

@@ -15,23 +15,12 @@
  */
 package com.bramosystems.oss.player.dev.client;
 
-//import com.bramosystems.oss.player.capsule.client.Capsule;
+import com.bramosystems.oss.player.core.client.*;
 import com.bramosystems.oss.player.core.client.playlist.MRL;
-import com.bramosystems.oss.player.core.client.AbstractMediaPlayer;
-import com.bramosystems.oss.player.core.client.ConfigParameter;
-import com.bramosystems.oss.player.core.client.LoadException;
-import com.bramosystems.oss.player.core.client.PlayerInfo;
-import com.bramosystems.oss.player.core.client.PlayerUtil;
-import com.bramosystems.oss.player.core.client.PlaylistSupport;
-import com.bramosystems.oss.player.core.client.Plugin;
-import com.bramosystems.oss.player.core.client.PluginNotFoundException;
-import com.bramosystems.oss.player.core.client.PluginVersionException;
 import com.bramosystems.oss.player.core.client.ui.FlashMediaPlayer;
 import com.bramosystems.oss.player.core.client.ui.QuickTimePlayer;
 import com.bramosystems.oss.player.core.client.ui.WinMediaPlayer;
-import com.bramosystems.oss.player.core.event.client.PlayStateEvent;
-import com.bramosystems.oss.player.core.event.client.PlayStateHandler;
-//import com.bramosystems.oss.player.flat.client.FlatVideoPlayer;
+import com.bramosystems.oss.player.core.event.client.*;
 import com.bramosystems.oss.player.playlist.client.asx.ASXEntry;
 import com.bramosystems.oss.player.playlist.client.asx.ASXPlaylist;
 import com.bramosystems.oss.player.playlist.client.spf.SPFPlaylist;
@@ -45,12 +34,7 @@ import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiTemplate;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.Window.Location;
-import com.google.gwt.user.client.ui.Button;
-import com.google.gwt.user.client.ui.DialogBox;
-import com.google.gwt.user.client.ui.FlowPanel;
-import com.google.gwt.user.client.ui.Label;
-import com.google.gwt.user.client.ui.RootPanel;
-import com.google.gwt.user.client.ui.Widget;
+import com.google.gwt.user.client.ui.*;
 import java.util.ArrayList;
 import java.util.Iterator;
 
@@ -64,7 +48,7 @@ import java.util.Iterator;
  */
 public class Dev extends FlowPanel implements EntryPoint {
 
-    private final String HEIGHT = "50px", WIDTH = "60%";
+    private final String HEIGHT = "350px", WIDTH = "60%";
     private AbstractMediaPlayer mmp;
     private ArrayList<MRL> mrls;
 
@@ -84,9 +68,9 @@ public class Dev extends FlowPanel implements EntryPoint {
         mrls = new ArrayList<MRL>();
         mrls.add(new MRL(GWT.getModuleBaseURL() + "applause.mp3"));
 //        mrl.addURL(GWT.getModuleBaseURL() + "DSCF1780.AVI");
- //       mrls.add(new MRL(GWT.getModuleBaseURL() + "big-buck-bunny.mp4"));
+       mrls.add(new MRL(GWT.getModuleBaseURL() + "big-buck-bunny.mp4"));
 //        mrls.add(new MRL(GWT.getModuleBaseURL() + "u2intro.mp4"));
-//        mrls.add(new MRL(GWT.getModuleBaseURL() + "traffic.flv"));
+        mrls.add(new MRL(GWT.getModuleBaseURL() + "traffic.flv"));
 //        mrls.add(new MRL(GWT.getModuleBaseURL() + "traffic.avi"));
 //        mrl.addURL("applause.mp3");
     }
@@ -96,7 +80,7 @@ public class Dev extends FlowPanel implements EntryPoint {
     public void onModuleLoad() {
         //        RootPanel.get().add(new ScrollPanel(this));
         RootPanel.get().add(this);
-        addPlayer(Plugin.WinMediaPlayer);
+        addPlayer(Plugin.FlashPlayer);
 
 //                    add(new MimeStuffs());
 //                addUTube();
@@ -186,7 +170,7 @@ public class Dev extends FlowPanel implements EntryPoint {
             mmp.showLogger(true);
             mmp.setConfigParameter(ConfigParameter.QTScale, QuickTimePlayer.Scale.Aspect);
             mmp.setConfigParameter(ConfigParameter.BackgroundColor, "#ffffff");
-//            ((PlaylistSupport) mmp).addToPlaylist(mrls);
+            ((PlaylistSupport) mmp).addToPlaylist(mrls);
 //            mmp.setResizeToVideoSize(true);
 //            mmp.setLoopCount(2);
 //            mmp.setRepeatMode(RepeatMode.REPEAT_ALL);
