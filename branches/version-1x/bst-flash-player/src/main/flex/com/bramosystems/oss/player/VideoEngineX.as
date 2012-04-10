@@ -212,8 +212,7 @@ package com.bramosystems.oss.player {
                 if(prog < 1.0) {
                     EventUtil.fireLoadingProgress(prog);
                 } else {
-                    EventUtil.fireMediaStateChanged(10);
-                    Log.info("Loading complete");
+                   dispatchEvent(new PlayStateEvent(PlayStateEvent.LOADING_COMPLETE));
                 }
             }
 

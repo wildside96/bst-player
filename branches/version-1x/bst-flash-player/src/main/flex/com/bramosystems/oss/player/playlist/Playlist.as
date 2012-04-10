@@ -62,8 +62,16 @@ package com.bramosystems.oss.player.playlist {
             Log.info(playlist.length + " entries left in playlist");
         }
 
-        public function getEntry(index:int):PlaylistEntry {
-            return playlist[index];
+        public function getEntry(idx:int, updateIndex:Boolean):PlaylistEntry {
+            if(updateIndex) {
+                if (idx >= 0 && idx < size()) { 
+                    _index = idx;
+                    if(_usedIndices.indexOf(idx) < 0) { // remember index is used
+                        _usedIndices.push(idx);
+                    }
+                }
+            }
+            return playlist[idx];
         }
 
         public function getIndex():int {
