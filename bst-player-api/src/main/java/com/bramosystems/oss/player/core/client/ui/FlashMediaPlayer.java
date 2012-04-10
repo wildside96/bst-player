@@ -15,29 +15,24 @@
  */
 package com.bramosystems.oss.player.core.client.ui;
 
-import com.bramosystems.oss.player.core.client.playlist.MRL;
-import com.bramosystems.oss.player.core.client.*;
 import com.bramosystems.oss.player.core.client.MediaInfo.MediaInfoKey;
-import com.bramosystems.oss.player.core.client.geom.TransformationMatrix;
+import com.bramosystems.oss.player.core.client.*;
 import com.bramosystems.oss.player.core.client.geom.MatrixSupport;
+import com.bramosystems.oss.player.core.client.geom.TransformationMatrix;
+import com.bramosystems.oss.player.core.client.impl.CorePlayerProvider;
 import com.bramosystems.oss.player.core.client.impl.FMPStateManager;
 import com.bramosystems.oss.player.core.client.impl.FlashMediaPlayerImpl;
-import com.bramosystems.oss.player.core.client.spi.PlayerWidget;
-import com.bramosystems.oss.player.core.client.impl.CorePlayerProvider;
-import com.bramosystems.oss.player.core.event.client.DebugEvent;
-import com.bramosystems.oss.player.core.event.client.DebugHandler;
-import com.bramosystems.oss.player.core.event.client.MediaInfoEvent;
-import com.bramosystems.oss.player.core.event.client.MediaInfoHandler;
-import com.bramosystems.oss.player.core.event.client.PlayStateEvent;
-import com.bramosystems.oss.player.core.event.client.PlayerStateEvent;
+import com.bramosystems.oss.player.core.client.playlist.MRL;
 import com.bramosystems.oss.player.core.client.spi.Player;
+import com.bramosystems.oss.player.core.client.spi.PlayerWidget;
+import com.bramosystems.oss.player.core.event.client.*;
 import com.google.gwt.dom.client.Document;
 import com.google.gwt.dom.client.NativeEvent;
 import com.google.gwt.event.dom.client.DomEvent;
 import com.google.gwt.http.client.URL;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.DOM;
-import com.google.gwt.user.client.ui.*;
+import com.google.gwt.user.client.ui.FlowPanel;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -243,8 +238,8 @@ public class FlashMediaPlayer extends AbstractMediaPlayer implements PlaylistSup
         }
 
         swf = new PlayerWidget("core", Plugin.FlashPlayer.name(), playerId, FMPStateManager.getSWFImpl(), autoplay);
-        swf.addParam("flashVars", "playerId=" + playerId + "&autoplay="
-                + autoplay + "&mediaURL=" + URL.encodePathSegment(mediaURL)); // encode mediaURL to avoid ampersand conflict with flashvars
+        swf.addParam("flashVars", "playerId=" + playerId + "&autoplay=" + autoplay +
+                "&loadOnInit=1&mediaURL=" + URL.encodePathSegment(mediaURL)); // encode mediaURL to avoid ampersand conflict with flashvars
         swf.addParam("allowScriptAccess", "always");
         swf.addParam("allowFullScreen", "true");
         swf.addParam("bgcolor", "#000000");

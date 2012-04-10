@@ -15,29 +15,20 @@
  */
 package com.bramosystems.oss.player.core.client.ui;
 
-import com.bramosystems.oss.player.core.client.playlist.MRL;
-import com.bramosystems.oss.player.core.client.geom.MatrixSupport;
-import com.bramosystems.oss.player.core.client.*;
 import com.bramosystems.oss.player.core.client.MediaInfo.MediaInfoKey;
+import com.bramosystems.oss.player.core.client.*;
+import com.bramosystems.oss.player.core.client.geom.MatrixSupport;
+import com.bramosystems.oss.player.core.client.impl.*;
+import com.bramosystems.oss.player.core.client.playlist.MRL;
 import com.bramosystems.oss.player.core.client.playlist.PlaylistManager;
-import com.bramosystems.oss.player.core.client.impl.QTStateManager;
-import com.bramosystems.oss.player.core.client.impl.QuickTimePlayerImpl;
-import com.bramosystems.oss.player.core.client.impl.LoopManager;
-import com.bramosystems.oss.player.core.client.spi.PlayerWidget;
-import com.bramosystems.oss.player.core.client.impl.CorePlayerProvider;
-import com.bramosystems.oss.player.core.event.client.DebugEvent;
-import com.bramosystems.oss.player.core.event.client.DebugHandler;
-import com.bramosystems.oss.player.core.event.client.MediaInfoEvent;
-import com.bramosystems.oss.player.core.event.client.MediaInfoHandler;
-import com.bramosystems.oss.player.core.event.client.PlayStateEvent;
-import com.bramosystems.oss.player.core.event.client.PlayerStateEvent;
 import com.bramosystems.oss.player.core.client.spi.Player;
+import com.bramosystems.oss.player.core.client.spi.PlayerWidget;
+import com.bramosystems.oss.player.core.event.client.*;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.i18n.client.NumberFormat;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.DOM;
-import com.google.gwt.user.client.Timer;
-import com.google.gwt.user.client.ui.*;
+import com.google.gwt.user.client.ui.FlowPanel;
 import java.util.List;
 
 /**
@@ -182,25 +173,30 @@ public class QuickTimePlayer extends AbstractMediaPlayer implements MatrixSuppor
     }
 
     /**
-     * Constructs <code>QuickTimePlayer</code> with the specified {@code height} and
-     * {@code width} to playback media located at {@code mediaURL}. Media playback
-     * begins automatically if {@code autoplay} is {@code true}.
+     * Constructs
+     * <code>QuickTimePlayer</code> with the specified {@code height} and
+     * {@code width} to playback media located at {@code mediaURL}. Media
+     * playback begins automatically if {@code autoplay} is {@code true}.
      *
-     * <p> {@code height} and {@code width} are specified as CSS units. A value of {@code null}
-     * for {@code height} or {@code width} puts the player in embedded mode.  When in embedded mode,
-     * the player is made invisible on the page and media state events are propagated to registered 
-     * listeners only.  This is desired especially when used with custom sound controls.  For custom
-     * video control, specify valid CSS values for {@code height} and {@code width} but hide the
-     * player controls with {@code setControllerVisible(false)}.
+     * <p> {@code height} and {@code width} are specified as CSS units. A value
+     * of {@code null} for {@code height} or {@code width} puts the player in
+     * embedded mode. When in embedded mode, the player is made invisible on the
+     * page and media state events are propagated to registered listeners only.
+     * This is desired especially when used with custom sound controls. For
+     * custom video control, specify valid CSS values for {@code height} and {@code width}
+     * but hide the player controls with {@code setControllerVisible(false)}.
      *
      * @param mediaURL the URL of the media to playback
-     * @param autoplay {@code true} to start playing automatically, {@code false} otherwise
+     * @param autoplay {@code true} to start playing automatically, {@code false}
+     * otherwise
      * @param height the height of the player
      * @param width the width of the player.
      *
      * @throws LoadException if an error occurs while loading the media.
-     * @throws PluginVersionException if the required QuickTime plugin version is not installed on the client.
-     * @throws PluginNotFoundException if the QuickTime plugin is not installed on the client.
+     * @throws PluginVersionException if the required QuickTime plugin version
+     * is not installed on the client.
+     * @throws PluginNotFoundException if the QuickTime plugin is not installed
+     * on the client.
      */
     public QuickTimePlayer(String mediaURL, boolean autoplay, String height, String width)
             throws LoadException, PluginVersionException, PluginNotFoundException {
@@ -254,7 +250,8 @@ public class QuickTimePlayer extends AbstractMediaPlayer implements MatrixSuppor
     }
 
     /**
-     * Constructs <code>QuickTimePlayer</code> to automatically playback media located at
+     * Constructs
+     * <code>QuickTimePlayer</code> to automatically playback media located at
      * {@code mediaURL} using the default height of 16px and width of 100%.
      *
      * <p> This is the same as calling {@code QuickTimePlayer(mediaURL, true, "16px", "100%")}
@@ -262,8 +259,10 @@ public class QuickTimePlayer extends AbstractMediaPlayer implements MatrixSuppor
      * @param mediaURL the URL of the media to playback
      *
      * @throws LoadException if an error occurs while loading the media.
-     * @throws PluginVersionException if the required QuickTime plugin version is not installed on the client.
-     * @throws PluginNotFoundException if the QuickTime plugin is not installed on the client.
+     * @throws PluginVersionException if the required QuickTime plugin version
+     * is not installed on the client.
+     * @throws PluginNotFoundException if the QuickTime plugin is not installed
+     * on the client.
      *
      */
     public QuickTimePlayer(String mediaURL) throws LoadException, PluginVersionException,
@@ -272,18 +271,22 @@ public class QuickTimePlayer extends AbstractMediaPlayer implements MatrixSuppor
     }
 
     /**
-     * Constructs <code>QuickTimePlayer</code> to playback media located at {@code mediaURL}
+     * Constructs
+     * <code>QuickTimePlayer</code> to playback media located at {@code mediaURL}
      * using the default height of 16px and width of 100%. Media playback begins
      * automatically if {@code autoplay} is {@code true}.
      *
      * <p> This is the same as calling {@code QuickTimePlayer(mediaURL, autoplay, "16px", "100%")}
      *
      * @param mediaURL the URL of the media to playback
-     * @param autoplay {@code true} to start playing automatically, {@code false} otherwise
+     * @param autoplay {@code true} to start playing automatically, {@code false}
+     * otherwise
      *
      * @throws LoadException if an error occurs while loading the media.
-     * @throws PluginVersionException if the required QuickTime plugin version is not installed on the client.
-     * @throws PluginNotFoundException if the QuickTime plugin is not installed on the client.
+     * @throws PluginVersionException if the required QuickTime plugin version
+     * is not installed on the client.
+     * @throws PluginNotFoundException if the QuickTime plugin is not installed
+     * on the client.
      */
     public QuickTimePlayer(String mediaURL, boolean autoplay) throws LoadException,
             PluginVersionException, PluginNotFoundException {
@@ -299,25 +302,21 @@ public class QuickTimePlayer extends AbstractMediaPlayer implements MatrixSuppor
         playerWidget.setSize("100%", _height);
         setWidth(_width);
 
-        Timer tt = new Timer() {
+        manager.initOnLoad(playerId, new QTStateManager.OnLoadHandler() {
 
             @Override
-            public void run() {
-                impl = QuickTimePlayerImpl.getPlayer(playerId);
-                try {
-                    String v = impl.getPluginVersion();
-                    if (v != null) {
-                        cancel();
-                        fireDebug("Plugin Version : " + v);
-                        manager.registerMediaStateListener(impl, handler, "");
-                        firePlayerStateEvent(PlayerStateEvent.State.Ready);
-                        playlistManager.load(0);
-                    }
-                } catch (Exception e) {
-                }
+            public void initImpl(QuickTimePlayerImpl _impl) {
+                impl = _impl;
+                manager.registerMediaStateListener(impl, handler, "");
+                firePlayerStateEvent(PlayerStateEvent.State.Ready);
+                playlistManager.load(0);
             }
-        };
-        tt.scheduleRepeating(200);  // IE workarround ...
+
+            @Override
+            public void onDebug(String message) {
+                fireDebug(message);
+            }
+        });
     }
 
     @Override
@@ -392,8 +391,8 @@ public class QuickTimePlayer extends AbstractMediaPlayer implements MatrixSuppor
     /**
      * Displays or hides the player controls.
      *
-     * <p>As of version 1.0, if this player is not available on the panel, this method
-     * call is added to the command-queue for later execution.
+     * <p>As of version 1.0, if this player is not available on the panel, this
+     * method call is added to the command-queue for later execution.
      */
     @Override
     public void setControllerVisible(final boolean show) {
@@ -426,10 +425,11 @@ public class QuickTimePlayer extends AbstractMediaPlayer implements MatrixSuppor
     }
 
     /**
-     * Sets the number of times the current media file should repeat playback before stopping.
+     * Sets the number of times the current media file should repeat playback
+     * before stopping.
      *
-     * <p>As of version 1.0, if this player is not available on the panel, this method
-     * call is added to the command-queue for later execution.
+     * <p>As of version 1.0, if this player is not available on the panel, this
+     * method call is added to the command-queue for later execution.
      */
     @Override
     public void setLoopCount(final int loop) {
@@ -447,17 +447,15 @@ public class QuickTimePlayer extends AbstractMediaPlayer implements MatrixSuppor
     }
 
     /**
-     * Returns the location and dimensions of the rectangle bounds of the display
-     * component within the embed area.
+     * Returns the location and dimensions of the rectangle bounds of the
+     * display component within the embed area.
      *
-     * <p>The value returned is in the form : <code>left,top,right,bottom</code>
-     * <ul>
-     * <li>left  : x coordinate of the upper-left corner</li>
-     * <li>top   : y coordinate of the upper-left corner</li>
-     * <li>right  : x coordinate of the lower-right corner</li>
-     * <li>bottom : y coordinate of the lower-right corner</li>
-     * </ul>
-     * 
+     * <p>The value returned is in the form :
+     * <code>left,top,right,bottom</code> <ul> <li>left : x coordinate of the
+     * upper-left corner</li> <li>top : y coordinate of the upper-left
+     * corner</li> <li>right : x coordinate of the lower-right corner</li>
+     * <li>bottom : y coordinate of the lower-right corner</li> </ul>
+     *
      * @return the bounds of the display component
      * @since 1.0
      */
@@ -467,8 +465,8 @@ public class QuickTimePlayer extends AbstractMediaPlayer implements MatrixSuppor
     }
 
     /**
-     * Sets the location and dimensions of the rectangle bounds of the display component
-     * within the embed area.
+     * Sets the location and dimensions of the rectangle bounds of the display
+     * component within the embed area.
      *
      * @param bounds the new location and dimension of the display component
      * @see #getRectangleBounds()
@@ -529,8 +527,8 @@ public class QuickTimePlayer extends AbstractMediaPlayer implements MatrixSuppor
     /**
      * Sets the transformation matrix of the underlying QuickTime Player.
      *
-     * <p>If this player is not attached to a panel, this method call is added to
-     * the command-queue for later execution.
+     * <p>If this player is not attached to a panel, this method call is added
+     * to the command-queue for later execution.
      */
     @Override
     public void setMatrix(final com.bramosystems.oss.player.core.client.geom.TransformationMatrix matrix) {
@@ -581,9 +579,10 @@ public class QuickTimePlayer extends AbstractMediaPlayer implements MatrixSuppor
     }
 
     /**
-     * Matrix elements returned from the QT plugin appears to have format inconsistencies
-     * and breaks the Double.parseDouble function. This is a rather quark means of removing
-     * empty spaces from the specified matrixElement.
+     * Matrix elements returned from the QT plugin appears to have format
+     * inconsistencies and breaks the Double.parseDouble function. This is a
+     * rather quark means of removing empty spaces from the specified
+     * matrixElement.
      *
      * @param matrixElement the element
      */
@@ -742,7 +741,8 @@ public class QuickTimePlayer extends AbstractMediaPlayer implements MatrixSuppor
     }
 
     /**
-     * An enum of scalling values that can be used to scale the dimensions of a QuickTime movie
+     * An enum of scalling values that can be used to scale the dimensions of a
+     * QuickTime movie
      *
      * @see ConfigParameter#QTScale
      * @since 1.2
@@ -755,8 +755,8 @@ public class QuickTimePlayer extends AbstractMediaPlayer implements MatrixSuppor
          */
         ToFit,
         /**
-         * Scale the movie to fill as much of the specified player size as possible while preserving the
-         * movie's aspect ratio
+         * Scale the movie to fill as much of the specified player size as
+         * possible while preserving the movie's aspect ratio
          */
         Aspect;
     }
