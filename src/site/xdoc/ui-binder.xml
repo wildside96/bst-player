@@ -365,7 +365,7 @@ Embed MP3 media with the HTML 5 video elements with the logger showing
     xmlns:g='urn:import:com.google.gwt.user.client.ui'
     xmlns:player='urn:import:com.bramosystems.oss.player.uibinder.client'&gt;
         ...
-        &lt;player:Native autoplay='true' height='20px' width='100%'
+        &lt;player:Player name='Native' autoplay='true' height='20px' width='100%'
             showLogger='true' mediaURL='gwt-host::media/o-na-som.mp3' /&gt;
         ...
 &lt;/ui:UiBinder&gt;
