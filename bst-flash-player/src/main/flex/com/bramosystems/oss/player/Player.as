@@ -54,12 +54,14 @@ package com.bramosystems.oss.player {
             mp3.addEventListener(PlayStateEvent.PLAY_STOPPED, playStopped);
             mp3.addEventListener(PlayStateEvent.PLAY_PAUSED, playPaused);
             mp3.addEventListener(PlayStateEvent.PLAY_FINISHED, playFinished);
+            mp3.addEventListener(PlayStateEvent.LOADING_COMPLETE, loadComplete);
 
             vdu = new VideoEngine();
             vdu.addEventListener(PlayStateEvent.PLAY_STARTED, playStarted);
             vdu.addEventListener(PlayStateEvent.PLAY_STOPPED, playStopped);
             vdu.addEventListener(PlayStateEvent.PLAY_PAUSED, playPaused);
             vdu.addEventListener(PlayStateEvent.PLAY_FINISHED, playFinished);
+            vdu.addEventListener(PlayStateEvent.LOADING_COMPLETE, loadComplete);
             vdu.addEventListener(MetadataEvent.METADATA_RECEIVED, metaDoVDUSize);
 
             setting.addEventListener(SettingChangedEvent.VOLUME_CHANGED, onUpdateVolumeEvent); // add vol mgmt on settings
@@ -140,7 +142,7 @@ package com.bramosystems.oss.player {
         }
 
         public function playIndex(index:int):Boolean {
-            var url:String = playlist.getEntry(index).getFileName();
+            var url:String = playlist.getEntry(index, true).getFileName();
             if(url != null) {
                 _load(url);
                 player.play();
@@ -206,25 +208,30 @@ package com.bramosystems.oss.player {
         }
 
         /*************************** PLAY STATE HANDLERS *********************/
-        private var __pIndex:int;
         private function playFinished(event:PlayStateEvent):void {
-            EventUtil.fireMediaStateChanged(9, __pIndex);
+            EventUtil.fireMediaStateChanged(9, playlist.getIndex());
+            Log.info("Playlist #" + playlist.getIndex() + " playback finished");
             if(!playNextLoop()) {
-                Log.info("Media playback finished");
+                Log.info("Playlist finished");
                 state = FINISHED;
             }
         }
- 
+
+        private function loadComplete(event:PlayStateEvent):void {
+            EventUtil.fireMediaStateChanged(10);
+            Log.info("Playlist #" + playlist.getIndex() + " loading complete");
+        }
+
         private function playStopped(event:PlayStateEvent):void {
             state = STOPPED;
             Log.info("Playback stopped");
-            EventUtil.fireMediaStateChanged(3, __pIndex);
+            EventUtil.fireMediaStateChanged(3, playlist.getIndex());
         }
 
         private function playPaused(event:PlayStateEvent):void {
             state = PAUSED;
             Log.info("Playback paused");
-            EventUtil.fireMediaStateChanged(4, __pIndex);
+            EventUtil.fireMediaStateChanged(4, playlist.getIndex());
         }
 
         private function playStarted(event:PlayStateEvent):void {
@@ -233,11 +240,10 @@ package com.bramosystems.oss.player {
                     Log.info("Playback resumed");
                     break;
                 default:
-                    __pIndex = playlist.getIndex();
-                    Log.info("Playlist #" + __pIndex + " playback started");
+                    Log.info("Playlist #" + playlist.getIndex() + " playback started");
             }
             state = PLAYING;
-            EventUtil.fireMediaStateChanged(2, __pIndex);
+            EventUtil.fireMediaStateChanged(2, playlist.getIndex());
         }
 
         /************************** HELPER FUNCTIONS *****************************/
@@ -251,11 +257,13 @@ package com.bramosystems.oss.player {
             if(mediaURL.search(".mp3") >= 0) {
                 player = mp3
                 addChild(mp3);
-                Log.info("MP3Engine: Loading media at '" + mediaURL + "'");
+                Log.info("Playlist #" + playlist.getIndex() + 
+                    ": [MP3Engine] Loading media at '" + mediaURL + "'");
             } else {
                 player = vdu;
                 addChild(vdu);
-                Log.info("VideoEngine: Loading media at '" + mediaURL + "'");
+                Log.info("Playlist #" + playlist.getIndex() + 
+                    ": [VideoEngine] Loading media at '" + mediaURL + "'");
             }
             
             try {

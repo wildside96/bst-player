@@ -27,6 +27,10 @@ package com.bramosystems.oss.player {
             return FlexGlobals.topLevelApplication.parameters.autoplay == "true";
         }
 
+        public static function get loadOnInit():Boolean {
+            return FlexGlobals.topLevelApplication.parameters.loadOnInit == "1";
+        }
+
         public static function get mediaURL():String {
             return FlexGlobals.topLevelApplication.parameters.mediaURL;
         }

@@ -72,12 +72,15 @@
                     Log.info(PlayerInfo.getPlayerInfo());
                     Log.info("Flash Plugin Version " + getFlashVersion());
                     Log.debug("Security Zone : " + Security.sandboxType);
+                    
                     playlist.add(PlayerOptions.mediaURL);
                     EventUtil.fireApplicationInitialized();
 
-                    player.loadNext();
-                    if (PlayerOptions.autoplay) {
-                        player.play();
+                    if (PlayerOptions.loadOnInit) {
+                        player.loadNext();
+                        if (PlayerOptions.autoplay) {
+                            player.play();
+                        }
                     }
                 } catch(err:SecurityError) {
                     Log.error(err.message);

@@ -171,8 +171,7 @@ package com.bramosystems.oss.player {
                if(sound != null)
                     soundDuration = sound.length;
 
-               EventUtil.fireMediaStateChanged(10);
-               Log.info("Loading complete");
+               dispatchEvent(new PlayStateEvent(PlayStateEvent.LOADING_COMPLETE));
             }
 
             private function loadingProgressHandler(event:ProgressEvent):void {
