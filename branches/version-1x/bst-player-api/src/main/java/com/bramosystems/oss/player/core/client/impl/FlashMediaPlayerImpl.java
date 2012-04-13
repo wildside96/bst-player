@@ -44,11 +44,11 @@ public class FlashMediaPlayerImpl extends JavaScriptObject {
     }-*/;
 
     public native final void loadMedia(String url) /*-{
-    this.load(url);
+    this.loadFMedia(url);
     }-*/;
 
     public native final void playMedia() /*-{
-    this.play();
+    this.playFMedia();
     }-*/;
 
     public native final boolean playMedia(int index) /*-{
@@ -64,16 +64,16 @@ public class FlashMediaPlayerImpl extends JavaScriptObject {
     }-*/;
 
     public native final void stopMedia() /*-{
-    this.stop(true);
+    this.stopFMedia(true);
     }-*/;
 
     public native final void pauseMedia() /*-{
-    this.stop(false);
+    this.stopFMedia(false);
     }-*/;
 
     public native final void closeMedia() /*-{
     try {
-    this.close();
+    this.closeFMedia();
     }catch(err){}
     }-*/;
 

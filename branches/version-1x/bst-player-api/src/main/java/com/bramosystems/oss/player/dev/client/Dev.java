@@ -15,6 +15,7 @@
  */
 package com.bramosystems.oss.player.dev.client;
 
+import com.bramosystems.oss.player.capsule.client.Capsule;
 import com.bramosystems.oss.player.core.client.*;
 import com.bramosystems.oss.player.core.client.playlist.MRL;
 import com.bramosystems.oss.player.core.client.ui.FlashMediaPlayer;
@@ -157,9 +158,9 @@ public class Dev extends FlowPanel implements EntryPoint {
          */
         try {
             PlayerInfo pi = PlayerUtil.getPlayerInfo("core", plugin.name());
-            mmp = PlayerUtil.getPlayer(pi, mrls.get(0).getNextResource(true), false, HEIGHT, WIDTH);
+//            mmp = PlayerUtil.getPlayer(pi, mrls.get(0).getNextResource(true), false, HEIGHT, WIDTH);
  //           mmp = new WinMediaPlayer(mrl.getNextResource(true), false, HEIGHT, WIDTH, WinMediaPlayer.EmbedMode.EMBED_ONLY);
- //                   mmp = new Capsule(Plugin.FlashPlayer, mrl.getNextResource(true), false);
+                    mmp = new Capsule(plugin, mrls.get(0).getNextResource(true), false);
             mmp.addPlayStateHandler(new PlayStateHandler() {
 
                 @Override
