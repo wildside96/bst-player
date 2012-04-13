@@ -95,7 +95,7 @@
                     if (ExternalInterface.available) {          // setup callback interfaces...
                         ExternalInterface.addCallback("getPlayerVersion", PlayerInfo.getPlayerVersion);
                         ExternalInterface.addCallback("getPluginVersion", getFlashVersion);
-                        ExternalInterface.addCallback("close", player.close);
+                        ExternalInterface.addCallback("closeFMedia", player.close);
                         ExternalInterface.addCallback("getVideoHeight", player.getVideoHeight);
                         ExternalInterface.addCallback("getVideoWidth", player.getVideoWidth);
 
@@ -117,12 +117,12 @@
                         ExternalInterface.addCallback("getRepeatMode", playlist.getRepeat);
 
                         // play control stuffs...
-                        ExternalInterface.addCallback("load", player.load);
-                        ExternalInterface.addCallback("play", player.play);
+                        ExternalInterface.addCallback("loadFMedia", player.load);
+                        ExternalInterface.addCallback("playFMedia", player.play);
                         ExternalInterface.addCallback("playNext", player.playNext);
                         ExternalInterface.addCallback("playPrev", player.playPrev);
                         ExternalInterface.addCallback("playIndex", player.playIndex);
-                        ExternalInterface.addCallback("stop", player.stop);
+                        ExternalInterface.addCallback("stopFMedia", player.stop);
                         ExternalInterface.addCallback("getDuration", player.getDuration);
                         ExternalInterface.addCallback("getPlayPosition", player.getPlayPosition);
                         ExternalInterface.addCallback("setPlayPosition", player.setPlayPosition);
