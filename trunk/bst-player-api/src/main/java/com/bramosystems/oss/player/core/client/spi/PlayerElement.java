@@ -57,7 +57,13 @@ public class PlayerElement {
         /**
          * HTML5 video element type
          */
-        VideoElement
+        VideoElement,
+        
+        /**
+         * HTML iframe element type
+         * @since 1.4
+         */
+        IFrameElement
     }
     private Document _doc = Document.get();
     private Element e;
@@ -87,6 +93,9 @@ public class PlayerElement {
                 break;
             case VideoElement:
                 e = _doc.createElement("video");
+                break;
+            case IFrameElement:
+                e = _doc.createIFrameElement();
         }
         e.setId(id);
     }
@@ -109,6 +118,7 @@ public class PlayerElement {
                 break;
             case EmbedElement:
             case VideoElement:
+            case IFrameElement:
                 e.setAttribute(name, value);
         }
     }

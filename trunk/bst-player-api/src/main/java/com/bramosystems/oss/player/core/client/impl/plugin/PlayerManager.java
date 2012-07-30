@@ -127,7 +127,7 @@ public abstract class PlayerManager {
     }
 
     protected final String extractExt(String mediaURL) {
-        String _mediaURL = mediaURL.replaceAll("[\\?;#].*$", "");
+        String _mediaURL = mediaURL.replaceAll("[;#].*$", "");
         return _mediaURL.substring(_mediaURL.lastIndexOf(".") + 1);
     }
 

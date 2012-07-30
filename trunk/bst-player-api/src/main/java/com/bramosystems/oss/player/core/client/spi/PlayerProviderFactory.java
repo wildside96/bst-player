@@ -15,12 +15,7 @@
  */
 package com.bramosystems.oss.player.core.client.spi;
 
-import com.bramosystems.oss.player.core.client.AbstractMediaPlayer;
-import com.bramosystems.oss.player.core.client.LoadException;
-import com.bramosystems.oss.player.core.client.PlayerUtil;
-import com.bramosystems.oss.player.core.client.PluginNotFoundException;
-import com.bramosystems.oss.player.core.client.PluginVersion;
-import com.bramosystems.oss.player.core.client.PluginVersionException;
+import com.bramosystems.oss.player.core.client.*;
 import java.util.HashMap;
 
 /**
@@ -40,8 +35,6 @@ public interface PlayerProviderFactory {
      */
     public void init(ConfigurationContext context);
     
-    public ConfigurationContext getConfigurationContext();
-
     /**
      * Returns the DOM element structure for the specified {@code playerName}.  The DOM element structure 
      * will be inserted into the page when required.

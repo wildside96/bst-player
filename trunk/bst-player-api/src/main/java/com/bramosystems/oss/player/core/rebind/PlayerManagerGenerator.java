@@ -74,21 +74,23 @@ public class PlayerManagerGenerator extends Generator {
     }
 
     private void collatePlayers(TypeOracle typeOracle) {
-        logger.log(TreeLogger.Type.INFO, "Searching for Player Providers");
+        TreeLogger tl = logger.branch(TreeLogger.Type.INFO, "Searching for Player Providers");
         JClassType a[] = typeOracle.getTypes();
         for (int i = 0; i < a.length; i++) {
             if (a[i].isAnnotationPresent(PlayerProvider.class)) {
                 String pName = a[i].getAnnotation(PlayerProvider.class).value();
+                tl.log(TreeLogger.Type.INFO, "Processing Player Provider : " + pName);
                 provClassMap.put(a[i].getQualifiedSourceName(), pName);
                 playerMap2.put(pName, new HashSet<String>());
             }
         }
-        logger.log(TreeLogger.Type.INFO, "Searching for Player widgets");
+        
+        tl = logger.branch(TreeLogger.Type.INFO, "Searching for Player widgets");
         for (int i = 0; i < a.length; i++) {
             if (a[i].isAnnotationPresent(Player.class)) {
                 String name = a[i].getAnnotation(Player.class).providerFactory().getName();
                 if (provClassMap.containsKey(name)) {
-                    logger.log(TreeLogger.Type.INFO, "Processing Player widget : " + a[i].getQualifiedSourceName());
+                    tl.log(TreeLogger.Type.INFO, "Processing Player widget : " + a[i].getQualifiedSourceName());
                     playerMap2.get(provClassMap.get(name)).add(a[i].getQualifiedSourceName());
                 } else {
                     logger.log(TreeLogger.Type.ERROR, "WidgetFactory '" + name + "' should be annotated with @PlayerProvider");
@@ -140,16 +142,16 @@ public class PlayerManagerGenerator extends Generator {
         // generate constructor source code
         sourceWriter.println("public " + className + "() { ");
         sourceWriter.indent();
-        
-       // init widget factories ...
+
+        // init widget factories ...
         fact = provClassMap.keySet().iterator();
         while (fact.hasNext()) {
             String provClass = fact.next();
             String provName = escapeProviderName(provClassMap.get(provClass));
-            sourceWriter.println("pwf_" + provName + ".init(new ConfigurationContext(CallbackUtility.initCallbackHandlers(\"" + 
-                    provName + "\"), \"bstplayer.handlers." + provName + "\"));");
+            sourceWriter.println("pwf_" + provName + ".init(new ConfigurationContext(CallbackUtility.initCallbackHandlers(\""
+                    + provName + "\"), \"bstplayer.handlers." + provName + "\"));");
         }
-        
+
         sourceWriter.println();
         fact = playerMap2.keySet().iterator();
         while (fact.hasNext()) {
@@ -252,7 +254,7 @@ public class PlayerManagerGenerator extends Generator {
         // commit generated class
         context.commit(logger, printWriter);
     }
-    
+
     // replace chars [.] with escaped strings ...
     private String escapeProviderName(String provName) {
         return provName.replace(".", "$");
