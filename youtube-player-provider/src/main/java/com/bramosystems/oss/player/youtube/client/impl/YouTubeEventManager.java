@@ -15,7 +15,6 @@
  */
 package com.bramosystems.oss.player.youtube.client.impl;
 
-import com.bramosystems.oss.player.core.client.impl.CallbackUtility;
 import com.google.gwt.core.client.JavaScriptObject;
 
 /**
@@ -29,11 +28,11 @@ public class YouTubeEventManager {
     }
 
     public final void init(String playerApiId, EventHandler handler) {
-        initImpl(playerApiId, CallbackUtility.getUTubeCallbackHandlers(), handler);
+//        initImpl(playerApiId, CallbackUtility.getUTubeCallbackHandlers(), handler);
     }
 
     public final void close(String playerApiId) {
-        closeImpl(playerApiId, CallbackUtility.getUTubeCallbackHandlers());
+//        closeImpl(playerApiId, CallbackUtility.getUTubeCallbackHandlers());
     }
 
     private native void closeImpl(String playerApiId, JavaScriptObject utube) /*-{
@@ -57,7 +56,7 @@ public class YouTubeEventManager {
     }-*/;
 
     static {
-        initGlobalCallback(CallbackUtility.getUTubeCallbackHandlers());
+//        initGlobalCallback(CallbackUtility.getUTubeCallbackHandlers());
     }
 
     private static native void initGlobalCallback(JavaScriptObject utube) /*-{
