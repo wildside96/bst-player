@@ -26,8 +26,6 @@ import com.bramosystems.oss.player.core.client.impl.LoopManager;
 import com.bramosystems.oss.player.core.client.spi.PlayerWidget;
 import com.bramosystems.oss.player.core.client.impl.CorePlayerProvider;
 import com.bramosystems.oss.player.core.client.spi.Player;
-import com.bramosystems.oss.player.core.event.client.DebugEvent;
-import com.bramosystems.oss.player.core.event.client.DebugHandler;
 import com.bramosystems.oss.player.core.event.client.MediaInfoEvent;
 import com.bramosystems.oss.player.core.event.client.MediaInfoHandler;
 import com.bramosystems.oss.player.core.event.client.PlayStateEvent;
@@ -37,7 +35,6 @@ import com.google.gwt.i18n.client.NumberFormat;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Timer;
-import com.google.gwt.user.client.ui.*;
 import java.util.List;
 
 /**
@@ -80,7 +77,6 @@ public class QuickTimePlayer extends AbstractMediaPlayer implements MatrixSuppor
     private QTStateManager.QTEventHandler handler;
     private PlayerWidget playerWidget;
     private String playerId;//, mediaUrl;
-    private Logger logger;
     private LoopManager loopManager;
     private PlaylistManager playlistManager;
     private boolean isEmbedded, resizeToVideoSize, _isBuffering;
@@ -206,38 +202,23 @@ public class QuickTimePlayer extends AbstractMediaPlayer implements MatrixSuppor
             throws LoadException, PluginVersionException, PluginNotFoundException {
         this();
 
-        FlowPanel panel = new FlowPanel();
-        initWidget(panel);
-
         playerWidget = new PlayerWidget("core", Plugin.QuickTimePlayer.name(), playerId, "", autoplay);
         playerWidget.addParam("BGCOLOR", "#000000");
         playerWidget.addParam("ENABLEJAVASCRIPT", "True");
         playerWidget.addParam("KIOSKMODE", "True");
         playerWidget.addParam("PostDomEvents", "True");
         playerWidget.addParam("CONTROLLER", "True");
-        panel.add(playerWidget);
+        initWidget(playerWidget);
 
         _height = height;
         _width = width;
         isEmbedded = (height == null) || (width == null);
         if (!isEmbedded) {
-            logger = new Logger();
-            logger.setVisible(false);
-            panel.add(logger);
-
-            addDebugHandler(new DebugHandler() {
-
-                @Override
-                public void onDebug(DebugEvent event) {
-                    logger.log(event.getMessage(), false);
-                }
-            });
             addMediaInfoHandler(new MediaInfoHandler() {
 
                 @Override
                 public void onMediaInfoAvailable(MediaInfoEvent event) {
                     MediaInfo info = event.getMediaInfo();
-                    logger.log(info.asHTMLString(), true);
                     if (info.getAvailableItems().contains(MediaInfoKey.VideoHeight)
                             || info.getAvailableItems().contains(MediaInfoKey.VideoWidth)) {
                         checkVideoSize(Integer.parseInt(info.getItem(MediaInfoKey.VideoHeight)) + 16,
@@ -382,13 +363,6 @@ public class QuickTimePlayer extends AbstractMediaPlayer implements MatrixSuppor
         }
     }
 
-    @Override
-    public void showLogger(boolean enable) {
-        if (!isEmbedded) {
-            logger.setVisible(enable);
-        }
-    }
-
     /**
      * Displays or hides the player controls.
      *
@@ -518,9 +492,7 @@ public class QuickTimePlayer extends AbstractMediaPlayer implements MatrixSuppor
             fireDebug("Resizing Player : " + _w + " x " + _h);
         }
 
-        playerWidget.setSize("100%", _h);
-        setWidth(_w);
-
+        setSize(_w, _h);
         if (!_height.equals(_h) || !_width.equals(_w)) {
             firePlayerStateEvent(PlayerStateEvent.State.DimensionChangedOnVideo);
         }
@@ -621,30 +593,22 @@ public class QuickTimePlayer extends AbstractMediaPlayer implements MatrixSuppor
     }
 
     @Override
-    public <T extends ConfigValue> void setConfigParameter(ConfigParameter param, T value) {
+    public <T> void setConfigParameter(ConfigParameter param, T value) {
         super.setConfigParameter(param, value);
-        if (param.getName().equals(CoreConfigParameter.QTScale.getName())) {
-            playerWidget.addParam("SCALE", value.toString());
-        } else if (param.getName().equals(DefaultConfigParameter.TransparencyMode.getName())) {
-            if (((TransparencyMode) value).equals(TransparencyMode.TRANSPARENT)) {
-                playerWidget.addParam("WMODE", value.toString().toLowerCase());
+        if (param instanceof DefaultConfigParameter) {
+            switch (DefaultConfigParameter.valueOf(param.getName())) {
+                case TransparencyMode:
+                    playerWidget.addParam("WMODE", ((TransparencyMode) value).name().toLowerCase());
+                    break;
+                case BackgroundColor:
+                    playerWidget.addParam("BGCOLOR", (String) value);
             }
-        }
-    }
-
-    @Override
-    public void setConfigParameter(ConfigParameter param, Number value) {
-        super.setConfigParameter(param, value);
-        if (param.getName().equals(CoreConfigParameter.QTScale.getName())) {
-            playerWidget.addParam("SCALE", value.toString());
-        }
-    }
-
-    @Override
-    public void setConfigParameter(ConfigParameter param, String value) {
-        super.setConfigParameter(param, value);
-        if (param.getName().equals(DefaultConfigParameter.BackgroundColor.getName())) {
-            playerWidget.addParam("BGCOLOR", value);
+        } else if (param instanceof CoreConfigParameter) {
+            switch (CoreConfigParameter.valueOf(param.getName())) {
+                case QTScale:
+                    playerWidget.addParam("SCALE", value.toString());
+                    break;
+            }
         }
     }
 

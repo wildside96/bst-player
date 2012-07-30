@@ -69,7 +69,6 @@ public class VLCPlayer extends AbstractMediaPlayer implements PlaylistSupport {
     private PlayerWidget playerWidget;
     private VLCStateManager stateHandler;
     private String playerId, _width, _height;
-    private Logger logger;
     private boolean isEmbedded, autoplay, resizeToVideoSize;
     private CustomPlayerControl control;
     private LoopManager loopManager;
@@ -226,24 +225,10 @@ public class VLCPlayer extends AbstractMediaPlayer implements PlaylistSupport {
             control = new CustomPlayerControl(this);
             control.setWidth("100%");
             panel.add(control);
-
-            logger = new Logger();
-            logger.setWidth("100%");
-            logger.setVisible(false);
-            panel.add(logger);
-
-            addDebugHandler(new DebugHandler() {
-
-                @Override
-                public void onDebug(DebugEvent event) {
-                    logger.log(event.getMessage(), false);
-                }
-            });
             addMediaInfoHandler(new MediaInfoHandler() {
 
                 @Override
                 public void onMediaInfoAvailable(MediaInfoEvent event) {
-                    logger.log(event.getMediaInfo().asHTMLString(), true);
                     MediaInfo info = event.getMediaInfo();
                     if (info.getAvailableItems().contains(MediaInfoKey.VideoHeight)
                             || info.getAvailableItems().contains(MediaInfoKey.VideoWidth)) {
@@ -404,14 +389,7 @@ public class VLCPlayer extends AbstractMediaPlayer implements PlaylistSupport {
             throw new IllegalStateException(message);
         }
     }
-
-    @Override
-    public void showLogger(boolean enable) {
-        if (!isEmbedded) {
-            logger.setVisible(enable);
-        }
-    }
-
+    
     @Override
     public void setControllerVisible(boolean show) {
         if (!isEmbedded) {

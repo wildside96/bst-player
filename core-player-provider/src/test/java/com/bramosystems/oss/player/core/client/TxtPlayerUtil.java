@@ -4,6 +4,7 @@
  */
 package com.bramosystems.oss.player.core.client;
 
+import com.bramosystems.oss.player.core.client.ui.DivXPlayer;
 import com.bramosystems.oss.player.core.client.ui.FlashMediaPlayer;
 import com.bramosystems.oss.player.core.client.ui.NativePlayer;
 import com.bramosystems.oss.player.core.client.ui.QuickTimePlayer;
@@ -76,18 +77,28 @@ public class TxtPlayerUtil extends GWTTestCase {
     }
 
     @Test
-    public void testExtraction() {
-        System.out.println("Extract Extension");
-//        assertTrue("Extract Extension: ", "ext".equals(PlayerUtil.extractExt("files/file.ext")));
-//        System.out.println("Extract Protocol : " + PlayerUtil.extractProtocol("files/file.ext"));
-    }
-
-    @Test
     public void testGetPlayer() {
         AbstractMediaPlayer result;
         try {
             System.out.print("getPlayer: MP3 format - ");
             result = PlayerUtil.getPlayer("folder/foo.mp3", false, "0", "0");
+            System.out.println(result.getClass());
+            assertTrue((result instanceof QuickTimePlayer)
+                    || (result instanceof WinMediaPlayer)
+                    || (result instanceof FlashMediaPlayer)
+                    || (result instanceof VLCPlayer)
+                    || (result instanceof NativePlayer));
+        } catch (LoadException ex) {
+            System.out.println("Exception : " + ex.getMessage());
+        } catch (PluginNotFoundException ex) {
+            System.out.println("Exception : " + ex.getMessage());
+        } catch (PluginVersionException ex) {
+            System.out.println("Exception : " + ex.getMessage());
+        }
+        
+        try {
+            System.out.print("getPlayer: MP3 format from URL - ");
+            result = PlayerUtil.getPlayer("folder/foo?ext=x.mp3", false, "0", "0");
             System.out.println(result.getClass());
             assertTrue((result instanceof QuickTimePlayer)
                     || (result instanceof WinMediaPlayer)
@@ -107,7 +118,8 @@ public class TxtPlayerUtil extends GWTTestCase {
             result = PlayerUtil.getPlayer("foo.mov", false, "0", "0");
             System.out.println(result.getClass());
             assertTrue((result instanceof QuickTimePlayer)
-                    || (result instanceof VLCPlayer));
+                    || (result instanceof VLCPlayer)
+                    || (result instanceof DivXPlayer));
         } catch (LoadException ex) {
             System.out.println("Exception : " + ex.getMessage());
         } catch (PluginNotFoundException ex) {

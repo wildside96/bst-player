@@ -19,8 +19,10 @@
 
 <module rename-to="dev">
     <inherits name="com.google.gwt.xml.XML"/>
-    <inherits name="com.bramosystems.oss.player.core.Core"/>
-    <inherits name="com.bramosystems.oss.player.capsule.Capsule"/>
+    <inherits name="com.bramosystems.oss.player.core.CorePlayerProvider"/>
+    <!--inherits name="com.bramosystems.oss.player.core.Core"/>
+    <inherits name="com.bramosystems.oss.player.capsule.Capsule"/-->
+    <inherits name="com.bramosystems.oss.player.provider.vimeo.Vimeo"/>
     <inherits name="com.bramosystems.oss.player.playlist.Playlist"/>
     <inherits name="com.bramosystems.oss.player.uibinder.UiBinder"/>
 

@@ -31,7 +31,6 @@ import com.google.gwt.dom.client.NativeEvent;
 import com.google.gwt.event.dom.client.DomEvent;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.DOM;
-import com.google.gwt.user.client.ui.FlowPanel;
 import java.util.List;
 
 /**
@@ -80,7 +79,6 @@ public class WinMediaPlayer extends AbstractMediaPlayer implements PlaylistSuppo
     private WinMediaPlayerImpl impl;
     private PlayerWidget playerWidget;
     private String playerId, _width, _height;
-    private Logger logger;
     private boolean isEmbedded, resizeToVideoSize;
     private UIMode uiMode;
     private WMPPlaylistManager playlistManager;
@@ -178,30 +176,15 @@ public class WinMediaPlayer extends AbstractMediaPlayer implements PlaylistSuppo
         _height = height;
         _width = width;
 
-        FlowPanel panel = new FlowPanel();
-        initWidget(panel);
-
         playerWidget = new PlayerWidget("core", Plugin.WinMediaPlayer.name(), playerId, "", false);
-        panel.add(playerWidget);
+        initWidget(playerWidget);
 
         isEmbedded = (height == null) || (width == null);
         if (!isEmbedded) {
-            logger = new Logger();
-            logger.setVisible(false);
-            panel.add(logger);
-
-            addDebugHandler(new DebugHandler() {
-
-                @Override
-                public void onDebug(DebugEvent event) {
-                    logger.log(event.getMessage(), false);
-                }
-            });
-            addMediaInfoHandler(new MediaInfoHandler() {
+             addMediaInfoHandler(new MediaInfoHandler() {
 
                 @Override
                 public void onMediaInfoAvailable(MediaInfoEvent event) {
-                    logger.log(event.getMediaInfo().asHTMLString(), true);
                     MediaInfo info = event.getMediaInfo();
                     if (info.getAvailableItems().contains(MediaInfoKey.VideoHeight)
                             || info.getAvailableItems().contains(MediaInfoKey.VideoWidth)) {
@@ -214,10 +197,9 @@ public class WinMediaPlayer extends AbstractMediaPlayer implements PlaylistSuppo
         } else {
             _width = "1px";
             _height = "1px";
-//            setConfigParameter(ConfigParameter.WMPUIMode, UIMode.INVISIBLE);
+            setConfigParameter(CoreConfigParameter.WMPUIMode, UIMode.INVISIBLE);
         }
-        playerWidget.setSize("100%", _height);
-        setWidth(_width);
+        setSize(_width, _height);
 
         playlistManager.addToPlaylist(mediaURL);
     }
@@ -398,13 +380,6 @@ public class WinMediaPlayer extends AbstractMediaPlayer implements PlaylistSuppo
             String message = "Player not available, create an instance";
             fireDebug(message);
             throw new IllegalStateException(message);
-        }
-    }
-
-    @Override
-    public void showLogger(boolean enable) {
-        if (!isEmbedded) {
-            logger.setVisible(enable);
         }
     }
 

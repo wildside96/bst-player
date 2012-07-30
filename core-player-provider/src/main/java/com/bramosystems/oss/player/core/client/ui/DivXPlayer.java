@@ -27,7 +27,6 @@ import com.bramosystems.oss.player.core.event.client.*;
 import com.bramosystems.oss.player.core.client.spi.Player;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.DOM;
-import com.google.gwt.user.client.ui.FlowPanel;
 import java.util.List;
 
 /**
@@ -66,11 +65,9 @@ import java.util.List;
 @Player(name = "DivXPlayer", providerFactory = CorePlayerProvider.class, minPluginVersion = "2.0.0")
 public class DivXPlayer extends AbstractMediaPlayer implements PlaylistSupport {
 
-    private DivXStateManager manager;
     private DivXPlayerImpl impl;
     private PlayerWidget playerWidget;
     private String playerId, _height, _width;
-    private Logger logger;
     private LoopManager loopManager;
     private DisplayMode displayMode;
     private PlaylistManager playlistManager;
@@ -111,7 +108,8 @@ public class DivXPlayer extends AbstractMediaPlayer implements PlaylistSupport {
                 }
             }
         });
-        manager = new DivXStateManager(playerId, new DivXStateManager.StateCallback() {
+
+        ((CorePlayerProvider) getWidgetFactory("core")).initDivXHandlers(playerId, new DivXStateManager.StateCallback() {
 
             @Override
             public void onStatusChanged(int statusId) {
@@ -119,7 +117,7 @@ public class DivXPlayer extends AbstractMediaPlayer implements PlaylistSupport {
                     case 1: // OPEN_DONE - media info available
                         fireDebug("Loading media @ '" + playlistManager.getCurrentItem() + "'");
                         fireDebug("Media Info available");
-                        fireMediaInfoAvailable(manager.getFilledMediaInfo(impl.getMediaDuration(),
+                        fireMediaInfoAvailable(DivXStateManager.getFilledMediaInfo(impl.getMediaDuration(),
                                 impl.getVideoWidth(), impl.getVideoHeight()));
                         break;
                     case 2: // VIDEO_END, notify loop manager...
@@ -238,27 +236,14 @@ public class DivXPlayer extends AbstractMediaPlayer implements PlaylistSupport {
             _width = "0px";
         }
 
+        String evtNamePrefix = ((CorePlayerProvider) getWidgetFactory("core")).getDivXHandlerPrefix(playerId);
         playerWidget = new PlayerWidget("core", Plugin.DivXPlayer.name(), playerId, "", autoplay);
-        playerWidget.addParam("statusCallback", "bstplayer.handlers.divx." + playerId + ".stateChanged");
-        playerWidget.addParam("downloadCallback", "bstplayer.handlers.divx." + playerId + ".downloadState");
-        playerWidget.addParam("timeCallback", "bstplayer.handlers.divx." + playerId + ".timeState");
-
-        FlowPanel panel = new FlowPanel();
-        initWidget(panel);
-        panel.add(playerWidget);
+        playerWidget.addParam("statusCallback", evtNamePrefix + ".stateChanged");
+        playerWidget.addParam("downloadCallback", evtNamePrefix + ".downloadState");
+        playerWidget.addParam("timeCallback", evtNamePrefix + ".timeState");
+        initWidget(playerWidget);
 
         if (!isEmbedded) {
-            logger = new Logger();
-            logger.setVisible(false);
-            panel.add(logger);
-
-            addDebugHandler(new DebugHandler() {
-
-                @Override
-                public void onDebug(DebugEvent event) {
-                    logger.log(event.getMessage(), false);
-                }
-            });
             addMediaInfoHandler(new MediaInfoHandler() {
 
                 @Override
@@ -269,7 +254,6 @@ public class DivXPlayer extends AbstractMediaPlayer implements PlaylistSupport {
                         checkVideoSize(Integer.parseInt(info.getItem(MediaInfoKey.VideoHeight)),
                                 Integer.parseInt(info.getItem(MediaInfoKey.VideoWidth)));
                     }
-                    logger.log(info.asHTMLString(), true);
                 }
             });
         }
@@ -356,7 +340,7 @@ public class DivXPlayer extends AbstractMediaPlayer implements PlaylistSupport {
      */
     @Override
     protected void onUnload() {
-        manager.clearCallbacks(playerId);
+        ((CorePlayerProvider) getWidgetFactory("core")).closeDivXHandlers(playerId);
     }
 
     @Override
@@ -415,13 +399,6 @@ public class DivXPlayer extends AbstractMediaPlayer implements PlaylistSupport {
         checkAvailable();
         impl.setVolume(volume);
         fireDebug("Volume set to " + (impl.getVolume() * 100) + "%");
-    }
-
-    @Override
-    public void showLogger(boolean enable) {
-        if (!isEmbedded) {
-            logger.setVisible(enable);
-        }
     }
 
     /**
