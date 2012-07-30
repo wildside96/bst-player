@@ -23,6 +23,8 @@ import com.bramosystems.oss.player.core.client.Plugin;
 import com.bramosystems.oss.player.core.client.spi.PlayerWidget;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.ui.*;
+import java.util.HashMap;
+import java.util.Iterator;
 
 /**
  * Widget to embed a generic Shockwave Flash application.
@@ -59,8 +61,9 @@ import com.google.gwt.user.client.ui.*;
  */
 public class SWFWidget extends Composite {
 
-    private String playerId,  swfURL,  height,  width;
+    private String playerId, swfURL, height, width;
     private PlayerWidget widget;
+    private HashMap<String, String> flashVar = new HashMap<String, String>();
 
     /**
      * Constructs <code>SWFWidget</code> with the specified {@code height} and
@@ -103,7 +106,7 @@ public class SWFWidget extends Composite {
         this.height = height;
         playerId = DOM.createUniqueId().replace("-", "");
 
-        widget = new PlayerWidget("core", Plugin.FlashPlayer.name(), playerId, swfURL, false); //TODO:  check structure again ...
+        widget = new PlayerWidget("api", "swf", playerId, swfURL, false);
         initWidget(widget);
         setSize(width, height);
     }
@@ -194,5 +197,53 @@ public class SWFWidget extends Composite {
      */
     public static Widget getMissingPluginNotice(PluginVersion version) {
         return PlayerUtil.getMissingPluginNotice(Plugin.FlashPlayer, version.toString());
+    }
+
+    /**
+     * Adds the specified name/value parameter to <code>flashVars</code> property on this widget.
+     * 
+     * <p>NB: {@link #commitFlashVars() } should be called to inject this parameter to the HTML code</p>
+     * 
+     * @param name the name of the parameter
+     * @param value the value of the parameter.  A value {@code null} removes the parameter from the list
+     * @since 1.4
+     */
+    public void setFlashVar(String name, Number value) {
+        flashVar.put(name, value.toString());
+    }
+
+    /**
+     * Adds the specified name/value parameter to <code>flashVars</code> property on this widget.
+     * 
+     * <p>NB: {@link #commitFlashVars() } should be called to inject this parameter to the HTML code</p>
+     * 
+     * @param name the name of the parameter
+     * @param value the value of the parameter.  A value {@code null} removes the parameter from the list
+     * @since 1.4
+     */
+    public void setFlashVar(String name, String value) {
+        flashVar.put(name, value);
+    }
+
+    /**
+     * Compiles the {@code flashVars} parameter and injects it to the HTML code of this widget.
+     * 
+     * <p>This method should be called before adding this widget to a panel</p>
+     * @since 1.4
+     */
+    public void commitFlashVars() {
+        StringBuilder sb = new StringBuilder();
+        Iterator<String> it = flashVar.keySet().iterator();
+        while (it.hasNext()) {
+            String key = it.next();
+            if (key != null) {
+                String val = flashVar.get(key);
+                if (val != null) {
+                    sb.append(key).append("=").append(val).append("&");
+                }
+            }
+        }
+        sb.deleteCharAt(sb.lastIndexOf("&"));
+        widget.addParam("flashVars", sb.toString());
     }
 }

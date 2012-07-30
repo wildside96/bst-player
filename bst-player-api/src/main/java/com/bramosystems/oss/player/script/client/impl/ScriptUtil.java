@@ -17,6 +17,7 @@ package com.bramosystems.oss.player.script.client.impl;
 
 import com.bramosystems.oss.player.core.client.AbstractMediaPlayer;
 import com.bramosystems.oss.player.core.client.ConfigParameter;
+import com.bramosystems.oss.player.core.client.DefaultConfigParameter;
 import com.bramosystems.oss.player.core.client.LoadException;
 import com.bramosystems.oss.player.core.client.PlayException;
 import com.bramosystems.oss.player.core.client.PlaylistSupport;
@@ -25,6 +26,7 @@ import com.bramosystems.oss.player.core.client.PluginNotFoundException;
 import com.bramosystems.oss.player.core.client.PluginVersion;
 import com.bramosystems.oss.player.core.client.PluginVersionException;
 import com.bramosystems.oss.player.core.client.RepeatMode;
+import com.bramosystems.oss.player.core.client.TransparencyMode;
 import com.bramosystems.oss.player.core.client.TransparencyMode;
 import com.bramosystems.oss.player.core.client.playlist.MRL;
 import com.bramosystems.oss.player.core.client.skin.MediaSeekBar;
@@ -395,17 +397,12 @@ public class ScriptUtil {
         }
 
         public void setConfigParameter(String param, String value) {
+            /*TODO : check structure / auto inject
             if (player != null) {
-                /*  TODO: autoinject ...
                 try {
-                    ConfigParameter cfg = ConfigParameter.valueOf(param);
-                    switch (cfg) {
-                        case TransparencyMode:
-                            player.setConfigParameter(cfg, TransparencyMode.valueOf(value));
-                            break;
-                            /*
-                             * TODO: check structure
-                             * 
+                    if(param.equals(DefaultConfigParameter.TransparencyMode.name())) {
+                             player.setConfigParameter(cfg, TransparencyMode.valueOf(value));
+                    } else if(param)
                         case WMPUIMode:
                             player.setConfigParameter(cfg, WinMediaPlayer.UIMode.valueOf(value));
                             break;
@@ -415,14 +412,12 @@ public class ScriptUtil {
                             } catch (NumberFormatException nfe) {
                                 player.setConfigParameter(cfg, Scale.valueOf(value));
                             }
-                            break;
-                            *
+                            break;                    
                     }
                 } catch (Exception e) {
                 }
-                 * 
-                 */
             }
+    */
         }
 
         @Override

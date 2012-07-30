@@ -338,12 +338,12 @@ public class Player extends AbstractMediaPlayer
     }
     
     @Override
-    public <T extends ConfigValue> void setConfigParameter(ConfigParameter param, T value) {
+    public <T> void setConfigParameter(ConfigParameter param, T value) {
         if (_engine != null) {
             _engine.setConfigParameter(param, value);
         }
     }
-    
+/*    
     @Override
     public void setConfigParameter(ConfigParameter param, Number value) {
         if (_engine != null) {
@@ -357,7 +357,7 @@ public class Player extends AbstractMediaPlayer
             _engine.setConfigParameter(param, value);
         }
     }
-    
+*/    
     @Override
     public void setControllerVisible(boolean show) {
         if (_engine != null) {
