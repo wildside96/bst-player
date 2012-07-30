@@ -32,8 +32,6 @@ import com.bramosystems.oss.player.core.client.impl.NativePlayerImpl;
 import com.bramosystems.oss.player.core.client.impl.NativePlayerUtil;
 import com.bramosystems.oss.player.core.client.spi.PlayerWidget;
 import com.bramosystems.oss.player.core.client.impl.CorePlayerProvider;
-import com.bramosystems.oss.player.core.event.client.DebugEvent;
-import com.bramosystems.oss.player.core.event.client.DebugHandler;
 import com.bramosystems.oss.player.core.event.client.MediaInfoEvent;
 import com.bramosystems.oss.player.core.event.client.MediaInfoHandler;
 import com.bramosystems.oss.player.core.event.client.PlayStateEvent;
@@ -42,7 +40,6 @@ import com.bramosystems.oss.player.core.client.spi.Player;
 import com.google.gwt.i18n.client.NumberFormat;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.DOM;
-import com.google.gwt.user.client.ui.FlowPanel;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -79,7 +76,6 @@ public class NativePlayer extends AbstractMediaPlayer implements PlaylistSupport
     private String playerId, _height, _width;
     private PlayerWidget playerWidget;
     private boolean adjustToVideoSize, isEmbedded, isWasPlaying;
-    private Logger logger;
     private LoopManager loopManager;
     private PlaylistManager playlistManager;
     private NativePlayerUtil.NativeEventCallback _callback;
@@ -211,9 +207,7 @@ public class NativePlayer extends AbstractMediaPlayer implements PlaylistSupport
     }
 
     private void _init(String width, String height) {
-        FlowPanel panel = new FlowPanel();
-        panel.add(playerWidget);
-        initWidget(panel);
+        initWidget(playerWidget);
 
         if ((width == null) || (height == null)) {
             _height = "0px";
@@ -222,24 +216,11 @@ public class NativePlayer extends AbstractMediaPlayer implements PlaylistSupport
         } else {
             _height = height;
             _width = width;
-
-            logger = new Logger();
-            logger.setVisible(false);
-            panel.add(logger);
-
-            addDebugHandler(new DebugHandler() {
-
-                @Override
-                public void onDebug(DebugEvent event) {
-                    logger.log(event.getMessage(), false);
-                }
-            });
             addMediaInfoHandler(new MediaInfoHandler() {
 
                 @Override
                 public void onMediaInfoAvailable(MediaInfoEvent event) {
                     MediaInfo info = event.getMediaInfo();
-                    logger.log(info.asHTMLString(), true);
                     if (info.getAvailableItems().contains(MediaInfoKey.VideoHeight)
                             || info.getAvailableItems().contains(MediaInfoKey.VideoWidth)) {
                         checkVideoSize(Integer.parseInt(info.getItem(MediaInfoKey.VideoHeight)),
@@ -501,13 +482,6 @@ public class NativePlayer extends AbstractMediaPlayer implements PlaylistSupport
 
         if (!_height.equals(_h) && !_width.equals(_w)) {
             firePlayerStateEvent(PlayerStateEvent.State.DimensionChangedOnVideo);
-        }
-    }
-
-    @Override
-    public void showLogger(boolean show) {
-        if (!isEmbedded) {
-            logger.setVisible(show);
         }
     }
 

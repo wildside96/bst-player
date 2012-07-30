@@ -16,25 +16,21 @@
 package com.bramosystems.oss.player.dev.client;
 
 //import com.bramosystems.oss.player.capsule.client.Capsule;
+import com.bramosystems.oss.player.core.client.*;
 import com.bramosystems.oss.player.core.client.playlist.MRL;
-import com.bramosystems.oss.player.core.client.AbstractMediaPlayer;
-import com.bramosystems.oss.player.core.client.DefaultConfigParameter;
-import com.bramosystems.oss.player.core.client.LoadException;
-import com.bramosystems.oss.player.core.client.PlayerInfo;
-import com.bramosystems.oss.player.core.client.PlayerUtil;
-import com.bramosystems.oss.player.core.client.PlaylistSupport;
-import com.bramosystems.oss.player.core.client.Plugin;
-import com.bramosystems.oss.player.core.client.PluginNotFoundException;
-import com.bramosystems.oss.player.core.client.PluginVersionException;
+import com.bramosystems.oss.player.core.client.skin.CustomPlayerControl;
 import com.bramosystems.oss.player.core.client.ui.FlashMediaPlayer;
+import com.bramosystems.oss.player.core.client.ui.Logger;
 import com.bramosystems.oss.player.core.client.ui.WinMediaPlayer;
+import com.bramosystems.oss.player.core.event.client.DebugEvent;
+import com.bramosystems.oss.player.core.event.client.DebugHandler;
 import com.bramosystems.oss.player.core.event.client.PlayStateEvent;
 import com.bramosystems.oss.player.core.event.client.PlayStateHandler;
-//import com.bramosystems.oss.player.flat.client.FlatVideoPlayer;
 import com.bramosystems.oss.player.playlist.client.asx.ASXEntry;
 import com.bramosystems.oss.player.playlist.client.asx.ASXPlaylist;
 import com.bramosystems.oss.player.playlist.client.spf.SPFPlaylist;
 import com.bramosystems.oss.player.playlist.client.spf.Track;
+import com.bramosystems.oss.player.provider.vimeo.client.VimeoConfigParameters;
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.JsArray;
@@ -44,12 +40,7 @@ import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiTemplate;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.Window.Location;
-import com.google.gwt.user.client.ui.Button;
-import com.google.gwt.user.client.ui.DialogBox;
-import com.google.gwt.user.client.ui.FlowPanel;
-import com.google.gwt.user.client.ui.Label;
-import com.google.gwt.user.client.ui.RootPanel;
-import com.google.gwt.user.client.ui.Widget;
+import com.google.gwt.user.client.ui.*;
 import java.util.ArrayList;
 import java.util.Iterator;
 
@@ -63,7 +54,7 @@ import java.util.Iterator;
  */
 public class Dev extends FlowPanel implements EntryPoint {
 
-    private final String HEIGHT = "50px", WIDTH = "60%";
+    private final String HEIGHT = "350px", WIDTH = "80%";
     private AbstractMediaPlayer mmp;
     private ArrayList<MRL> mrls;
 
@@ -76,14 +67,17 @@ public class Dev extends FlowPanel implements EntryPoint {
             @Override
             public void onUncaughtException(Throwable e) {
                 GWT.log(e.getMessage(), e);
-                Window.alert("Dev Uncaught : " + e.getMessage());
+//                Window.alert("Dev Uncaught : " + e.getMessage());
             }
         });
 
         mrls = new ArrayList<MRL>();
-        mrls.add(new MRL(GWT.getModuleBaseURL() + "applause.mp3"));
+//        mrls.add(new MRL(GWT.getModuleBaseURL() + "applause.mp3"));
+        
+//        mrls.add(new MRL("7047863"));
+        
 //        mrl.addURL(GWT.getModuleBaseURL() + "DSCF1780.AVI");
- //       mrls.add(new MRL(GWT.getModuleBaseURL() + "big-buck-bunny.mp4"));
+        mrls.add(new MRL(GWT.getModuleBaseURL() + "big-buck-bunny.mp4"));
 //        mrls.add(new MRL(GWT.getModuleBaseURL() + "u2intro.mp4"));
 //        mrls.add(new MRL(GWT.getModuleBaseURL() + "traffic.flv"));
 //        mrls.add(new MRL(GWT.getModuleBaseURL() + "traffic.avi"));
@@ -95,7 +89,9 @@ public class Dev extends FlowPanel implements EntryPoint {
     public void onModuleLoad() {
         //        RootPanel.get().add(new ScrollPanel(this));
         RootPanel.get().add(this);
-        addPlayer(Plugin.WinMediaPlayer);
+//        addPlayer("bst.vimeo", "UniversalPlayer");
+        addPlayer("core", "Native");
+//        addPlayer(Plugin.WinMediaPlayer);
 
 //                    add(new MimeStuffs());
 //                addUTube();
@@ -160,7 +156,7 @@ public class Dev extends FlowPanel implements EntryPoint {
         }
     }
 
-    private void addPlayer(Plugin plugin) {
+    private void addPlayer(String prov, String player) {
         /*
         add(new Button("Show", new ClickHandler() {
         
@@ -171,7 +167,7 @@ public class Dev extends FlowPanel implements EntryPoint {
         }));
          */
         try {
-            PlayerInfo pi = PlayerUtil.getPlayerInfo("sample.capsule", "Capsule");
+            PlayerInfo pi = PlayerUtil.getPlayerInfo(prov, player);
             mmp = PlayerUtil.getPlayer(pi, mrls.get(0).getNextResource(true), false, HEIGHT, WIDTH);
  //           mmp = new WinMediaPlayer(mrl.getNextResource(true), false, HEIGHT, WIDTH, WinMediaPlayer.EmbedMode.EMBED_ONLY);
  //                   mmp = new Capsule(Plugin.FlashPlayer, mrl.getNextResource(true), false);
@@ -184,13 +180,14 @@ public class Dev extends FlowPanel implements EntryPoint {
             });
             mmp.showLogger(true);
 //            mmp.setConfigParameter(ConfigParameter.QTScale, QuickTimePlayer.Scale.Aspect);
-            mmp.setConfigParameter(DefaultConfigParameter.BackgroundColor, "#ffffff");
+//            mmp.setConfigParameter(DefaultConfigParameter.BackgroundColor, "#ffdddf");
+            mmp.setConfigParameter(VimeoConfigParameters.ShowTitle, true);
 //            ((PlaylistSupport) mmp).addToPlaylist(mrls);
 //            mmp.setResizeToVideoSize(true);
 //            mmp.setLoopCount(2);
 //            mmp.setRepeatMode(RepeatMode.REPEAT_ALL);
-            ((PlaylistSupport) mmp).setShuffleEnabled(false);
-            mmp.setControllerVisible(true);
+//            ((PlaylistSupport) mmp).setShuffleEnabled(false);
+//            mmp.setControllerVisible(true);
             add(mmp);
             /*
             final Label lbl = new Label("MM - ");
@@ -203,6 +200,18 @@ public class Dev extends FlowPanel implements EntryPoint {
             }
             });
              */
+            CustomPlayerControl cpc = new CustomPlayerControl(mmp);
+            add(cpc);
+            
+            final Logger l = new Logger();
+            add(l);
+            mmp.addDebugHandler(new DebugHandler() {
+
+                @Override
+                public void onDebug(DebugEvent event) {
+                    l.log(event.getMessage(), true);
+                }
+            });
         } catch (LoadException ex) {
             add(new Label("Load Exception"));
         } catch (PluginNotFoundException ex) {

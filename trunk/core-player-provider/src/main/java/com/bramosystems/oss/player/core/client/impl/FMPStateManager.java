@@ -18,7 +18,6 @@ package com.bramosystems.oss.player.core.client.impl;
 import com.bramosystems.oss.player.core.client.MediaInfo;
 import com.bramosystems.oss.player.core.client.ui.FlashMediaPlayer;
 import com.google.gwt.core.client.GWT;
-import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.user.client.Window.Location;
 
 /**
@@ -30,44 +29,7 @@ import com.google.gwt.user.client.Window.Location;
  */
 public class FMPStateManager {
 
-    public FMPStateManager(String playerId, FMPStateCallback callback) {
-        initCallbackImpl(CallbackUtility.getSWFCallbackHandlers(), playerId, callback);
-    }
-
-    public void closeMedia(String playerId) {
-        closeMediaImpl(CallbackUtility.getSWFCallbackHandlers(), playerId);
-    }
-
-    private native void closeMediaImpl(JavaScriptObject swf, String playerId) /*-{
-    delete swf[playerId];
-    }-*/;
-
-    private native void initCallbackImpl(JavaScriptObject swf, String playerId, FMPStateCallback callback) /*-{
-    swf[playerId] = new Object();
-    swf[playerId].onInit = function(){
-    callback.@com.bramosystems.oss.player.core.client.impl.FMPStateManager.FMPStateCallback::onInit()();
-    }
-    swf[playerId].onEvent = function(type,buttonDown,alt,ctrl,shift,cmd,stageX_keyCode,stageY_charCode){
-    callback.@com.bramosystems.oss.player.core.client.impl.FMPStateManager.FMPStateCallback::onEvent(IZZZZZII)(type,buttonDown,alt,ctrl,shift,cmd,stageX_keyCode,stageY_charCode);
-    }
-    swf[playerId].onStateChanged = function(state, listIndex){
-    callback.@com.bramosystems.oss.player.core.client.impl.FMPStateManager.FMPStateCallback::onStateChanged(II)(state,listIndex);
-    }
-    swf[playerId].onLoadingProgress = function(progress){
-    callback.@com.bramosystems.oss.player.core.client.impl.FMPStateManager.FMPStateCallback::onProgress(D)(progress);
-    }
-    swf[playerId].onMessage = function(type, message){
-    callback.@com.bramosystems.oss.player.core.client.impl.FMPStateManager.FMPStateCallback::onMessage(ILjava/lang/String;)(type,message);
-    }
-    swf[playerId].onMetadata = function(id3){
-    callback.@com.bramosystems.oss.player.core.client.impl.FMPStateManager.FMPStateCallback::onMediaInfo(Ljava/lang/String;)(id3);
-    }
-    swf[playerId].onFullscreen = function(fs){
-    callback.@com.bramosystems.oss.player.core.client.impl.FMPStateManager.FMPStateCallback::onFullScreen(Z)(fs);
-    }
-    }-*/;
-
-    public native void fillMediaInfoImpl(String infoCSV, MediaInfo mData) /*-{
+    public static native void fillMediaInfoImpl(String infoCSV, MediaInfo mData) /*-{
     // parse from CSV like values ...
     // year[$]albumTitle[$]artists[$]comment[$]genre[$]title[$]
     // contentProviders[$]copyright[$]duration[$]hardwareSoftwareRequirements[$]

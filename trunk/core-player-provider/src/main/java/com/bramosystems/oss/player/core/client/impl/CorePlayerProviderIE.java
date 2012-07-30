@@ -68,19 +68,6 @@ public class CorePlayerProviderIE extends CorePlayerProvider {
     }
 
     @Override
-    protected PlayerElement getSWFElement(String playerId, String swfURL, HashMap<String, String> params) {
-        PlayerElement xo = new PlayerElement(PlayerElement.Type.ObjectElementIE, playerId, "clsid:D27CDB6E-AE6D-11cf-96B8-444553540000");
-        xo.addParam("src", swfURL);
-
-        Iterator<String> keys = params.keySet().iterator();
-        while (keys.hasNext()) {
-            String name = keys.next();
-            xo.addParam(name, params.get(name));
-        }
-        return xo;
-    }
-
-    @Override
     protected PlayerElement getDivXElement(String playerId, String mediaURL, boolean autoplay,
             HashMap<String, String> params) {
         PlayerElement xo = new PlayerElement(PlayerElement.Type.ObjectElementIE, playerId, "clsid:67DABFBF-D0AB-41fa-9C46-CC0F21721616");

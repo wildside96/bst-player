@@ -22,10 +22,7 @@ import com.bramosystems.oss.player.core.client.geom.TransformationMatrix;
 import com.bramosystems.oss.player.core.client.geom.MatrixSupport;
 import com.bramosystems.oss.player.core.client.impl.FMPStateManager;
 import com.bramosystems.oss.player.core.client.impl.FlashMediaPlayerImpl;
-import com.bramosystems.oss.player.core.client.spi.PlayerWidget;
 import com.bramosystems.oss.player.core.client.impl.CorePlayerProvider;
-import com.bramosystems.oss.player.core.event.client.DebugEvent;
-import com.bramosystems.oss.player.core.event.client.DebugHandler;
 import com.bramosystems.oss.player.core.event.client.MediaInfoEvent;
 import com.bramosystems.oss.player.core.event.client.MediaInfoHandler;
 import com.bramosystems.oss.player.core.event.client.PlayStateEvent;
@@ -36,8 +33,6 @@ import com.google.gwt.dom.client.NativeEvent;
 import com.google.gwt.event.dom.client.DomEvent;
 import com.google.gwt.http.client.URL;
 import com.google.gwt.user.client.Command;
-import com.google.gwt.user.client.DOM;
-import com.google.gwt.user.client.ui.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -83,13 +78,11 @@ import java.util.List;
 @Player(name = "FlashPlayer", providerFactory = CorePlayerProvider.class, minPluginVersion = "10.0.0")
 public class FlashMediaPlayer extends AbstractMediaPlayer implements PlaylistSupport, MatrixSupport {
 
-    private FMPStateManager manager;
     private FlashMediaPlayerImpl impl;
     private String playerId;
     private boolean isEmbedded, resizeToVideoSize;
-    private Logger logger;
     private ArrayList<String> _playlistCache;
-    private PlayerWidget swf;
+    private SWFWidget swf;
     private String _height, _width;
     private static String DEFAULT_HEIGHT = "22px";
 
@@ -102,9 +95,53 @@ public class FlashMediaPlayer extends AbstractMediaPlayer implements PlaylistSup
 
         _playlistCache = new ArrayList<String>();
         resizeToVideoSize = false;
-        playerId = DOM.createUniqueId().replace("-", "");
+    }
 
-        manager = new FMPStateManager(playerId, new FMPStateManager.FMPStateCallback() {
+    /**
+     * Constructs <code>FlashMediaPlayer</code> with the specified {@code height} and
+     * {@code width} to playback media located at {@code mediaURL}. Media playback
+     * begins automatically if {@code autoplay} is {@code true}.
+     *
+     * <p> {@code height} and {@code width} are specified as CSS units. A value of {@code null}
+     * for {@code height} or {@code width} puts the player in embedded mode.  When in embedded mode,
+     * the player is made invisible on the page and media state events are propagated to registered
+     * listeners only.  This is desired especially when used with custom sound controls.  For custom
+     * video-playback control, specify valid CSS values for {@code height} and {@code width} but hide the
+     * player controls with {@code setControllerVisible(false)}.
+     *
+     * @param mediaURL the URL of the media to playback
+     * @param autoplay {@code true} to start playing automatically, {@code false} otherwise
+     * @param height the height of the player
+     * @param width the width of the player.
+     *
+     * @throws LoadException if an error occurs while loading the media.
+     * @throws PluginVersionException if the required Flash plugin version is not installed on the client.
+     * @throws PluginNotFoundException if the Flash plugin is not installed on the client.
+     */
+    public FlashMediaPlayer(final String mediaURL, final boolean autoplay, String height, String width)
+            throws PluginNotFoundException, PluginVersionException, LoadException {
+        this();
+        _height = height;
+        _width = width;
+
+        isEmbedded = (height == null) || (width == null);
+        if (isEmbedded) {
+            _height = "0px";
+            _width = "0px";
+        }
+
+        swf = new SWFWidget(FMPStateManager.getSWFImpl(), "100%", _height, Plugin.FlashPlayer.getVersion());
+        swf.setFlashVar("playerId", swf.getId());
+        swf.setFlashVar("autoplay", Boolean.toString(autoplay));
+        swf.setFlashVar("evtPfx", ((CorePlayerProvider) getWidgetFactory("core")).getFMPHandlerPrefix(swf.getId()));
+        swf.setFlashVar("mediaURL", URL.encodePathSegment(mediaURL));
+        swf.commitFlashVars();
+        swf.addProperty("allowScriptAccess", "always");
+        swf.addProperty("allowFullScreen", "true");
+        swf.addProperty("bgcolor", "#000000");
+        playerId = swf.getId();
+  
+        ((CorePlayerProvider) getWidgetFactory("core")).initFMPHandler(playerId, new FMPStateManager.FMPStateCallback() {
 
             @Override
             public void onInit() {
@@ -132,7 +169,7 @@ public class FlashMediaPlayer extends AbstractMediaPlayer implements PlaylistSup
             @Override
             public void onMediaInfo(String info) {
                 MediaInfo mi = new MediaInfo();
-                manager.fillMediaInfoImpl(info, mi);
+                FMPStateManager.fillMediaInfoImpl(info, mi);
                 fireMediaInfoAvailable(mi);
             }
 
@@ -207,69 +244,13 @@ public class FlashMediaPlayer extends AbstractMediaPlayer implements PlaylistSup
                 firePlayerStateEvent(fullscreen ? PlayerStateEvent.State.FullScreenStarted : PlayerStateEvent.State.FullScreenFinished);
             }
         });
-    }
-
-    /**
-     * Constructs <code>FlashMediaPlayer</code> with the specified {@code height} and
-     * {@code width} to playback media located at {@code mediaURL}. Media playback
-     * begins automatically if {@code autoplay} is {@code true}.
-     *
-     * <p> {@code height} and {@code width} are specified as CSS units. A value of {@code null}
-     * for {@code height} or {@code width} puts the player in embedded mode.  When in embedded mode,
-     * the player is made invisible on the page and media state events are propagated to registered
-     * listeners only.  This is desired especially when used with custom sound controls.  For custom
-     * video-playback control, specify valid CSS values for {@code height} and {@code width} but hide the
-     * player controls with {@code setControllerVisible(false)}.
-     *
-     * @param mediaURL the URL of the media to playback
-     * @param autoplay {@code true} to start playing automatically, {@code false} otherwise
-     * @param height the height of the player
-     * @param width the width of the player.
-     *
-     * @throws LoadException if an error occurs while loading the media.
-     * @throws PluginVersionException if the required Flash plugin version is not installed on the client.
-     * @throws PluginNotFoundException if the Flash plugin is not installed on the client.
-     */
-    public FlashMediaPlayer(final String mediaURL, final boolean autoplay, String height, String width)
-            throws PluginNotFoundException, PluginVersionException, LoadException {
-        this();
-        _height = height;
-        _width = width;
-
-        isEmbedded = (height == null) || (width == null);
-        if (isEmbedded) {
-            _height = "0px";
-            _width = "0px";
-        }
-
-        swf = new PlayerWidget("core", Plugin.FlashPlayer.name(), playerId, FMPStateManager.getSWFImpl(), autoplay);
-        swf.addParam("flashVars", "playerId=" + playerId + "&autoplay="
-                + autoplay + "&mediaURL=" + URL.encodePathSegment(mediaURL)); // encode mediaURL to avoid ampersand conflict with flashvars
-        swf.addParam("allowScriptAccess", "always");
-        swf.addParam("allowFullScreen", "true");
-        swf.addParam("bgcolor", "#000000");
-
-        FlowPanel panel = new FlowPanel();
-        panel.add(swf);
 
         if (!isEmbedded) {
-            logger = new Logger();
-            logger.setVisible(false);
-            panel.add(logger);
-
-            addDebugHandler(new DebugHandler() {
-
-                @Override
-                public void onDebug(DebugEvent event) {
-                    logger.log(event.getMessage(), false);
-                }
-            });
             addMediaInfoHandler(new MediaInfoHandler() {
 
                 @Override
                 public void onMediaInfoAvailable(MediaInfoEvent event) {
                     MediaInfo info = event.getMediaInfo();
-                    logger.log(event.getMediaInfo().asHTMLString(), true);
                     if (info.getAvailableItems().contains(MediaInfoKey.VideoHeight)
                             || info.getAvailableItems().contains(MediaInfoKey.VideoWidth)) {
                         checkVideoSize(Integer.parseInt(info.getItem(MediaInfoKey.VideoHeight)),
@@ -278,8 +259,7 @@ public class FlashMediaPlayer extends AbstractMediaPlayer implements PlaylistSup
                 }
             });
         }
-
-        initWidget(panel);
+        initWidget(swf);
     }
 
     /**
@@ -363,7 +343,7 @@ public class FlashMediaPlayer extends AbstractMediaPlayer implements PlaylistSup
     @Override
     protected void onUnload() {
         impl.closeMedia();
-        manager.closeMedia(playerId);
+        ((CorePlayerProvider) getWidgetFactory("core")).closeFMPHandler(playerId);
     }
 
     @Override
@@ -418,13 +398,6 @@ public class FlashMediaPlayer extends AbstractMediaPlayer implements PlaylistSup
     public void stopMedia() {
         checkAvailable();
         impl.stopMedia();
-    }
-
-    @Override
-    public void showLogger(boolean enable) {
-        if (!isEmbedded) {
-            logger.setVisible(enable);
-        }
     }
 
     /**
@@ -650,22 +623,16 @@ public class FlashMediaPlayer extends AbstractMediaPlayer implements PlaylistSup
     }
 
     @Override
-    public <T extends ConfigValue> void setConfigParameter(ConfigParameter param, T value) {
+    public <T> void setConfigParameter(ConfigParameter param, T value) {
         super.setConfigParameter(param, value);
-        if (param.getName().equals(DefaultConfigParameter.TransparencyMode.getName())) {
-            if (value != null) {
-                swf.addParam("wmode", ((TransparencyMode) value).name().toLowerCase());
-            } else {
-                swf.addParam("wmode", null);
+        if (param instanceof DefaultConfigParameter) {
+            switch (DefaultConfigParameter.valueOf(param.getName())) {
+                case TransparencyMode:
+                    swf.addProperty("wmode", ((TransparencyMode) value).name().toLowerCase());
+                    break;
+                case BackgroundColor:
+                    swf.addProperty("bgcolor", (String) value);
             }
-        }
-    }
-
-    @Override
-    public void setConfigParameter(ConfigParameter param, String value) {
-        super.setConfigParameter(param, value);
-        if (param.getName().equals(DefaultConfigParameter.BackgroundColor.getName())) {
-            swf.addParam("bgcolor", value);
         }
     }
 

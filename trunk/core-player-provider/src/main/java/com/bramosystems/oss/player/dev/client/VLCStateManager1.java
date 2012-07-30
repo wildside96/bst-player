@@ -425,7 +425,7 @@ public class VLCStateManager1 {
     }
 
     public void initHandlers(String playerId, VLCEventCallback callback) {
-        initCallbackImpl(CallbackUtility.getVLCCallbackHandlers(), playerId, callback);
+//        initCallbackImpl(CallbackUtility.getVLCCallbackHandlers(), playerId, callback);
     }
 
     private native void closeMediaImpl(JavaScriptObject vlc, String playerId) /*-{
@@ -476,7 +476,7 @@ public class VLCStateManager1 {
 
     public void registerEventCallbacksIE(VLCPlayerImpl player, String playerId) {
 //        registerEventCallbacksIEImpl(player, playerId, CallbackUtility.getVLCCallbackHandlers());
-        registerEventCallbacksImpl(player, playerId, CallbackUtility.getVLCCallbackHandlers());
+//        registerEventCallbacksImpl(player, playerId, CallbackUtility.getVLCCallbackHandlers());
     }
 
     private native void registerEventCallbacksImpl(VLCPlayerImpl player, String playerId, JavaScriptObject vlc) /*-{
