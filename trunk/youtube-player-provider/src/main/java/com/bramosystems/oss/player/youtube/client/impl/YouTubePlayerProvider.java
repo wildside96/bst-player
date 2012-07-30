@@ -15,12 +15,8 @@
  */
 package com.bramosystems.oss.player.youtube.client.impl;
 
-import com.bramosystems.oss.player.core.client.AbstractMediaPlayer;
-import com.bramosystems.oss.player.core.client.LoadException;
-import com.bramosystems.oss.player.core.client.PlayerUtil;
-import com.bramosystems.oss.player.core.client.PluginNotFoundException;
-import com.bramosystems.oss.player.core.client.PluginVersion;
-import com.bramosystems.oss.player.core.client.PluginVersionException;
+import com.bramosystems.oss.player.core.client.*;
+import com.bramosystems.oss.player.core.client.spi.ConfigurationContext;
 import com.bramosystems.oss.player.core.client.spi.PlayerElement;
 import com.bramosystems.oss.player.core.client.spi.PlayerProvider;
 import com.bramosystems.oss.player.core.client.spi.PlayerProviderFactory;
@@ -38,6 +34,10 @@ import java.util.Iterator;
 public class YouTubePlayerProvider implements PlayerProviderFactory {
 
     public static final String PROVIDER_NAME = "bst.youtube";
+
+    @Override
+    public void init(ConfigurationContext context) {
+    }
 
     @Override
     public AbstractMediaPlayer getPlayer(String playerName, String mediaURL, boolean autoplay, String height, String width)
