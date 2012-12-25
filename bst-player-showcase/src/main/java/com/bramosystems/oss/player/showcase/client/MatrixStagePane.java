@@ -18,6 +18,7 @@ package com.bramosystems.oss.player.showcase.client;
 import com.bramosystems.oss.player.core.client.*;
 import com.bramosystems.oss.player.core.client.geom.MatrixSupport;
 import com.bramosystems.oss.player.core.client.geom.TransformationMatrix;
+import com.bramosystems.oss.player.core.client.ui.CoreConfigParameter;
 import com.bramosystems.oss.player.core.client.ui.QuickTimePlayer.Scale;
 import com.bramosystems.oss.player.core.event.client.*;
 import com.google.gwt.core.client.GWT;
@@ -64,7 +65,7 @@ public class MatrixStagePane extends Composite implements HasMediaMessageHandler
         }
 
         player = PlayerUtil.getPlayer(plugin, url, false, height, width);
-        player.setConfigParameter(ConfigParameter.QTScale, Scale.Aspect);
+        player.setConfigParameter(CoreConfigParameter.QTScale, Scale.Aspect);
         player.addMediaInfoHandler(new MediaInfoHandler() {
 
             @Override
