@@ -18,7 +18,7 @@ package com.bramosystems.oss.player.showcase.client;
 
 import com.bramosystems.oss.player.capsule.client.Capsule;
 import com.bramosystems.oss.player.core.client.AbstractMediaPlayer;
-import com.bramosystems.oss.player.core.client.ConfigParameter;
+import com.bramosystems.oss.player.core.client.DefaultConfigParameter;
 import com.bramosystems.oss.player.core.client.LoadException;
 import com.bramosystems.oss.player.core.client.PlayerUtil;
 import com.bramosystems.oss.player.core.client.PlaylistSupport;
@@ -214,7 +214,7 @@ public class StageController extends Composite implements ValueChangeHandler<Str
             player.setControllerVisible(playerOptions.isShowControls());
             player.setResizeToVideoSize(playerOptions.isResizeToVideo());
             player.showLogger(playerOptions.isShowLogger());
-            player.setConfigParameter(ConfigParameter.BackgroundColor, "#ffffff");
+            player.setConfigParameter(DefaultConfigParameter.BackgroundColor, "#ffffff");
             player.setRepeatMode(playerOptions.getRepeatMode());
             ((PlaylistSupport) player).setShuffleEnabled(playerOptions.isShuffleOn());
             player.addDebugHandler(new DebugHandler() {

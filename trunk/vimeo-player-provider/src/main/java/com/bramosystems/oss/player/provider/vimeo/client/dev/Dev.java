@@ -13,31 +13,23 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-package com.bramosystems.oss.player.dev.client;
+package com.bramosystems.oss.player.provider.vimeo.client.dev;
 
-//import com.bramosystems.oss.player.capsule.client.Capsule;
 import com.bramosystems.oss.player.core.client.*;
 import com.bramosystems.oss.player.core.client.playlist.MRL;
 import com.bramosystems.oss.player.core.client.skin.CustomPlayerControl;
-import com.bramosystems.oss.player.core.client.ui.*;
+import com.bramosystems.oss.player.core.client.ui.Logger;
 import com.bramosystems.oss.player.core.event.client.DebugEvent;
 import com.bramosystems.oss.player.core.event.client.DebugHandler;
 import com.bramosystems.oss.player.core.event.client.PlayStateEvent;
 import com.bramosystems.oss.player.core.event.client.PlayStateHandler;
-import com.bramosystems.oss.player.playlist.client.asx.ASXEntry;
-import com.bramosystems.oss.player.playlist.client.asx.ASXPlaylist;
-import com.bramosystems.oss.player.playlist.client.spf.SPFPlaylist;
-import com.bramosystems.oss.player.playlist.client.spf.Track;
+import com.bramosystems.oss.player.provider.vimeo.client.VimeoConfigParameters;
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
-import com.google.gwt.core.client.JsArray;
-import com.google.gwt.event.dom.client.ClickEvent;
-import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.uibinder.client.UiBinder;
-import com.google.gwt.uibinder.client.UiTemplate;
-import com.google.gwt.user.client.ui.*;
+import com.google.gwt.user.client.ui.FlowPanel;
+import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.RootPanel;
 import java.util.ArrayList;
-import java.util.Iterator;
 
 /**
  *
@@ -82,36 +74,20 @@ public class Dev extends FlowPanel implements EntryPoint {
 //TODO: test resizeToVideoSize feature for plugins ...
     @Override
     public void onModuleLoad() {
+        //        RootPanel.get().add(new ScrollPanel(this));
         RootPanel.get().add(this);
 //        addPlayer("bst.vimeo", "UniversalPlayer");
-        addPlayer("core", "FlashPlayer");
+        addPlayer("core", "Native");
 //        addPlayer(Plugin.WinMediaPlayer);
-        
-/*
-        try {
-        RequestBuilder rb = new RequestBuilder(RequestBuilder.GET, GWT.getModuleBaseURL() + "jspf.json");
-        //            RequestBuilder rb = new RequestBuilder(RequestBuilder.GET, GWT.getModuleBaseURL() + "xspf.xml");
-        //           RequestBuilder rb = new RequestBuilder(RequestBuilder.GET, GWT.getModuleBaseURL() + "asx.xml");
-        rb.sendRequest(null, new RequestCallback() {
-        
-        @Override
-        public void onResponseReceived(Request request, Response response) {
-        showPlaylist(PlaylistFactory.parseJspfPlaylist(response.getText()));
-        //                    showPlaylist(SPFParser.parseAsxPlaylist(response.getText()));
-        //                    showPlaylist(SPFParser.parseXspfPlaylist(response.getText()));               
-        }
-        
-        @Override
-        public void onError(Request request, Throwable exception) {
-        }
-        });
-        } catch (RequestException ex) {
-        GWT.log("error ", ex);
-        }
-         */
+
+//                    add(new MimeStuffs());
+//                addUTube();
+        //               issueDialog();
+//         add(pb.createAndBindUi(this));
     }
 
-      private void addPlayer(String prov, String player) {
+
+    private void addPlayer(String prov, String player) {
         /*
         add(new Button("Show", new ClickHandler() {
         
@@ -124,6 +100,8 @@ public class Dev extends FlowPanel implements EntryPoint {
         try {
             PlayerInfo pi = PlayerUtil.getPlayerInfo(prov, player);
             mmp = PlayerUtil.getPlayer(pi, mrls.get(0).getNextResource(true), false, HEIGHT, WIDTH);
+ //           mmp = new WinMediaPlayer(mrl.getNextResource(true), false, HEIGHT, WIDTH, WinMediaPlayer.EmbedMode.EMBED_ONLY);
+ //                   mmp = new Capsule(Plugin.FlashPlayer, mrl.getNextResource(true), false);
             mmp.addPlayStateHandler(new PlayStateHandler() {
 
                 @Override
@@ -132,8 +110,9 @@ public class Dev extends FlowPanel implements EntryPoint {
                 }
             });
             mmp.showLogger(true);
-            mmp.setConfigParameter(CoreConfigParameter.QTScale, QuickTimePlayer.Scale.Aspect);
+//            mmp.setConfigParameter(ConfigParameter.QTScale, QuickTimePlayer.Scale.Aspect);
 //            mmp.setConfigParameter(DefaultConfigParameter.BackgroundColor, "#ffdddf");
+            mmp.setConfigParameter(VimeoConfigParameters.ShowTitle, true);
 //            ((PlaylistSupport) mmp).addToPlaylist(mrls);
 //            mmp.setResizeToVideoSize(true);
 //            mmp.setLoopCount(2);
@@ -151,10 +130,10 @@ public class Dev extends FlowPanel implements EntryPoint {
             lbl.setText("MM - " + event.getX() + ", " + event.getY());
             }
             });
+             */
             CustomPlayerControl cpc = new CustomPlayerControl(mmp);
             add(cpc);
             
-             */
             final Logger l = new Logger();
             add(l);
             mmp.addDebugHandler(new DebugHandler() {
@@ -175,65 +154,4 @@ public class Dev extends FlowPanel implements EntryPoint {
         }
     }
 
-    @UiTemplate("Player.ui.xml")
-    interface PlayerBinder extends UiBinder<Widget, Dev> {
-    }
-    PlayerBinder pb = GWT.create(PlayerBinder.class);
-
-    public void issue32() {
-        // GWT.getModuleBaseURL() + "applause.mp3";
-        final String fileUrl = GWT.getModuleBaseURL() + "big-buck-bunny.mp4";
-        AbstractMediaPlayer player;
-        Widget mp = null;
-        try {
-            player = new FlashMediaPlayer(fileUrl, true, "464px", "620px");
-            player.setResizeToVideoSize(true);
-            player.showLogger(true);
-            mp = player;
-        } catch (PluginNotFoundException e) {
-            mp = PlayerUtil.getMissingPluginNotice(Plugin.FlashPlayer, e.getMessage());
-        } catch (PluginVersionException e) {
-            mp = PlayerUtil.getMissingPluginNotice(Plugin.FlashPlayer, e.getRequiredVersion());
-        } catch (LoadException e) {
-            mp = PlayerUtil.getMissingPluginNotice(Plugin.FlashPlayer);
-        }
-        add(mp);
-    }
-
-    public void issueDialog() {
-        final DialogBox panel = new DialogBox(false, true);
-        panel.setSize("700px", "500px");
-        AbstractMediaPlayer player;
-        Widget mp = null;
-        try {
-            player = new WinMediaPlayer("", true, "464px", "620px");
-            //           player.setResizeToVideoSize(false);
-            mp = player;
-        } catch (PluginNotFoundException e) {
-            mp = PlayerUtil.getMissingPluginNotice(e.getPlugin(), e.getMessage());
-        } catch (PluginVersionException e) {
-            mp = PlayerUtil.getMissingPluginNotice(e.getPlugin(), e.getRequiredVersion());
-        } catch (LoadException e) {
-            mp = PlayerUtil.getMissingPluginNotice(Plugin.FlashPlayer);
-        }
-
-        FlowPanel fp = new FlowPanel();
-        fp.add(new Button("close", new ClickHandler() {
-
-            @Override
-            public void onClick(ClickEvent event) {
-                panel.hide();
-            }
-        }));
-        fp.add(mp);
-        panel.setWidget(fp);
-
-        add(new Button("Show", new ClickHandler() {
-
-            @Override
-            public void onClick(ClickEvent event) {
-                panel.center();
-            }
-        }));
-    }
-}
+  }

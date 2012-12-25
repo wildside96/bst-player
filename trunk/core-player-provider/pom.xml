@@ -5,7 +5,7 @@
     <parent>
         <artifactId>bst-player</artifactId>
         <groupId>com.bramosystems.oss.player</groupId>
-        <version>1.4-SNAPSHOT</version>
+        <version>2.0-SNAPSHOT</version>
     </parent>
     <artifactId>core-player-provider</artifactId>
     <name>Core Player Provider</name>
@@ -125,18 +125,6 @@
             <version>${project.version}</version>
             <scope>provided</scope>
         </dependency-->
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>sample-players-provider</artifactId>
-            <version>${project.version}</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>vimeo-player-provider</artifactId>
-            <version>${project.version}</version>
-            <scope>provided</scope>
-        </dependency>
     </dependencies>
     
     <profiles>

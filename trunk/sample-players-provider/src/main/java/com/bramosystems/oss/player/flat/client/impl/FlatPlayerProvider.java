@@ -20,6 +20,7 @@ import com.bramosystems.oss.player.core.client.LoadException;
 import com.bramosystems.oss.player.core.client.PluginNotFoundException;
 import com.bramosystems.oss.player.core.client.PluginVersion;
 import com.bramosystems.oss.player.core.client.PluginVersionException;
+import com.bramosystems.oss.player.core.client.spi.ConfigurationContext;
 import com.bramosystems.oss.player.core.client.spi.PlayerElement;
 import com.bramosystems.oss.player.core.client.spi.PlayerProvider;
 import com.bramosystems.oss.player.core.client.spi.PlayerProviderFactory;
@@ -65,5 +66,9 @@ public class FlatPlayerProvider implements PlayerProviderFactory {
         } else {
             throw new IllegalArgumentException("Unknown player - '" + playerName + "'");
         }
+    }
+
+    @Override
+    public void init(ConfigurationContext context) {
     }
 }
