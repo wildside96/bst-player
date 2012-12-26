@@ -24,7 +24,7 @@ youtube: http://www.youtube.com/v/MrsGEz4NtBk
 
     <g:SimplePanel styleName='{x.panel}' >
         <p:Player name='QuickTimePlayer' mediaURL='gwt-module::big-buck-bunny.mp4' height='400px' width='90%' autoplay='false'
-        showLogger='true' controllerVisible="true" resizeToVideoSize="true">
+        controllerVisible="true" resizeToVideoSize="true">
             <p:missingPluginNotice>
                 <g:Label styleName='{x.title}'>Required Quicktime Plugin not available !</g:Label>
             </p:missingPluginNotice>

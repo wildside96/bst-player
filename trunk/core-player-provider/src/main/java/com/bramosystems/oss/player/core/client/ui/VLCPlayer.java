@@ -23,7 +23,6 @@ import com.bramosystems.oss.player.core.client.impl.VLCPlayerImpl;
 import com.bramosystems.oss.player.core.client.impl.VLCStateManager;
 import com.bramosystems.oss.player.core.client.spi.PlayerWidget;
 import com.bramosystems.oss.player.core.client.impl.CorePlayerProvider;
-import com.bramosystems.oss.player.core.client.skin.CustomPlayerControl;
 import com.bramosystems.oss.player.core.event.client.*;
 import com.bramosystems.oss.player.core.client.spi.Player;
 import com.google.gwt.core.client.GWT;
@@ -62,7 +61,7 @@ import java.util.List;
  *
  * @author Sikirulai Braheem
  */
-@Player(name = "VLCPlayer", providerFactory = CorePlayerProvider.class, minPluginVersion = "1.0.0")
+@Player(name = "VLCPlayer", providerFactory = CorePlayerProvider.class, minPluginVersion = "2.0.2")
 public class VLCPlayer extends AbstractMediaPlayer implements PlaylistSupport {
 
     private VLCPlayerImpl impl;
@@ -70,7 +69,7 @@ public class VLCPlayer extends AbstractMediaPlayer implements PlaylistSupport {
     private VLCStateManager stateHandler;
     private String playerId, _width, _height;
     private boolean isEmbedded, autoplay, resizeToVideoSize;
-    private CustomPlayerControl control;
+//    private CustomPlayerControl control;
     private LoopManager loopManager;
 
     private VLCPlayer() throws PluginNotFoundException, PluginVersionException {
@@ -222,9 +221,9 @@ public class VLCPlayer extends AbstractMediaPlayer implements PlaylistSupport {
 
         isEmbedded = (height == null) || (width == null);
         if (!isEmbedded) {
-            control = new CustomPlayerControl(this);
-            control.setWidth("100%");
-            panel.add(control);
+//            control = new CustomPlayerControl(this);
+//            control.setWidth("100%");
+//            panel.add(control);
             addMediaInfoHandler(new MediaInfoHandler() {
 
                 @Override
@@ -393,13 +392,13 @@ public class VLCPlayer extends AbstractMediaPlayer implements PlaylistSupport {
     @Override
     public void setControllerVisible(boolean show) {
         if (!isEmbedded) {
-            control.setVisible(show);
+//            control.setVisible(show);
         }
     }
 
     @Override
     public boolean isControllerVisible() {
-        return control.isVisible();
+        return true; //control.isVisible();
     }
 
     @Override
@@ -604,7 +603,8 @@ public class VLCPlayer extends AbstractMediaPlayer implements PlaylistSupport {
 
         if (resizeToVideoSize) {
             if ((vidHeight > 0) && (vidWidth > 0)) {
-                if ((vidWidth <= 180) && control.isVisible()) {
+//                if ((vidWidth <= 180) && control.isVisible()) {
+                if ((vidWidth <= 180)) {
                     vidWidth = 180; // not lower than controller min width ...
                     fireDebug("Player width cannot be less than 180px");
                 }
