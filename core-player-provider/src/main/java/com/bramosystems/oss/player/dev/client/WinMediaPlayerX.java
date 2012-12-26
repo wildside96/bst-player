@@ -451,13 +451,6 @@ public class WinMediaPlayerX extends AbstractMediaPlayer implements PlaylistSupp
         }
     }
 
-    @Override
-    public void showLogger(boolean enable) {
-        if (!isEmbedded) {
-            logger.setVisible(enable);
-        }
-    }
-
     /**
      * Displays or hides the player controls.
      */

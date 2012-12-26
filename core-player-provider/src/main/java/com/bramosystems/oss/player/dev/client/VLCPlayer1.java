@@ -386,13 +386,6 @@ public class VLCPlayer1 extends AbstractMediaPlayer implements PlaylistSupport {
     }
 
     @Override
-    public void showLogger(boolean enable) {
-        if (!isEmbedded) {
-            logger.setVisible(enable);
-        }
-    }
-
-    @Override
     public void setControllerVisible(boolean show) {
         if (!isEmbedded) {
             control.setVisible(show);

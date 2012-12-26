@@ -18,26 +18,21 @@ package com.bramosystems.oss.player.dev.client;
 //import com.bramosystems.oss.player.capsule.client.Capsule;
 import com.bramosystems.oss.player.core.client.*;
 import com.bramosystems.oss.player.core.client.playlist.MRL;
-import com.bramosystems.oss.player.core.client.skin.CustomPlayerControl;
 import com.bramosystems.oss.player.core.client.ui.*;
 import com.bramosystems.oss.player.core.event.client.DebugEvent;
 import com.bramosystems.oss.player.core.event.client.DebugHandler;
+import com.bramosystems.oss.player.core.event.client.MediaInfoEvent;
+import com.bramosystems.oss.player.core.event.client.MediaInfoHandler;
 import com.bramosystems.oss.player.core.event.client.PlayStateEvent;
 import com.bramosystems.oss.player.core.event.client.PlayStateHandler;
-import com.bramosystems.oss.player.playlist.client.asx.ASXEntry;
-import com.bramosystems.oss.player.playlist.client.asx.ASXPlaylist;
-import com.bramosystems.oss.player.playlist.client.spf.SPFPlaylist;
-import com.bramosystems.oss.player.playlist.client.spf.Track;
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
-import com.google.gwt.core.client.JsArray;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiTemplate;
 import com.google.gwt.user.client.ui.*;
 import java.util.ArrayList;
-import java.util.Iterator;
 
 /**
  *
@@ -67,12 +62,13 @@ public class Dev extends FlowPanel implements EntryPoint {
         });
 
         mrls = new ArrayList<MRL>();
-//        mrls.add(new MRL(GWT.getModuleBaseURL() + "applause.mp3"));
+        mrls.add(new MRL(GWT.getModuleBaseURL() + "applause.mp3"));
         
 //        mrls.add(new MRL("7047863"));
         
 //        mrl.addURL(GWT.getModuleBaseURL() + "DSCF1780.AVI");
         mrls.add(new MRL(GWT.getModuleBaseURL() + "big-buck-bunny.mp4"));
+        mrls.add(new MRL("file:///E:/LIB/MMX/Videos/New%20Movies/Contraband.2012.DVDRip.XViD-NYDIC.avi"));
 //        mrls.add(new MRL(GWT.getModuleBaseURL() + "u2intro.mp4"));
 //        mrls.add(new MRL(GWT.getModuleBaseURL() + "traffic.flv"));
 //        mrls.add(new MRL(GWT.getModuleBaseURL() + "traffic.avi"));
@@ -83,8 +79,7 @@ public class Dev extends FlowPanel implements EntryPoint {
     @Override
     public void onModuleLoad() {
         RootPanel.get().add(this);
-//        addPlayer("bst.vimeo", "UniversalPlayer");
-        addPlayer("core", "FlashPlayer");
+        addPlayer("core", "VLCPlayer");
 //        addPlayer(Plugin.WinMediaPlayer);
         
 /*
@@ -131,10 +126,10 @@ public class Dev extends FlowPanel implements EntryPoint {
                     GWT.log("Index : " + event.getItemIndex() + " = " + event.getPlayState());
                 }
             });
-            mmp.showLogger(true);
             mmp.setConfigParameter(CoreConfigParameter.QTScale, QuickTimePlayer.Scale.Aspect);
 //            mmp.setConfigParameter(DefaultConfigParameter.BackgroundColor, "#ffdddf");
-//            ((PlaylistSupport) mmp).addToPlaylist(mrls);
+            mrls.remove(0);
+            ((PlaylistSupport) mmp).addToPlaylist(mrls);
 //            mmp.setResizeToVideoSize(true);
 //            mmp.setLoopCount(2);
 //            mmp.setRepeatMode(RepeatMode.REPEAT_ALL);
@@ -155,15 +150,21 @@ public class Dev extends FlowPanel implements EntryPoint {
             add(cpc);
             
              */
-            final Logger l = new Logger();
-            add(l);
-            mmp.addDebugHandler(new DebugHandler() {
+            add(Logger.getLogger(mmp));
+            mmp.addMediaInfoHandler(new MediaInfoHandler() {
 
                 @Override
-                public void onDebug(DebugEvent event) {
-                    l.log(event.getMessage(), true);
+                public void onMediaInfoAvailable(MediaInfoEvent event) {
+                    GWT.log(event.getMediaInfo().toString());
                 }
             });
+            add(new Button("Toggle Screen", new ClickHandler() {
+
+                @Override
+                public void onClick(ClickEvent event) {
+                    ((VLCPlayer)mmp).toggleFullScreen();
+                }
+            }));
         } catch (LoadException ex) {
             add(new Label("Load Exception"));
         } catch (PluginNotFoundException ex) {
@@ -188,7 +189,6 @@ public class Dev extends FlowPanel implements EntryPoint {
         try {
             player = new FlashMediaPlayer(fileUrl, true, "464px", "620px");
             player.setResizeToVideoSize(true);
-            player.showLogger(true);
             mp = player;
         } catch (PluginNotFoundException e) {
             mp = PlayerUtil.getMissingPluginNotice(Plugin.FlashPlayer, e.getMessage());

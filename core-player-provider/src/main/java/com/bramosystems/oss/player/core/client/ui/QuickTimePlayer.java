@@ -492,7 +492,8 @@ public class QuickTimePlayer extends AbstractMediaPlayer implements MatrixSuppor
             fireDebug("Resizing Player : " + _w + " x " + _h);
         }
 
-        setSize(_w, _h);
+        playerWidget.setSize("100%", _h);
+        setWidth(_w);
         if (!_height.equals(_h) || !_width.equals(_w)) {
             firePlayerStateEvent(PlayerStateEvent.State.DimensionChangedOnVideo);
         }
