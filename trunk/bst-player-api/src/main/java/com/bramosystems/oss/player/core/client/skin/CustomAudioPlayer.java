@@ -17,7 +17,6 @@ package com.bramosystems.oss.player.core.client.skin;
 
 import com.bramosystems.oss.player.core.client.playlist.MRL;
 import com.bramosystems.oss.player.core.client.*;
-import com.bramosystems.oss.player.core.client.ui.*;
 import com.bramosystems.oss.player.core.event.client.DebugEvent;
 import com.bramosystems.oss.player.core.event.client.DebugHandler;
 import com.bramosystems.oss.player.core.event.client.LoadingProgressEvent;
@@ -29,9 +28,7 @@ import com.bramosystems.oss.player.core.event.client.PlayStateHandler;
 import com.bramosystems.oss.player.core.event.client.PlayerStateEvent;
 import com.bramosystems.oss.player.core.event.client.PlayerStateHandler;
 import com.google.gwt.user.client.ui.AbsolutePanel;
-import com.google.gwt.user.client.ui.DockPanel;
 import com.google.gwt.user.client.ui.SimplePanel;
-import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import java.util.List;
 
@@ -49,10 +46,6 @@ public abstract class CustomAudioPlayer extends AbstractMediaPlayer implements P
 
     private AbstractMediaPlayer engine;
     private SimplePanel controller;
-    /**
-     * The Logger widget attached to this player
-     */
-    protected final Logger logger = new Logger();
 
     /**
      * Constructs <code>CustomAudioPlayer</code> with the specified {@code height} and
@@ -119,20 +112,11 @@ public abstract class CustomAudioPlayer extends AbstractMediaPlayer implements P
         controller = new SimplePanel();
         controller.setWidth("100%");
 
-        logger.setVisible(false);
-
         AbsolutePanel hp = new AbsolutePanel();
         hp.setSize(width, height);
         hp.add(engine, 0, 0);
         hp.add(controller, 0, 0);
-
-        DockPanel vp = new DockPanel();
-        vp.setVerticalAlignment(VerticalPanel.ALIGN_MIDDLE);
-        vp.setWidth("100%");
-        vp.add(logger, DockPanel.SOUTH);
-        vp.add(hp, DockPanel.SOUTH);
-        vp.setCellHorizontalAlignment(hp, VerticalPanel.ALIGN_CENTER);
-        super.initWidget(vp);
+        super.initWidget(hp);
     }
 
     /**
@@ -215,11 +199,6 @@ public abstract class CustomAudioPlayer extends AbstractMediaPlayer implements P
     @Override
     public void setLoopCount(int loop) {
         engine.setLoopCount(loop);
-    }
-
-    @Override
-    public void showLogger(boolean show) {
-        logger.setVisible(show);
     }
 
     @Override

@@ -287,25 +287,6 @@ public class Player extends AbstractMediaPlayer
     }
     
     @Override
-    public void showLogger(boolean show) {
-        if (_engine == null) {
-            _engine.showLogger(show);
-        }
-    }
-
-    /**
-     * Convenience method for UiBinder support. Displays or hides the players' logger widget.
-     *
-     * @param show <code>true</code> to make the logger widget visible, <code>false</code> otherwise.
-     * @see #showLogger(boolean)
-     */
-    public void setShowLogger(boolean show) {
-        if (_engine != null) {
-            _engine.showLogger(show);
-        }
-    }
-    
-    @Override
     public int getVideoHeight() {
         if (_engine == null) {
             return 0;

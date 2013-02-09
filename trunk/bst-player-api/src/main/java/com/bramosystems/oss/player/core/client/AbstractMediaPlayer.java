@@ -16,13 +16,12 @@
 package com.bramosystems.oss.player.core.client;
 
 import com.bramosystems.oss.player.core.client.impl.plugin.PlayerManager;
-import com.bramosystems.oss.player.core.client.ui.Logger;
 import com.bramosystems.oss.player.core.event.client.*;
 import com.bramosystems.oss.player.core.client.spi.PlayerProviderFactory;
+import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.event.dom.client.*;
 import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.user.client.Command;
-import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.ui.Composite;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -53,10 +52,10 @@ public abstract class AbstractMediaPlayer extends Composite implements HasMediaS
 
             @Override
             public void onPlayerStateChanged(final PlayerStateEvent event) {
-                Timer t = new Timer() {
+                Scheduler.get().scheduleEntry(new Scheduler.ScheduledCommand() {
 
                     @Override
-                    public void run() {
+                    public void execute() {
                         if (event.getPlayerState().equals(PlayerStateEvent.State.Ready)) {
                             // ensure commands are executed in the same sequence as added ...
                             Iterator<String> keys = cmdKeys.iterator();
@@ -67,8 +66,7 @@ public abstract class AbstractMediaPlayer extends Composite implements HasMediaS
                             readyCmdQueue.clear();
                         }
                     }
-                };
-                t.schedule(500);
+                });
             }
         });
     }
@@ -223,20 +221,6 @@ public abstract class AbstractMediaPlayer extends Composite implements HasMediaS
      */
     protected final void fireMediaInfoAvailable(MediaInfo info) {
         MediaInfoEvent.fire(this, info);
-    }
-
-    /**
-     * Displays or hides the players' logger widget.  The logger widget logs debug messages which can
-     * be useful during development.
-     *
-     * TODO:  2.x mig - remove from api, log outside of players
-     * @param show <code>true</code> to make the logger widget visible, <code>false</code> otherwise.
-     * @see Logger
-     * @since 0.6
-     * @deprecated 
-     * 
-     */
-    public void showLogger(boolean show) {
     }
 
     /**
@@ -489,7 +473,7 @@ public abstract class AbstractMediaPlayer extends Composite implements HasMediaS
      * @param value the parameter value
      * @param <T> the paramter value type
      * @throws IllegalArgumentException if {@code value} is not of the required type
-     * @since 1.4
+     * @since 2.0
      */
     public <T> void setConfigParameter(ConfigParameter param, T value) {
         if ((value != null) && (!Arrays.asList(param.getValueType()).contains(value.getClass()))) {
@@ -497,53 +481,6 @@ public abstract class AbstractMediaPlayer extends Composite implements HasMediaS
                     + value.getClass() + ", Permissible value types : " + Arrays.asList(param.getValueType()));
         }
     }
-
-    /**
-     * TODO: 2.x migration - document removal
-     * Sets the specified player parameter to the specified value IF AND ONLY IF the
-     * parameter is applicable on the player
-     *
-     * <p><h4>Overriding in a subclass</h4>
-     * This method should be called first by any subclass that overrides it. This
-     * implementation checks if the specified value is a valid type for the specified
-     * parameter.</p>
-     *
-     * @param param the configuration parameter
-     * @param value the numeric value
-     * @throws IllegalArgumentException if {@code param} is not useable with a number
-     * @since 1.2
-     * @see #setConfigParameter(ConfigParameter, ConfigValue)
-     *
-    public void setConfigParameter(ConfigParameter param, Number value) {
-        if ((value != null) && (!Arrays.asList(param.getValueType()).contains(value.getClass()))) {
-            throw new IllegalArgumentException("Found ConfigParameter type "
-                    + value.getClass() + ", Permissible value types : " + Arrays.asList(param.getValueType()));
-        }
-    }
-    */
-
-    /**
-     * Sets the specified player parameter to the specified value IF AND ONLY IF the
-     * parameter is applicable on the player
-     *
-     * <p><h4>Overriding in a subclass</h4>
-     * This method should be called first by any subclass that overrides it. This
-     * implementation checks if the specified value is a valid type for the specified
-     * parameter.</p>
-     *
-     * @param param the configuration parameter
-     * @param value the String value
-     * @throws IllegalArgumentException if {@code param} is not useable with a String
-     * @since 1.2.1
-     * @see #setConfigParameter(ConfigParameter, ConfigValue)
-     *
-    public void setConfigParameter(ConfigParameter param, String value) {
-        if ((value != null) && (!Arrays.asList(param.getValueType()).contains(value.getClass()))) {
-            throw new IllegalArgumentException("Found ConfigParameter type "
-                    + value.getClass() + ", Permissible value types : " + Arrays.asList(param.getValueType()));
-        }
-    }
-    */
 
     /**
      * Sets the playback rate.
