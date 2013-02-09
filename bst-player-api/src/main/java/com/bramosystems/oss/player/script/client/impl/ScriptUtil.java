@@ -16,8 +16,6 @@
 package com.bramosystems.oss.player.script.client.impl;
 
 import com.bramosystems.oss.player.core.client.AbstractMediaPlayer;
-import com.bramosystems.oss.player.core.client.ConfigParameter;
-import com.bramosystems.oss.player.core.client.DefaultConfigParameter;
 import com.bramosystems.oss.player.core.client.LoadException;
 import com.bramosystems.oss.player.core.client.PlayException;
 import com.bramosystems.oss.player.core.client.PlaylistSupport;
@@ -26,8 +24,6 @@ import com.bramosystems.oss.player.core.client.PluginNotFoundException;
 import com.bramosystems.oss.player.core.client.PluginVersion;
 import com.bramosystems.oss.player.core.client.PluginVersionException;
 import com.bramosystems.oss.player.core.client.RepeatMode;
-import com.bramosystems.oss.player.core.client.TransparencyMode;
-import com.bramosystems.oss.player.core.client.TransparencyMode;
 import com.bramosystems.oss.player.core.client.playlist.MRL;
 import com.bramosystems.oss.player.core.client.skin.MediaSeekBar;
 import com.bramosystems.oss.player.core.event.client.DebugEvent;
@@ -378,13 +374,6 @@ public class ScriptUtil {
         public void setResizeToVideoSize(boolean resize) {
             if (player != null) {
                 player.setResizeToVideoSize(resize);
-            }
-        }
-
-        @Override
-        public void showLogger(boolean show) {
-            if (player != null) {
-                player.showLogger(show);
             }
         }
 

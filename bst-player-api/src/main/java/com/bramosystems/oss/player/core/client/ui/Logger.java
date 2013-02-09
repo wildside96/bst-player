@@ -15,6 +15,9 @@
  */
 package com.bramosystems.oss.player.core.client.ui;
 
+import com.bramosystems.oss.player.core.client.AbstractMediaPlayer;
+import com.bramosystems.oss.player.core.event.client.DebugEvent;
+import com.bramosystems.oss.player.core.event.client.DebugHandler;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.resources.client.ClientBundle;
 import com.google.gwt.resources.client.ImageResource;
@@ -48,6 +51,25 @@ public class Logger extends Composite {
         setWidth("100%");
     }
 
+    /**
+     * Convenience method to return a Logger object attached to the specified <code>player</code>.  
+     * All debug messages of the player are logged by the returned object.
+     * 
+     * @param player the player whose debug messages is to be logged
+     * @return the Logger object
+     * @since 2.0
+     */
+    public static Logger getLogger(AbstractMediaPlayer player) {
+        final Logger l = new Logger();
+        player.addDebugHandler(new DebugHandler() {
+
+            @Override
+            public void onDebug(DebugEvent event) {
+                l.log(event.getMessage(), true);
+            }
+        });
+        return l;
+    }
     /**
      * Adds <code>message</code> to the list of messages in this objects' log
      *

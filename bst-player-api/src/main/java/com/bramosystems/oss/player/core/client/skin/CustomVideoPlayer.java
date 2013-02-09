@@ -114,10 +114,7 @@ public abstract class CustomVideoPlayer extends AbstractMediaPlayer implements P
                 }
             }
         });
-
-//        engine.setConfigParameter(ConfigParameter.WMPUIMode, WinMediaPlayer.UIMode.NONE);
         engine.setControllerVisible(false);
-        engine.showLogger(false);
 
         controller = new SimplePanel();
         controller.setWidth("100%");
@@ -329,11 +326,6 @@ public abstract class CustomVideoPlayer extends AbstractMediaPlayer implements P
     }
 
     @Override
-    public void showLogger(boolean show) {
-        engine.showLogger(show);
-    }
-
-    @Override
     public TransformationMatrix getMatrix() {
         if (engine instanceof MatrixSupport) {
             return ((MatrixSupport) engine).getMatrix();
@@ -374,17 +366,7 @@ public abstract class CustomVideoPlayer extends AbstractMediaPlayer implements P
     public <T> void setConfigParameter(ConfigParameter param, T value) {
         engine.setConfigParameter(param, value);
     }
-/*
-    @Override
-    public void setConfigParameter(ConfigParameter param, Number value) {
-        engine.setConfigParameter(param, value);
-    }
 
-    @Override
-    public void setConfigParameter(ConfigParameter param, String value) {
-        engine.setConfigParameter(param, value);
-    }
-*/
     @Override
     public void setRate(double rate) {
         engine.setRate(rate);
