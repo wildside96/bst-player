@@ -48,9 +48,6 @@ import java.util.List;
  * try {
  *      // create the player
  *      player = new FlashMediaPlayer("www.example.com/mediafile.flv", false, "200px", "250px");
- * } catch(LoadException e) {
- *      // catch loading exception and alert user
- *      Window.alert("An error occured while loading");
  * } catch(PluginVersionException e) {
  *      // catch plugin version exception and alert user to download plugin first.
  *      // An option is to use the utility method in PlayerUtil class.
@@ -119,7 +116,7 @@ public class FlashMediaPlayer extends AbstractMediaPlayer implements PlaylistSup
      * @throws PluginNotFoundException if the Flash plugin is not installed on the client.
      */
     public FlashMediaPlayer(final String mediaURL, final boolean autoplay, String height, String width)
-            throws PluginNotFoundException, PluginVersionException, LoadException {
+            throws PluginNotFoundException, PluginVersionException {
         this();
         _height = height;
         _width = width;

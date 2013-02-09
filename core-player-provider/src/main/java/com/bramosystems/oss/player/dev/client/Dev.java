@@ -18,9 +18,11 @@ package com.bramosystems.oss.player.dev.client;
 //import com.bramosystems.oss.player.capsule.client.Capsule;
 import com.bramosystems.oss.player.core.client.*;
 import com.bramosystems.oss.player.core.client.playlist.MRL;
-import com.bramosystems.oss.player.core.client.ui.*;
-import com.bramosystems.oss.player.core.event.client.DebugEvent;
-import com.bramosystems.oss.player.core.event.client.DebugHandler;
+import com.bramosystems.oss.player.core.client.ui.CoreConfigParameter;
+import com.bramosystems.oss.player.core.client.ui.FlashMediaPlayer;
+import com.bramosystems.oss.player.core.client.ui.QuickTimePlayer;
+import com.bramosystems.oss.player.core.client.ui.VLCPlayer;
+import com.bramosystems.oss.player.core.client.ui.WinMediaPlayer;
 import com.bramosystems.oss.player.core.event.client.MediaInfoEvent;
 import com.bramosystems.oss.player.core.event.client.MediaInfoHandler;
 import com.bramosystems.oss.player.core.event.client.PlayStateEvent;
@@ -150,7 +152,7 @@ public class Dev extends FlowPanel implements EntryPoint {
             add(cpc);
             
              */
-            add(Logger.getLogger(mmp));
+ //           add(Logger.getLogger(mmp));
             mmp.addMediaInfoHandler(new MediaInfoHandler() {
 
                 @Override
@@ -194,9 +196,7 @@ public class Dev extends FlowPanel implements EntryPoint {
             mp = PlayerUtil.getMissingPluginNotice(Plugin.FlashPlayer, e.getMessage());
         } catch (PluginVersionException e) {
             mp = PlayerUtil.getMissingPluginNotice(Plugin.FlashPlayer, e.getRequiredVersion());
-        } catch (LoadException e) {
-            mp = PlayerUtil.getMissingPluginNotice(Plugin.FlashPlayer);
-        }
+         }
         add(mp);
     }
 
@@ -213,8 +213,6 @@ public class Dev extends FlowPanel implements EntryPoint {
             mp = PlayerUtil.getMissingPluginNotice(e.getPlugin(), e.getMessage());
         } catch (PluginVersionException e) {
             mp = PlayerUtil.getMissingPluginNotice(e.getPlugin(), e.getRequiredVersion());
-        } catch (LoadException e) {
-            mp = PlayerUtil.getMissingPluginNotice(Plugin.FlashPlayer);
         }
 
         FlowPanel fp = new FlowPanel();
