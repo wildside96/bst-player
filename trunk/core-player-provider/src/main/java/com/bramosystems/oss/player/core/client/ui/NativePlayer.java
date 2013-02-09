@@ -55,9 +55,6 @@ import java.util.List;
  * try {
  *      // create the player
  *      player = new NativePlayer("www.example.com/mediafile.ogg");
- * } catch(LoadException e) {
- *      // catch loading exception and alert user
- *      Window.alert("An error occured while loading");
  * } catch(PluginNotFoundException e) {
  *      // PluginNotFoundException thrown if browser does not support HTML 5 specs.
  *      player = PlayerUtil.getMissingPluginNotice(e.getPlugin());
@@ -239,10 +236,9 @@ public class NativePlayer extends AbstractMediaPlayer implements PlaylistSupport
      *
      * @param mediaURL the URL of the media to playback
      *
-     * @throws LoadException if an error occurs while loading the media.
      * @throws PluginNotFoundException if browser does not support the HTML 5 specification.
      */
-    public NativePlayer(String mediaURL) throws LoadException, PluginNotFoundException {
+    public NativePlayer(String mediaURL) throws PluginNotFoundException {
         this(mediaURL, true, NativePlayerUtil.get.getPlayerHeight(), "100%");
     }
 
@@ -255,15 +251,12 @@ public class NativePlayer extends AbstractMediaPlayer implements PlaylistSupport
      * @param mediaURL the URL of the media to playback
      * @param autoplay {@code true} to start playing automatically, {@code false} otherwise
      *
-     * @throws LoadException if an error occurs while loading the media.
      * @throws PluginNotFoundException if browser does not support the HTML 5 specification.
      */
-    public NativePlayer(String mediaURL, boolean autoplay)
-            throws LoadException, PluginNotFoundException {
+    public NativePlayer(String mediaURL, boolean autoplay) throws PluginNotFoundException {
         this(mediaURL, autoplay, NativePlayerUtil.get.getPlayerHeight(), "100%");
     }
 
-    // TODO: 2.x remove LoadException from throws clause ....
     /**
      * Constructs <code>NativePlayer</code> with the specified {@code height} and
      * {@code width} to playback media located at {@code mediaURL}. Media playback
@@ -276,11 +269,10 @@ public class NativePlayer extends AbstractMediaPlayer implements PlaylistSupport
      * @param height the height of the player
      * @param width the width of the player.
      *
-     * @throws LoadException if an error occurs while loading the media.
      * @throws PluginNotFoundException if browser does not support the HTML 5 specification.
      */
     public NativePlayer(String mediaURL, boolean autoplay, String height, String width)
-            throws LoadException, PluginNotFoundException {
+            throws PluginNotFoundException {
         this();
         playerWidget = new PlayerWidget("core", Plugin.Native.name(), playerId, "", autoplay);
         _init(width, height);
@@ -302,11 +294,10 @@ public class NativePlayer extends AbstractMediaPlayer implements PlaylistSupport
      * @param height the height of the player
      * @param width the width of the player.
      *
-     * @throws LoadException if an error occurs while loading the media.
      * @throws PluginNotFoundException if browser does not support the HTML 5 specification.
      */
     public NativePlayer(ArrayList<String> mediaSources, boolean autoplay, String height, String width)
-            throws LoadException, PluginNotFoundException {
+            throws PluginNotFoundException {
         this();
         playerWidget = new PlayerWidget("core", Plugin.Native.name(), playerId, "", autoplay);
         _init(width, height);

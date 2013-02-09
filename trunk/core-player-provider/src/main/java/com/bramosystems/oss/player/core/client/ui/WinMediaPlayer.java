@@ -45,9 +45,6 @@ import java.util.List;
  * try {
  *      // create the player
  *      player = new WinMediaPlayer("www.example.com/mediafile.wma");
- * } catch(LoadException e) {
- *      // catch loading exception and alert user
- *      Window.alert("An error occured while loading");
  * } catch(PluginVersionException e) {
  *      // catch plugin version exception and alert user, possibly providing a link
  *      // to the plugin download page.
@@ -160,7 +157,6 @@ public class WinMediaPlayer extends AbstractMediaPlayer implements PlaylistSuppo
      * @param width the width of the player.
      * @param embedMode the embed mode of the widget
      *
-     * @throws LoadException if an error occurs while loading the media.
      * @throws PluginVersionException if the required Windows Media Player plugin version is not installed on the client.
      * @throws PluginNotFoundException if the Windows Media Player plugin is not installed on the client.
      *
@@ -169,8 +165,7 @@ public class WinMediaPlayer extends AbstractMediaPlayer implements PlaylistSuppo
      */
     @SuppressWarnings("OverridableMethodCallInConstructor")
     public WinMediaPlayer(String mediaURL, final boolean autoplay, String height, String width,
-            EmbedMode embedMode)
-            throws LoadException, PluginNotFoundException, PluginVersionException {
+            EmbedMode embedMode) throws PluginNotFoundException, PluginVersionException {
         this(embedMode, autoplay);
 
         _height = height;
@@ -223,12 +218,11 @@ public class WinMediaPlayer extends AbstractMediaPlayer implements PlaylistSuppo
      * @param height the height of the player
      * @param width the width of the player.
      *
-     * @throws LoadException if an error occurs while loading the media.
      * @throws PluginVersionException if the required Windows Media Player plugin version is not installed on the client.
      * @throws PluginNotFoundException if the Windows Media Player plugin is not installed on the client.
      */
     public WinMediaPlayer(String mediaURL, boolean autoplay, String height, String width)
-            throws LoadException, PluginNotFoundException, PluginVersionException {
+            throws PluginNotFoundException, PluginVersionException {
         this(mediaURL, autoplay, height, width, EmbedMode.PROGRAMMABLE);
     }
 
@@ -240,12 +234,10 @@ public class WinMediaPlayer extends AbstractMediaPlayer implements PlaylistSuppo
      *
      * @param mediaURL the URL of the media to playback
      *
-     * @throws LoadException if an error occurs while loading the media.
      * @throws PluginVersionException if the required Windows Media Player plugin version is not installed on the client.
      * @throws PluginNotFoundException if the Windows Media Player plugin is not installed on the client.
      */
-    public WinMediaPlayer(String mediaURL) throws LoadException,
-            PluginNotFoundException, PluginVersionException {
+    public WinMediaPlayer(String mediaURL) throws PluginNotFoundException, PluginVersionException {
         this(mediaURL, true, DEFAULT_HEIGHT, "100%");
     }
 
@@ -259,11 +251,10 @@ public class WinMediaPlayer extends AbstractMediaPlayer implements PlaylistSuppo
      * @param mediaURL the URL of the media to playback
      * @param autoplay {@code true} to start playing automatically, {@code false} otherwise
      *
-     * @throws LoadException if an error occurs while loading the media.
      * @throws PluginVersionException if the required Windows Media Player plugin version is not installed on the client.
      * @throws PluginNotFoundException if the Windows Media Player plugin is not installed on the client.
      */
-    public WinMediaPlayer(String mediaURL, boolean autoplay) throws LoadException,
+    public WinMediaPlayer(String mediaURL, boolean autoplay) throws 
             PluginNotFoundException, PluginVersionException {
         this(mediaURL, autoplay, DEFAULT_HEIGHT, "100%");
     }

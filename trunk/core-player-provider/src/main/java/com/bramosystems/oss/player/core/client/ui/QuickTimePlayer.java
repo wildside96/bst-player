@@ -49,9 +49,6 @@ import java.util.List;
  * try {
  *      // create the player
  *      player = new QuickTimePlayer("www.example.com/mediafile.mov");
- * } catch(LoadException e) {
- *      // catch loading exception and alert user
- *      Window.alert("An error occured while loading");
  * } catch(PluginVersionException e) {
  *      // catch plugin version exception and alert user, possibly providing a link
  *      // to the plugin download page.
@@ -194,12 +191,11 @@ public class QuickTimePlayer extends AbstractMediaPlayer implements MatrixSuppor
      * @param height the height of the player
      * @param width the width of the player.
      *
-     * @throws LoadException if an error occurs while loading the media.
      * @throws PluginVersionException if the required QuickTime plugin version is not installed on the client.
      * @throws PluginNotFoundException if the QuickTime plugin is not installed on the client.
      */
     public QuickTimePlayer(String mediaURL, boolean autoplay, String height, String width)
-            throws LoadException, PluginVersionException, PluginNotFoundException {
+            throws PluginVersionException, PluginNotFoundException {
         this();
 
         playerWidget = new PlayerWidget("core", Plugin.QuickTimePlayer.name(), playerId, "", autoplay);
@@ -242,12 +238,11 @@ public class QuickTimePlayer extends AbstractMediaPlayer implements MatrixSuppor
      *
      * @param mediaURL the URL of the media to playback
      *
-     * @throws LoadException if an error occurs while loading the media.
      * @throws PluginVersionException if the required QuickTime plugin version is not installed on the client.
      * @throws PluginNotFoundException if the QuickTime plugin is not installed on the client.
      *
      */
-    public QuickTimePlayer(String mediaURL) throws LoadException, PluginVersionException,
+    public QuickTimePlayer(String mediaURL) throws PluginVersionException,
             PluginNotFoundException {
         this(mediaURL, true, "16px", "100%");
     }
@@ -262,12 +257,10 @@ public class QuickTimePlayer extends AbstractMediaPlayer implements MatrixSuppor
      * @param mediaURL the URL of the media to playback
      * @param autoplay {@code true} to start playing automatically, {@code false} otherwise
      *
-     * @throws LoadException if an error occurs while loading the media.
      * @throws PluginVersionException if the required QuickTime plugin version is not installed on the client.
      * @throws PluginNotFoundException if the QuickTime plugin is not installed on the client.
      */
-    public QuickTimePlayer(String mediaURL, boolean autoplay) throws LoadException,
-            PluginVersionException, PluginNotFoundException {
+    public QuickTimePlayer(String mediaURL, boolean autoplay) throws PluginVersionException, PluginNotFoundException {
         this(mediaURL, autoplay, "16px", "100%");
     }
 

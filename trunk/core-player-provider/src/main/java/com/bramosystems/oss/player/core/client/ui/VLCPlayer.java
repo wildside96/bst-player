@@ -43,9 +43,6 @@ import java.util.List;
  * try {
  *      // create the player
  *      player = new VLCPlayer("www.example.com/mediafile.vob");
- * } catch(LoadException e) {
- *      // catch loading exception and alert user
- *      Window.alert("An error occured while loading");
  * } catch(PluginVersionException e) {
  *      // catch plugin version exception and alert user, possibly providing a link
  *      // to the plugin download page.
@@ -200,12 +197,11 @@ public class VLCPlayer extends AbstractMediaPlayer implements PlaylistSupport {
      * @param height the height of the player
      * @param width the width of the player.
      *
-     * @throws LoadException if an error occurs while loading the media.
      * @throws PluginVersionException if the required VLCPlayer plugin version is not installed on the client.
      * @throws PluginNotFoundException if the VLCPlayer plugin is not installed on the client.
      */
     public VLCPlayer(String mediaURL, final boolean autoplay, String height, String width)
-            throws LoadException, PluginVersionException, PluginNotFoundException {
+            throws PluginVersionException, PluginNotFoundException {
         this();
 
         this.autoplay = autoplay;
@@ -250,12 +246,11 @@ public class VLCPlayer extends AbstractMediaPlayer implements PlaylistSupport {
      *
      * @param mediaURL the URL of the media to playback
      *
-     * @throws LoadException if an error occurs while loading the media.
      * @throws PluginVersionException if the required VLCPlayer plugin version is not installed on the client.
      * @throws PluginNotFoundException if the VLCPlayer plugin is not installed on the client.
      *
      */
-    public VLCPlayer(String mediaURL) throws LoadException, PluginVersionException,
+    public VLCPlayer(String mediaURL) throws PluginVersionException,
             PluginNotFoundException {
         this(mediaURL, true, "0px", "100%");
     }
@@ -268,11 +263,10 @@ public class VLCPlayer extends AbstractMediaPlayer implements PlaylistSupport {
      * @param mediaURL the URL of the media to playback
      * @param autoplay {@code true} to play playing automatically, {@code false} otherwise
      *
-     * @throws LoadException if an error occurs while loading the media.
      * @throws PluginVersionException if the required VLCPlayer plugin version is not installed on the client.
      * @throws PluginNotFoundException if the VLCPlayer plugin is not installed on the client.
      */
-    public VLCPlayer(String mediaURL, boolean autoplay) throws LoadException,
+    public VLCPlayer(String mediaURL, boolean autoplay) throws 
             PluginVersionException, PluginNotFoundException {
         this(mediaURL, autoplay, "0px", "100%");
     }

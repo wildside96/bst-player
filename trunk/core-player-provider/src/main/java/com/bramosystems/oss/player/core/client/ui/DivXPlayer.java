@@ -41,9 +41,6 @@ import java.util.List;
  * try {
  *      // create the player
  *      player = new DivXPlayer("www.example.com/mediafile.divx");
- * } catch(LoadException e) {
- *      // catch loading exception and alert user
- *      Window.alert("An error occured while loading");
  * } catch(PluginVersionException e) {
  *      // catch plugin version exception and alert user to download plugin first.
  *      // An option is to use the utility method in PlayerUtil class.
@@ -224,7 +221,7 @@ public class DivXPlayer extends AbstractMediaPlayer implements PlaylistSupport {
      * @throws PluginNotFoundException if DivX&reg; Web Player plugin is not installed on the client.
      */
     public DivXPlayer(String mediaURL, boolean autoplay, String height, String width)
-            throws LoadException, PluginNotFoundException, PluginVersionException {
+            throws PluginNotFoundException, PluginVersionException {
         this();
 
         _height = height;
@@ -275,7 +272,7 @@ public class DivXPlayer extends AbstractMediaPlayer implements PlaylistSupport {
      * @throws PluginNotFoundException if DivX&reg; Web Player plugin is not installed on the client.
      */
     public DivXPlayer(String mediaURL, boolean autoplay) throws
-            LoadException, PluginNotFoundException, PluginVersionException {
+            PluginNotFoundException, PluginVersionException {
         this(mediaURL, autoplay, "90px", "100%");
     }
 
@@ -291,8 +288,7 @@ public class DivXPlayer extends AbstractMediaPlayer implements PlaylistSupport {
      * @throws PluginVersionException if the required DivX&reg; Web Player plugin version is not installed on the client.
      * @throws PluginNotFoundException if DivX&reg; Web Player plugin is not installed on the client.
      */
-    public DivXPlayer(String mediaURL) throws LoadException,
-            PluginNotFoundException, PluginVersionException {
+    public DivXPlayer(String mediaURL) throws PluginNotFoundException, PluginVersionException {
         this(mediaURL, true, "90px", "100%");
     }
 
