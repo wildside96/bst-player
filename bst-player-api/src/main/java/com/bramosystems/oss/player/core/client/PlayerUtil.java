@@ -475,7 +475,6 @@ public class PlayerUtil {
      *
      * @return the player implementation
      *
-     * @throws LoadException if an error occurs while loading the media.
      * @throws PluginVersionException if the required plugin version is not installed on the client.
      * @throws PluginNotFoundException if the required plugin is not installed on the client.
      *
@@ -483,7 +482,7 @@ public class PlayerUtil {
      * @see #getPlayer(String, boolean, String, String)
      */
     public static AbstractMediaPlayer getPlayer(PlayerInfo playerInfo, String mediaURL,
-            boolean autoplay, String height, String width) throws LoadException, PluginNotFoundException, PluginVersionException {
+            boolean autoplay, String height, String width) throws PluginNotFoundException, PluginVersionException {
         return PlayerManager.getInstance().getProviderFactory(
                 playerInfo.getProviderName()).getPlayer(playerInfo.getPlayerName(), mediaURL, autoplay, height, width);
     }

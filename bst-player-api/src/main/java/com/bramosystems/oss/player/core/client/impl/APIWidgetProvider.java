@@ -16,9 +16,7 @@
 package com.bramosystems.oss.player.core.client.impl;
 
 import com.bramosystems.oss.player.core.client.AbstractMediaPlayer;
-import com.bramosystems.oss.player.core.client.LoadException;
 import com.bramosystems.oss.player.core.client.PlayerUtil;
-import com.bramosystems.oss.player.core.client.Plugin;
 import com.bramosystems.oss.player.core.client.PluginNotFoundException;
 import com.bramosystems.oss.player.core.client.PluginVersion;
 import com.bramosystems.oss.player.core.client.PluginVersionException;
@@ -42,12 +40,12 @@ public class APIWidgetProvider implements PlayerProviderFactory {
 
     @Override
     public AbstractMediaPlayer getPlayer(String playerName, String mediaURL, boolean autoplay, String height, String width)
-            throws LoadException, PluginNotFoundException, PluginVersionException {
+            throws PluginNotFoundException, PluginVersionException {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
     @Override
-    public AbstractMediaPlayer getPlayer(String playerName, String mediaURL, boolean autoplay) throws LoadException, PluginNotFoundException, PluginVersionException {
+    public AbstractMediaPlayer getPlayer(String playerName, String mediaURL, boolean autoplay) throws PluginNotFoundException, PluginVersionException {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 

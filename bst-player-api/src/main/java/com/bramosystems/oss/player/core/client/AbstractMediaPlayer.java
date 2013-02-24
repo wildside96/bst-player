@@ -441,41 +441,13 @@ public abstract class AbstractMediaPlayer extends Composite implements HasMediaS
      * implementation checks if the specified value is a valid type for the specified
      * parameter.</p>
      *
+     * @param <C> the paramter value type
      * @param param the configuration parameter
      * @param value the parameter value
-     * @param <T> the paramter value type
-     * @throws IllegalArgumentException if {@code value} is not of the required type
-     * @since 1.1
-     * deprecated Since 1.4. Replaced with {@link #setConfigParameter(com.bramosystems.oss.player.core.client.ConfigParameter, java.lang.Object) 
-     */
-    public <T extends ConfigValue> void setConfigParameter(ConfigParameter param, T value) {
-        if ((value != null) && (!Arrays.asList(param.getValueType()).contains(value.getClass()))) {
-            throw new IllegalArgumentException("Found ConfigParameter type "
-                    + value.getClass() + ", Permissible value types : " + Arrays.asList(param.getValueType()));
-        }
-    }
-
-    /**
-     * Sets the specified player parameter to the specified value IF AND ONLY IF the
-     * parameter is applicable on the player
-     *
-     * <p><b>Note:</b> The parameter-value pairs are applied as HTML param tags
-     * on the underlying player plugin, therefore this method should be called
-     * before adding this player to a panel otherwise the method call will have
-     * no effect.</p>
-     *
-     * <p><h4>Overriding in a subclass</h4>
-     * This method should be called first by any subclass that overrides it. This
-     * implementation checks if the specified value is a valid type for the specified
-     * parameter.</p>
-     *
-     * @param param the configuration parameter
-     * @param value the parameter value
-     * @param <T> the paramter value type
      * @throws IllegalArgumentException if {@code value} is not of the required type
      * @since 2.0
      */
-    public <T> void setConfigParameter(ConfigParameter param, T value) {
+    public <C  extends ConfigParameter> void setConfigParameter(C param, Object value) {
         if ((value != null) && (!Arrays.asList(param.getValueType()).contains(value.getClass()))) {
             throw new IllegalArgumentException("Found ConfigParameter type "
                     + value.getClass() + ", Permissible value types : " + Arrays.asList(param.getValueType()));

@@ -153,13 +153,13 @@ public abstract class PlayerManager {
      * @throws PluginNotFoundException
      */
     public AbstractMediaPlayer getPlayer(Plugin plugin, String mediaURL,
-            boolean autoplay, String height, String width) throws LoadException, PluginVersionException, PluginNotFoundException {
+            boolean autoplay, String height, String width) throws PluginVersionException, PluginNotFoundException {
         PlayerInfo pi = getSupportedPlayer(plugin, mediaURL);
         return getProviderFactory(pi.getProviderName()).getPlayer(pi.getPlayerName(), mediaURL, autoplay, height, width);
     }
 
     public AbstractMediaPlayer getPlayer(Plugin plugin, String mediaURL,
-            boolean autoplay) throws LoadException, PluginVersionException, PluginNotFoundException {
+            boolean autoplay) throws PluginVersionException, PluginNotFoundException {
         PlayerInfo pi = getSupportedPlayer(plugin, mediaURL);
         return getProviderFactory(pi.getProviderName()).getPlayer(pi.getPlayerName(), mediaURL, autoplay);
     }

@@ -164,7 +164,6 @@ public class Player extends AbstractMediaPlayer
                 }
             });
             loadWidget = _engine;
-        } catch (LoadException ex) {
         } catch (PluginNotFoundException ex) {
             missingPluginNotice = PlayerUtil.getMissingPluginNotice(ex.getPlugin());
             loadWidget = missingPluginNotice;
@@ -319,26 +318,12 @@ public class Player extends AbstractMediaPlayer
     }
     
     @Override
-    public <T> void setConfigParameter(ConfigParameter param, T value) {
+    public <C extends ConfigParameter> void setConfigParameter(C param, Object value) {
         if (_engine != null) {
             _engine.setConfigParameter(param, value);
         }
     }
-/*    
-    @Override
-    public void setConfigParameter(ConfigParameter param, Number value) {
-        if (_engine != null) {
-            _engine.setConfigParameter(param, value);
-        }
-    }
-    
-    @Override
-    public void setConfigParameter(ConfigParameter param, String value) {
-        if (_engine != null) {
-            _engine.setConfigParameter(param, value);
-        }
-    }
-*/    
+
     @Override
     public void setControllerVisible(boolean show) {
         if (_engine != null) {

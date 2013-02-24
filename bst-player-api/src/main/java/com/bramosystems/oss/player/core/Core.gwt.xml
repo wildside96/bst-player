@@ -19,14 +19,11 @@
 <module>
     <inherits name="com.google.gwt.user.User"/>
     <!-- inherits name="com.google.gwt.http.HTTP"/-->
+    <inherits name="com.bramosystems.oss.player.core.Properties" />
     <inherits name="com.bramosystems.oss.player.core.event.Event" />
     <inherits name="com.bramosystems.oss.player.util.Util" />
     
     <stylesheet src="custom-control-styles.css" />
-
-    <!-- define configuration properties -->
-    <define-property name="bstplayer.enableLogger" values="true, false"/>
-    <define-configuration-property name="bstplayer.media.mimeTypes" is-multi-valued="false" />
 
     <!-- PluginManagerImpl mapping for IE6/7/8 -->
     <replace-with class="com.bramosystems.oss.player.core.client.impl.plugin.PluginManager.PluginManagerImplIE">
@@ -64,5 +61,4 @@
 
     <!-- Enable Logger by default -->
     <set-property name="bstplayer.enableLogger" value="true"/>
-
 </module>
