@@ -139,8 +139,8 @@
     </build>
 
     <properties>
-        <gwtMojoPluginVersion>2.5.0-rc1</gwtMojoPluginVersion>
-        <gwtVersion>2.5.0-rc1</gwtVersion>
+        <gwtMojoPluginVersion>2.5.0</gwtMojoPluginVersion>
+        <gwtVersion>2.5.0</gwtVersion>
     </properties>
 
     <dependencyManagement>
