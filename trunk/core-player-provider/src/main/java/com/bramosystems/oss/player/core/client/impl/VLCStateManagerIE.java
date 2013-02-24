@@ -23,15 +23,15 @@ public class VLCStateManagerIE extends VLCStateManager {
     @Override
     public void close() {
     }
+*/
 
     @Override
     public void registerEventCallbacks() {
         registerEventCallbacksImpl(_impl.getImpl(), _callback);
-        getPlaylistManager().flushMessageCache();
+//        getPlaylistManager().flushMessageCache();
     }
-*/
 
-    public final native void registerEventCallbacksImpl(VLCPlayerImpl player, VLCStateCallback callback) /*-{
+    private native void registerEventCallbacksImpl(VLCPlayerImpl player, VLCStateCallback callback) /*-{
     try {
     player.attachEvent('MediaPlayerNothingSpecial', function(event) {
     callback.@com.bramosystems.oss.player.core.client.impl.VLCStateManager.VLCStateCallback::onIdle()();

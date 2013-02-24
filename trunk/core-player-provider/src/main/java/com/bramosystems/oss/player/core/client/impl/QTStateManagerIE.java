@@ -18,6 +18,7 @@ package com.bramosystems.oss.player.core.client.impl;
 import com.bramosystems.oss.player.core.client.ui.QuickTimePlayer;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Element;
+import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.ui.RootPanel;
 
 /**
@@ -42,7 +43,28 @@ public class QTStateManagerIE extends QTStateManager {
     }
 
     @Override
-    protected native void registerMediaStateListenerImpl(QuickTimePlayerImpl playr, QTEventHandler handler) /*-{
+    public void initOnLoad(final String playerId, final QTStateManager.OnLoadHandler onLoadHandler) {
+       Timer tt = new Timer() {
+
+            @Override
+            public void run() {
+                QuickTimePlayerImpl impl = QuickTimePlayerImpl.getPlayer(playerId);
+                try {
+                    String v = impl.getPluginVersion();
+                    if (v != null) {
+                        cancel();
+                        onLoadHandler.onDebug("Plugin Version : " + v);
+                        onLoadHandler.initImpl(impl);
+                    }
+                } catch (Exception e) {
+                }
+            }
+        };
+        tt.scheduleRepeating(200);  // IE workarround ...
+    }
+    
+    @Override
+    protected native void registerMediaStateListenerImpl(QuickTimePlayerImpl playr, QTStateManager.QTEventHandler handler) /*-{
     playr.attachEvent("onqt_begin", function(evt){
     handler.@com.bramosystems.oss.player.core.client.impl.QTStateManager.QTEventHandler::onStateChange(I)(1);
     });

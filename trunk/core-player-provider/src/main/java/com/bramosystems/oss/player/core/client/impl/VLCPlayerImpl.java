@@ -241,8 +241,6 @@ public class VLCPlayerImpl extends JavaScriptObject {
 
     public final native void fillMediaInfo(MediaInfo id3) /*-{
     try {
-    //    id3.@com.bramosystems.oss.player.core.client.MediaInfo::year = ;
-    //    id3.@com.bramosystems.oss.player.core.client.MediaInfo::comment = ;
     //    id3.@com.bramosystems.oss.player.core.client.MediaInfo::contentProviders = ;
     //    id3.@com.bramosystems.oss.player.core.client.MediaInfo::hardwareSoftwareRequirements = ;
     //    id3.@com.bramosystems.oss.player.core.client.MediaInfo::genre = ;
@@ -259,6 +257,8 @@ public class VLCPlayerImpl extends JavaScriptObject {
     id3.@com.bramosystems.oss.player.core.client.MediaInfo::title = String(this.mediaDescription.title);
     id3.@com.bramosystems.oss.player.core.client.MediaInfo::copyright = String(this.mediaDescription.copyright);
     id3.@com.bramosystems.oss.player.core.client.MediaInfo::publisher = String(this.mediaDescription.publisher);
+    id3.@com.bramosystems.oss.player.core.client.MediaInfo::year = String(this.mediaDescription.date);
+    id3.@com.bramosystems.oss.player.core.client.MediaInfo::comment = String(this.mediaDescription.description);
     } catch(e) {
     }
     }-*/;

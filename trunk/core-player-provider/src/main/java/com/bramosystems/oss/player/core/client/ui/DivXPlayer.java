@@ -216,7 +216,6 @@ public class DivXPlayer extends AbstractMediaPlayer implements PlaylistSupport {
      * @param height the height of the player
      * @param width the width of the player.
      *
-     * @throws LoadException if an error occurs while loading the media.
      * @throws PluginVersionException if the required DivX&reg; Web Player plugin version is not installed on the client.
      * @throws PluginNotFoundException if DivX&reg; Web Player plugin is not installed on the client.
      */
@@ -267,7 +266,6 @@ public class DivXPlayer extends AbstractMediaPlayer implements PlaylistSupport {
      * @param mediaURL the URL of the media to playback
      * @param autoplay {@code true} to play playing automatically, {@code false} otherwise
      *
-     * @throws LoadException if an error occurs while loading the media.
      * @throws PluginVersionException if the required DivX&reg; Web Player plugin version is not installed on the client.
      * @throws PluginNotFoundException if DivX&reg; Web Player plugin is not installed on the client.
      */
@@ -284,7 +282,6 @@ public class DivXPlayer extends AbstractMediaPlayer implements PlaylistSupport {
      *
      * @param mediaURL the URL of the media to playback
      *
-     * @throws LoadException if an error occurs while loading the media.
      * @throws PluginVersionException if the required DivX&reg; Web Player plugin version is not installed on the client.
      * @throws PluginNotFoundException if DivX&reg; Web Player plugin is not installed on the client.
      */

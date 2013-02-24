@@ -15,7 +15,6 @@
  */
 package com.bramosystems.oss.player.core.client.ui;
 
-import com.bramosystems.oss.player.core.client.playlist.MRL;
 import com.bramosystems.oss.player.core.client.*;
 import com.bramosystems.oss.player.core.client.MediaInfo.MediaInfoKey;
 import com.bramosystems.oss.player.core.client.impl.LoopManager;
@@ -23,6 +22,7 @@ import com.bramosystems.oss.player.core.client.impl.VLCPlayerImpl;
 import com.bramosystems.oss.player.core.client.impl.VLCStateManager;
 import com.bramosystems.oss.player.core.client.spi.PlayerWidget;
 import com.bramosystems.oss.player.core.client.impl.CorePlayerProvider;
+import com.bramosystems.oss.player.core.client.playlist.MRL;
 import com.bramosystems.oss.player.core.event.client.*;
 import com.bramosystems.oss.player.core.client.spi.Player;
 import com.google.gwt.core.client.GWT;
@@ -66,7 +66,6 @@ public class VLCPlayer extends AbstractMediaPlayer implements PlaylistSupport {
     private VLCStateManager stateHandler;
     private String playerId, _width, _height;
     private boolean isEmbedded, autoplay, resizeToVideoSize;
-//    private CustomPlayerControl control;
     private LoopManager loopManager;
 
     private VLCPlayer() throws PluginNotFoundException, PluginVersionException {
@@ -79,7 +78,6 @@ public class VLCPlayer extends AbstractMediaPlayer implements PlaylistSupport {
         playerId = DOM.createUniqueId().replace("-", "");
 
         loopManager = new LoopManager(new LoopManager.LoopCallback() {
-
             @Override
             public void playNextItem() throws PlayException {
                 stateHandler.getPlaylistManager().playNext();
@@ -106,7 +104,6 @@ public class VLCPlayer extends AbstractMediaPlayer implements PlaylistSupport {
         });
         stateHandler = GWT.create(VLCStateManager.class);
         stateHandler.init(new VLCStateManager.VLCStateCallback() {
-
 ///           @Override
             public void onLoadingComplete() {
                 fireLoadingProgress(1.0);
@@ -172,33 +169,38 @@ public class VLCPlayer extends AbstractMediaPlayer implements PlaylistSupport {
             }
         },
                 new VLCStateManager.VLCPlayerImplCallback() {
-
-                    @Override
-                    public VLCPlayerImpl getImpl() {
-                        return impl;
-                    }
-                });
+            @Override
+            public VLCPlayerImpl getImpl() {
+                return impl;
+            }
+        });
     }
 
     /**
-     * Constructs <code>VLCPlayer</code> with the specified {@code height} and
-     * {@code width} to playback media located at {@code mediaURL}. Media playback
-     * begins automatically if {@code autoplay} is {@code true}.
+     * Constructs
+     * <code>VLCPlayer</code> with the specified {@code height} and
+     * {@code width} to playback media located at {@code mediaURL}. Media
+     * playback begins automatically if {@code autoplay} is {@code true}.
      *
-     * <p> {@code height} and {@code width} are specified as CSS units. A value of {@code null}
-     * for {@code height} or {@code width} puts the player in embedded mode.  When in embedded mode,
-     * the player is made invisible on the page and media state events are propagated to registered
-     * listeners only.  This is desired especially when used with custom sound controls.  For custom
-     * video control, specify valid CSS values for {@code height} and {@code width} but hide the
-     * player controls with {@code setControllerVisible(false)}.
+     * <p> {@code height} and {@code width} are specified as CSS units. A value
+     * of {@code null} for {@code height} or {@code width} puts the player in
+     * embedded mode. When in embedded mode, the player is made invisible on the
+     * page and media state events are propagated to registered listeners only.
+     * This is desired especially when used with custom sound controls. For
+     * custom video control, specify valid CSS values for {@code height} and
+     * {@code width} but hide the player controls with
+     * {@code setControllerVisible(false)}.
      *
      * @param mediaURL the URL of the media to playback
-     * @param autoplay {@code true} to play playing automatically, {@code false} otherwise
+     * @param autoplay {@code true} to play playing automatically, {@code false}
+     * otherwise
      * @param height the height of the player
      * @param width the width of the player.
      *
-     * @throws PluginVersionException if the required VLCPlayer plugin version is not installed on the client.
-     * @throws PluginNotFoundException if the VLCPlayer plugin is not installed on the client.
+     * @throws PluginVersionException if the required VLCPlayer plugin version
+     * is not installed on the client.
+     * @throws PluginNotFoundException if the VLCPlayer plugin is not installed
+     * on the client.
      */
     public VLCPlayer(String mediaURL, final boolean autoplay, String height, String width)
             throws PluginVersionException, PluginNotFoundException {
@@ -217,11 +219,7 @@ public class VLCPlayer extends AbstractMediaPlayer implements PlaylistSupport {
 
         isEmbedded = (height == null) || (width == null);
         if (!isEmbedded) {
-//            control = new CustomPlayerControl(this);
-//            control.setWidth("100%");
-//            panel.add(control);
             addMediaInfoHandler(new MediaInfoHandler() {
-
                 @Override
                 public void onMediaInfoAvailable(MediaInfoEvent event) {
                     MediaInfo info = event.getMediaInfo();
@@ -241,13 +239,16 @@ public class VLCPlayer extends AbstractMediaPlayer implements PlaylistSupport {
     }
 
     /**
-     * Constructs <code>VLCPlayer</code> to automatically playback media located at
+     * Constructs
+     * <code>VLCPlayer</code> to automatically playback media located at
      * {@code mediaURL} using the default height of 20px and width of 100%.
      *
      * @param mediaURL the URL of the media to playback
      *
-     * @throws PluginVersionException if the required VLCPlayer plugin version is not installed on the client.
-     * @throws PluginNotFoundException if the VLCPlayer plugin is not installed on the client.
+     * @throws PluginVersionException if the required VLCPlayer plugin version
+     * is not installed on the client.
+     * @throws PluginNotFoundException if the VLCPlayer plugin is not installed
+     * on the client.
      *
      */
     public VLCPlayer(String mediaURL) throws PluginVersionException,
@@ -256,17 +257,21 @@ public class VLCPlayer extends AbstractMediaPlayer implements PlaylistSupport {
     }
 
     /**
-     * Constructs <code>VLCPlayer</code> to playback media located at {@code mediaURL}
+     * Constructs
+     * <code>VLCPlayer</code> to playback media located at {@code mediaURL}
      * using the default height of 20px and width of 100%. Media playback begins
      * automatically if {@code autoplay} is {@code true}.
      *
      * @param mediaURL the URL of the media to playback
-     * @param autoplay {@code true} to play playing automatically, {@code false} otherwise
+     * @param autoplay {@code true} to play playing automatically, {@code false}
+     * otherwise
      *
-     * @throws PluginVersionException if the required VLCPlayer plugin version is not installed on the client.
-     * @throws PluginNotFoundException if the VLCPlayer plugin is not installed on the client.
+     * @throws PluginVersionException if the required VLCPlayer plugin version
+     * is not installed on the client.
+     * @throws PluginNotFoundException if the VLCPlayer plugin is not installed
+     * on the client.
      */
-    public VLCPlayer(String mediaURL, boolean autoplay) throws 
+    public VLCPlayer(String mediaURL, boolean autoplay) throws
             PluginVersionException, PluginNotFoundException {
         this(mediaURL, autoplay, "0px", "100%");
     }
@@ -382,7 +387,7 @@ public class VLCPlayer extends AbstractMediaPlayer implements PlaylistSupport {
             throw new IllegalStateException(message);
         }
     }
-    
+
     @Override
     public void setControllerVisible(boolean show) {
         if (!isEmbedded) {
@@ -402,10 +407,11 @@ public class VLCPlayer extends AbstractMediaPlayer implements PlaylistSupport {
     }
 
     /**
-     * Sets the number of times the current media file should repeat playback before stopping.
+     * Sets the number of times the current media file should repeat playback
+     * before stopping.
      *
-     * <p>As of version 1.0, if this player is not available on the panel, this method
-     * call is added to the command-queue for later execution.
+     * <p>As of version 1.0, if this player is not available on the panel, this
+     * method call is added to the command-queue for later execution.
      */
     @Override
     public void setLoopCount(final int loop) {
@@ -413,7 +419,6 @@ public class VLCPlayer extends AbstractMediaPlayer implements PlaylistSupport {
             loopManager.setLoopCount(loop);
         } else {
             addToPlayerReadyCommandQueue("loopcount", new Command() {
-
                 @Override
                 public void execute() {
                     loopManager.setLoopCount(loop);
@@ -454,7 +459,6 @@ public class VLCPlayer extends AbstractMediaPlayer implements PlaylistSupport {
             stateHandler.getPlaylistManager().setShuffleEnabled(enable);
         } else {
             addToPlayerReadyCommandQueue("shuffle", new Command() {
-
                 @Override
                 public void execute() {
                     stateHandler.getPlaylistManager().setShuffleEnabled(enable);
@@ -483,9 +487,9 @@ public class VLCPlayer extends AbstractMediaPlayer implements PlaylistSupport {
 
     /**
      * Sets the audio channel mode of the player
-     * 
-     * <p>Use {@linkplain #getAudioChannelMode()} to check if setting of the audio channel
-     * is succeessful
+     *
+     * <p>Use {@linkplain #getAudioChannelMode()} to check if setting of the
+     * audio channel is succeessful
      *
      * @param mode the audio channel mode
      * @see #getAudioChannelMode()
@@ -529,7 +533,6 @@ public class VLCPlayer extends AbstractMediaPlayer implements PlaylistSupport {
             impl.setRate(rate);
         } else {
             addToPlayerReadyCommandQueue("rate", new Command() {
-
                 @Override
                 public void execute() {
                     impl.setRate(rate);
@@ -546,23 +549,23 @@ public class VLCPlayer extends AbstractMediaPlayer implements PlaylistSupport {
 
     /*
      * TODO:// check up aspect ratio later...
-    public AspectRatio getAspectRatio() {
-    checkAvailable();
-    if (impl.hasVideo(playerId)) {
-    return AspectRatio.parse(impl.getAspectRatio(playerId));
-    } else {
-    throw new IllegalStateException("No video input can be found");
-    }
-    }
+     public AspectRatio getAspectRatio() {
+     checkAvailable();
+     if (impl.hasVideo(playerId)) {
+     return AspectRatio.parse(impl.getAspectRatio(playerId));
+     } else {
+     throw new IllegalStateException("No video input can be found");
+     }
+     }
     
-    public void setAspectRatio(AspectRatio aspectRatio) {
-    checkAvailable();
-    if (impl.hasVideo(playerId)) {
-    impl.setAspectRatio(playerId, aspectRatio.toString());
-    } else {
-    throw new IllegalStateException("No video input can be found");
-    }
-    }
+     public void setAspectRatio(AspectRatio aspectRatio) {
+     checkAvailable();
+     if (impl.hasVideo(playerId)) {
+     impl.setAspectRatio(playerId, aspectRatio.toString());
+     } else {
+     throw new IllegalStateException("No video input can be found");
+     }
+     }
      */
     @Override
     public void setResizeToVideoSize(boolean resize) {

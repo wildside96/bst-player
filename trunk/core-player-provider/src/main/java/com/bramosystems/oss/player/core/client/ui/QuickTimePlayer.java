@@ -15,26 +15,19 @@
  */
 package com.bramosystems.oss.player.core.client.ui;
 
-import com.bramosystems.oss.player.core.client.playlist.MRL;
 import com.bramosystems.oss.player.core.client.geom.MatrixSupport;
 import com.bramosystems.oss.player.core.client.*;
 import com.bramosystems.oss.player.core.client.MediaInfo.MediaInfoKey;
+import com.bramosystems.oss.player.core.client.impl.*;
+import com.bramosystems.oss.player.core.client.playlist.MRL;
 import com.bramosystems.oss.player.core.client.playlist.PlaylistManager;
-import com.bramosystems.oss.player.core.client.impl.QTStateManager;
-import com.bramosystems.oss.player.core.client.impl.QuickTimePlayerImpl;
-import com.bramosystems.oss.player.core.client.impl.LoopManager;
-import com.bramosystems.oss.player.core.client.spi.PlayerWidget;
-import com.bramosystems.oss.player.core.client.impl.CorePlayerProvider;
 import com.bramosystems.oss.player.core.client.spi.Player;
-import com.bramosystems.oss.player.core.event.client.MediaInfoEvent;
-import com.bramosystems.oss.player.core.event.client.MediaInfoHandler;
-import com.bramosystems.oss.player.core.event.client.PlayStateEvent;
-import com.bramosystems.oss.player.core.event.client.PlayerStateEvent;
+import com.bramosystems.oss.player.core.client.spi.PlayerWidget;
+import com.bramosystems.oss.player.core.event.client.*;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.i18n.client.NumberFormat;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.DOM;
-import com.google.gwt.user.client.Timer;
 import java.util.List;
 
 /**
@@ -273,25 +266,21 @@ public class QuickTimePlayer extends AbstractMediaPlayer implements MatrixSuppor
         playerWidget.setSize("100%", _height);
         setWidth(_width);
 
-        Timer tt = new Timer() {
+        manager.initOnLoad(playerId, new QTStateManager.OnLoadHandler() {
 
             @Override
-            public void run() {
-                impl = QuickTimePlayerImpl.getPlayer(playerId);
-                try {
-                    String v = impl.getPluginVersion();
-                    if (v != null) {
-                        cancel();
-                        fireDebug("Plugin Version : " + v);
-                        manager.registerMediaStateListener(impl, handler, "");
-                        firePlayerStateEvent(PlayerStateEvent.State.Ready);
-                        playlistManager.load(0);
-                    }
-                } catch (Exception e) {
-                }
+            public void initImpl(QuickTimePlayerImpl _impl) {
+                impl = _impl;
+                manager.registerMediaStateListener(impl, handler, "");
+                firePlayerStateEvent(PlayerStateEvent.State.Ready);
+                playlistManager.load(0);
             }
-        };
-        tt.scheduleRepeating(200);  // IE workarround ...
+
+            @Override
+            public void onDebug(String message) {
+                fireDebug(message);
+            }
+        });
     }
 
     @Override
@@ -424,7 +413,7 @@ public class QuickTimePlayer extends AbstractMediaPlayer implements MatrixSuppor
      * <li>right  : x coordinate of the lower-right corner</li>
      * <li>bottom : y coordinate of the lower-right corner</li>
      * </ul>
-     * 
+     *
      * @return the bounds of the display component
      * @since 1.0
      */
@@ -587,21 +576,23 @@ public class QuickTimePlayer extends AbstractMediaPlayer implements MatrixSuppor
     }
 
     @Override
-    public <T> void setConfigParameter(ConfigParameter param, T value) {
+    public <C extends ConfigParameter> void setConfigParameter(C param, Object value) {
         super.setConfigParameter(param, value);
-        if (param instanceof DefaultConfigParameter) {
-            switch (DefaultConfigParameter.valueOf(param.getName())) {
-                case TransparencyMode:
-                    playerWidget.addParam("WMODE", ((TransparencyMode) value).name().toLowerCase());
-                    break;
-                case BackgroundColor:
-                    playerWidget.addParam("BGCOLOR", (String) value);
-            }
-        } else if (param instanceof CoreConfigParameter) {
-            switch (CoreConfigParameter.valueOf(param.getName())) {
+        if (param instanceof CoreConfigParameter) {
+            switch ((CoreConfigParameter) param) {
                 case QTScale:
                     playerWidget.addParam("SCALE", value.toString());
                     break;
+            }
+        } else if (param instanceof DefaultConfigParameter) {
+            switch ((DefaultConfigParameter) param) {
+                case TransparencyMode:
+                    if (((TransparencyMode) value).equals(TransparencyMode.TRANSPARENT)) {
+                        playerWidget.addParam("WMODE", value.toString().toLowerCase());
+                    }
+                    break;
+                case BackgroundColor:
+                    playerWidget.addParam("BGCOLOR", (String) value);
             }
         }
     }
@@ -691,8 +682,6 @@ public class QuickTimePlayer extends AbstractMediaPlayer implements MatrixSuppor
     @Override
     public void setRepeatMode(RepeatMode mode) {
         loopManager.setRepeatMode(mode);
-
-
     }
 
     /**

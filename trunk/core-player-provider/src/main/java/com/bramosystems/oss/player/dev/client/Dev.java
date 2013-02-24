@@ -20,6 +20,7 @@ import com.bramosystems.oss.player.core.client.*;
 import com.bramosystems.oss.player.core.client.playlist.MRL;
 import com.bramosystems.oss.player.core.client.ui.CoreConfigParameter;
 import com.bramosystems.oss.player.core.client.ui.FlashMediaPlayer;
+import com.bramosystems.oss.player.core.client.ui.Logger;
 import com.bramosystems.oss.player.core.client.ui.QuickTimePlayer;
 import com.bramosystems.oss.player.core.client.ui.VLCPlayer;
 import com.bramosystems.oss.player.core.client.ui.WinMediaPlayer;
@@ -46,7 +47,7 @@ import java.util.ArrayList;
  */
 public class Dev extends FlowPanel implements EntryPoint {
 
-    private final String HEIGHT = "350px", WIDTH = "80%";
+    private final String HEIGHT = "450px", WIDTH = "80%";
     private AbstractMediaPlayer mmp;
     private ArrayList<MRL> mrls;
 
@@ -70,7 +71,9 @@ public class Dev extends FlowPanel implements EntryPoint {
         
 //        mrl.addURL(GWT.getModuleBaseURL() + "DSCF1780.AVI");
         mrls.add(new MRL(GWT.getModuleBaseURL() + "big-buck-bunny.mp4"));
-        mrls.add(new MRL("file:///E:/LIB/MMX/Videos/New%20Movies/Contraband.2012.DVDRip.XViD-NYDIC.avi"));
+//        mrls.add(new MRL("file:///E:/LIB/MMX/Videos/New%20Movies/Contraband.2012.DVDRip.XViD-NYDIC.avi"));
+        mrls.add(new MRL("file:///D:/Lib/MMX/Videos/number-one-for-me.mp4"));
+        mrls.add(new MRL("file:///D:/Lib/MMX/Videos/hold-my-hand.mp4"));
 //        mrls.add(new MRL(GWT.getModuleBaseURL() + "u2intro.mp4"));
 //        mrls.add(new MRL(GWT.getModuleBaseURL() + "traffic.flv"));
 //        mrls.add(new MRL(GWT.getModuleBaseURL() + "traffic.avi"));
@@ -80,8 +83,8 @@ public class Dev extends FlowPanel implements EntryPoint {
 //TODO: test resizeToVideoSize feature for plugins ...
     @Override
     public void onModuleLoad() {
-        RootPanel.get().add(this);
-        addPlayer("core", "VLCPlayer");
+       RootPanel.get().add(this);
+        addPlayer("core", "FlashPlayer");
 //        addPlayer(Plugin.WinMediaPlayer);
         
 /*
@@ -121,13 +124,6 @@ public class Dev extends FlowPanel implements EntryPoint {
         try {
             PlayerInfo pi = PlayerUtil.getPlayerInfo(prov, player);
             mmp = PlayerUtil.getPlayer(pi, mrls.get(0).getNextResource(true), false, HEIGHT, WIDTH);
-            mmp.addPlayStateHandler(new PlayStateHandler() {
-
-                @Override
-                public void onPlayStateChanged(PlayStateEvent event) {
-                    GWT.log("Index : " + event.getItemIndex() + " = " + event.getPlayState());
-                }
-            });
             mmp.setConfigParameter(CoreConfigParameter.QTScale, QuickTimePlayer.Scale.Aspect);
 //            mmp.setConfigParameter(DefaultConfigParameter.BackgroundColor, "#ffdddf");
             mrls.remove(0);
@@ -137,6 +133,7 @@ public class Dev extends FlowPanel implements EntryPoint {
 //            mmp.setRepeatMode(RepeatMode.REPEAT_ALL);
 //            ((PlaylistSupport) mmp).setShuffleEnabled(false);
 //            mmp.setControllerVisible(true);
+            add(Logger.getLogger(mmp));
             add(mmp);
             /*
             final Label lbl = new Label("MM - ");
@@ -152,23 +149,13 @@ public class Dev extends FlowPanel implements EntryPoint {
             add(cpc);
             
              */
- //           add(Logger.getLogger(mmp));
-            mmp.addMediaInfoHandler(new MediaInfoHandler() {
-
-                @Override
-                public void onMediaInfoAvailable(MediaInfoEvent event) {
-                    GWT.log(event.getMediaInfo().toString());
-                }
-            });
             add(new Button("Toggle Screen", new ClickHandler() {
 
                 @Override
                 public void onClick(ClickEvent event) {
-                    ((VLCPlayer)mmp).toggleFullScreen();
+//                    ((VLCPlayer)mmp).toggleFullScreen();
                 }
             }));
-        } catch (LoadException ex) {
-            add(new Label("Load Exception"));
         } catch (PluginNotFoundException ex) {
             add(PlayerUtil.getMissingPluginNotice(ex.getPlugin()));
             GWT.log("Missing plugin >>>>", ex);

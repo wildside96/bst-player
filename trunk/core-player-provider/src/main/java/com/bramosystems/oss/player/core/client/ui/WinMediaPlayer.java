@@ -572,7 +572,7 @@ public class WinMediaPlayer extends AbstractMediaPlayer implements PlaylistSuppo
     }
 
     @Override
-    public <T extends ConfigValue> void setConfigParameter(ConfigParameter param, T value) {
+    public <C extends ConfigParameter> void setConfigParameter(C param, Object value) {
         super.setConfigParameter(param, value);
         if (param.getName().equals(CoreConfigParameter.WMPUIMode.getName())) {
             if (isEmbedded) {

@@ -57,6 +57,13 @@
         </any>
     </replace-with>
 
+    <!-- QTStateManager mapping for Firefox on Mac -->
+    <replace-with class="com.bramosystems.oss.player.core.client.impl.QTStateManagerMacMozilla">
+        <when-type-is class="com.bramosystems.oss.player.core.client.impl.QTStateManager"/>
+        <when-property-is name="user.agent" value="gecko1_8"/>
+        <when-property-is name="bstplayer.platform" value="mac"/>
+    </replace-with>
+
     <!-- VLCStateManager mapping for IE6/7/8 -->
     <!-- Disable mapping until VLC has proper events support -->
     <!--

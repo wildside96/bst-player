@@ -93,7 +93,7 @@ import java.util.List;
  *
  * @author Sikirulai Braheem
  */
-@Player(minPluginVersion = "1.1.1", name = "WinMediaPlayerX", providerFactory = DevProvider.class)
+//@Player(minPluginVersion = "1.1.1", name = "WinMediaPlayerX", providerFactory = DevProvider.class)
 public class WinMediaPlayerX extends AbstractMediaPlayer implements PlaylistSupport {
 
     private static WMPStateManager stateManager;
@@ -200,7 +200,7 @@ public class WinMediaPlayerX extends AbstractMediaPlayer implements PlaylistSupp
     @SuppressWarnings("OverridableMethodCallInConstructor")
     public WinMediaPlayerX(String mediaURL, final boolean autoplay, String height, String width,
             EmbedMode embedMode)
-            throws LoadException, PluginNotFoundException, PluginVersionException {
+            throws PluginNotFoundException, PluginVersionException {
         this(embedMode, autoplay);
 
         _height = height;
@@ -275,7 +275,7 @@ public class WinMediaPlayerX extends AbstractMediaPlayer implements PlaylistSupp
      * @throws PluginNotFoundException if the Windows Media Player plugin is not installed on the client.
      */
     public WinMediaPlayerX(String mediaURL, boolean autoplay, String height, String width)
-            throws LoadException, PluginNotFoundException, PluginVersionException {
+            throws PluginNotFoundException, PluginVersionException {
         this(mediaURL, autoplay, height, width, EmbedMode.PROGRAMMABLE);
     }
 
@@ -291,8 +291,7 @@ public class WinMediaPlayerX extends AbstractMediaPlayer implements PlaylistSupp
      * @throws PluginVersionException if the required Windows Media Player plugin version is not installed on the client.
      * @throws PluginNotFoundException if the Windows Media Player plugin is not installed on the client.
      */
-    public WinMediaPlayerX(String mediaURL) throws LoadException,
-            PluginNotFoundException, PluginVersionException {
+    public WinMediaPlayerX(String mediaURL) throws PluginNotFoundException, PluginVersionException {
         this(mediaURL, true, DEFAULT_HEIGHT, "100%");
     }
 
@@ -310,8 +309,7 @@ public class WinMediaPlayerX extends AbstractMediaPlayer implements PlaylistSupp
      * @throws PluginVersionException if the required Windows Media Player plugin version is not installed on the client.
      * @throws PluginNotFoundException if the Windows Media Player plugin is not installed on the client.
      */
-    public WinMediaPlayerX(String mediaURL, boolean autoplay) throws LoadException,
-            PluginNotFoundException, PluginVersionException {
+    public WinMediaPlayerX(String mediaURL, boolean autoplay) throws PluginNotFoundException, PluginVersionException {
         this(mediaURL, autoplay, DEFAULT_HEIGHT, "100%");
     }
 
