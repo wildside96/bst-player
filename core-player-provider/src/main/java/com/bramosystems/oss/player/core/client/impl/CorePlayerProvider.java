@@ -45,7 +45,7 @@ public class CorePlayerProvider implements PlayerProviderFactory {
 
     @Override
     public AbstractMediaPlayer getPlayer(String playerName, String mediaURL, boolean autoplay, String height, String width)
-            throws LoadException, PluginNotFoundException, PluginVersionException {
+            throws PluginNotFoundException, PluginVersionException {
         AbstractMediaPlayer player = null;
         if (playerName.equals(Plugin.DivXPlayer.name())) {
             player = new DivXPlayer(mediaURL, autoplay, height, width);
@@ -66,7 +66,7 @@ public class CorePlayerProvider implements PlayerProviderFactory {
     }
 
     @Override
-    public AbstractMediaPlayer getPlayer(String playerName, String mediaURL, boolean autoplay) throws LoadException, PluginNotFoundException, PluginVersionException {
+    public AbstractMediaPlayer getPlayer(String playerName, String mediaURL, boolean autoplay) throws PluginNotFoundException, PluginVersionException {
         AbstractMediaPlayer player = null;
         if (playerName.equals(Plugin.DivXPlayer.name())) {
             player = new DivXPlayer(mediaURL, autoplay);

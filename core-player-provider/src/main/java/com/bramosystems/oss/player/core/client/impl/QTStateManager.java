@@ -28,12 +28,18 @@ public class QTStateManager {
 
     public QTStateManager() {}
 
-    public void registerMediaStateListener(QuickTimePlayerImpl impl, QTEventHandler handler, String mediaURL) {
+    public void registerMediaStateListener(QuickTimePlayerImpl impl, QTStateManager.QTEventHandler handler, String mediaURL) {
         impl.resetPropertiesOnReload(false);
         registerMediaStateListenerImpl(impl, handler);
     }
+        
+    public void initOnLoad(final String playerId, final QTStateManager.OnLoadHandler onLoadHandler) {
+        QuickTimePlayerImpl impl = QuickTimePlayerImpl.getPlayer(playerId);
+        onLoadHandler.onDebug("Plugin Version : " + impl.getPluginVersion());
+        onLoadHandler.initImpl(impl);
+    }
 
-    protected native void registerMediaStateListenerImpl(QuickTimePlayerImpl playr, QTEventHandler handler) /*-{
+    protected native void registerMediaStateListenerImpl(QuickTimePlayerImpl playr, QTStateManager.QTEventHandler handler) /*-{
     playr.addEventListener('qt_begin', function(){  // plugin init complete
     handler.@com.bramosystems.oss.player.core.client.impl.QTStateManager.QTEventHandler::onStateChange(I)(1);
     }, false);
@@ -74,5 +80,12 @@ public class QTStateManager {
 
     public static interface QTEventHandler {
         public void onStateChange(int newState);
+    }
+    
+    public static interface OnLoadHandler {
+
+        void initImpl(QuickTimePlayerImpl impl);
+
+        void onDebug(String message);
     }
 }

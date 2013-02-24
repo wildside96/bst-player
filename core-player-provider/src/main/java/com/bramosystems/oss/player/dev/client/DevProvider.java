@@ -44,12 +44,12 @@ public class DevProvider implements PlayerProviderFactory {
     }
 
     @Override
-    public AbstractMediaPlayer getPlayer(String playerName, String mediaURL, boolean autoplay, String height, String width) throws LoadException, PluginNotFoundException, PluginVersionException {
+    public AbstractMediaPlayer getPlayer(String playerName, String mediaURL, boolean autoplay, String height, String width) throws PluginNotFoundException, PluginVersionException {
         return new WinMediaPlayerX(mediaURL, autoplay, height, width);
     }
 
     @Override
-    public AbstractMediaPlayer getPlayer(String playerName, String mediaURL, boolean autoplay) throws LoadException, PluginNotFoundException, PluginVersionException {
+    public AbstractMediaPlayer getPlayer(String playerName, String mediaURL, boolean autoplay) throws PluginNotFoundException, PluginVersionException {
         return new WinMediaPlayerX(mediaURL, autoplay);
     }
 }

@@ -15,19 +15,16 @@
  */
 package com.bramosystems.oss.player.core.client.ui;
 
-import com.bramosystems.oss.player.core.client.playlist.MRL;
-import com.bramosystems.oss.player.core.client.*;
 import com.bramosystems.oss.player.core.client.MediaInfo.MediaInfoKey;
-import com.bramosystems.oss.player.core.client.geom.TransformationMatrix;
+import com.bramosystems.oss.player.core.client.*;
 import com.bramosystems.oss.player.core.client.geom.MatrixSupport;
+import com.bramosystems.oss.player.core.client.geom.TransformationMatrix;
+import com.bramosystems.oss.player.core.client.impl.CorePlayerProvider;
 import com.bramosystems.oss.player.core.client.impl.FMPStateManager;
 import com.bramosystems.oss.player.core.client.impl.FlashMediaPlayerImpl;
-import com.bramosystems.oss.player.core.client.impl.CorePlayerProvider;
-import com.bramosystems.oss.player.core.event.client.MediaInfoEvent;
-import com.bramosystems.oss.player.core.event.client.MediaInfoHandler;
-import com.bramosystems.oss.player.core.event.client.PlayStateEvent;
-import com.bramosystems.oss.player.core.event.client.PlayerStateEvent;
+import com.bramosystems.oss.player.core.client.playlist.MRL;
 import com.bramosystems.oss.player.core.client.spi.Player;
+import com.bramosystems.oss.player.core.event.client.*;
 import com.google.gwt.dom.client.Document;
 import com.google.gwt.dom.client.NativeEvent;
 import com.google.gwt.event.dom.client.DomEvent;
@@ -111,7 +108,6 @@ public class FlashMediaPlayer extends AbstractMediaPlayer implements PlaylistSup
      * @param height the height of the player
      * @param width the width of the player.
      *
-     * @throws LoadException if an error occurs while loading the media.
      * @throws PluginVersionException if the required Flash plugin version is not installed on the client.
      * @throws PluginNotFoundException if the Flash plugin is not installed on the client.
      */
@@ -268,13 +264,12 @@ public class FlashMediaPlayer extends AbstractMediaPlayer implements PlaylistSup
      *
      * @param mediaURL the URL of the media to playback
      *
-     * @throws LoadException if an error occurs while loading the media.
      * @throws PluginVersionException if the required Flash plugin version is not installed on the client.
      * @throws PluginNotFoundException if the Flash plugin is not installed on the client.
      *
      */
     public FlashMediaPlayer(String mediaURL) throws PluginNotFoundException,
-            PluginVersionException, LoadException {
+            PluginVersionException {
         this(mediaURL, true, DEFAULT_HEIGHT, "100%");
     }
 
@@ -288,12 +283,11 @@ public class FlashMediaPlayer extends AbstractMediaPlayer implements PlaylistSup
      * @param mediaURL the URL of the media to playback
      * @param autoplay {@code true} to start playing automatically, {@code false} otherwise
      *
-     * @throws LoadException if an error occurs while loading the media.
      * @throws PluginVersionException if the required Flash plugin version is not installed on the client.
      * @throws PluginNotFoundException if the Flash plugin is not installed on the client.
      */
     public FlashMediaPlayer(String mediaURL, boolean autoplay) throws PluginNotFoundException,
-            PluginVersionException, LoadException {
+            PluginVersionException {
         this(mediaURL, autoplay, DEFAULT_HEIGHT, "100%");
     }
 
@@ -620,19 +614,23 @@ public class FlashMediaPlayer extends AbstractMediaPlayer implements PlaylistSup
     }
 
     @Override
-    public <T> void setConfigParameter(ConfigParameter param, T value) {
+    public <C extends ConfigParameter> void setConfigParameter(C param, Object value) {
         super.setConfigParameter(param, value);
         if (param instanceof DefaultConfigParameter) {
-            switch (DefaultConfigParameter.valueOf(param.getName())) {
+            switch ((DefaultConfigParameter) param) {
                 case TransparencyMode:
-                    swf.addProperty("wmode", ((TransparencyMode) value).name().toLowerCase());
+                    if (value != null) {
+                        swf.addProperty("wmode", ((TransparencyMode) value).name().toLowerCase());
+                    } else {
+                        swf.addProperty("wmode", null);
+                    }
                     break;
                 case BackgroundColor:
                     swf.addProperty("bgcolor", (String) value);
             }
         }
     }
-
+ 
     @Override
     public RepeatMode getRepeatMode() {
         checkAvailable();
