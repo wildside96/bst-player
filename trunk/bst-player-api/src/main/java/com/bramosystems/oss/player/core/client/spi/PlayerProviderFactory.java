@@ -31,7 +31,7 @@ import java.util.HashMap;
 public interface PlayerProviderFactory {
     
     /**
-     * @since 1.4
+     * @since 2.0
      */
     public void init(ConfigurationContext context);
     
@@ -83,13 +83,12 @@ public interface PlayerProviderFactory {
      *
      * @return the player implementation
      *
-     * @throws LoadException if an error occurs while loading the media.
      * @throws PluginVersionException if the required plugin version is not installed on the client.
      * @throws PluginNotFoundException if the required plugin is not installed on the client.
      * @throws IllegalArgumentException if {@code playerName} does not exist in this factory
      */
     public AbstractMediaPlayer getPlayer(String playerName, String mediaURL,
-            boolean autoplay, String height, String width) throws LoadException, PluginNotFoundException, PluginVersionException;
+            boolean autoplay, String height, String width) throws PluginNotFoundException, PluginVersionException;
 
     /**
      * Returns the player with the specified {@code playerName}.
@@ -103,11 +102,10 @@ public interface PlayerProviderFactory {
      * 
      * @return the player implementation
      * 
-     * @throws LoadException if an error occurs while loading the media.
      * @throws PluginVersionException if the required plugin version is not installed on the client.
      * @throws PluginNotFoundException if the required plugin is not installed on the client.
      * @throws IllegalArgumentException if {@code playerName} does not exist in this factory
      */
     public AbstractMediaPlayer getPlayer(String playerName, String mediaURL,
-            boolean autoplay) throws LoadException, PluginNotFoundException, PluginVersionException;
+            boolean autoplay) throws PluginNotFoundException, PluginVersionException;
 }

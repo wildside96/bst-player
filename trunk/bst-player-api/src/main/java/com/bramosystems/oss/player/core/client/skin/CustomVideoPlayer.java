@@ -363,7 +363,7 @@ public abstract class CustomVideoPlayer extends AbstractMediaPlayer implements P
     }
 
     @Override
-    public <T> void setConfigParameter(ConfigParameter param, T value) {
+    public <C extends ConfigParameter> void setConfigParameter(C param, Object value) {
         engine.setConfigParameter(param, value);
     }
 
