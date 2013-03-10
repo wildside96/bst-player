@@ -44,8 +44,8 @@ import java.util.List;
  *         &lt;player:Player name='Auto' autoplay='true' height='20px' width='100%'
  *                 mediaURL='GWT-HOST::media/cool-media.mp3' &gt;
  *              &lt;p:missingPluginNotice&gt;
-&lt;g:Label styleName='{some-style}'&gt;Required player plugin not available !&lt;/g:Label&gt;
-&lt;/p:missingPluginNotice&gt;
+ *                  &lt;g:Label styleName='{some-style}'&gt;Required player plugin not available !&lt;/g:Label&gt;
+ *              &lt;/p:missingPluginNotice&gt;
  *         &lt;/player &gt;
  *         ...
  * &lt;/ui:UiBinder&gt;

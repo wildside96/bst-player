@@ -148,7 +148,6 @@ public abstract class PlayerManager {
      * @param height
      * @param width
      * @return
-     * @throws LoadException
      * @throws PluginVersionException
      * @throws PluginNotFoundException
      */

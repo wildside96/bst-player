@@ -24,8 +24,8 @@
  * Exporting widgets requires some simple steps:
  * <ul>
  * <li>inherit the <code>Script</code> module in your application</li>
- * <li>implement the <code>ExportProvider</code> interface</li>
- * <li>add a GWT type-replacement mapping for the ExportProvider implementation</li>
+ * <li>extend the <code>AbstractExportProvider</code> class</li>
+ * <li>add a GWT type-replacement mapping for the AbstractExportProvider implementation</li>
  * <li>use the <code>ExportUtil</code> class to export the widgets when ready</li>
  * </ul>
  *
@@ -40,20 +40,20 @@
  *    &lt;inherits name="com.bramosystems.oss.player.script.Script" /&gt;
  * </code></pre>
  *
- * <h4>Implement the ExportProvider interface</h4>
- * The <code>ExportProvider</code> interface defines methods to retrieve the widgets to be exported as
- * Javascript objects.  Therefore, create a class that implements the interface and return
+ * <h4>Extend the AbstractExportProvider class</h4>
+ * The <code>AbstractExportProvider</code> class defines methods to retrieve the widgets to be exported as
+ * Javascript objects.  Therefore, create a class that extend the class and return
  * the player widgets of your choice. The following sample shows a basic implementation:
  *
  * <pre><code>
- *    public class MyCoolProvider implements ExportProvider {
+ *    public class MyCoolProvider extend AbstractExportProvider {
  *       private Plugin plugin;
  *
- *       public AbstractMediaPlayer getPlayer(Plugin plugin, String mediaURL, boolean autoplay, String width,
- *                 String height, HashMap&lt;String, String&gt; options) throws LoadException,
- *                 PluginNotFoundException, PluginVersionException {
- *          this.plugin = plugin;
- *          return PlayerUtil.getPlayer(plugin, mediaURL, autoplay, height, width);
+ *       public AbstractMediaPlayer getPlayer(String playerProvider, String playerName, 
+ *                 String mediaURL, boolean autoplay, String width,
+ *                 String height, HashMap&lt;String, String&gt; options)
+ *                 throws PluginNotFoundException, PluginVersionException {
+ *          return new MyCoolPlayer(mediaURL, autoplay, height, width);
  *       }
  *
  *       public Widget getMissingPluginWidget() {
@@ -72,7 +72,7 @@
  *
  *
  * <h4>Add a GWT type-replacement mapping</h4>
- * The <code>ExportProvider</code> implementation is instantiated by the <code>ExportUtil</code> class
+ * The <code>AbstractExportProvider</code> implementation is instantiated by the <code>ExportUtil</code> class
  * using deferred binding while exporting the players.  For the process to be a success, a type-replacement
  * mapping is required in your modules' definition.
  *
@@ -82,7 +82,7 @@
  * <pre><code>
  *   &lt;!-- MyGWTApp.gwt.xml --&gt;
  *   &lt;replace-with class="com.example.MyCoolProvider"&gt;
- *      &lt;when-type-is class="com.bramosystems.oss.player.script.client.ExportProvider"/&gt;
+ *      &lt;when-type-is class="com.bramosystems.oss.player.script.client.AbstractExportProvider"/&gt;
  *   &lt;/replace-with&gt;
  * </code></pre>
  *

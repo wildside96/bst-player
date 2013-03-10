@@ -18,7 +18,7 @@
 <module>
     <inherits name="com.bramosystems.oss.player.script.Script" />
     <entry-point class="com.bramosystems.oss.player.script.client.impl.Exporter" />    
-    <set-property name="bstplayer.script.useProviderFramework" value="true"/>    
+
     <replace-with class="com.bramosystems.oss.player.script.client.impl.DefaultExportProvider">
         <when-type-is class="com.bramosystems.oss.player.script.client.AbstractExportProvider"/>
     </replace-with>
