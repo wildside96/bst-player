@@ -24,9 +24,7 @@ package com.bramosystems.oss.player.core.client;
  *
  * @author Sikiru Braheem <sbraheem at bramosystems . com>
  * @since 1.1
- * @see AbstractMediaPlayer#setConfigParameter(ConfigParameter, ConfigValue)
- * 
- * TODO:  document changes ...
+ * @see AbstractMediaPlayer#setConfigParameter(ConfigParameter, java.lang.Object)
  */
 public interface ConfigParameter {
 
@@ -34,7 +32,7 @@ public interface ConfigParameter {
      * Returns the name of the parameter
      * 
      * @return the name of the parameter
-     * @since 1.4
+     * @since 2.0
      */
     public String getName();
 

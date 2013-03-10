@@ -37,7 +37,6 @@ import com.bramosystems.oss.player.core.event.client.PlayerStateHandler;
 import com.bramosystems.oss.player.core.event.client.SeekChangeEvent;
 import com.bramosystems.oss.player.core.event.client.SeekChangeHandler;
 import com.bramosystems.oss.player.script.client.AbstractExportProvider;
-import com.bramosystems.oss.player.script.client.ExportProvider;
 import com.bramosystems.oss.player.util.client.RegExp;
 import com.bramosystems.oss.player.util.client.RegExp.RegexException;
 import com.google.gwt.core.client.GWT;
@@ -111,40 +110,6 @@ public class ScriptUtil {
             return provider.getMissingPluginVersionWidget(plugin, requiredVersion);
         }
 
-        public MediaSeekBar getSeekBar(int height, HashMap<String, String> options) {
-            return provider.getSeekBar(height, options);
-        }
-    }
-
-    public static class ProviderOld extends Provider {
-
-        private ExportProvider provider = GWT.create(ExportProvider.class);
-
-        @Override
-        public AbstractMediaPlayer getPlayer(String name, String url, boolean autoplay, String width,
-                String height, HashMap<String, String> options) throws LoadException, PluginNotFoundException, PluginVersionException {
-
-            Plugin _plugin = null;
-            try {
-                _plugin = Plugin.valueOf(name);
-            } catch (Exception e) {
-                throw new IllegalArgumentException(e);
-            }
-            return provider.getPlayer(_plugin, url, autoplay, width, height, options);
-
-        }
-
-        @Override
-        public Widget getMissingPluginWidget(Plugin plugin) {
-            return provider.getMissingPluginWidget();
-        }
-
-        @Override
-        public Widget getMissingPluginVersionWidget(Plugin plugin, PluginVersion requiredVersion) {
-            return provider.getMissingPluginVersionWidget();
-        }
-
-        @Override
         public MediaSeekBar getSeekBar(int height, HashMap<String, String> options) {
             return provider.getSeekBar(height, options);
         }

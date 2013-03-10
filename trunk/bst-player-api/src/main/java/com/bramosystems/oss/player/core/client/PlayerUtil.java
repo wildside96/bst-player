@@ -62,13 +62,12 @@ public class PlayerUtil {
      *
      * @return a suitable player implementation
      *
-     * @throws LoadException if an error occurs while loading the media.
      * @throws PluginVersionException if the required plugin version is not installed on the client.
      * @throws PluginNotFoundException if the required plugin is not installed on the client.
      */
     public static AbstractMediaPlayer getPlayer(String mediaURL,
             boolean autoplay, String height, String width)
-            throws LoadException, PluginNotFoundException, PluginVersionException {
+            throws PluginNotFoundException, PluginVersionException {
         return getPlayer(Plugin.Auto, mediaURL, autoplay, height, width);
     }
 
@@ -102,7 +101,6 @@ public class PlayerUtil {
      *
      * @return a suitable player implementation
      *
-     * @throws LoadException if an error occurs while loading the media.
      * @throws PluginVersionException if the required plugin version is not installed on the client.
      * @throws PluginNotFoundException if the required plugin is not installed on the client.
      *
@@ -111,7 +109,7 @@ public class PlayerUtil {
      */
     public static AbstractMediaPlayer getPlayer(Plugin plugin, String mediaURL,
             boolean autoplay, String height, String width)
-            throws LoadException, PluginNotFoundException, PluginVersionException {
+            throws PluginNotFoundException, PluginVersionException {
         return PlayerManager.getInstance().getPlayer(plugin, mediaURL, autoplay, height, width);
     }
 
@@ -125,7 +123,6 @@ public class PlayerUtil {
      *
      * @return a suitable player implementation
      *
-     * @throws LoadException if an error occurs while loading the media.
      * @throws PluginVersionException if the required plugin version is not installed on the client.
      * @throws PluginNotFoundException if the required plugin is not installed on the client.
      *
@@ -133,7 +130,7 @@ public class PlayerUtil {
      * @see #getPlayer(Plugin, String, boolean, String, String)
      */
     public static AbstractMediaPlayer getPlayer(Plugin plugin, String mediaURL, boolean autoplay)
-            throws LoadException, PluginNotFoundException, PluginVersionException {
+            throws PluginNotFoundException, PluginVersionException {
         return PlayerManager.getInstance().getPlayer(plugin, mediaURL, autoplay);
     }
 

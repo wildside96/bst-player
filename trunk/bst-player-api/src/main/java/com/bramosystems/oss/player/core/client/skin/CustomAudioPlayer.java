@@ -59,15 +59,10 @@ public abstract class CustomAudioPlayer extends AbstractMediaPlayer implements P
      * @param height the height of the player
      * @param width the width of the player.
      *
-     * @throws LoadException if an error occurs while loading the media.
      * @throws PluginVersionException if the required player plugin version is not installed on the client.
      * @throws PluginNotFoundException if the player plugin is not installed on the client.
      *
      * @see Plugin
-     * @see QuickTimePlayer
-     * @see WinMediaPlayer
-     * @see FlashMediaPlayer
-     *
      */
     public CustomAudioPlayer(Plugin playerPlugin, String mediaURL, boolean autoplay,
             String height, String width) throws PluginNotFoundException,
