@@ -9,7 +9,7 @@
     <artifactId>bst-flash-player</artifactId>
     <packaging>swf</packaging>
     <name>BST Flash Player</name>
-    <version>2.0</version>
+    <version>2.0.1-SNAPSHOT</version>
 
     <description>
         This project is component part of the BST Player API.
@@ -137,10 +137,4 @@
             </build>
         </profile>
     </profiles>
-
-  <scm>
-    <connection>scm:svn:http://bst-player.googlecode.com/svn/tags/bst-flash-player-2.0</connection>
-    <developerConnection>scm:svn:https://bst-player.googlecode.com/svn/tags/bst-flash-player-2.0</developerConnection>
-    <url>http://code.google.com/p/bst-player/source/browse/tags/bst-flash-player-2.0</url>
-  </scm>
 </project>
