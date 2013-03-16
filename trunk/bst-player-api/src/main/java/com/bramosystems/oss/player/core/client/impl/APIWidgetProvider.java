@@ -26,6 +26,7 @@ import com.bramosystems.oss.player.core.client.spi.PlayerProvider;
 import com.bramosystems.oss.player.core.client.spi.PlayerProviderFactory;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Set;
 
 /**
  *
@@ -88,5 +89,15 @@ public class APIWidgetProvider implements PlayerProviderFactory {
         } else {
             throw new IllegalArgumentException("Unknown player - '" + playerName + "'");
         }
+    }
+
+    @Override
+    public Set<String> getPermittedMimeTypes(String playerName, PluginVersion version) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public Set<String> getPermittedMediaProtocols(String playerName, PluginVersion version) {
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 }

@@ -20,19 +20,15 @@ import com.bramosystems.oss.player.core.client.PlaylistSupport;
 import com.bramosystems.oss.player.core.client.geom.MatrixSupport;
 import com.bramosystems.oss.player.core.client.spi.Player;
 import com.bramosystems.oss.player.core.client.spi.PlayerProvider;
-import com.google.gwt.core.ext.Generator;
-import com.google.gwt.core.ext.GeneratorContext;
-import com.google.gwt.core.ext.TreeLogger;
-import com.google.gwt.core.ext.UnableToCompleteException;
+import com.google.gwt.core.ext.*;
 import com.google.gwt.core.ext.typeinfo.JClassType;
 import com.google.gwt.core.ext.typeinfo.NotFoundException;
 import com.google.gwt.core.ext.typeinfo.TypeOracle;
 import com.google.gwt.user.rebind.ClassSourceFileComposerFactory;
 import com.google.gwt.user.rebind.SourceWriter;
+import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -42,10 +38,11 @@ import java.util.regex.Pattern;
  */
 public class PlayerManagerGenerator extends Generator {
 
-    private HashMap<String, String> provClassMap = new HashMap<String, String>();
-    private HashMap<String, HashSet<String>> playerMap2 = new HashMap<String, HashSet<String>>();
+    private final String DEFAULT_MIME_TYPES_FILE = "default-mime-types.properties";
     private String className = null, packageName = null;
     private TreeLogger logger;
+    private HashMap<String, _provider> pMap = new HashMap<String, _provider>();
+    private HashMap<String, String> mimeMap = new HashMap<String, String>();
 
     public PlayerManagerGenerator() {
         // init plugin props ...
@@ -73,43 +70,30 @@ public class PlayerManagerGenerator extends Generator {
         return packageName + "." + className;
     }
 
-    private void collatePlayers(TypeOracle typeOracle) {
-        TreeLogger tl = logger.branch(TreeLogger.Type.INFO, "Searching for Player Providers");
-        JClassType a[] = typeOracle.getTypes();
-        for (int i = 0; i < a.length; i++) {
-            if (a[i].isAnnotationPresent(PlayerProvider.class)) {
-                String pName = a[i].getAnnotation(PlayerProvider.class).value();
-                tl.log(TreeLogger.Type.INFO, "Processing Player Provider : " + pName);
-                provClassMap.put(a[i].getQualifiedSourceName(), pName);
-                playerMap2.put(pName, new HashSet<String>());
-            }
-        }
-        
-        tl = logger.branch(TreeLogger.Type.INFO, "Searching for Player widgets");
-        for (int i = 0; i < a.length; i++) {
-            if (a[i].isAnnotationPresent(Player.class)) {
-                String name = a[i].getAnnotation(Player.class).providerFactory().getName();
-                if (provClassMap.containsKey(name)) {
-                    tl.log(TreeLogger.Type.INFO, "Processing Player widget : " + a[i].getQualifiedSourceName());
-                    playerMap2.get(provClassMap.get(name)).add(a[i].getQualifiedSourceName());
-                } else {
-                    logger.log(TreeLogger.Type.ERROR, "WidgetFactory '" + name + "' should be annotated with @PlayerProvider");
-                }
-            }
-        }
-    }
-
     /**
      * @param logger Logger object
      * @param context Generator context
      */
-    private void generateClass(TreeLogger logger, GeneratorContext context) throws NotFoundException {
+    private void generateClass(TreeLogger logger, GeneratorContext context) throws
+            NotFoundException, BadPropertyValueException, UnableToCompleteException, IOException {
         // get print writer that receives the source code
         PrintWriter printWriter = context.tryCreate(logger, packageName, className);
 
         // print writer if null, source code has ALREADY been generated,  return
         if (printWriter == null) {
             return;
+        }
+
+        // build plugin mime types ...
+        ConfigurationProperty mimeFile =
+                context.getPropertyOracle().getConfigurationProperty("bstplayer.media.mimeTypes");
+        String val = mimeFile.getValues().get(0);
+        if (val == null) {
+            logger.log(TreeLogger.Type.INFO, "'" + mimeFile.getName() + "' configuration property not set! Using defaults");
+            parseMimeFile(DEFAULT_MIME_TYPES_FILE);
+        } else {
+            logger.log(TreeLogger.Type.INFO, "'" + mimeFile.getName() + "' set! Using '" + val + "'");
+            parseMimeFile(val);
         }
 
         collatePlayers(context.getTypeOracle());
@@ -129,11 +113,11 @@ public class PlayerManagerGenerator extends Generator {
         sourceWriter.println("private HashMap<String, HashMap<String, PlayerInfo>> pInfos = new HashMap<String, HashMap<String, PlayerInfo>>();");
 
         // collate widget factories & create static holders ...
-        Iterator<String> fact = provClassMap.keySet().iterator();
+        Iterator<String> fact = pMap.keySet().iterator();
         while (fact.hasNext()) {
             String provClass = fact.next();
-            String provName = provClassMap.get(provClass);
-            sourceWriter.println("private static PlayerProviderFactory pwf_" + escapeProviderName(provName) + " = GWT.create(" + provClass + ".class);");
+            sourceWriter.println("private static PlayerProviderFactory pwf_" + escapeProviderName(pMap.get(provClass).name)
+                    + " = GWT.create(" + provClass + ".class);");
         }
         sourceWriter.println();
 
@@ -144,27 +128,28 @@ public class PlayerManagerGenerator extends Generator {
         sourceWriter.indent();
 
         // init widget factories ...
-        fact = provClassMap.keySet().iterator();
+        fact = pMap.keySet().iterator();
         while (fact.hasNext()) {
             String provClass = fact.next();
-            String provName = escapeProviderName(provClassMap.get(provClass));
+            String provName = escapeProviderName(pMap.get(provClass).name);
             sourceWriter.println("pwf_" + provName + ".init(new ConfigurationContext(CallbackUtility.initCallbackHandlers(\""
                     + provName + "\"), \"bstplayer.handlers." + provName + "\"));");
         }
 
         sourceWriter.println();
-        fact = playerMap2.keySet().iterator();
-        while (fact.hasNext()) {
-            String provName = fact.next();
-            sourceWriter.println("pInfos.put(\"" + provName + "\", new HashMap<String, PlayerInfo>());");
 
-            Iterator<String> pns = playerMap2.get(provName).iterator();
+        // init providers ...
+        fact = pMap.keySet().iterator();
+        while (fact.hasNext()) {
+            _provider pvd = pMap.get(fact.next());
+            sourceWriter.println("pInfos.put(\"" + pvd.name + "\", new HashMap<String, PlayerInfo>());");
+
+            Iterator<_player> pns = pvd.players.iterator();
             while (pns.hasNext()) {
-                JClassType jt = context.getTypeOracle().getType(pns.next());
-                Player p = jt.getAnnotation(Player.class);
+                _player ply = pns.next();
                 boolean ps = false, ms = false;
 
-                JClassType ints[] = jt.getImplementedInterfaces();
+                JClassType ints[] = ply.interfaces;
                 for (int j = 0; j < ints.length; j++) {
                     if (ints[j].getQualifiedSourceName().equals(MatrixSupport.class.getName())) {
                         ms = true;
@@ -172,10 +157,10 @@ public class PlayerManagerGenerator extends Generator {
                         ps = true;
                     }
                 }
-                Matcher m = ptrn.matcher(p.minPluginVersion());
+                Matcher m = ptrn.matcher(ply.minPluginVer);
                 if (m.matches()) {
-                    sourceWriter.println("pInfos.get(\"" + provName + "\").put(\"" + p.name()
-                            + "\", new PlayerInfo(\"" + provName + "\",\"" + p.name() + "\"," + "PluginVersion.get("
+                    sourceWriter.println("pInfos.get(\"" + pvd.name + "\").put(\"" + ply.name
+                            + "\", new PlayerInfo(\"" + pvd.name + "\",\"" + ply.name + "\"," + "PluginVersion.get("
                             + Integer.parseInt(m.group(1)) + "," + Integer.parseInt(m.group(2)) + "," + Integer.parseInt(m.group(3)) + "),"
                             + ps + "," + ms + "));");
                 } else {
@@ -188,7 +173,16 @@ public class PlayerManagerGenerator extends Generator {
 
         sourceWriter.println();
 
-        // implement get player names ...
+        // implement get provider names ...
+        sourceWriter.println("@Override");
+        sourceWriter.println("public Set<String> getProviders(){");
+        sourceWriter.indent();
+        sourceWriter.println("return pInfos.keySet();");
+        sourceWriter.outdent();
+        sourceWriter.println("}");
+        sourceWriter.println();
+
+        // implement get player names by provider ...
         sourceWriter.println("@Override");
         sourceWriter.println("public Set<String> getPlayerNames(String providerName) {");
         sourceWriter.indent();
@@ -199,16 +193,7 @@ public class PlayerManagerGenerator extends Generator {
         sourceWriter.println("}");
         sourceWriter.println();
 
-        // implement get provider names ...
-        sourceWriter.println("@Override");
-        sourceWriter.println("public Set<String> getProviders(){");
-        sourceWriter.indent();
-        sourceWriter.println("return pInfos.keySet();");
-        sourceWriter.outdent();
-        sourceWriter.println("}");
-        sourceWriter.println();
-
-        // implement get player names ...
+        // implement get player infos ...
         sourceWriter.println("@Override");
         sourceWriter.println("public PlayerInfo getPlayerInfo(String providerName, String playerName) {");
         sourceWriter.indent();
@@ -228,21 +213,34 @@ public class PlayerManagerGenerator extends Generator {
         sourceWriter.println("PlayerProviderFactory wf = null;");
 
         boolean firstRun = true;
-        fact = provClassMap.values().iterator();
-        while (fact.hasNext()) {
-            String provName = fact.next();
+        Iterator<_provider> provs = pMap.values().iterator();
+        while (provs.hasNext()) {
+            _provider prov = provs.next();
             if (firstRun) {
-                sourceWriter.println("if(\"" + provName + "\".equals(provider)) {");
+                sourceWriter.println("if(\"" + prov.name + "\".equals(provider)) {");
             } else {
-                sourceWriter.println("else if(\"" + provName + "\".equals(provider)) {");
+                sourceWriter.println("else if(\"" + prov.name + "\".equals(provider)) {");
             }
             sourceWriter.indent();
-            sourceWriter.println("wf = pwf_" + escapeProviderName(provName) + ";");
+            sourceWriter.println("wf = pwf_" + escapeProviderName(prov.name) + ";");
             sourceWriter.outdent();
             sourceWriter.println("}");
             firstRun = false;
         }
         sourceWriter.println("return wf;");
+        sourceWriter.outdent();
+        sourceWriter.println("}");
+        sourceWriter.println();
+
+       // implement mimeTypes ....
+        sourceWriter.println("@Override");
+        sourceWriter.println("protected void initMimeTypes(HashMap<String, String> mimeTypes) {");
+        sourceWriter.indent();
+        Iterator<String> mimeKeys = mimeMap.keySet().iterator();
+        while (mimeKeys.hasNext()) {
+            String mime = mimeKeys.next();
+            sourceWriter.println("mimeTypes.put(\"" + mime + "\",\"" + mimeMap.get(mime) + "\");");
+        }
         sourceWriter.outdent();
         sourceWriter.println("}");
         sourceWriter.println();
@@ -255,8 +253,74 @@ public class PlayerManagerGenerator extends Generator {
         context.commit(logger, printWriter);
     }
 
+    private void collatePlayers(TypeOracle typeOracle) {
+        TreeLogger tl = logger.branch(TreeLogger.Type.INFO, "Searching for Player Providers");
+        JClassType a[] = typeOracle.getTypes();
+        for (int i = 0; i < a.length; i++) {
+            if (a[i].isAnnotationPresent(PlayerProvider.class)) {
+                String pName = a[i].getAnnotation(PlayerProvider.class).value();
+                tl.log(TreeLogger.Type.INFO, "Processing Player Provider : " + pName);
+                pMap.put(a[i].getQualifiedSourceName(), new _provider(pName));
+            }
+        }
+
+        tl = logger.branch(TreeLogger.Type.INFO, "Searching for Player widgets");
+        for (int i = 0; i < a.length; i++) {
+            if (a[i].isAnnotationPresent(Player.class)) {
+                Player p = a[i].getAnnotation(Player.class);
+                String pName = p.providerFactory().getName();
+                if (pMap.containsKey(pName)) {
+                    tl.log(TreeLogger.Type.INFO, "Processing Player widget : " + a[i].getQualifiedSourceName());
+                    _player _py = new _player(p.name(), p.minPluginVersion(), a[i].getQualifiedSourceName());
+                    _py.interfaces = a[i].getImplementedInterfaces();
+                    pMap.get(pName).players.add(_py);
+                } else {
+                    logger.log(TreeLogger.Type.ERROR, "WidgetFactory '" + pName + "' should be annotated with @PlayerProvider");
+                }
+            }
+        }
+    }
+
+    private void parseMimeFile(String mimePropertyFile) throws IOException {
+        // build props ...            
+        Properties p = new Properties();
+        p.load(getClass().getResourceAsStream(mimePropertyFile));
+        Iterator<String> types = p.stringPropertyNames().iterator();
+        while (types.hasNext()) {
+            String key = types.next();
+            if (key.toLowerCase().startsWith("audio") || key.toLowerCase().startsWith("video")) {
+                // mime types ...
+                mimeMap.put(key, p.getProperty(key));
+            }
+        }
+    }
+
     // replace chars [.] with escaped strings ...
     private String escapeProviderName(String provName) {
         return provName.replace(".", "$");
+    }
+
+    private class _provider {
+
+        String name;
+        HashSet<_player> players = new HashSet<_player>();
+
+        public _provider(String name) {
+            this.name = name;
+        }
+    }
+
+    private class _player {
+
+        String name;
+        String minPluginVer;
+        String implClass;
+        JClassType[] interfaces;
+
+        public _player(String name, String minPluginVer, String implClass) {
+            this.name = name;
+            this.minPluginVer = minPluginVer;
+            this.implClass = implClass;
+        }
     }
 }

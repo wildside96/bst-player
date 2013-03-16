@@ -68,10 +68,6 @@ public class PluginManager {
     }
     }-*/;
 
-    public static HashMap<String, String> getRegisteredMimeTypes() {
-        return MimeParserBase.instance.getMimeTypes();
-    }
-
     protected static class PluginManagerImpl {
 
         public PluginInfo getPluginInfo(Plugin plugin) throws PluginNotFoundException {

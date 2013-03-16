@@ -15,13 +15,15 @@
  */
 package com.bramosystems.oss.player.core.client;
 
+import com.bramosystems.oss.player.core.client.impl.NativePlayerTestUtil;
+import com.bramosystems.oss.player.core.client.impl.plugin.PlayerManager;
 import com.bramosystems.oss.player.core.client.impl.plugin.PlayerManager;
 import com.bramosystems.oss.player.core.client.impl.plugin.PluginManager;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Event;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Utility class for various media player related functions.
@@ -408,7 +410,7 @@ public class PlayerUtil {
         return PluginManager.isHTML5CompliantClient();
     
     }
-
+    
     /**
      * Returns the {@code PluginInfo} object describing the features of the specified {@code plugin}
      * 
@@ -483,4 +485,31 @@ public class PlayerUtil {
         return PlayerManager.getInstance().getProviderFactory(
                 playerInfo.getProviderName()).getPlayer(playerInfo.getPlayerName(), mediaURL, autoplay, height, width);
     }
+    
+    /**
+     * Returns all audio/video file type extensions that have native support on the client.
+     * This call has no effect on non-HTML5 compliant browsers.
+     * 
+     * @return media file extensions for HTML5 Media elements
+     * @since 2.0.1
+     */
+    protected final Set<String> getHMTL5MediaExtensions() {
+        HashSet<String> exts = new HashSet<String>();
+        if (isHTML5CompliantClient()) {
+            NativePlayerTestUtil.TestUtil test = NativePlayerTestUtil.getTestUtil();
+            Iterator<String> mimeKeys = PlayerManager.getInstance().getMimeTypes().keySet().iterator();
+            while (mimeKeys.hasNext()) {
+                String mime = mimeKeys.next();
+                try {
+                    switch (test.canPlayType(mime)) {
+                        case maybe:
+                        case probably:
+                            exts.addAll(Arrays.asList(PlayerManager.getInstance().getMimeTypes().get(mime.trim()).split(",")));
+                    }
+                } catch (Exception e) { // mimeType cannot be played ...
+                }
+            }
+        }
+        return exts;
+    }    
 }
