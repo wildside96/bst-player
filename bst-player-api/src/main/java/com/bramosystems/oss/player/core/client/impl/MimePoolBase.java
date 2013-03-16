@@ -17,7 +17,6 @@ package com.bramosystems.oss.player.core.client.impl;
 
 import com.bramosystems.oss.player.core.client.*;
 import com.bramosystems.oss.player.core.client.impl.plugin.PlayerManager;
-import com.bramosystems.oss.player.core.client.impl.plugin.PluginManager;
 import java.util.HashMap;
 import java.util.Set;
 
@@ -26,13 +25,13 @@ import java.util.Set;
  *
  * @author Sikirulai Braheem <sbraheem at bramosystems dot com>
  * @since 1.2
- * @deprecated Functionality transfered to PluginManager class.  Left for backward compatibility.
+ * @deprecated Functionality transfered to PlayerManager class.  Left for backward compatibility.
  */
 public class MimePoolBase implements MimePool {
 
     @Override
     public HashMap<String, String> getMimeTypes() {
-        return PluginManager.getRegisteredMimeTypes();
+        return PlayerManager.getInstance().getMimeTypes();
     }
 
     @Override

@@ -15,17 +15,11 @@
  */
 package com.bramosystems.oss.player.core.client.impl.plugin;
 
-import com.bramosystems.oss.player.core.client.PlayerInfo;
-import com.bramosystems.oss.player.core.client.AbstractMediaPlayer;
-import com.bramosystems.oss.player.core.client.LoadException;
-import com.bramosystems.oss.player.core.client.Plugin;
-import com.bramosystems.oss.player.core.client.PluginNotFoundException;
-import com.bramosystems.oss.player.core.client.PluginVersionException;
+import com.bramosystems.oss.player.core.client.*;
+import com.bramosystems.oss.player.core.client.impl.NativePlayerTestUtil;
 import com.bramosystems.oss.player.core.client.spi.PlayerProviderFactory;
 import com.google.gwt.core.client.GWT;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Set;
+import java.util.*;
 
 /**
  *
@@ -36,6 +30,7 @@ public abstract class PlayerManager {
     private static PlayerManager instance;
     private HashSet<PlayerInfo> matrixSupports = new HashSet<PlayerInfo>(), playlistSupports = new HashSet<PlayerInfo>(),
             allPlayers = new HashSet<PlayerInfo>();
+    private HashMap<String, String> mimeTypes;
 
     public static PlayerManager getInstance() {
         if (instance == null) {
@@ -46,6 +41,9 @@ public abstract class PlayerManager {
     }
 
     private void init() {
+        mimeTypes = new HashMap<String, String>();
+        initMimeTypes(mimeTypes);
+
         Iterator<String> it = getProviders().iterator();
         while (it.hasNext()) {
             String prov = it.next();
@@ -55,6 +53,15 @@ public abstract class PlayerManager {
                 try {
                     PlayerInfo pi = getPlayerInfo(prov, pn);
                     pi.setDetectedPluginVersion(getProviderFactory(prov).getDetectedPluginVersion(pn));
+                    pi.getRegisteredProtocols().addAll(getProviderFactory(prov).getPermittedMediaProtocols(pn, pi.getDetectedPluginVersion()));
+                    Set<String> mimes = getProviderFactory(prov).getPermittedMimeTypes(pn, pi.getDetectedPluginVersion());
+                    for (String mime : mimes) {
+                        String exts = mimeTypes.get(mime.trim());
+                        if (exts != null) {
+                            pi.getRegisteredExtensions().addAll(Arrays.asList(exts.split(",")));
+                        }
+                    }
+
                     allPlayers.add(pi);
                     if (pi.isHasMatrixSupport()) {
                         matrixSupports.add(pi);
@@ -62,18 +69,34 @@ public abstract class PlayerManager {
                     if (pi.isHasPlaylistSupport()) {
                         playlistSupports.add(pi);
                     }
-                    MimeParserBase.instance.addPlayerProperties(pi);
                 } catch (PluginNotFoundException ex) {
                 }
             }
         }
     }
 
+    public HashMap<String, String> getMimeTypes() {
+        return mimeTypes;
+    }
+
+    public AbstractMediaPlayer getPlayer(Plugin plugin, String mediaURL,
+            boolean autoplay, String height, String width) throws PluginVersionException, PluginNotFoundException {
+        PlayerInfo pi = getSupportedPlayer(plugin, mediaURL);
+        return getProviderFactory(pi.getProviderName()).getPlayer(pi.getPlayerName(), mediaURL, autoplay, height, width);
+    }
+
+    public AbstractMediaPlayer getPlayer(Plugin plugin, String mediaURL,
+            boolean autoplay) throws PluginVersionException, PluginNotFoundException {
+        PlayerInfo pi = getSupportedPlayer(plugin, mediaURL);
+        return getProviderFactory(pi.getProviderName()).getPlayer(pi.getPlayerName(), mediaURL, autoplay);
+    }
+
     /**
      * TODO: provide support for property file based sorting ...
+     *
      * @param plugin
      * @param mediaURL
-     * @return 
+     * @return
      */
     private PlayerInfo getSupportedPlayer(Plugin plugin, String mediaURL) {
         String protocol = extractProtocol(mediaURL);
@@ -138,31 +161,7 @@ public abstract class PlayerManager {
             return null;
         }
     }
-
-    /**
-     * Util method to instantiate the player implementation for the specified name
-     *
-     * @param plugin
-     * @param mediaURL
-     * @param autoplay
-     * @param height
-     * @param width
-     * @return
-     * @throws PluginVersionException
-     * @throws PluginNotFoundException
-     */
-    public AbstractMediaPlayer getPlayer(Plugin plugin, String mediaURL,
-            boolean autoplay, String height, String width) throws PluginVersionException, PluginNotFoundException {
-        PlayerInfo pi = getSupportedPlayer(plugin, mediaURL);
-        return getProviderFactory(pi.getProviderName()).getPlayer(pi.getPlayerName(), mediaURL, autoplay, height, width);
-    }
-
-    public AbstractMediaPlayer getPlayer(Plugin plugin, String mediaURL,
-            boolean autoplay) throws PluginVersionException, PluginNotFoundException {
-        PlayerInfo pi = getSupportedPlayer(plugin, mediaURL);
-        return getProviderFactory(pi.getProviderName()).getPlayer(pi.getPlayerName(), mediaURL, autoplay);
-    }
-
+    
     public abstract Set<String> getPlayerNames(String providerName);
 
     public abstract Set<String> getProviders();
@@ -170,4 +169,13 @@ public abstract class PlayerManager {
     public abstract PlayerInfo getPlayerInfo(String providerName, String playerName);
 
     public abstract PlayerProviderFactory getProviderFactory(String provider);
+
+    /**
+     * Called by the constructor method to populate all known audio/video mime
+     * types.
+     *
+     * @param mimeTypes the mimeType map to be filled. The map is filled as
+     * (mimeType,file-extension) value pairs.
+     */
+    protected abstract void initMimeTypes(HashMap<String, String> mimeTypes);
 }

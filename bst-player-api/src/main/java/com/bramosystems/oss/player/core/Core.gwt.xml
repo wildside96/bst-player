@@ -44,11 +44,6 @@
         </any>
     </replace-with>
 
-    <!-- MimePoolGenerator mapping -->
-    <generate-with class="com.bramosystems.oss.player.core.rebind.MimePoolGenerator" >
-        <when-type-assignable class="com.bramosystems.oss.player.core.client.impl.plugin.MimeParserBase"/>
-    </generate-with>
-
     <generate-with class="com.bramosystems.oss.player.core.rebind.PlayerManagerGenerator" >
         <when-type-assignable class="com.bramosystems.oss.player.core.client.impl.plugin.PlayerManager"/>
     </generate-with>
