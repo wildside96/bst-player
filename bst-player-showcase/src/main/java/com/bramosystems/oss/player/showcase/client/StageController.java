@@ -16,7 +16,6 @@
  */
 package com.bramosystems.oss.player.showcase.client;
 
-import com.bramosystems.oss.player.capsule.client.Capsule;
 import com.bramosystems.oss.player.core.client.AbstractMediaPlayer;
 import com.bramosystems.oss.player.core.client.DefaultConfigParameter;
 import com.bramosystems.oss.player.core.client.LoadException;
@@ -31,7 +30,6 @@ import com.bramosystems.oss.player.core.event.client.DebugEvent;
 import com.bramosystems.oss.player.core.event.client.DebugHandler;
 import com.bramosystems.oss.player.core.event.client.HasMediaMessageHandlers;
 import com.bramosystems.oss.player.core.event.client.MediaInfoHandler;
-import com.bramosystems.oss.player.flat.client.FlatVideoPlayer;
 import com.bramosystems.oss.player.showcase.client.event.PlayerOptionsChangeEvent;
 import com.bramosystems.oss.player.showcase.client.event.PlayerOptionsChangeHandler;
 import com.bramosystems.oss.player.showcase.client.event.PlaylistChangeEvent;
@@ -39,8 +37,6 @@ import com.bramosystems.oss.player.showcase.client.event.PlaylistChangeHandler;
 import com.bramosystems.oss.player.showcase.client.event.PluginChangeEvent;
 import com.bramosystems.oss.player.showcase.client.event.PluginChangeHandler;
 import com.bramosystems.oss.player.showcase.client.res.Bundle;
-import com.bramosystems.oss.player.youtube.client.ChromelessPlayer;
-import com.bramosystems.oss.player.youtube.client.YouTubePlayer;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
@@ -120,7 +116,7 @@ public class StageController extends Composite implements ValueChangeHandler<Str
                 } else {
                     player.setControllerVisible(playerOptions.isShowControls());
                     player.setResizeToVideoSize(playerOptions.isResizeToVideo());
-                    player.showLogger(playerOptions.isShowLogger());
+ //                   player.showLogger(playerOptions.isShowLogger());
                     player.setRepeatMode(playerOptions.getRepeatMode());
                     ((PlaylistSupport) player).setShuffleEnabled(playerOptions.isShuffleOn());
                 }
@@ -131,7 +127,7 @@ public class StageController extends Composite implements ValueChangeHandler<Str
                 } else {
                     player.setControllerVisible(playerOptions.isShowControls());
                     player.setResizeToVideoSize(playerOptions.isResizeToVideo());
-                    player.showLogger(playerOptions.isShowLogger());
+//                    player.showLogger(playerOptions.isShowLogger());
                 }
         }
     }
@@ -197,7 +193,7 @@ public class StageController extends Composite implements ValueChangeHandler<Str
                 case capsule:
                     DebugEvent.fire(this, DebugEvent.MessageType.Info, "Loading Capsule with : " + plugin);
                     DebugEvent.fire(this, DebugEvent.MessageType.Info, LOG_SEPARATOR);
-                    player = new Capsule(plugin, playlist.get(0).get(0), false);
+//                    player = new Capsule(plugin, playlist.get(0).get(0), false);
                     player.addStyleName(Bundle.bundle.css().capsule());
                     player.setWidth(PLAYER_WIDTH);
                     break;
@@ -209,11 +205,11 @@ public class StageController extends Composite implements ValueChangeHandler<Str
                 case flat:
                     DebugEvent.fire(this, DebugEvent.MessageType.Info, "Loading FlatVideoPlayer : " + plugin);
                     DebugEvent.fire(this, DebugEvent.MessageType.Info, LOG_SEPARATOR);
-                    player = new FlatVideoPlayer(plugin, playlist.get(0).get(0), false, PLAYER_HEIGHT, PLAYER_WIDTH);
+//                    player = new FlatVideoPlayer(plugin, playlist.get(0).get(0), false, PLAYER_HEIGHT, PLAYER_WIDTH);
             }
             player.setControllerVisible(playerOptions.isShowControls());
             player.setResizeToVideoSize(playerOptions.isResizeToVideo());
-            player.showLogger(playerOptions.isShowLogger());
+//            player.showLogger(playerOptions.isShowLogger());
             player.setConfigParameter(DefaultConfigParameter.BackgroundColor, "#ffffff");
             player.setRepeatMode(playerOptions.getRepeatMode());
             ((PlaylistSupport) player).setShuffleEnabled(playerOptions.isShuffleOn());
@@ -243,7 +239,6 @@ public class StageController extends Composite implements ValueChangeHandler<Str
 
             title.setText(loadedOption.toString() + " - " + plugin);
             panel.setWidget(player);
-        } catch (LoadException ex) {
         } catch (PluginVersionException ex) {
             panel.setWidget(PlayerUtil.getMissingPluginNotice(ex.getPlugin(), ex.getRequiredVersion()));
         } catch (PluginNotFoundException ex) {
@@ -302,7 +297,7 @@ public class StageController extends Composite implements ValueChangeHandler<Str
     }
 
     private void loadUTube() {
-        try {
+ //       try {
             panel.setWidget(null);
             DebugEvent.fire(this, DebugEvent.MessageType.Info, LOG_SEPARATOR);
             DebugEvent.fire(this, DebugEvent.MessageType.Info, "Loading YouTubePlayer");
@@ -311,7 +306,7 @@ public class StageController extends Composite implements ValueChangeHandler<Str
             ArrayList<MRL> playlist = PlaylistPane.singleton.getEntries();
             switch (plugin) {
                 case Native:
-                    player = new ChromelessPlayer(playlist.get(0).get(0), PLAYER_WIDTH, PLAYER_HEIGHT);
+//                    player = new ChromelessPlayer(playlist.get(0).get(0), PLAYER_WIDTH, PLAYER_HEIGHT);
 
                     FlowPanel fp = new FlowPanel();
                     fp.add(player);
@@ -319,7 +314,7 @@ public class StageController extends Composite implements ValueChangeHandler<Str
                     panel.setWidget(fp);
                     break;
                 default:
-                    player = new YouTubePlayer(playlist.get(0).get(0), PLAYER_WIDTH, PLAYER_HEIGHT);
+ //                   player = new YouTubePlayer(playlist.get(0).get(0), PLAYER_WIDTH, PLAYER_HEIGHT);
                     panel.setWidget(player);
             }
 
@@ -330,11 +325,11 @@ public class StageController extends Composite implements ValueChangeHandler<Str
                     fireEvent(event);
                 }
             });
-        } catch (PluginVersionException ex) {
-            panel.setWidget(PlayerUtil.getMissingPluginNotice(ex.getPlugin(), ex.getRequiredVersion()));
-        } catch (PluginNotFoundException ex) {
-            panel.setWidget(PlayerUtil.getMissingPluginNotice(ex.getPlugin()));
-        }
+//        } catch (PluginVersionException ex) {
+//            panel.setWidget(PlayerUtil.getMissingPluginNotice(ex.getPlugin(), ex.getRequiredVersion()));
+//        } catch (PluginNotFoundException ex) {
+//            panel.setWidget(PlayerUtil.getMissingPluginNotice(ex.getPlugin()));
+ //       }
     }
     @UiField
     Label title;
