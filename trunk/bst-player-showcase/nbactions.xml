@@ -6,7 +6,7 @@
         <displayName>dev mode</displayName>
         <goals>
             <goal>clean</goal>
-            <goal>gwt:run</goal>
+            <goal>gwt:run-codeserver</goal>
         </goals>
         <activatedProfiles>
             <activatedProfile>dev-mode</activatedProfile>

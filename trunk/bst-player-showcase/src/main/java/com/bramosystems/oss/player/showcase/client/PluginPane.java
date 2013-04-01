@@ -124,7 +124,7 @@ public class PluginPane extends Composite implements ValueChangeHandler<String> 
         }
 
         try {
-            PluginVersion req = plugin.getVersion();
+            PluginVersion req = PluginVersion.get(1, 1, 1); //plugin.getVersion();
             PluginVersion v = null;
             switch (plugin) {
                 case DivXPlayer:

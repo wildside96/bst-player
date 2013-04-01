@@ -4,11 +4,12 @@
     <parent>
         <artifactId>bst-player</artifactId>
         <groupId>com.bramosystems.oss.player</groupId>
-        <version>2.0-SNAPSHOT</version>
+        <version>2.0</version>
     </parent>
     <artifactId>bst-player-showcase</artifactId>
     <packaging>war</packaging>
     <name>BST Player Showcase</name>
+    <version>2.0-SNAPSHOT</version>
     <description>
         Showcases the features of the BST Player API
     </description>
@@ -47,16 +48,11 @@
             <artifactId>gwt-user</artifactId>
             <scope>provided</scope>
         </dependency>
+        <!--
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <version>${project.version}</version>
             <artifactId>bst-player-api</artifactId>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
             <version>${project.version}</version>
-            <artifactId>core-player-provider</artifactId>
             <scope>provided</scope>
         </dependency>
          <dependency>
@@ -65,11 +61,18 @@
             <artifactId>sample-players-provider</artifactId>
             <scope>provided</scope>
         </dependency>
+        -->
         <dependency>
             <groupId>${project.groupId}</groupId>
             <version>${project.version}</version>
             <artifactId>youtube-player-provider</artifactId>
             <scope>provided</scope>
         </dependency>
-   </dependencies>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <version>${project.version}</version>
+            <artifactId>core-player-provider</artifactId>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
 </project>

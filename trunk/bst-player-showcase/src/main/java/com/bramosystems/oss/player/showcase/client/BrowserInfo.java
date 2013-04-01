@@ -19,6 +19,9 @@ package com.bramosystems.oss.player.showcase.client;
 import com.bramosystems.oss.player.core.client.Plugin;
 import com.bramosystems.oss.player.core.client.PluginNotFoundException;
 import com.bramosystems.oss.player.core.client.MimePool;
+import com.bramosystems.oss.player.core.client.PlayerInfo;
+import com.bramosystems.oss.player.core.client.PlayerUtil;
+import com.bramosystems.oss.player.core.client.PluginInfo;
 import com.bramosystems.oss.player.core.client.PluginVersion;
 import com.bramosystems.oss.player.core.client.impl.plugin.PluginManager;
 import com.bramosystems.oss.player.showcase.client.res.Bundle;
@@ -100,52 +103,24 @@ public class BrowserInfo extends FlowPanel {
     }
 
     private void doMimePool() {
-        addPoolRow("Player Widget", "Plugin", "Plugin Version", false, "Supported Filename Suffixes", EntryType.header);
-        MimePool pool = MimePool.instance;
-        ArrayList<Plugin> plugs = new ArrayList<Plugin>(Arrays.asList(Plugin.values()));
-        plugs.remove(Plugin.Auto);
-        plugs.remove(Plugin.MatrixSupport);
-        plugs.remove(Plugin.PlaylistSupport);
+        addPoolRow("Player Widget", "Plugin Name", "Plugin Version", false, "Supported Filename Suffixes", EntryType.header);
         int row = 0;
-        for (Plugin plug : plugs) { //TODO: REFINE THIS TO WORK WITH PLUGININFO class
-            Boolean isSupported = null;
-            String player = plug.name(), plugName = plug.name(), ver = "-";
-            PluginVersion pv = null;
-            Set<String> suf = null;
-            try {
-                switch (plug) {
-                    case DivXPlayer:
-                        plugName = "DivX Web Player";
-                        break;
-                    case QuickTimePlayer:
-                        plugName = "QuickTime Player";
-                        break;
-                    case VLCPlayer:
-                        plugName = "VLC Multimedia Player";
-                        break;
-                    case FlashPlayer:
-                        player = "FlashMediaPlayer";
-                        plugName = "Adobe Flash Player";
-                        break;
-                    case WinMediaPlayer:
-                        plugName = "Windows Media Player";
-                        break;
-                    case Native:
-                        plugName = "HTML5 <code>&lt;video&gt;</code>";
-                        player = "NativePlayer";
-                        break;
-                }
-                
-                pv = PluginManager.getPluginInfo(plug).getVersion();
-                ver = pv.toString();
-                isSupported = pv.compareTo(plug.getVersion()) >= 0;
-                suf = pool.getRegisteredExtensions(plug);
-            } catch (PluginNotFoundException ex) {
-            }
 
-            addPoolRow(player, plugName, ver, isSupported,
-                    (isSupported != null) && isSupported && (suf != null) ? suf.toString() : "-", row++ % 2 != 0 ? EntryType.even : EntryType.odd);
+        for (String pder : PlayerUtil.getPlayerProviderNames()) {
+            addPoolRow(pder, "", "", false, "", EntryType.header);
+            for (String pInfo : PlayerUtil.getPlayerNames(pder)) {
+                PlayerInfo pi = PlayerUtil.getPlayerInfo(pder, pInfo);
+                Plugin pinf = pi.getDetectedPluginInfo().getPlugin();
+                boolean isSupported = pi.getDetectedPluginVersion().compareTo(pi.getRequiredPluginVersion()) >= 0;
+
+                addPoolRow(pi.getPlayerName(), pinf.equals(Plugin.None) ? "-" : pinf.toString(),
+                        pinf.equals(Plugin.None) ? "-" : pi.getDetectedPluginVersion().toString(), 
+                        pinf.equals(Plugin.None) ? null : isSupported,
+                        isSupported ? pi.getRegisteredExtensions().toString() : "-",
+                        row++ % 2 != 0 ? EntryType.even : EntryType.odd);
+            }
         }
+
         add(lb.createAndBindUi(null));
     }
 
