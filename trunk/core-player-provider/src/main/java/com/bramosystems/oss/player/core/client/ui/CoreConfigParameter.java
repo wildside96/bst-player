@@ -23,10 +23,7 @@ import com.bramosystems.oss.player.core.client.ui.WinMediaPlayer.UIMode;
  * Configuration parameters for the core player widgets.
  *
  * @author Sikiru Braheem <sbraheem at bramosystems . com>
- * @since 1.4
- * @see ConfigParameter
- * 
- * TODO:  document changes ...
+ * @since 2.0
  */
 public enum CoreConfigParameter implements ConfigParameter {
 

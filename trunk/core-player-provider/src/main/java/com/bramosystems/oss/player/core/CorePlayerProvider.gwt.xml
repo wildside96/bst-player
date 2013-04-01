@@ -16,6 +16,6 @@
 <!--                                                                        -->
 
 <module>
-    <inherits name="com.bramosystems.oss.player.core.CorePlayerProviderBase" />
+    <inherits name="com.bramosystems.oss.player.core.CorePlayerProviderLite" />
     <inherits name="com.bramosystems.oss.player.core.resources.Flash" />
 </module>

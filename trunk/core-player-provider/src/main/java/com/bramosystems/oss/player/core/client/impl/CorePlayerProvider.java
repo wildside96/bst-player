@@ -17,7 +17,7 @@ package com.bramosystems.oss.player.core.client.impl;
 
 import com.bramosystems.oss.player.core.client.*;
 import com.bramosystems.oss.player.core.client.impl.FMPStateManager.FMPStateCallback;
-import com.bramosystems.oss.player.core.client.impl.plugin.PluginManager;
+import com.bramosystems.oss.player.core.client.impl.plugin.PlayerManager;
 import com.bramosystems.oss.player.core.client.spi.ConfigurationContext;
 import com.bramosystems.oss.player.core.client.spi.PlayerElement;
 import com.bramosystems.oss.player.core.client.spi.PlayerProvider;
@@ -25,8 +25,7 @@ import com.bramosystems.oss.player.core.client.spi.PlayerProviderFactory;
 import com.bramosystems.oss.player.core.client.ui.*;
 import com.bramosystems.oss.player.util.client.MimeType;
 import com.google.gwt.core.client.JavaScriptObject;
-import java.util.HashMap;
-import java.util.Iterator;
+import java.util.*;
 
 /**
  *
@@ -177,14 +176,17 @@ public class CorePlayerProvider implements PlayerProviderFactory {
 
     public boolean isWMPProgrammableEmbedModeSupported() {
         try {
-            PluginInfo.PlayerPluginWrapperType w = PluginManager.getPluginInfo(Plugin.WinMediaPlayer).getWrapperType();
+            PluginInfo.PlayerPluginWrapperType w = PlayerUtil.getPluginInfo(Plugin.WinMediaPlayer).getWrapperType();
             return w.equals(PluginInfo.PlayerPluginWrapperType.WMPForFirefox) || w.equals(PluginInfo.PlayerPluginWrapperType.Totem);
         } catch (PluginNotFoundException ex) {
             return false;
         }
     }
 
-    /********************************************* Plugin detection ******************************************************/
+    /**
+     * ******************************************* Plugin detection
+     * *****************************************************
+     */
     @Override
     public PluginVersion getDetectedPluginVersion(String playerName) throws PluginNotFoundException {
         PluginVersion pv = new PluginVersion();
@@ -207,7 +209,7 @@ public class CorePlayerProvider implements PlayerProviderFactory {
                 pv = PlayerUtil.getWindowsMediaPlayerPluginVersion();
                 break;
             case Native:
-                if (PluginManager.isHTML5CompliantClient()) {
+                if (PlayerUtil.isHTML5CompliantClient()) {
                     pv = PluginVersion.get(5, 0, 0);
                 }
                 break;
@@ -215,15 +217,23 @@ public class CorePlayerProvider implements PlayerProviderFactory {
         return pv;
     }
 
-    /************************************ Native Utils for Flash Player ***********************************/
+    @Override
+    public PluginInfo getDetectedPluginInfo(String playerName) throws PluginNotFoundException {
+        return PlayerUtil.getPluginInfo(Plugin.valueOf(playerName));
+    }
+
+    /**
+     * ********************************** Native Utils for Flash Player
+     * **********************************
+     */
     public void initFMPHandler(String playerId, FMPStateCallback callback) {
         initFMPHandlerImpl(context.getGlobalJSStack(), playerId, callback);
     }
-    
+
     public String getFMPHandlerPrefix(String playerId) {
         return context.getGlobalJSStackName() + ".swf." + playerId;
     }
-    
+
     public void closeFMPHandler(String playerId) {
         closeFMPHandlerImpl(context.getGlobalJSStack(), playerId);
     }
@@ -231,7 +241,7 @@ public class CorePlayerProvider implements PlayerProviderFactory {
     public void initDivXHandlers(String playerId, DivXStateManager.StateCallback callback) {
         initDivxHandlersImpl(context.getGlobalJSStack(), playerId, callback);
     }
-    
+
     public String getDivXHandlerPrefix(String playerId) {
         return context.getGlobalJSStackName() + ".divx." + playerId;
     }
@@ -241,54 +251,185 @@ public class CorePlayerProvider implements PlayerProviderFactory {
     }
 
     private native void initDivxHandlersImpl(JavaScriptObject global, String playerId, DivXStateManager.StateCallback callback) /*-{
-    if(global.divx == null) {
-    global.divx = new Object();
-    }
-    global.divx[playerId] = new Object();
-    global.divx[playerId].stateChanged = function(eventId){
-    callback.@com.bramosystems.oss.player.core.client.impl.DivXStateManager.StateCallback::onStatusChanged(I)(parseInt(eventId));
-    }
-    global.divx[playerId].downloadState = function(current, total){
-    callback.@com.bramosystems.oss.player.core.client.impl.DivXStateManager.StateCallback::onLoadingChanged(DD)(parseFloat(current),parseFloat(total));
-    }
-    global.divx[playerId].timeState = function(time){
-    callback.@com.bramosystems.oss.player.core.client.impl.DivXStateManager.StateCallback::onPositionChanged(D)(parseFloat(time));
-    }
-    }-*/;
+     if(global.divx == null) {
+     global.divx = new Object();
+     }
+     global.divx[playerId] = new Object();
+     global.divx[playerId].stateChanged = function(eventId){
+     callback.@com.bramosystems.oss.player.core.client.impl.DivXStateManager.StateCallback::onStatusChanged(I)(parseInt(eventId));
+     }
+     global.divx[playerId].downloadState = function(current, total){
+     callback.@com.bramosystems.oss.player.core.client.impl.DivXStateManager.StateCallback::onLoadingChanged(DD)(parseFloat(current),parseFloat(total));
+     }
+     global.divx[playerId].timeState = function(time){
+     callback.@com.bramosystems.oss.player.core.client.impl.DivXStateManager.StateCallback::onPositionChanged(D)(parseFloat(time));
+     }
+     }-*/;
 
     private native void clearDivXHandlerImpl(JavaScriptObject global, String playerId) /*-{
-    delete global.divx[playerId];
-    }-*/;
+     delete global.divx[playerId];
+     }-*/;
 
     private native void closeFMPHandlerImpl(JavaScriptObject global, String playerId) /*-{
-    delete global.swf[playerId];
-    }-*/;
+     delete global.swf[playerId];
+     }-*/;
 
     private native void initFMPHandlerImpl(JavaScriptObject global, String playerId, FMPStateCallback callback) /*-{
-    if(global.swf == null) {
-    global.swf = new Object();
+     if(global.swf == null) {
+     global.swf = new Object();
+     }
+     global.swf[playerId] = new Object();
+     global.swf[playerId].onInit = function(){
+     callback.@com.bramosystems.oss.player.core.client.impl.FMPStateManager.FMPStateCallback::onInit()();
+     }
+     global.swf[playerId].onEvent = function(type,buttonDown,alt,ctrl,shift,cmd,stageX_keyCode,stageY_charCode){
+     callback.@com.bramosystems.oss.player.core.client.impl.FMPStateManager.FMPStateCallback::onEvent(IZZZZZII)(type,buttonDown,alt,ctrl,shift,cmd,stageX_keyCode,stageY_charCode);
+     }
+     global.swf[playerId].onStateChanged = function(state, listIndex){
+     callback.@com.bramosystems.oss.player.core.client.impl.FMPStateManager.FMPStateCallback::onStateChanged(II)(state,listIndex);
+     }
+     global.swf[playerId].onLoadingProgress = function(progress){
+     callback.@com.bramosystems.oss.player.core.client.impl.FMPStateManager.FMPStateCallback::onProgress(D)(progress);
+     }
+     global.swf[playerId].onMessage = function(type, message){
+     callback.@com.bramosystems.oss.player.core.client.impl.FMPStateManager.FMPStateCallback::onMessage(ILjava/lang/String;)(type,message);
+     }
+     global.swf[playerId].onMetadata = function(id3){
+     callback.@com.bramosystems.oss.player.core.client.impl.FMPStateManager.FMPStateCallback::onMediaInfo(Ljava/lang/String;)(id3);
+     }
+     global.swf[playerId].onFullscreen = function(fs){
+     callback.@com.bramosystems.oss.player.core.client.impl.FMPStateManager.FMPStateCallback::onFullScreen(Z)(fs);
+     }
+     }-*/;
+
+    @Override
+    public Set<String> getPermittedMimeTypes(String playerName, PluginVersion version) {
+        HashSet<String> types = new HashSet<String>();
+        Plugin plugin = Plugin.valueOf(playerName);
+        switch (plugin) {
+            case DivXPlayer:
+                types.add("video/divx");
+                if (version.compareTo(2, 1, 0) >= 0) {
+                    types.add("video/mp4");
+                    types.add("video/x-mov");
+                }
+                break;
+            case FlashPlayer:
+                types.add("audio/x-m4a");
+                types.add("audio/mpeg");
+                types.add("audio/x-mpegurl");
+                types.add("video/flv");
+                types.add("video/x-flv");
+                types.add("video/mp4");
+                break;
+            case QuickTimePlayer:
+                types.add("audio/wav");
+                types.add("audio/mid");
+                types.add("audio/basic");
+                types.add("audio/x-aiff");
+                types.add("audio/ac3");
+                types.add("audio/aac");
+                types.add("audio/amr");
+                types.add("audio/x-gsm");
+                types.add("audio/3gpp");
+                types.add("audio/3gpp2");
+                types.add("audio/x-mpegurl");
+                types.add("audio/mpeg");
+                types.add("audio/mp4");
+                types.add("audio/x-m4a");
+                types.add("audio/x-m4b");
+                types.add("audio/x-m4p");
+                types.add("audio/x-caf");
+                types.add("video/sd-video");
+                types.add("video/mpeg");
+                types.add("video/mp4");
+                types.add("video/quicktime");
+                break;
+            case VLCPlayer:
+                types.add("audio/mpeg");
+                types.add("audio/x-matroska");
+                types.add("audio/x-m4a");
+                types.add("audio/x-mpegurl");
+                types.add("audio/x-ms-wma");
+                types.add("audio/wav");
+                types.add("audio/3gpp");
+                types.add("audio/3gpp2");
+                types.add("video/mpeg");
+                types.add("video/mpeg-system");
+                types.add("video/mp4");
+                types.add("video/x-msvideo");
+                types.add("video/quicktime");
+                types.add("video/x-ms-asf-plugin");
+                types.add("video/x-ms-asf");
+                types.add("video/x-ms-wmv");
+                types.add("video/3gpp");
+                types.add("video/3gpp2");
+                types.add("video/divx");
+                types.add("video/flv");
+                types.add("video/x-matroska");
+                break;
+            case WinMediaPlayer:
+                types.add("audio/mid");
+                types.add("audio/basic");
+                types.add("audio/x-ms-wma");
+                types.add("audio/x-ms-wax");
+                types.add("video/x-ms-asf-plugin");
+                types.add("video/x-ms-asf");
+                types.add("video/x-ms-wm");
+                types.add("video/x-ms-wmv");
+                types.add("video/x-ms-wvx");
+                if (version.compareTo(12, 0, 0) >= 0) {
+                    types.add("audio/mp4");
+                    types.add("audio/aac");
+                    types.add("audio/aiff");
+                    types.add("audio/3gpp");
+                    types.add("audio/3gpp2");
+                    types.add("video/mp4");
+                    types.add("video/3gpp");
+                    types.add("video/3gpp2");
+                    types.add("video/mp2t");
+                }
+                break;
+            case Native:
+                    Iterator<String> mimeKeys = PlayerUtil.getHMTL5MimeTypes().iterator();
+                    while (mimeKeys.hasNext()) {
+                        String mime = mimeKeys.next();
+                        types.addAll(PlayerUtil.getMediaExtensions(mime));
+                     }
+                break;
+        }
+        return types;
     }
-    global.swf[playerId] = new Object();
-    global.swf[playerId].onInit = function(){
-    callback.@com.bramosystems.oss.player.core.client.impl.FMPStateManager.FMPStateCallback::onInit()();
+
+    @Override
+    public Set<String> getPermittedMediaProtocols(String playerName, PluginVersion version) {
+        HashSet<String> types = new HashSet<String>();
+        Plugin plugin = Plugin.valueOf(playerName);
+        switch (plugin) {
+            case FlashPlayer:
+                types.add("rtmp");
+                break;
+            case QuickTimePlayer:
+                types.add("rtsp");
+                types.add("rts");
+                break;
+            case VLCPlayer:
+                types.add("rtp");
+                types.add("rtsp");
+                types.add("mms");
+                types.add("udp");
+                break;
+            case WinMediaPlayer:
+                types.add("rtsp");
+                types.add("rtspu");
+                types.add("rtspt");
+                types.add("mms");
+                types.add("mmsu");
+                types.add("mmst");
+                types.add("wmpcd");
+                types.add("wmpdvd");
+                break;
+        }
+        return types;
     }
-    global.swf[playerId].onEvent = function(type,buttonDown,alt,ctrl,shift,cmd,stageX_keyCode,stageY_charCode){
-    callback.@com.bramosystems.oss.player.core.client.impl.FMPStateManager.FMPStateCallback::onEvent(IZZZZZII)(type,buttonDown,alt,ctrl,shift,cmd,stageX_keyCode,stageY_charCode);
-    }
-    global.swf[playerId].onStateChanged = function(state, listIndex){
-    callback.@com.bramosystems.oss.player.core.client.impl.FMPStateManager.FMPStateCallback::onStateChanged(II)(state,listIndex);
-    }
-    global.swf[playerId].onLoadingProgress = function(progress){
-    callback.@com.bramosystems.oss.player.core.client.impl.FMPStateManager.FMPStateCallback::onProgress(D)(progress);
-    }
-    global.swf[playerId].onMessage = function(type, message){
-    callback.@com.bramosystems.oss.player.core.client.impl.FMPStateManager.FMPStateCallback::onMessage(ILjava/lang/String;)(type,message);
-    }
-    global.swf[playerId].onMetadata = function(id3){
-    callback.@com.bramosystems.oss.player.core.client.impl.FMPStateManager.FMPStateCallback::onMediaInfo(Ljava/lang/String;)(id3);
-    }
-    global.swf[playerId].onFullscreen = function(fs){
-    callback.@com.bramosystems.oss.player.core.client.impl.FMPStateManager.FMPStateCallback::onFullScreen(Z)(fs);
-    }
-    }-*/;
 }

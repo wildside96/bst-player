@@ -24,11 +24,14 @@ import com.bramosystems.oss.player.core.client.playlist.PlaylistManager;
 import com.bramosystems.oss.player.core.client.spi.Player;
 import com.bramosystems.oss.player.core.client.spi.PlayerWidget;
 import com.bramosystems.oss.player.core.event.client.*;
+import com.bramosystems.oss.player.util.client.RegExp.RegexException;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.i18n.client.NumberFormat;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.DOM;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Widget to embed QuickTime&trade; plugin.
@@ -57,9 +60,10 @@ import java.util.List;
  *
  * @author Sikirulai Braheem
  */
-@Player(name = "QuickTimePlayer", providerFactory = CorePlayerProvider.class, minPluginVersion = "7.2.1")
+@Player(name = "QuickTimePlayer", providerFactory = CorePlayerProvider.class, minPluginVersion = QuickTimePlayer.reqVer)
 public class QuickTimePlayer extends AbstractMediaPlayer implements MatrixSupport, PlaylistSupport {
 
+    static final String reqVer = "7.2.1";
     private static QTStateManager manager = GWT.create(QTStateManager.class);
     private static NumberFormat mxNf = NumberFormat.getFormat("#0.0###"), // fix QT Matrix precision issues
             volFmt = NumberFormat.getPercentFormat();
@@ -73,10 +77,15 @@ public class QuickTimePlayer extends AbstractMediaPlayer implements MatrixSuppor
     private String _height, _width;
 
     private QuickTimePlayer() throws PluginNotFoundException, PluginVersionException {
-        PluginVersion req = Plugin.QuickTimePlayer.getVersion();
-        PluginVersion v = PlayerUtil.getQuickTimePluginVersion();
-        if (v.compareTo(req) < 0) {
-            throw new PluginVersionException(Plugin.QuickTimePlayer, req.toString(), v.toString());
+        PluginVersion req;
+        try {
+            req = PluginVersion.get(reqVer);
+            PluginVersion v = PlayerUtil.getQuickTimePluginVersion();
+            if (v.compareTo(req) < 0) {
+                throw new PluginVersionException(Plugin.QuickTimePlayer, req.toString(), v.toString());
+            }
+        } catch (RegexException ex) {
+            throw new PluginNotFoundException(Plugin.QuickTimePlayer);
         }
 
         playerId = DOM.createUniqueId().replace("-", "");
@@ -687,7 +696,7 @@ public class QuickTimePlayer extends AbstractMediaPlayer implements MatrixSuppor
     /**
      * An enum of scalling values that can be used to scale the dimensions of a QuickTime movie
      *
-     * @see ConfigParameter#QTScale
+     * @see CoreConfigParameter#QTScale
      * @since 1.2
      * @author Sikiru Braheem
      */
