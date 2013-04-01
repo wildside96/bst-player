@@ -15,17 +15,9 @@
  */
 package com.bramosystems.oss.player.core.client.ui;
 
-import com.bramosystems.oss.player.core.client.AbstractMediaPlayer;
+import com.bramosystems.oss.player.core.client.*;
 import com.bramosystems.oss.player.core.client.playlist.MRL;
-import com.bramosystems.oss.player.core.client.LoadException;
-import com.bramosystems.oss.player.core.client.MediaInfo;
 import com.bramosystems.oss.player.core.client.MediaInfo.MediaInfoKey;
-import com.bramosystems.oss.player.core.client.PlayException;
-import com.bramosystems.oss.player.core.client.PlayerUtil;
-import com.bramosystems.oss.player.core.client.PlaylistSupport;
-import com.bramosystems.oss.player.core.client.Plugin;
-import com.bramosystems.oss.player.core.client.PluginNotFoundException;
-import com.bramosystems.oss.player.core.client.RepeatMode;
 import com.bramosystems.oss.player.core.client.playlist.PlaylistManager;
 import com.bramosystems.oss.player.core.client.impl.LoopManager;
 import com.bramosystems.oss.player.core.client.impl.NativePlayerImpl;
@@ -602,6 +594,16 @@ public class NativePlayer extends AbstractMediaPlayer implements PlaylistSupport
     public void setRepeatMode(RepeatMode mode) {
         loopManager.setRepeatMode(mode);
     }
+
+    @Override
+    public <C extends ConfigParameter> void setConfigParameter(C param, Object value) {
+        super.setConfigParameter(param, value);
+        if(param.getName().equals(DefaultConfigParameter.BackgroundColor.getName())) {
+            
+        }
+    }
+    
+    
 
     private enum NetworkState {
 

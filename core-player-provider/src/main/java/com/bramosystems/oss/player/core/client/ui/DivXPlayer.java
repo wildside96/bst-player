@@ -25,6 +25,7 @@ import com.bramosystems.oss.player.core.client.impl.*;
 import com.bramosystems.oss.player.core.client.impl.CorePlayerProvider;
 import com.bramosystems.oss.player.core.event.client.*;
 import com.bramosystems.oss.player.core.client.spi.Player;
+import com.bramosystems.oss.player.util.client.RegExp;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.DOM;
 import java.util.List;
@@ -59,9 +60,10 @@ import java.util.List;
  * @since 1.2
  * @author Sikiru Braheem
  */
-@Player(name = "DivXPlayer", providerFactory = CorePlayerProvider.class, minPluginVersion = "2.0.0")
+@Player(name = "DivXPlayer", providerFactory = CorePlayerProvider.class, minPluginVersion = DivXPlayer.reqVer)
 public class DivXPlayer extends AbstractMediaPlayer implements PlaylistSupport {
 
+    static final String reqVer = "2.0.1";
     private DivXPlayerImpl impl;
     private PlayerWidget playerWidget;
     private String playerId, _height, _width;
@@ -72,12 +74,17 @@ public class DivXPlayer extends AbstractMediaPlayer implements PlaylistSupport {
     private double currentPosition;
 
     private DivXPlayer() throws PluginNotFoundException, PluginVersionException {
-        PluginVersion req = Plugin.DivXPlayer.getVersion();
-        PluginVersion v = PlayerUtil.getDivXPlayerPluginVersion();
-        if (v.compareTo(req) < 0) {
-            throw new PluginVersionException(Plugin.DivXPlayer, req.toString(), v.toString());
+        PluginVersion req;
+        try {
+            req = PluginVersion.get(reqVer);
+            PluginVersion v = PlayerUtil.getDivXPlayerPluginVersion();
+            if (v.compareTo(req) < 0) {
+                throw new PluginVersionException(Plugin.DivXPlayer, req.toString(), v.toString());
+            }
+        } catch (RegExp.RegexException ex) {
+            throw new PluginNotFoundException(Plugin.DivXPlayer);
         }
-
+ 
         playerId = DOM.createUniqueId().replace("-", "");
         loopManager = new LoopManager(new LoopManager.LoopCallback() {
 

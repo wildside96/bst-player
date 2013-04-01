@@ -66,15 +66,14 @@
 
     <!-- VLCStateManager mapping for IE6/7/8 -->
     <!-- Disable mapping until VLC has proper events support -->
-    <!--
     <replace-with class="com.bramosystems.oss.player.core.client.impl.VLCStateManagerIE">
         <when-type-is class="com.bramosystems.oss.player.core.client.impl.VLCStateManager"/>
         <any>
             <when-property-is name="user.agent" value="ie6"/>
             <when-property-is name="user.agent" value="ie8"/>
+            <when-property-is name="user.agent" value="ie9"/>
         </any>
     </replace-with>
-    -->
 
     <!-- NativePlayerUtil mapping -->
     <replace-with class="com.bramosystems.oss.player.core.client.impl.NativePlayerUtil.NativePlayerUtilSafari">

@@ -15,16 +15,14 @@
  */
 package com.bramosystems.oss.player.core.client.ui;
 
-import com.bramosystems.oss.player.core.client.*;
 import com.bramosystems.oss.player.core.client.MediaInfo.MediaInfoKey;
-import com.bramosystems.oss.player.core.client.impl.LoopManager;
-import com.bramosystems.oss.player.core.client.impl.VLCPlayerImpl;
-import com.bramosystems.oss.player.core.client.impl.VLCStateManager;
-import com.bramosystems.oss.player.core.client.spi.PlayerWidget;
-import com.bramosystems.oss.player.core.client.impl.CorePlayerProvider;
+import com.bramosystems.oss.player.core.client.*;
+import com.bramosystems.oss.player.core.client.impl.*;
 import com.bramosystems.oss.player.core.client.playlist.MRL;
-import com.bramosystems.oss.player.core.event.client.*;
 import com.bramosystems.oss.player.core.client.spi.Player;
+import com.bramosystems.oss.player.core.client.spi.PlayerWidget;
+import com.bramosystems.oss.player.core.event.client.*;
+import com.bramosystems.oss.player.util.client.RegExp;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.DOM;
@@ -58,9 +56,10 @@ import java.util.List;
  *
  * @author Sikirulai Braheem
  */
-@Player(name = "VLCPlayer", providerFactory = CorePlayerProvider.class, minPluginVersion = "2.0.2")
+@Player(name = "VLCPlayer", providerFactory = CorePlayerProvider.class, minPluginVersion = VLCPlayer.reqVer)
 public class VLCPlayer extends AbstractMediaPlayer implements PlaylistSupport {
 
+    static final String reqVer = "2.0.2";
     private VLCPlayerImpl impl;
     private PlayerWidget playerWidget;
     private VLCStateManager stateHandler;
@@ -69,10 +68,15 @@ public class VLCPlayer extends AbstractMediaPlayer implements PlaylistSupport {
     private LoopManager loopManager;
 
     private VLCPlayer() throws PluginNotFoundException, PluginVersionException {
-        PluginVersion req = Plugin.VLCPlayer.getVersion();
-        PluginVersion v = PlayerUtil.getVLCPlayerPluginVersion();
-        if (v.compareTo(req) < 0) {
-            throw new PluginVersionException(Plugin.VLCPlayer, req.toString(), v.toString());
+        PluginVersion req;
+        try {
+            req = PluginVersion.get(reqVer);
+            PluginVersion v = PlayerUtil.getVLCPlayerPluginVersion();
+            if (v.compareTo(req) < 0) {
+                throw new PluginVersionException(Plugin.VLCPlayer, req.toString(), v.toString());
+            }
+        } catch (RegExp.RegexException ex) {
+            throw new PluginNotFoundException(Plugin.VLCPlayer);
         }
 
         playerId = DOM.createUniqueId().replace("-", "");

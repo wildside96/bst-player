@@ -88,8 +88,6 @@ public class TxtPlayerUtil extends GWTTestCase {
                     || (result instanceof FlashMediaPlayer)
                     || (result instanceof VLCPlayer)
                     || (result instanceof NativePlayer));
-        } catch (LoadException ex) {
-            System.out.println("Exception : " + ex.getMessage());
         } catch (PluginNotFoundException ex) {
             System.out.println("Exception : " + ex.getMessage());
         } catch (PluginVersionException ex) {
@@ -105,8 +103,6 @@ public class TxtPlayerUtil extends GWTTestCase {
                     || (result instanceof FlashMediaPlayer)
                     || (result instanceof VLCPlayer)
                     || (result instanceof NativePlayer));
-        } catch (LoadException ex) {
-            System.out.println("Exception : " + ex.getMessage());
         } catch (PluginNotFoundException ex) {
             System.out.println("Exception : " + ex.getMessage());
         } catch (PluginVersionException ex) {
@@ -120,8 +116,6 @@ public class TxtPlayerUtil extends GWTTestCase {
             assertTrue((result instanceof QuickTimePlayer)
                     || (result instanceof VLCPlayer)
                     || (result instanceof DivXPlayer));
-        } catch (LoadException ex) {
-            System.out.println("Exception : " + ex.getMessage());
         } catch (PluginNotFoundException ex) {
             System.out.println("Exception : " + ex.getMessage());
         } catch (PluginVersionException ex) {
@@ -134,8 +128,6 @@ public class TxtPlayerUtil extends GWTTestCase {
             System.out.println(result.getClass());
             assertTrue((result instanceof WinMediaPlayer)
                     || (result instanceof VLCPlayer));
-        } catch (LoadException ex) {
-            System.out.println("Exception : " + ex.getMessage());
         } catch (PluginNotFoundException ex) {
             System.out.println("Exception : " + ex.getMessage());
         } catch (PluginVersionException ex) {
@@ -147,8 +139,6 @@ public class TxtPlayerUtil extends GWTTestCase {
             result = PlayerUtil.getPlayer("foo.vob", false, "0", "0");
             System.out.println(result.getClass());
             assertTrue((result instanceof VLCPlayer) || (result instanceof NativePlayer));
-        } catch (LoadException ex) {
-            System.out.println("Exception : " + ex.getMessage());
         } catch (PluginNotFoundException ex) {
             System.out.println("Exception : " + ex.getMessage());
         } catch (PluginVersionException ex) {

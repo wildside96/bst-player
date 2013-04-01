@@ -1,14 +1,15 @@
 <?xml version="1.0"?>
 <project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <artifactId>bst-player</artifactId>
         <groupId>com.bramosystems.oss.player</groupId>
-        <version>2.0-SNAPSHOT</version>
+        <version>2.0</version>
     </parent>
     <artifactId>core-player-provider</artifactId>
     <name>Core Player Provider</name>
+    <version>2.0-SNAPSHOT</version>
     <description>
         Provides the core media player widgets.
     </description>
@@ -46,7 +47,7 @@
                                 <artifactItem>
                                     <groupId>${project.groupId}</groupId>
                                     <artifactId>bst-flash-player</artifactId>
-                                    <version>${project.version}</version>
+                                    <version>2.0</version>
                                     <type>swf</type>
                                     <classifier>lo</classifier>
                                 </artifactItem>
@@ -65,7 +66,7 @@
                                 <artifactItem>
                                     <groupId>${project.groupId}</groupId>
                                     <artifactId>bst-flash-player</artifactId>
-                                    <version>${project.version}</version>
+                                    <version>2.0</version>
                                     <type>swf</type>
                                 </artifactItem>
                             </artifactItems>
@@ -86,14 +87,6 @@
                     </execution>
                 </executions>
             </plugin>
-            <plugin>
-                <artifactId>maven-jar-plugin</artifactId>
-                <configuration>
-                    <excludes>
-                        <exclude>**/dev/**</exclude>
-                    </excludes>
-                </configuration>
-            </plugin>
         </plugins>
     </build>
 
@@ -110,59 +103,11 @@
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>bst-player-api</artifactId>
-            <version>${project.version}</version>
-            <scope>provided</scope>
+            <version>[2.0, )</version>
         </dependency>
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
         </dependency>
-  
-
-        <!--dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>bst-player-apt</artifactId>
-            <version>${project.version}</version>
-            <scope>provided</scope>
-        </dependency-->
     </dependencies>
-    
-    <profiles>
-        <profile>
-            <id>dev-mode</id>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.codehaus.mojo</groupId>
-                        <artifactId>gwt-maven-plugin</artifactId>
-                        <configuration>
-                            <module>com.bramosystems.oss.player.dev.Dev</module>
-                            <runTarget>dev/index.html</runTarget>
-                            <hostedWebapp>${project.build.directory}/${project.build.finalName}</hostedWebapp>
-                            <bindAddress>0.0.0.0</bindAddress>
-                        </configuration>
-                    </plugin>
-                    <plugin>
-                        <groupId>org.codehaus.mojo</groupId>
-                        <artifactId>build-helper-maven-plugin</artifactId>
-                        <version>1.7</version>
-                        <executions>
-                            <execution>
-                                <id>add-source</id>
-                                <phase>generate-sources</phase>
-                                <goals>
-                                    <goal>add-source</goal>
-                                </goals>
-                                <configuration>
-                                    <sources>
-                                        <source>${project.build.directory}/generated-sources/annotations</source>
-                                    </sources>
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-    </profiles>
 </project>

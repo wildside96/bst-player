@@ -25,6 +25,7 @@ import com.bramosystems.oss.player.core.client.impl.FlashMediaPlayerImpl;
 import com.bramosystems.oss.player.core.client.playlist.MRL;
 import com.bramosystems.oss.player.core.client.spi.Player;
 import com.bramosystems.oss.player.core.event.client.*;
+import com.bramosystems.oss.player.util.client.RegExp;
 import com.google.gwt.dom.client.Document;
 import com.google.gwt.dom.client.NativeEvent;
 import com.google.gwt.event.dom.client.DomEvent;
@@ -69,9 +70,11 @@ import java.util.List;
  * @author Sikirulai Braheem
  * @since 1.0
  */
-@Player(name = "FlashPlayer", providerFactory = CorePlayerProvider.class, minPluginVersion = "10.0.0")
+@Player(name = "FlashPlayer", providerFactory = CorePlayerProvider.class, minPluginVersion = FlashMediaPlayer.reqVer)
 public class FlashMediaPlayer extends AbstractMediaPlayer implements PlaylistSupport, MatrixSupport {
 
+    final static String reqVer = "10.0.0";
+    private PluginVersion req;
     private FlashMediaPlayerImpl impl;
     private String playerId;
     private boolean isEmbedded, resizeToVideoSize;
@@ -81,12 +84,15 @@ public class FlashMediaPlayer extends AbstractMediaPlayer implements PlaylistSup
     private static String DEFAULT_HEIGHT = "22px";
 
     private FlashMediaPlayer() throws PluginNotFoundException, PluginVersionException {
-        PluginVersion req = Plugin.FlashPlayer.getVersion();
-        PluginVersion v = PlayerUtil.getFlashPlayerVersion();
-        if (v.compareTo(req) < 0) {
-            throw new PluginVersionException(Plugin.FlashPlayer, req.toString(), v.toString());
+        try {
+            req = PluginVersion.get(reqVer);
+            PluginVersion v = PlayerUtil.getFlashPlayerVersion();
+            if (v.compareTo(req) < 0) {
+                throw new PluginVersionException(Plugin.FlashPlayer, req.toString(), v.toString());
+            }
+        } catch (RegExp.RegexException ex) {
+            throw new PluginNotFoundException(Plugin.FlashPlayer);
         }
-
         _playlistCache = new ArrayList<String>();
         resizeToVideoSize = false;
     }
@@ -123,7 +129,7 @@ public class FlashMediaPlayer extends AbstractMediaPlayer implements PlaylistSup
             _width = "0px";
         }
 
-        swf = new SWFWidget(FMPStateManager.getSWFImpl(), "100%", _height, Plugin.FlashPlayer.getVersion());
+        swf = new SWFWidget(FMPStateManager.getSWFImpl(), "100%", _height, req);
         swf.setFlashVar("playerId", swf.getId());
         swf.setFlashVar("autoplay", Boolean.toString(autoplay));
         swf.setFlashVar("evtPfx", ((CorePlayerProvider) getWidgetFactory("core")).getFMPHandlerPrefix(swf.getId()));

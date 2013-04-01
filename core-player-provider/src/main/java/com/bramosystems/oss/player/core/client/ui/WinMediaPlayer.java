@@ -26,6 +26,7 @@ import com.bramosystems.oss.player.core.client.impl.CorePlayerProvider;
 import com.bramosystems.oss.player.core.event.client.*;
 import com.bramosystems.oss.player.core.event.client.PlayerStateEvent.State;
 import com.bramosystems.oss.player.core.client.spi.Player;
+import com.bramosystems.oss.player.util.client.RegExp;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.NativeEvent;
 import com.google.gwt.event.dom.client.DomEvent;
@@ -67,9 +68,10 @@ import java.util.List;
  *
  * @author Sikirulai Braheem
  */
-@Player(name = "WinMediaPlayer", providerFactory = CorePlayerProvider.class, minPluginVersion = "1.1.1")
+@Player(name = "WinMediaPlayer", providerFactory = CorePlayerProvider.class, minPluginVersion = WinMediaPlayer.reqVer)
 public class WinMediaPlayer extends AbstractMediaPlayer implements PlaylistSupport {
 
+    final static String reqVer = "1.1.1";
     private static WMPStateManager stateManager;
     private static String DEFAULT_HEIGHT = "50px";
     private WMPStateManager.EventProcessor eventProcessor;
@@ -88,9 +90,15 @@ public class WinMediaPlayer extends AbstractMediaPlayer implements PlaylistSuppo
             throw new PluginNotFoundException(Plugin.WinMediaPlayer, "'Media Player plugin for Firefox' is required");
         }
 
-        PlayerInfo pi = PlayerUtil.getPlayerInfo("core", Plugin.WinMediaPlayer.name());
-        if (pi.getDetectedPluginVersion().compareTo(pi.getRequiredPluginVersion()) < 0) {
-            throw new PluginVersionException(Plugin.WinMediaPlayer, pi.getRequiredPluginVersion().toString(), pi.getDetectedPluginVersion().toString());
+        PluginVersion req;
+        try {
+            req = PluginVersion.get(reqVer);
+            PluginVersion v = PlayerUtil.getWindowsMediaPlayerPluginVersion();
+            if (v.compareTo(req) < 0) {
+                throw new PluginVersionException(Plugin.WinMediaPlayer, req.toString(), v.toString());
+            }
+        } catch (RegExp.RegexException ex) {
+            throw new PluginNotFoundException(Plugin.WinMediaPlayer);
         }
 
         playerId = DOM.createUniqueId().replace("-", "");
@@ -211,7 +219,7 @@ public class WinMediaPlayer extends AbstractMediaPlayer implements PlaylistSuppo
      * video control, specify valid CSS values for {@code height} and {@code width} but hide the
      * player controls with {@code setControllerVisible(false)}.
      *
-     * <p>This is the same as calling {@code WinMediaPlayer(mediaURL, true, "50px", "100%", EmbedMode.PROGRAMMABLE)}</p>
+     * <p>This is the same as calling {@code WinMediaPlayer(mediaURL, true, height, width, EmbedMode.PROGRAMMABLE)}</p>
      *
      * @param mediaURL the URL of the media to playback
      * @param autoplay {@code true} to start playing automatically, {@code false} otherwise
@@ -530,7 +538,7 @@ public class WinMediaPlayer extends AbstractMediaPlayer implements PlaylistSuppo
      * when the underlying plugin is initialized.
      *
      * <p><b>Note - Google Chrome 3:</b> This method fails! As of version 1.1 use
-     * {@linkplain #setConfigParameter(ConfigParameter, ConfigValue)} instead.</p>
+     * {@linkplain #setConfigParameter(com.bramosystems.oss.player.core.client.ConfigParameter, java.lang.Object)} instead.</p>
      *
      * @since 1.0
      * @param uiMode the UI mode to set
