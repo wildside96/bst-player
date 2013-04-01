@@ -51,7 +51,7 @@ public enum Plugin {
     /**
      * Specifies the Flash Player plugin
      */
-    FlashPlayer("http://get.adobe.com/flashplayer", "Flash Player (BST Flash Player)"),
+    FlashPlayer("http://get.adobe.com/flashplayer", "Adobe Flash Player"),
 
     /**
      * Specifies the Window Media Player&trade; plugin
@@ -90,7 +90,13 @@ public enum Plugin {
      * @see MatrixSupport
      * @since 1.1
      */
-    MatrixSupport("", "Matrix Support");
+    MatrixSupport("", "Matrix Support"),
+    
+    /**
+     * Specifies No Player plugin
+     * @since 2.0
+     */
+    None("", "");
 
     private String downloadURL, desc;
 

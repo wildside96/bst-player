@@ -32,8 +32,8 @@ import com.google.gwt.user.client.ui.*;
  */
 public class Logger extends Composite {
 
-        private ImgPack imgpack = GWT.create(ImgPack.class);
-        private LoggerConsoleImpl impl;
+    private ImgPack imgpack = GWT.create(ImgPack.class);
+    private LoggerConsoleImpl impl;
 
     /**
      * Constructs a Logger object
@@ -52,9 +52,10 @@ public class Logger extends Composite {
     }
 
     /**
-     * Convenience method to return a Logger object attached to the specified <code>player</code>.  
-     * All debug messages of the player are logged by the returned object.
-     * 
+     * Convenience method to return a Logger object attached to the specified
+     * <code>player</code>. All debug messages of the player are logged by the
+     * returned object.
+     *
      * @param player the player whose debug messages is to be logged
      * @return the Logger object
      * @since 2.0
@@ -62,7 +63,6 @@ public class Logger extends Composite {
     public static Logger getLogger(AbstractMediaPlayer player) {
         final Logger l = new Logger();
         player.addDebugHandler(new DebugHandler() {
-
             @Override
             public void onDebug(DebugEvent event) {
                 l.log(event.getMessage(), true);
@@ -70,6 +70,7 @@ public class Logger extends Composite {
         });
         return l;
     }
+
     /**
      * Adds <code>message</code> to the list of messages in this objects' log
      *
@@ -95,7 +96,8 @@ public class Logger extends Composite {
         private FlowPanel console;
         private ScrollPanel sp;
 
-        public LoggerConsoleImpl() {}
+        public LoggerConsoleImpl() {
+        }
 
         public Widget getConsole() {
             console = new FlowPanel();
@@ -120,7 +122,8 @@ public class Logger extends Composite {
 
     static class NullLoggerConsoleImpl extends LoggerConsoleImpl {
 
-        public NullLoggerConsoleImpl() {}
+        public NullLoggerConsoleImpl() {
+        }
 
         @Override
         public Widget getConsole() {
@@ -128,6 +131,7 @@ public class Logger extends Composite {
         }
 
         @Override
-        public void log(String message, boolean asHTML) {}
+        public void log(String message, boolean asHTML) {
+        }
     }
 }
