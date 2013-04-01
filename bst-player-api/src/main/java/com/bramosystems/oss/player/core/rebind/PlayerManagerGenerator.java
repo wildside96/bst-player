@@ -177,7 +177,7 @@ public class PlayerManagerGenerator extends Generator {
         sourceWriter.println("@Override");
         sourceWriter.println("public Set<String> getProviders(){");
         sourceWriter.indent();
-        sourceWriter.println("return pInfos.keySet();");
+        sourceWriter.println("return new TreeSet<String>(pInfos.keySet());");
         sourceWriter.outdent();
         sourceWriter.println("}");
         sourceWriter.println();
@@ -188,7 +188,7 @@ public class PlayerManagerGenerator extends Generator {
         sourceWriter.indent();
         sourceWriter.println("if(!pInfos.containsKey(providerName))");
         sourceWriter.println("throw new IllegalArgumentException(\"Unknown player provider - \" + providerName);");
-        sourceWriter.println("return pInfos.get(providerName).keySet();");
+        sourceWriter.println("return new TreeSet<String>(pInfos.get(providerName).keySet());");
         sourceWriter.outdent();
         sourceWriter.println("}");
         sourceWriter.println();

@@ -24,6 +24,7 @@ import com.bramosystems.oss.player.core.client.spi.PlayerProvider;
 import com.bramosystems.oss.player.core.client.spi.PlayerProviderFactory;
 import com.bramosystems.oss.player.core.client.ui.*;
 import com.bramosystems.oss.player.util.client.MimeType;
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.JavaScriptObject;
 import java.util.*;
 
@@ -391,11 +392,7 @@ public class CorePlayerProvider implements PlayerProviderFactory {
                 }
                 break;
             case Native:
-                    Iterator<String> mimeKeys = PlayerUtil.getHMTL5MimeTypes().iterator();
-                    while (mimeKeys.hasNext()) {
-                        String mime = mimeKeys.next();
-                        types.addAll(PlayerUtil.getMediaExtensions(mime));
-                     }
+                types.addAll(PlayerUtil.getHMTL5MimeTypes());
                 break;
         }
         return types;
