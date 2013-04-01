@@ -15,11 +15,7 @@
  */
 package com.bramosystems.oss.player.core.client.impl;
 
-import com.bramosystems.oss.player.core.client.AbstractMediaPlayer;
-import com.bramosystems.oss.player.core.client.PlayerUtil;
-import com.bramosystems.oss.player.core.client.PluginNotFoundException;
-import com.bramosystems.oss.player.core.client.PluginVersion;
-import com.bramosystems.oss.player.core.client.PluginVersionException;
+import com.bramosystems.oss.player.core.client.*;
 import com.bramosystems.oss.player.core.client.spi.ConfigurationContext;
 import com.bramosystems.oss.player.core.client.spi.PlayerElement;
 import com.bramosystems.oss.player.core.client.spi.PlayerProvider;
@@ -82,9 +78,9 @@ public class APIWidgetProvider implements PlayerProviderFactory {
         return e;
     }
 
-     @Override
+    @Override
     public PluginVersion getDetectedPluginVersion(String playerName) throws PluginNotFoundException {
-       if (playerName.equals("swf")) {
+        if (playerName.equals("swf")) {
             return PlayerUtil.getFlashPlayerVersion();
         } else {
             throw new IllegalArgumentException("Unknown player - '" + playerName + "'");
@@ -99,5 +95,14 @@ public class APIWidgetProvider implements PlayerProviderFactory {
     @Override
     public Set<String> getPermittedMediaProtocols(String playerName, PluginVersion version) {
         throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public PluginInfo getDetectedPluginInfo(String playerName) throws PluginNotFoundException {
+        if (playerName.equals("swf")) {
+            return new PluginInfo(Plugin.FlashPlayer, PlayerUtil.getFlashPlayerVersion(), PluginInfo.PlayerPluginWrapperType.Native);
+        } else {
+            throw new IllegalArgumentException("Unknown player - '" + playerName + "'");
+        }
     }
 }

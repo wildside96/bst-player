@@ -16,7 +16,6 @@
 package com.bramosystems.oss.player.core.client.impl.plugin;
 
 import com.bramosystems.oss.player.core.client.*;
-import com.bramosystems.oss.player.core.client.impl.NativePlayerTestUtil;
 import com.bramosystems.oss.player.core.client.spi.PlayerProviderFactory;
 import com.google.gwt.core.client.GWT;
 import java.util.*;
@@ -52,7 +51,7 @@ public abstract class PlayerManager {
                 String pn = pns.next();
                 try {
                     PlayerInfo pi = getPlayerInfo(prov, pn);
-                    pi.setDetectedPluginVersion(getProviderFactory(prov).getDetectedPluginVersion(pn));
+                    pi.setDetectedPluginInfo(getProviderFactory(prov).getDetectedPluginInfo(pn));
                     pi.getRegisteredProtocols().addAll(getProviderFactory(prov).getPermittedMediaProtocols(pn, pi.getDetectedPluginVersion()));
                     Set<String> mimes = getProviderFactory(prov).getPermittedMimeTypes(pn, pi.getDetectedPluginVersion());
                     for (String mime : mimes) {

@@ -75,6 +75,24 @@ public interface PlayerProviderFactory {
     public PluginVersion getDetectedPluginVersion(String playerName) throws PluginNotFoundException;
 
     /**
+     * Returns the information of the plugin required by the specified
+     * {@code playerName} that is currently installed AND enabled on the browser
+     *
+     * <p>The detection methods in the {@link PlayerUtil} class may be used by
+     * implementation classes if applicable.
+     *
+     * <p>Implementation classes should throw {@link IllegalArgumentException}
+     * if the {@code playerName} is not supported by the factory
+     *
+     * @param playerName the name of the player
+     * @return the information of the required plugin that is installed and enabled on the browser
+     * @throws PluginNotFoundException if the required plugin is not installed AND enabled
+     * @throws IllegalArgumentException if {@code playerName} does not exist in this factory
+     * @since 2.0.1
+     */
+    public PluginInfo getDetectedPluginInfo(String playerName) throws PluginNotFoundException;
+
+    /**
      * Returns the player with the specified {@code playerName}.
      *
      * <p>Implementation classes should throw {@link IllegalArgumentException} if the {@code playerName}

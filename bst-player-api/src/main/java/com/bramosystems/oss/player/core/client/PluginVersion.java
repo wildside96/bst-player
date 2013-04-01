@@ -33,9 +33,9 @@ public class PluginVersion implements IsSerializable, Serializable, Comparable<P
      * Creates a <code>PluginVersion</code>
      */
     public PluginVersion() {
-        major = -1;
-        minor = -1;
-        revision = -1;
+        major = 0;
+        minor = 0;
+        revision = 0;
     }
 
     /**

@@ -17,7 +17,6 @@ package com.bramosystems.oss.player.core.client;
 
 import com.bramosystems.oss.player.core.client.impl.NativePlayerTestUtil;
 import com.bramosystems.oss.player.core.client.impl.plugin.PlayerManager;
-import com.bramosystems.oss.player.core.client.impl.plugin.PlayerManager;
 import com.bramosystems.oss.player.core.client.impl.plugin.PluginManager;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Event;
@@ -485,16 +484,27 @@ public class PlayerUtil {
         return PlayerManager.getInstance().getProviderFactory(
                 playerInfo.getProviderName()).getPlayer(playerInfo.getPlayerName(), mediaURL, autoplay, height, width);
     }
-    
+ 
     /**
-     * Returns all audio/video file type extensions that have native support on the client.
-     * This call has no effect on non-HTML5 compliant browsers.
-     * 
-     * @return media file extensions for HTML5 Media elements
+     * Returns all registered file type extensions for the specified mime-type.
+     *
+     * @param mimeType the mime-type
+     * @return media file extensions for mime-type
      * @since 2.0.1
      */
-    protected final Set<String> getHMTL5MediaExtensions() {
-        HashSet<String> exts = new HashSet<String>();
+    public static Set<String> getMediaExtensions(String mimeType) {
+        return new HashSet<String>(Arrays.asList(PlayerManager.getInstance().getMimeTypes().get(mimeType.trim()).split(",")));
+    }
+
+    /**
+     * Returns all audio/video file mime-types that have native (HTML5) support
+     * on the client.
+     *
+     * @return media file mime-types for HTML5 Media elements
+     * @since 2.0.1
+     */
+    public static Set<String> getHMTL5MimeTypes() {
+        HashSet<String> mimes = new HashSet<String>();
         if (isHTML5CompliantClient()) {
             NativePlayerTestUtil.TestUtil test = NativePlayerTestUtil.getTestUtil();
             Iterator<String> mimeKeys = PlayerManager.getInstance().getMimeTypes().keySet().iterator();
@@ -504,12 +514,12 @@ public class PlayerUtil {
                     switch (test.canPlayType(mime)) {
                         case maybe:
                         case probably:
-                            exts.addAll(Arrays.asList(PlayerManager.getInstance().getMimeTypes().get(mime.trim()).split(",")));
+                            mimes.add(mime);
                     }
                 } catch (Exception e) { // mimeType cannot be played ...
                 }
             }
         }
-        return exts;
-    }    
+        return mimes;
+    }
 }

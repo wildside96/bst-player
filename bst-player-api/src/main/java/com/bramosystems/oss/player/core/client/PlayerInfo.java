@@ -29,7 +29,8 @@ import java.util.TreeSet;
 public class PlayerInfo implements Serializable {
 
     private String playerName, providerName;
-    private PluginVersion requiredPluginVersion, detectedPluginVersion;
+    private PluginVersion requiredPluginVersion;
+    private PluginInfo detectedPluginInfo;
     private boolean hasPlaylistSupport, hasMatrixSupport;
     private Set<String> registeredExtensions = new TreeSet<String>(), registeredProtocols = new TreeSet<String>();
 
@@ -49,7 +50,7 @@ public class PlayerInfo implements Serializable {
         this.requiredPluginVersion = requiredPluginVersion;
         this.hasPlaylistSupport = hasPlaylistSupport;
         this.hasMatrixSupport = hasMatrixSupport;
-        detectedPluginVersion = new PluginVersion();
+        detectedPluginInfo = new PluginInfo(Plugin.None, new PluginVersion(), PluginInfo.PlayerPluginWrapperType.Native);
     }
 
     /**
@@ -105,7 +106,7 @@ public class PlayerInfo implements Serializable {
      * @return the player plugin version detected on the browser
      */
     public PluginVersion getDetectedPluginVersion() {
-        return detectedPluginVersion;
+        return detectedPluginInfo.getVersion();
     }
 
     /**
@@ -114,7 +115,8 @@ public class PlayerInfo implements Serializable {
      * @param detectedPluginVersion the player plugin version detected on the browser
      */
     public void setDetectedPluginVersion(PluginVersion detectedPluginVersion) {
-        this.detectedPluginVersion = detectedPluginVersion;
+        detectedPluginInfo = new PluginInfo(detectedPluginInfo.getPlugin(), 
+                detectedPluginVersion, detectedPluginInfo.getWrapperType());
     }
 
     /**
@@ -151,5 +153,27 @@ public class PlayerInfo implements Serializable {
      */
     protected void setRegisteredProtocols(Set<String> registeredProtocols) {
         this.registeredProtocols = registeredProtocols;
+    }
+
+    /**
+     * Sets the infomation object about the browser plugin that is used by the
+     * player widget
+     * 
+     * @param detectedPluginInfo the detected PluginInfo object
+     * @since 2.0.1
+     */
+    public void setDetectedPluginInfo(PluginInfo detectedPluginInfo) {
+        this.detectedPluginInfo = detectedPluginInfo;
+    }
+
+    /**
+     * Returns the infomation object about the browser plugin that is used by the
+     * player widget
+     * 
+     * @return the detected PluginInfo object
+     * @since 2.0.1
+     */
+    public PluginInfo getDetectedPluginInfo() {
+        return detectedPluginInfo;
     }
 }
