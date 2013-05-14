@@ -33,9 +33,7 @@ public class ControlPane extends Composite {
     private boolean fullState = true;
     private Animation animator;
     private TabPanel tp;
-    private int selectedTab = 1;
-    private PluginPane pluginPane;
-    private PlayerOptionsPane optionPane;
+    private int selectedTab = 1;//
     private PlaylistPane playlistPane;
     private PlayerLogPane playerLog;
 
@@ -48,18 +46,13 @@ public class ControlPane extends Composite {
             }
         };
 
-        pluginPane = new PluginPane();
-        optionPane = PlayerOptionsPane.singleton;
         playlistPane = PlaylistPane.singleton;
         playerLog = new PlayerLogPane();
 
-        History.addValueChangeHandler(pluginPane);
         History.addValueChangeHandler(playlistPane);
 
         tp = new TabPanel();
-        tp.add(pluginPane, "Plug-in");
         tp.add(playlistPane, "Playlist");
-        tp.add(optionPane, "Player Options");
         tp.add(playerLog, "Player Log");
         tp.addBeforeSelectionHandler(new BeforeSelectionHandler<Integer>() {
 
@@ -79,8 +72,6 @@ public class ControlPane extends Composite {
     }
 
     public void addChangeHandlers(StageController handler) {
-        pluginPane.addChangeHandler(handler);
-        optionPane.addChangeHandler(handler);
         playlistPane.addChangeHandler(handler);
     }
 

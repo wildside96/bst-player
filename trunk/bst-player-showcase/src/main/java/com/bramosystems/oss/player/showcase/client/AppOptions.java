@@ -24,11 +24,11 @@ public enum AppOptions {
     home("Introduction", "Introduction"),
     plugins("Browser Plug-ins", "All installed plug-ins"),
     mimes("Media File Types", "Player widget mime-type/extension mapping"),
-    core("Core Player Widgets", "Core Player Widgets"),
-    capsule("Custom Audio Player", "Custom audio player controls"),
-    flat("Custom Video Player", "Custom video player control"),
-    matrix("Matrix Transforms", "Transforming videos with matrices"),
-    ytube("YouTube Videos", "Embedding YouTube videos"),
+    widget("Media Player Widgets", "Media  Player Widgets"),
+//    capsule("Custom Audio Player", "Custom audio player controls"),
+//    flat("Custom Video Player", "Custom video player control"),
+    matrix("Matrix Transforms", "Transforming Videos with Matrices"),
+//    ytube("YouTube Videos", "Embedding YouTube videos"),
     notices("Notices", "Notices");
 
     private AppOptions(String title, String desc) {

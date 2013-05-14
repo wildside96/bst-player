@@ -16,6 +16,10 @@
  */
 package com.bramosystems.oss.player.showcase.client;
 
+import com.bramosystems.oss.player.core.client.playlist.MRL;
+import com.bramosystems.oss.player.playlist.client.ParseException;
+import com.bramosystems.oss.player.playlist.client.PlaylistFactory;
+import com.bramosystems.oss.player.playlist.client.spf.SPFPlaylist;
 import com.bramosystems.oss.player.showcase.client.event.PlaylistChangeEvent;
 import com.bramosystems.oss.player.showcase.client.event.PlaylistChangeHandler;
 import com.google.gwt.core.client.GWT;
@@ -23,6 +27,7 @@ import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
+import com.google.gwt.http.client.*;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
@@ -37,24 +42,42 @@ import java.util.ArrayList;
  */
 public class PlaylistPane extends Composite implements ValueChangeHandler<String> {
 
-    public static String baseURL = "http://oss.bramosystems.com/bst-player/demo/media/";
-//    public static String baseURL = GWT.getHostPageBaseURL() + "media/";
     public static PlaylistPane singleton = new PlaylistPane();
     private ArrayList<MRL> entries, uTube;
     private AppOptions option;
 
     private PlaylistPane() {
         initWidget(bb.createAndBindUi(this));
-        entries = new ArrayList<MRL>();
-        uTube = new ArrayList<MRL>();
+    }
+    
+    private void loadList() {
+        String spf = GWT.getHostPageBaseURL() + "jspf-local.json";
 
-        entries.add(new MRL(baseURL + "o-na-som.mp3"));
-        entries.add(new MRL(baseURL + "traffic.flv"));
-        entries.add(new MRL(baseURL + "applause.mp3"));
-        entries.add(new MRL("http://bst-player.googlecode.com/svn/tags/showcase/media/islamic-jihad.wmv"));
-        entries.add(new MRL(baseURL + "big-buck-bunny.mp4", baseURL + "big-buck-bunny.ogv"));
-        uTube.add(new MRL("http://www.youtube.com/v/QbwZL-EK6CY"));
-//        uTube.add(new MRL("http://www.youtube.com/v/IqnWs_j5MbM"));
+        try {
+            RequestBuilder rb = new RequestBuilder(RequestBuilder.GET, spf);
+            rb.sendRequest(null, new RequestCallback() {
+                @Override
+                public void onResponseReceived(Request request, Response response) {
+                    try {
+                        SPFPlaylist spf = PlaylistFactory.parseJspfPlaylist(response.getText());
+                        entries = spf.toPlaylist();
+
+                        uTube = new ArrayList<MRL>();
+                        uTube.add(new MRL("http://www.youtube.com/v/QbwZL-EK6CY"));
+                        //        uTube.add(new MRL("http://www.youtube.com/v/IqnWs_j5MbM"));
+                        refreshView();
+                    } catch (ParseException ex) {
+                        GWT.log("Parse Exception", ex);
+                    }
+                }
+
+                @Override
+                public void onError(Request request, Throwable exception) {
+                }
+            });
+        } catch (RequestException ex) {
+            GWT.log("Request Exception", ex);
+        }
     }
 
     @Override
@@ -64,7 +87,7 @@ public class PlaylistPane extends Composite implements ValueChangeHandler<String
             option = AppOptions.valueOf(event.getValue());
         } catch (Exception e) {
         }
-        refreshView();
+        loadList();;
     }
 
     public void addChangeHandler(PlaylistChangeHandler handler) {
@@ -73,9 +96,9 @@ public class PlaylistPane extends Composite implements ValueChangeHandler<String
 
     public final void addEntry(String... urls) {
         switch (option) {
-            case ytube:
-                uTube.add(new MRL(urls));
-                break;
+//            case ytube:
+//                uTube.add(new MRL(urls));
+//                break;
             default:
                 entries.add(new MRL(urls));
         }
@@ -85,7 +108,7 @@ public class PlaylistPane extends Composite implements ValueChangeHandler<String
     }
 
     public MRL removeEntry(int index) {
-        MRL m = option.equals(AppOptions.ytube) ? uTube.remove(index) : entries.remove(index);
+        MRL m = /* option.equals(AppOptions.ytube) ? uTube.remove(index) : */ entries.remove(index);
         if (isAttached()) {
             refreshView();
         }
@@ -93,19 +116,14 @@ public class PlaylistPane extends Composite implements ValueChangeHandler<String
     }
 
     public ArrayList<MRL> getEntries() {
-        return option.equals(AppOptions.ytube) ? uTube : entries;
+        return /* option.equals(AppOptions.ytube) ? uTube : */ entries;
     }
 
     private void refreshView() {
         list.clear();
-        ArrayList<MRL> es = option.equals(AppOptions.ytube) ? uTube : entries;
+        ArrayList<MRL> es = /* option.equals(AppOptions.ytube) ? uTube : */ entries;
         for (MRL entry : es) {
-            StringBuilder sb = new StringBuilder();
-            for (String e : entry) {
-                sb.append(e).append(", ");
-            }
-            sb.deleteCharAt(sb.lastIndexOf(", "));
-            list.addItem(sb.toString());
+            list.addItem(entry.toString());
         }
     }
 

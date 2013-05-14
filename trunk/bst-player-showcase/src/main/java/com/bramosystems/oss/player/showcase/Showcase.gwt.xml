@@ -17,8 +17,10 @@
 <!--DOCTYPE module PUBLIC "-//Google Inc.//DTD Google Web Toolkit 1.6.4//EN"
 "http://google-web-toolkit.googlecode.com/svn/tags/1.6.4/distro-source/core/src/gwt-module.dtd"-->
 
-<module rename-to="showcase">
-    <inherits name="com.bramosystems.oss.player.core.Core"/>
+<module rename-to="showcase">    
+    <inherits name="com.bramosystems.oss.player.core.CorePlayerProviderLite" />
+    <inherits name="com.bramosystems.oss.player.core.resources.Flash" />
+    <inherits name="com.bramosystems.oss.player.playlist.Playlist" />
     <!--
     <inherits name="com.bramosystems.oss.player.capsule.Capsule"/>
     <inherits name="com.bramosystems.oss.player.flat.FlatVideoPlayer"/>
