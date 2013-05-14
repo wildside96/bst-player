@@ -20,11 +20,8 @@ import com.bramosystems.oss.player.core.client.PluginNotFoundException;
 import com.bramosystems.oss.player.core.client.PluginVersionException;
 import com.bramosystems.oss.player.core.client.RepeatMode;
 import com.bramosystems.oss.player.core.client.spi.PlayerWidget;
-import com.bramosystems.oss.player.core.client.spi.Player;
 import com.bramosystems.oss.player.core.client.ui.Logger;
-import com.bramosystems.oss.player.youtube.client.impl.YouTubeEventManager;
 import com.bramosystems.oss.player.youtube.client.impl.YouTubePlayerImpl;
-import com.bramosystems.oss.player.youtube.client.impl.YouTubePlayerProvider;
 import com.bramosystems.oss.player.youtube.client.impl.YouTubePlaylistManager;
 import com.google.gwt.core.client.JsArrayString;
 import com.google.gwt.user.client.Timer;
@@ -58,10 +55,10 @@ import java.util.ArrayList;
  * @author Sikirulai Braheem <sbraheem at bramosystems dot com>
  * @since 1.1
  */
-@Player(name = "YouTube", minPluginVersion = "9.0.0", providerFactory = YouTubePlayerProvider.class)
+//@Player(name = "YouTubeX", minPluginVersion = "9.0.0", providerFactory = YouTubePlayerProvider.class)
 public class YouTubePlayer {// extends AbstractMediaPlayer implements PlaylistSupport {
 
-    private static YouTubeEventManager eventMgr = new YouTubeEventManager();
+//    private static YouTubeEventManager eventMgr = new YouTubeEventManager();
     protected YouTubePlayerImpl impl;
     protected String playerId, _width, _height, _vURL;
     private Timer bufferingTimer;

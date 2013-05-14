@@ -49,7 +49,7 @@ import com.bramosystems.oss.player.youtube.client.impl.YouTubePlayerProvider;
  * @author Sikirulai Braheem <sbraheem at bramosystems dot com>
  * @since 1.1
  */
-@Player(name="Chromeless", minPluginVersion="9.0.0", providerFactory=YouTubePlayerProvider.class)
+@Player(name="Chromeless", minPluginVersion="10.1.0", providerFactory=YouTubePlayerProvider.class)
 public class ChromelessPlayer extends YouTubePlayer {
 
     private String videoURL;
@@ -71,28 +71,7 @@ public class ChromelessPlayer extends YouTubePlayer {
      */
     public ChromelessPlayer(String videoURL, String width, String height)
             throws PluginNotFoundException, PluginVersionException {
-        super(videoURL, new PlayerParameters(), width, height);
-    }
-
-    /**
-     * Constructs <code>ChromelessPlayer</code> with the specified {@code height} and
-     * {@code width} to playback video located at {@code videoURL} using the specified
-     * {@code playerParameters}
-     *
-     * <p> {@code height} and {@code width} are specified as CSS units.
-     *
-     * @param videoURL the URL of the video
-     * @param playerParameters the parameters of the player
-     * @param width the width of the player
-     * @param height the height of the player
-     *
-     * @throws PluginNotFoundException if the required Flash player plugin is not found
-     * @throws PluginVersionException if Flash player version 8 and above is not found
-     * @throws NullPointerException if either {@code videoURL}, {@code height} or {@code width} is null
-     */
-    public ChromelessPlayer(String videoURL, PlayerParameters playerParameters, String width, String height)
-            throws PluginNotFoundException, PluginVersionException {
-        super(videoURL, playerParameters, width, height);
+        super(videoURL, width, height);
     }
 
     @Override

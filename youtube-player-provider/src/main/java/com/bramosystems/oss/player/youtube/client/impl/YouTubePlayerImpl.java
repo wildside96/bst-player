@@ -75,16 +75,8 @@ public class YouTubePlayerImpl extends JavaScriptObject {
     this.clearVideo();
     }-*/;
 
-    public final native double getBytesLoaded() /*-{
-    return this.getVideoBytesLoaded();
-    }-*/;
-
-    public final native double getBytesTotal() /*-{
-    return this.getVideoBytesTotal();
-    }-*/;
-
-    public final native double getStartBytes() /*-{
-    return this.getVideoStartBytes();
+    public final native double getVideoLoaded() /*-{
+    return this.getVideoLoadedFraction();
     }-*/;
 
     public final native void mute() /*-{
@@ -131,10 +123,10 @@ public class YouTubePlayerImpl extends JavaScriptObject {
     this.setPlaybackQuality(quality);
     }-*/;
 
-    public final native void registerHandlers(String playerId) /*-{
-    this.addEventListener("onStateChange", "bstplayer.handlers.utube." + playerId + ".onStateChanged");
-    this.addEventListener("onPlaybackQualityChange", "bstplayer.handlers.utube." + playerId + ".onQualityChanged");
-    this.addEventListener("onError", "bstplayer.handlers.utube." + playerId + ".onError");
+    public final native void registerHandlers(String playerId, String handlerPrefix) /*-{
+    this.addEventListener("onStateChange", handlerPrefix + "." + playerId + ".onStateChanged");
+    this.addEventListener("onPlaybackQualityChange", handlerPrefix + "." + playerId + ".onQualityChanged");
+    this.addEventListener("onError", handlerPrefix + "." + playerId + ".onError");
     }-*/;
 
     public final native void cuePlaylist(JsArrayString vids) /*-{
