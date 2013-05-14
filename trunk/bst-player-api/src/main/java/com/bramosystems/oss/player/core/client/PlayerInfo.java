@@ -176,4 +176,16 @@ public class PlayerInfo implements Serializable {
     public PluginInfo getDetectedPluginInfo() {
         return detectedPluginInfo;
     }
+
+    /**
+     * Returns the name of the player and its provider in the format 
+     * <code><providerName> :: <playerName></code>.
+     * 
+     * @return name of the player widget represented by this object.
+     * @since 2.0.1
+     */
+    @Override
+    public String toString() {
+        return providerName + " :: " + playerName;
+    }
 }
