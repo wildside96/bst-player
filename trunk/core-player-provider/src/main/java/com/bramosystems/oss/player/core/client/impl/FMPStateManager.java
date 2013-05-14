@@ -74,7 +74,7 @@ public class FMPStateManager {
     public static String getSWFImpl() {
         StringBuilder swf = new StringBuilder(GWT.getModuleBaseURL() + "bst-flash-player-");
 
-        swf.append("2.0");   // inject bst-flash-player version ...
+        swf.append("${bst.flash.player.ver}");   // inject bst-flash-player version ...
         if (Location.getProtocol().toLowerCase().startsWith("file")) {
             swf.append("-lo");
         }
