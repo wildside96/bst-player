@@ -15,14 +15,14 @@ xmlns:showcase="urn:import:com.bramosystems.oss.player.showcase.client">
         .east {
             border-left: 1px solid #a5a5a5;
             padding-bottom: 20px;
-            width: 775px;
+            width: 820px;
             float: right;
         }
         .options {
             bottom: 0px;
             position: fixed;
             background-color: #ffffff;
-            width: 950px;
+            width: 1024px;
             margin: auto;
             border-left: 1px solid #4b4b93;
             border-right: 1px solid #4b4b93;

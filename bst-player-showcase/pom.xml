@@ -21,7 +21,8 @@
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>gwt-maven-plugin</artifactId>
                 <configuration>
-                    <module>com.bramosystems.oss.player.showcase.Showcase</module>
+                     <codeServerWorkDir>${project.build.directory}</codeServerWorkDir>
+                   <module>com.bramosystems.oss.player.showcase.Showcase</module>
                     <disableCastChecking>true</disableCastChecking>
                     <disableClassMetadata>true</disableClassMetadata>
                     <soyc>false</soyc>

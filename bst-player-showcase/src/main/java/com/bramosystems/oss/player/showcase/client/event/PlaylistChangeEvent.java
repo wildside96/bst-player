@@ -17,7 +17,7 @@
 
 package com.bramosystems.oss.player.showcase.client.event;
 
-import com.bramosystems.oss.player.showcase.client.MRL;
+import com.bramosystems.oss.player.core.client.playlist.MRL;
 import com.google.gwt.event.shared.GwtEvent;
 import com.google.gwt.event.shared.GwtEvent.Type;
 
