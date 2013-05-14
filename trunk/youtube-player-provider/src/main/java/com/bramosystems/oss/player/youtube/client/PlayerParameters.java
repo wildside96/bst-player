@@ -24,10 +24,10 @@ package com.bramosystems.oss.player.youtube.client;
 public class PlayerParameters {
 
     int loadRelatedVideos = 1, autoplay, loop, enableJsApi, disableKeyboardControls,
-            egm, showBorder, fullScreen, highDef, showSearch = 1, showInfo = 1,
-            ivLoadPolicy = 1, closedCaptionPolicy, startTime, showControls = 1, modestBranding;
+            fullScreen, showInfo = 1, ivLoadPolicy = 1, closedCaptionPolicy,
+            startTime, showControls = 1, modestBranding;
     private AutoHideMode autoHide = AutoHideMode.AUTOHIDE_PROGRESS_BAR;
-    private String color1 = "", color2 = "", playerAPIId = "";
+    private String playerAPIId = "";
 
     public PlayerParameters() {
     }
@@ -57,46 +57,7 @@ public class PlayerParameters {
 //    public void showClosedCaptions(boolean show) {
 //        this.closedCaptionPolicy = show ? 1 : 0;
 //    }
-    /**
-     * Returns the players primary border color.
-     *
-     * @return color in hexadecimal format
-     * @deprecated Will be removed in a future version
-     */
-    public String getPrimaryBorderColor() {
-        return color1;
-    }
-
-    /**
-     * Sets the players primary border color.
-     *
-     * @param color an RGB value in hexadecimal format
-     * @deprecated Will be removed in a future version
-     */
-    public void setPrimaryBorderColor(String color) {
-        this.color1 = color;
-    }
-
-    /**
-     * Returns the players secondary border color and control bar background color.
-     *
-     * @return color in hexadecimal format
-     * @deprecated Will be removed in a future version
-     */
-    public String getSecondaryBorderColor() {
-        return color2;
-    }
-
-    /**
-     * Sets the players video control bar background color and secondary border color.
-     *
-     * @param color an RGB value in hexadecimal format
-     * @deprecated Will be removed in a future version
-     */
-    public void setSecondaryBorderColor(String color) {
-        this.color2 = color;
-    }
-
+ 
     /**
      * Checks if keyboard controls are enabled
      *
@@ -113,29 +74,6 @@ public class PlayerParameters {
      */
     public void setKeyboardControlsEnabled(boolean enable) {
         this.disableKeyboardControls = enable ? 0 : 1;
-    }
-
-    /**
-     * Checks if the "Enhanced Genie Menu" is enabled.
-     *
-     * @return {@code true} is genie menu is enabled, {@code false} otherwise
-     * @see #setEnhancedGenieMenuEnabled(boolean)
-     * @deprecated Will be removed in a future version
-     */
-    public boolean isEnhancedGenieMenuEnabled() {
-        return egm == 1;
-    }
-
-    /**
-     * Enables or disables the "Enhanced Genie Menu". If enabled, the genie menu (if present)
-     * appears when the user's mouse enters the video display area, as opposed to only appearing
-     * when the menu button is pressed
-     *
-     * @param enable {@code true} to enable genie menu, {@code false} otherwise
-     * @deprecated Will be removed in a future version
-     */
-    public void setEnhancedGenieMenuEnabled(boolean enable) {
-        this.egm = enable ? 1 : 0;
     }
 
     /**
@@ -173,30 +111,6 @@ public class PlayerParameters {
     public void setFullScreenEnabled(boolean enable) {
         this.fullScreen = enable ? 1 : 0;
     }
-
-    /**
-     * Checks if HD playback is enabled
-     *
-     * @return {@code true} if enabled, {@code false} otherwise.
-     * @deprecated Will be removed in a future version
-     */
-    public boolean isHDEnabled() {
-        return highDef == 1;
-    }
-
-    /**
-     * Enables or disables HD playback.
-     *
-     * <b>Note:</b> This method has no effect if an HD version of the current video
-     * is not available.
-     *
-     * @param enable {@code true} to enable HD playback, {@code false} otherwise
-     * @deprecated Will be removed in a future version
-     */
-    public void setHDEnabled(boolean enable) {
-        this.highDef = enable ? 1 : 0;
-    }
-
     /**
      * Checks if video annotations are shown by default
      *
@@ -253,24 +167,6 @@ public class PlayerParameters {
     }
 
     /**
-     * Checks if the showing of player's borders is enabled
-     *
-     * @return {@code true} if player's borders is set to show, {@code false} otherwise
-     */
-    public boolean isShowBorder() {
-        return showBorder == 1;
-    }
-
-    /**
-     * Enables or disables the player's borders
-     *
-     * @param show {@code true} to show the player's borders, {@code false} otherwise
-     */
-    public void showBorder(boolean show) {
-        this.showBorder = show ? 1 : 0;
-    }
-
-    /**
      * Checks if the display of video information is enabled
      *
      * @return {@code true} if display of video information is enabled, {@code false} otherwise
@@ -287,29 +183,6 @@ public class PlayerParameters {
      */
     public void showVideoInformation(boolean show) {
         this.showInfo = show ? 1 : 0;
-    }
-
-    /**
-     * Returns the display status of the search box.
-     *
-     * @return <code>true</code> if the search box is enabled, <code>false</code> otherwise.
-     * @deprecated Will be removed in a future version
-     */
-    public boolean isShowSearchBox() {
-        return showSearch == 1;
-    }
-
-    /**
-     * Shows or hides the search box from displaying when the video is minimized.
-     *
-     * <p>Note that if {@linkplain #setLoadRelatedVideos(boolean)} is false, then the search box will
-     * also be disabled.
-     *
-     * @param show <code>true</code> to show the search box, <code>false</code> otherwise.
-     * @deprecated Will be removed in a future version
-     */
-    public void showSearchBox(boolean show) {
-        this.showSearch = show ? 1 : 0;
     }
 
     /**

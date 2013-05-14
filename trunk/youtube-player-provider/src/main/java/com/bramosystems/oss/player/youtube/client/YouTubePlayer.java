@@ -17,7 +17,6 @@ package com.bramosystems.oss.player.youtube.client;
 
 import com.bramosystems.oss.player.core.client.AbstractMediaPlayer;
 import com.bramosystems.oss.player.core.client.ConfigParameter;
-import com.bramosystems.oss.player.core.client.ConfigValue;
 import com.bramosystems.oss.player.core.client.DefaultConfigParameter;
 import com.bramosystems.oss.player.core.client.LoadException;
 import com.bramosystems.oss.player.core.client.PlayException;
@@ -27,22 +26,21 @@ import com.bramosystems.oss.player.core.client.RepeatMode;
 import com.bramosystems.oss.player.core.client.TransparencyMode;
 import com.bramosystems.oss.player.core.client.spi.PlayerWidget;
 import com.bramosystems.oss.player.core.client.spi.Player;
-import com.bramosystems.oss.player.core.client.ui.Logger;
-import com.bramosystems.oss.player.core.event.client.DebugEvent;
-import com.bramosystems.oss.player.core.event.client.DebugHandler;
 import com.bramosystems.oss.player.core.event.client.LoadingProgressEvent;
 import com.bramosystems.oss.player.core.event.client.PlayStateEvent;
 import com.bramosystems.oss.player.core.event.client.PlayerStateEvent;
 import com.bramosystems.oss.player.core.event.client.PlayerStateHandler;
-import com.bramosystems.oss.player.youtube.client.impl.YouTubeEventManager;
 import com.bramosystems.oss.player.youtube.client.impl.YouTubePlayerImpl;
 import com.bramosystems.oss.player.youtube.client.impl.YouTubePlayerProvider;
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.JsArrayString;
 import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.ui.FlowPanel;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
 
 /**
  * Widget to embed YouTube video
@@ -72,17 +70,16 @@ import java.util.ArrayList;
  * @author Sikirulai Braheem <sbraheem at bramosystems dot com>
  * @since 1.1
  */
-@Player(name = "YouTube", minPluginVersion = "9.0.0", providerFactory = YouTubePlayerProvider.class)
+@Player(name = "YouTube", minPluginVersion = "10.1.0", providerFactory = YouTubePlayerProvider.class)
 public class YouTubePlayer extends AbstractMediaPlayer {
 
-    private static YouTubeEventManager eventMgr = new YouTubeEventManager();
     protected YouTubePlayerImpl impl;
     protected String playerId, _width, _height, _vURL;
     private Timer bufferingTimer;
-    private Logger logger;
     private PlayerWidget swf;
     private PlayerParameters pps;
     private RepeatMode repeatMode = RepeatMode.REPEAT_OFF;
+    private HashMap<String, String> configParam = new HashMap<String, String>();
 //    private YouTubePlaylistManager ypm;
 
     /**
@@ -101,27 +98,6 @@ public class YouTubePlayer extends AbstractMediaPlayer {
      */
     public YouTubePlayer(String videoURL, String width, String height)
             throws PluginNotFoundException, PluginVersionException {
-        this(videoURL, new PlayerParameters(), width, height);
-    }
-
-    /**
-     * Constructs <code>YouTubePlayer</code> with the specified {@code height} and
-     * {@code width} to playback video located at {@code videoURL} using the specified
-     * {@code playerParameters}
-     *
-     * <p> {@code height} and {@code width} are specified as CSS units.
-     *
-     * @param videoURL the URL of the video
-     * @param playerParameters the parameters of the player
-     * @param width the width of the player
-     * @param height the height of the player
-     *
-     * @throws PluginNotFoundException if the required Flash player plugin is not found
-     * @throws PluginVersionException if Flash player version 8 and above is not found
-     * @throws NullPointerException if either {@code videoURL}, {@code height} or {@code width} is null
-     */
-    public YouTubePlayer(String videoURL, PlayerParameters playerParameters, String width, String height)
-            throws PluginNotFoundException, PluginVersionException {
         if (height == null) {
             throw new NullPointerException("height cannot be null");
         }
@@ -135,55 +111,43 @@ public class YouTubePlayer extends AbstractMediaPlayer {
         _width = width;
         _height = height;
         _vURL = videoURL;
-        pps = playerParameters;
         /*
-        ypm = new YouTubePlaylistManager(new YouTubePlaylistManager.CallbackHandler() {
+         ypm = new YouTubePlaylistManager(new YouTubePlaylistManager.CallbackHandler() {
         
-        @Override
-        public void onError(String message) {
-        fireError(message);
-        }
+         @Override
+         public void onError(String message) {
+         fireError(message);
+         }
         
-        @Override
-        public YouTubePlayerImpl getPlayerImpl() {
-        return impl;
-        }
+         @Override
+         public YouTubePlayerImpl getPlayerImpl() {
+         return impl;
+         }
         
-        @Override
-        public void onInfo(String info) {
-        fireDebug(info);
-        }
-        });
+         @Override
+         public void onInfo(String info) {
+         fireDebug(info);
+         }
+         });
          */
         playerId = DOM.createUniqueId().replace("-", "");
-
-        logger = new Logger();
-        logger.setVisible(false);
-        addDebugHandler(new DebugHandler() {
-
-            @Override
-            public void onDebug(DebugEvent event) {
-                logger.log(event.getMessage(), false);
-            }
-        });
-
         initWidget(new FlowPanel());
 
         // register for DOM events ...
-        eventMgr.init(playerId, new YouTubeEventManager.EventHandler() {
-
+        getProvider().init(playerId, new YouTubePlayerProvider.EventHandler() {
             @Override
             public void onInit() {
-                impl = YouTubePlayerImpl.getPlayerImpl(playerId);
-                impl.registerHandlers(playerId);
                 fireDebug("YouTube Player");
+                impl = YouTubePlayerImpl.getPlayerImpl(playerId);
+                impl.registerHandlers(playerId, getProvider().getHandlerPrefix());
 //                ypm.commitPlaylist();
                 playerInit();
+                firePlayerStateEvent(PlayerStateEvent.State.Ready);
             }
 
             @Override
             public void onYTStateChanged(int state) {
-                switch (state) {
+               switch (state) {
                     case -1: // unstarted
                         fireDebug("Waiting for video...");
                         break;
@@ -205,7 +169,7 @@ public class YouTubePlayer extends AbstractMediaPlayer {
                         fireDebug("Buffering...");
                         break;
                     case 5: // video cued
-                        firePlayerStateEvent(PlayerStateEvent.State.Ready);
+//                        firePlayerStateEvent(PlayerStateEvent.State.Ready);
                         fireDebug("Video ready for playback");
                         break;
                 }
@@ -225,7 +189,10 @@ public class YouTubePlayer extends AbstractMediaPlayer {
 
             @Override
             public void onYTError(int errorCode) {
-                switch (errorCode) {
+               switch (errorCode) {
+                    case 2: // invalid parameter ...
+                        fireError("Invalid Parameter !!!");
+                        break;
                     case 100: // video not found. Occurs when video is removed (for any reason), or marked private.
                         fireError("Video not found! It may have been removed or marked private");
                         break;
@@ -233,21 +200,20 @@ public class YouTubePlayer extends AbstractMediaPlayer {
                     case 150: // is the same as 101, it's just 101 in disguise!
                         fireError("Video playback not allowed");
                         break;
-                }
+                    default: // workarround for Issue 66
+                          fireError("An unknown error has occured - API Error Code(" + errorCode + ")");
+               }
             }
         });
 
         // setup loading event management ...
         bufferingTimer = new Timer() {
-
             @Override
             public void run() {
-                LoadingProgressEvent.fire(YouTubePlayer.this,
-                        impl.getBytesLoaded() / impl.getBytesTotal());
+                LoadingProgressEvent.fire(YouTubePlayer.this, impl.getVideoLoaded());
             }
         };
         addPlayerStateHandler(new PlayerStateHandler() {
-
             @Override
             public void onPlayerStateChanged(PlayerStateEvent event) {
                 switch (event.getPlayerState()) {
@@ -263,6 +229,9 @@ public class YouTubePlayer extends AbstractMediaPlayer {
 
     @Override
     protected void onLoad() {
+        if (pps == null) {
+            pps = new PlayerParameters();
+        }
         swf = new PlayerWidget(YouTubePlayerProvider.PROVIDER_NAME, "YouTube", playerId,
                 getNormalizedVideoAppURL(_vURL, pps), false);
         swf.addParam("allowScriptAccess", "always");
@@ -270,10 +239,14 @@ public class YouTubePlayer extends AbstractMediaPlayer {
         if (pps.isFullScreenEnabled()) {
             swf.addParam("allowFullScreen", "true");
         }
+        Iterator<String> pm = configParam.keySet().iterator();
+        while (pm.hasNext()) {
+            String p = pm.next();
+            swf.addParam(p, configParam.get(p));
+        }
 
         FlowPanel fp = (FlowPanel) getWidget();
         fp.add(swf);
-        fp.add(logger);
 
         swf.setSize("100%", _height);
         setWidth(_width);
@@ -285,7 +258,7 @@ public class YouTubePlayer extends AbstractMediaPlayer {
             impl.stop();
             impl.clear();
         }
-        eventMgr.close(playerId);
+        getProvider().close(playerId);
     }
 
     /**
@@ -340,35 +313,20 @@ public class YouTubePlayer extends AbstractMediaPlayer {
                         case autoplay:
                             playerParameters.setAutoplay(value[1].equals("1"));
                             break;
-                        case border:
-                            playerParameters.showBorder(value[1].equals("1"));
-                            break;
-//                        case cc_load_policy:
+                        //                        case cc_load_policy:
 //                            playerParameters.showClosedCaptions(value[1].equals("1"));
 //                            break;
-                        case color1:
-                            playerParameters.setPrimaryBorderColor(value[1]);
-                            break;
-                        case color2:
-                            playerParameters.setSecondaryBorderColor(value[1]);
-                            break;
                         case controls:
                             playerParameters.setShowControls(value[1].equals("1"));
                             break;
                         case disablekb:
                             playerParameters.setKeyboardControlsEnabled(value[1].equals("0"));
                             break;
-                        case egm:
-                            playerParameters.setEnhancedGenieMenuEnabled(value[1].equals("1"));
-                            break;
                         case enablejsapi:
                             playerParameters.setJSApiEnabled(value[1].equals("1"));
                             break;
                         case fs:
                             playerParameters.setFullScreenEnabled(value[1].equals("1"));
-                            break;
-                        case hd:
-                            playerParameters.setHDEnabled(value[1].equals("1"));
                             break;
                         case iv_load_policy:
                             playerParameters.showVideoAnnotations(value[1].equals("1"));
@@ -384,9 +342,6 @@ public class YouTubePlayer extends AbstractMediaPlayer {
                             break;
                         case showinfo:
                             playerParameters.showVideoInformation(value[1].equals("1"));
-                            break;
-                        case showsearch:
-                            playerParameters.showSearchBox(value[1].equals("1"));
                             break;
                         case start:
                             playerParameters.setStartTime(Integer.parseInt(value[1]));
@@ -408,39 +363,24 @@ public class YouTubePlayer extends AbstractMediaPlayer {
      * @return the parameters in YouTube&trade; video URL format
      */
     protected final String paramsToString(PlayerParameters playerParameters) {
-        StringBuilder url = new StringBuilder("&version=3");
+        StringBuilder url = new StringBuilder("?version=3");
         for (URLParameters _param : URLParameters.values()) {
             url.append("&").append(_param.name()).append("=");
             switch (_param) {
                 case autoplay:
                     url.append(playerParameters.autoplay);
                     break;
-                case border:
-                    url.append(playerParameters.showBorder);
-                    break;
 //                case cc_load_policy:
 //                    url.append(playerParameters.() ? "1" : "0");
 //                    break;
-                case color1:
-                    url.append(playerParameters.getPrimaryBorderColor());
-                    break;
-                case color2:
-                    url.append(playerParameters.getSecondaryBorderColor());
-                    break;
                 case disablekb:
                     url.append(playerParameters.disableKeyboardControls);
-                    break;
-                case egm:
-                    url.append(playerParameters.egm);
                     break;
                 case enablejsapi:
                     url.append(playerParameters.enableJsApi);
                     break;
                 case fs:
                     url.append(playerParameters.fullScreen);
-                    break;
-                case hd:
-                    url.append(playerParameters.highDef);
                     break;
                 case iv_load_policy:
                     url.append(playerParameters.ivLoadPolicy);
@@ -456,9 +396,6 @@ public class YouTubePlayer extends AbstractMediaPlayer {
                     break;
                 case showinfo:
                     url.append(playerParameters.showInfo);
-                    break;
-                case showsearch:
-                    url.append(playerParameters.showSearch);
                     break;
                 case start:
                     url.append(playerParameters.getStartTime());
@@ -584,25 +521,21 @@ public class YouTubePlayer extends AbstractMediaPlayer {
         return true;
     }
 
-    @Override
-    public void showLogger(boolean show) {
-        logger.setVisible(show);
-    }
-
     /**
-     * Sets the suggested video quality for the current video. This method causes the video to reload
-     * at its current position in the new quality.
+     * Sets the suggested video quality for the current video. This method
+     * causes the video to reload at its current position in the new quality.
      *
-     * <p>
-     * <b>Note:</b> Calling this method does not guarantee that the playback quality will actually
-     * change. If the playback quality does change, it will only change for the video being played and
-     * the {@linkplain PlaybackQualityChangeEvent} event will be fired.
+     * <p> <b>Note:</b> Calling this method does not guarantee that the playback
+     * quality will actually change. If the playback quality does change, it
+     * will only change for the video being played and the
+     * {@linkplain PlaybackQualityChangeEvent} event will be fired.
      *
-     * <p>
-     * If {@code suggestedQuality} is not available for the current video, then the quality will be
-     * set to the next lowest level that is available. That is, if {@code suggestedQuality} is
-     * {@linkplain PlaybackQuality#hd720} and that is unavailable, then the playback quality will be
-     * set to {@linkplain PlaybackQuality#large} if that quality level is available.
+     * <p> If {@code suggestedQuality} is not available for the current video,
+     * then the quality will be set to the next lowest level that is available.
+     * That is, if {@code suggestedQuality} is
+     * {@linkplain PlaybackQuality#hd720} and that is unavailable, then the
+     * playback quality will be set to {@linkplain PlaybackQuality#large} if
+     * that quality level is available.
      *
      * @param suggestedQuality the suggested video quality for the current video
      */
@@ -659,92 +592,102 @@ public class YouTubePlayer extends AbstractMediaPlayer {
     }
 
     @Override
-    public <T extends ConfigValue> void setConfigParameter(ConfigParameter param, T value) {
+    public <C extends ConfigParameter> void setConfigParameter(C param, Object value) {
         super.setConfigParameter(param, value);
         if (param.getName().equals(DefaultConfigParameter.TransparencyMode.getName())) {
             if (value != null) {
-                swf.addParam("wmode", ((TransparencyMode) value).name().toLowerCase());
+                configParam.put("wmode", ((TransparencyMode) value).name().toLowerCase());
             } else {
-                swf.addParam("wmode", null);
+                configParam.put("wmode", null);
+            }
+        } else if (param.getName().equals(YouTubeConfigParameter.URLParameters.getName())) {
+            if (value != null) {
+                pps = (PlayerParameters) value;
+            } else {
+                pps = null;
             }
         }
     }
+
+    private YouTubePlayerProvider getProvider() {
+        return (YouTubePlayerProvider) getWidgetFactory(YouTubePlayerProvider.PROVIDER_NAME);
+    }
+
     /*
      * Roll into v 2.0
      * 
-    @Override
-    public void addToPlaylist(String mediaURL) {
-    ypm.addToPlaylist(mediaURL);
-    }
+     @Override
+     public void addToPlaylist(String mediaURL) {
+     ypm.addToPlaylist(mediaURL);
+     }
     
-    @Override
-    public void addToPlaylist(String... mediaURLs) {
-    ypm.addToPlaylist(mediaURLs);
-    }
+     @Override
+     public void addToPlaylist(String... mediaURLs) {
+     ypm.addToPlaylist(mediaURLs);
+     }
     
-    @Override
-    public void addToPlaylist(MRL mediaLocator) {
-    ypm.addToPlaylist(mediaLocator);
-    }
+     @Override
+     public void addToPlaylist(MRL mediaLocator) {
+     ypm.addToPlaylist(mediaLocator);
+     }
     
-    @Override
-    public void addToPlaylist(List<MRL> mediaLocators) {
-    ypm.addToPlaylist(mediaLocators);
-    }
+     @Override
+     public void addToPlaylist(List<MRL> mediaLocators) {
+     ypm.addToPlaylist(mediaLocators);
+     }
     
-    @Override
-    public void clearPlaylist() {
-    ypm.clearPlaylist();
-    }
+     @Override
+     public void clearPlaylist() {
+     ypm.clearPlaylist();
+     }
     
-    @Override
-    public void removeFromPlaylist(int index) {
-    ypm.removeFromPlaylist(index);
-    }
+     @Override
+     public void removeFromPlaylist(int index) {
+     ypm.removeFromPlaylist(index);
+     }
     
-    @Override
-    public int getPlaylistSize() {
-    if (impl != null) {
-    return impl.getPlaylist().length();
-    }
-    return 0;
-    }
+     @Override
+     public int getPlaylistSize() {
+     if (impl != null) {
+     return impl.getPlaylist().length();
+     }
+     return 0;
+     }
     
-    @Override
-    public boolean isShuffleEnabled() {
-    return ypm.isShuffleEnabled();
-    }
+     @Override
+     public boolean isShuffleEnabled() {
+     return ypm.isShuffleEnabled();
+     }
     
-    @Override
-    public void play(int index) throws IndexOutOfBoundsException {
-    if (impl != null) {
-    impl.playVideoAt(index);
-    }
-    }
+     @Override
+     public void play(int index) throws IndexOutOfBoundsException {
+     if (impl != null) {
+     impl.playVideoAt(index);
+     }
+     }
     
-    @Override
-    public void playNext() throws PlayException {
-    if (impl != null) {
-    impl.nextVideo();
-    }
-    }
+     @Override
+     public void playNext() throws PlayException {
+     if (impl != null) {
+     impl.nextVideo();
+     }
+     }
     
-    @Override
-    public void playPrevious() throws PlayException {
-    if (impl != null) {
-    impl.previousVideo();
-    }
-    }
+     @Override
+     public void playPrevious() throws PlayException {
+     if (impl != null) {
+     impl.previousVideo();
+     }
+     }
     
-    @Override
-    public void setShuffleEnabled(boolean enable) {
-    if (impl != null) {
-    ypm.setShuffleEnabled(enable);
-    impl.setShuffle(enable);
-    }
-    }
+     @Override
+     public void setShuffleEnabled(boolean enable) {
+     if (impl != null) {
+     ypm.setShuffleEnabled(enable);
+     impl.setShuffle(enable);
+     }
+     }
      */
-
     private enum URLParameters {
 
         rel, autoplay, loop, enablejsapi, playerapiid, disablekb, egm, border,
