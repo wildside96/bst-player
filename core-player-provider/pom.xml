@@ -47,7 +47,7 @@
                                 <artifactItem>
                                     <groupId>${project.groupId}</groupId>
                                     <artifactId>bst-flash-player</artifactId>
-                                    <version>2.0</version>
+                                    <version>${bst.flash.player.ver}</version>
                                     <type>swf</type>
                                     <classifier>lo</classifier>
                                 </artifactItem>
@@ -66,7 +66,7 @@
                                 <artifactItem>
                                     <groupId>${project.groupId}</groupId>
                                     <artifactId>bst-flash-player</artifactId>
-                                    <version>2.0</version>
+                                    <version>${bst.flash.player.ver}</version>
                                     <type>swf</type>
                                 </artifactItem>
                             </artifactItems>
@@ -97,6 +97,7 @@
         <flex.apps.lo.dir>
             ${project.build.directory}/classes/com/bramosystems/oss/player/core/resources/flash_lo
         </flex.apps.lo.dir>
+        <bst.flash.player.ver>2.0</bst.flash.player.ver>
     </properties>
 
     <dependencies>
