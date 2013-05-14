@@ -8,7 +8,7 @@
     </parent>
     <artifactId>core-player-provider</artifactId>
     <name>Core Player Provider</name>
-    <version>2.0</version>
+    <version>2.1-SNAPSHOT</version>
     <description>
         Provides the core media player widgets.
     </description>
@@ -110,10 +110,4 @@
             <artifactId>junit</artifactId>
         </dependency>
     </dependencies>
-
-  <scm>
-    <connection>scm:svn:http://bst-player.googlecode.com/svn/tags/core-player-provider-2.0</connection>
-    <developerConnection>scm:svn:https://bst-player.googlecode.com/svn/tags/core-player-provider-2.0</developerConnection>
-    <url>http://code.google.com/p/bst-player/source/browse/tags/core-player-provider-2.0</url>
-  </scm>
 </project>
