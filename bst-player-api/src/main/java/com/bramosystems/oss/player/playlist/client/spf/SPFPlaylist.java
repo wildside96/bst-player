@@ -22,6 +22,8 @@ import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.core.client.JsArray;
 import com.google.gwt.core.client.JsArrayString;
 import com.google.gwt.core.client.JsDate;
+import com.google.gwt.http.client.URL;
+import com.google.gwt.http.client.UrlBuilder;
 import java.util.Date;
 
 /**
@@ -262,10 +264,10 @@ public final class SPFPlaylist extends JavaScriptObject {
             MRL m = new MRL(t.getTitle(), t.getCreator());
             JsArrayString js = t.getLocation();
             for (int j = 0; j < js.length(); j++) {
-                m.addURL(js.get(i));
+                m.addURL(js.get(j));
             }
             p.add(m);
-        }
+        }        
         return p;
     }
 }

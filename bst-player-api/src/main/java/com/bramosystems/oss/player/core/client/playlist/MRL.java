@@ -46,6 +46,7 @@ public class MRL {
      * @param author the author of the media resource
      */
     public MRL(String name, String author) {
+        this();
         this._author = author;
         this._name = name;
     }
@@ -76,7 +77,7 @@ public class MRL {
      * @param urls URLs of the media
      */
     public void addURL(String... urls) {
-        _urls.addAll(Arrays.asList(urls));        
+        _urls.addAll(Arrays.asList(urls));  
     }
 
     /**
