@@ -18,13 +18,16 @@ package com.bramosystems.oss.player.youtube.client;
 import com.bramosystems.oss.player.core.client.ConfigParameter;
 
 /**
- * Configuration parameters for the core player widgets.
+ * Configuration parameters for the YouTube player widgets.
  *
  * @author Sikiru Braheem <sbraheem at bramosystems . com>
  * @since 2.0
  * @see ConfigParameter
  */
 public enum YouTubeConfigParameter implements ConfigParameter {
+    /**
+     * URLParameters used to modify the behaviour of the YouTube player
+     */
     URLParameters(com.bramosystems.oss.player.youtube.client.PlayerParameters.class);
 
      

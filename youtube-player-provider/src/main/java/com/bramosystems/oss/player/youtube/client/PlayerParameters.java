@@ -23,11 +23,11 @@ package com.bramosystems.oss.player.youtube.client;
  */
 public class PlayerParameters {
 
-    int loadRelatedVideos = 1, autoplay, loop, enableJsApi, disableKeyboardControls,
+    private int loadRelatedVideos = 1, autoplay, loop, enableJsApi, disableKeyboardControls,
             fullScreen, showInfo = 1, ivLoadPolicy = 1, closedCaptionPolicy,
             startTime, showControls = 1, modestBranding;
     private AutoHideMode autoHide = AutoHideMode.AUTOHIDE_PROGRESS_BAR;
-    private String playerAPIId = "";
+    private String playerAPIId = "", origin = "";
 
     public PlayerParameters() {
     }
@@ -281,6 +281,69 @@ public class PlayerParameters {
         this.modestBranding = modestBranding ? 1 : 0;
     }
 
+    /**
+     * Sets the domain URL of the page hosting the YouTube player widget
+     * @param origin the domain URL
+     * @since 2.0
+     */
+    public void setOrigin(String origin) {
+        this.origin = origin;
+    }
+
+    /**
+     *  Returns the domain URL of the page hosting the YouTube player widget
+     * 
+     * @return the domain URL of the host page
+     * @since 2.0
+     */
+    public String getOrigin() {
+        return origin;
+    }
+
+    public int getLoadRelatedVideos() {
+        return loadRelatedVideos;
+    }
+
+    public int getAutoplay() {
+        return autoplay;
+    }
+
+    public int getLoop() {
+        return loop;
+    }
+
+    public int getEnableJsApi() {
+        return enableJsApi;
+    }
+
+    public int getDisableKeyboardControls() {
+        return disableKeyboardControls;
+    }
+
+    public int getFullScreen() {
+        return fullScreen;
+    }
+
+    public int getShowInfo() {
+        return showInfo;
+    }
+
+    public int getIvLoadPolicy() {
+        return ivLoadPolicy;
+    }
+
+    public int getClosedCaptionPolicy() {
+        return closedCaptionPolicy;
+    }
+
+    public int getShowControls() {
+        return showControls;
+    }
+
+    public int getModestBranding() {
+        return modestBranding;
+    }
+    
     /**
      * An enum of autohide parameters for YouTubePlayer
      * 
