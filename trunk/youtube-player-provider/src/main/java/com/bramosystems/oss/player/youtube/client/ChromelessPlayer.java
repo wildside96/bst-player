@@ -19,10 +19,11 @@ import com.bramosystems.oss.player.core.client.PluginNotFoundException;
 import com.bramosystems.oss.player.core.client.PluginVersionException;
 import com.bramosystems.oss.player.core.client.spi.Player;
 import com.bramosystems.oss.player.youtube.client.impl.YouTubePlayerProvider;
+import com.google.gwt.core.client.GWT;
 
 /**
- * Widget to embed the chromeless YouTube video player.  The player is particularly useful
- * when embedding YouTube with custom controls.
+ * Widget to embed the Chromeless YouTube video player. The player is
+ * particularly useful when embedding YouTube with custom controls.
  *
  * <h3>Usage Example</h3>
  *
@@ -32,7 +33,7 @@ import com.bramosystems.oss.player.youtube.client.impl.YouTubePlayerProvider;
  * Widget player = null;
  * try {
  *      // create the player
- *      player = new ChromelessPlayer("http://www.youtube.com/v/VIDEO_ID&fs=1", "100%", "350px");
+ *      player = new ChromelessPlayer("VIDEO_ID", "100%", "350px");
  * } catch(PluginVersionException e) {
  *      // catch plugin version exception and alert user to download plugin first.
  *      // An option is to use the utility method in PlayerUtil class.
@@ -49,52 +50,48 @@ import com.bramosystems.oss.player.youtube.client.impl.YouTubePlayerProvider;
  * @author Sikirulai Braheem <sbraheem at bramosystems dot com>
  * @since 1.1
  */
-@Player(name="Chromeless", minPluginVersion="10.1.0", providerFactory=YouTubePlayerProvider.class)
+@Player(name = "Chromeless", minPluginVersion = "10.1.0", providerFactory = YouTubePlayerProvider.class)
 public class ChromelessPlayer extends YouTubePlayer {
-
-    private String videoURL;
-    private PlayerParameters params;
 
     /**
      * Constructs <code>ChromelessPlayer</code> with the specified {@code height} and
-     * {@code width} to playback video located at {@code videoURL}
+     * {@code width} to playback video {@code videoID}
      *
      * <p> {@code height} and {@code width} are specified as CSS units.
      *
-     * @param videoURL the URL of the video
+     * @param videoID the ID of the video
      * @param width the width of the player
      * @param height the height of the player
      *
      * @throws PluginNotFoundException if the required Flash player plugin is not found
-     * @throws PluginVersionException if Flash player version 8 and above is not found
-     * @throws NullPointerException if either {@code videoURL}, {@code height} or {@code width} is null
+     * @throws PluginVersionException if the required Flash player version not found
+     * @throws NullPointerException if either {@code vId}, {@code height} or {@code width} is null
      */
-    public ChromelessPlayer(String videoURL, String width, String height)
+    public ChromelessPlayer(String videoID, String width, String height)
             throws PluginNotFoundException, PluginVersionException {
-        super(videoURL, width, height);
+        super(videoID, width, height);
     }
 
     @Override
-    protected String getNormalizedVideoAppURL(String videoURL, PlayerParameters playerParameters) {
-        parseURLParams(videoURL, playerParameters);
-        params = playerParameters;
-        params.setPlayerAPIId(playerId);
-        this.videoURL = videoURL;
-        return "http://www.youtube.com/apiplayer?version=3&enablejsapi=1&playerapiid="
-                + params.getPlayerAPIId();
+    protected String getNormalizedVideoAppURL(String videoId, PlayerParameters playerParameters) {
+        playerParameters.setPlayerAPIId(playerId);
+        playerParameters.setJSApiEnabled(true);
+        playerParameters.setOrigin(GWT.getHostPageBaseURL());
+        
+        StringBuilder vurl = new StringBuilder("http://www.youtube.com/apiplayer?version=3");
+        vurl.append("&video_id=").append(videoId).append("&");
+        vurl.append(paramsToString(playerParameters));
+        return vurl.toString();
     }
 
     @Override
-    protected void playerInit() {
-        if (params.isAutoplay()) {
-            impl.loadVideoByUrl(videoURL, 0);
-        } else {
-            impl.cueVideoByUrl(videoURL, 0);
-        }
+    protected String getPlayerName() {
+        return "Chromeless";
     }
 
     /**
-     * Checks whether the player controls are visible.  This implementation <b>always</b> return false.
+     * Checks whether the player controls are visible. This implementation
+     * <b>always</b> return false.
      */
     @Override
     public boolean isControllerVisible() {

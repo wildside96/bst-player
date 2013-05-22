@@ -44,7 +44,7 @@ public class PlaybackQualityChangeEvent extends GwtEvent<PlaybackQualityChangeHa
      * @param source the YouTubePlayer generating the event
      * @param quality the playback quality
      */
-    public static void fire(YouTubePlayer source, PlaybackQuality quality) {
+    public static void fire(YouTubeBasePlayer source, PlaybackQuality quality) {
         source.fireEvent(new PlaybackQualityChangeEvent(quality));
     }
 
