@@ -4,10 +4,11 @@
     <parent>
         <artifactId>bst-player</artifactId>
         <groupId>com.bramosystems.oss.player</groupId>
-        <version>2.0-SNAPSHOT</version>
+        <version>2.0</version>
     </parent>
     <artifactId>bst-player-js</artifactId>
     <packaging>war</packaging>
+    <version>2.0-SNAPSHOT</version>
     <name>BST Player JS Library</name>
     <description>
         Export BST Player API widgets as Javascript objects
@@ -20,7 +21,8 @@
                 <artifactId>gwt-maven-plugin</artifactId>
                 <configuration>
                     <module>com.bramosystems.oss.player.jscript.Exporter</module>
-                    <style>DETAILED</style>
+                    <runTarget>README.html</runTarget>
+                    <copyWebapp>true</copyWebapp>
                 </configuration>
                 <executions>
                     <execution>
@@ -34,7 +36,7 @@
             <plugin>
                 <artifactId>maven-war-plugin</artifactId>
                 <configuration>
-                    <packagingExcludes>WEB-INF/classes/**</packagingExcludes>
+                    <packagingExcludes>WEB-INF/**</packagingExcludes>
                 </configuration>
             </plugin>
         </plugins>
@@ -48,18 +50,15 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <version>${project.version}</version>
+            <version>[2.0.2, )</version>
             <artifactId>bst-player-api</artifactId>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <version>${project.version}</version>
+            <version>[2.0, )</version>
             <artifactId>core-player-provider</artifactId>
             <scope>provided</scope>
         </dependency>
     </dependencies>
-    <properties>
-        <netbeans.hint.deploy.server>Tomcat70</netbeans.hint.deploy.server>
-    </properties>
 </project>

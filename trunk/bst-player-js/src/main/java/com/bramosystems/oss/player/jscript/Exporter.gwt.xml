@@ -16,17 +16,6 @@
 <!--                                                                        -->
 
 <module rename-to="bst_player_js">
-    <inherits name="com.bramosystems.oss.player.script.Script" />
-    <inherits name="com.bramosystems.oss.player.core.resources.Flash" />
-    <entry-point class="com.bramosystems.oss.player.jscript.client.JSExporter" />
-    
-    <!--replace-with class="com.bramosystems.oss.player.jscript.client.JSProvider">
-        <when-type-is class="com.bramosystems.oss.player.script.client.ExportProvider"/>
-    </replace-with-->
-
-    <set-property name="bstplayer.script.useProviderFramework" value="true"/>
-    
-    <replace-with class="com.bramosystems.oss.player.jscript.client.JSProvider2">
-        <when-type-is class="com.bramosystems.oss.player.script.client.AbstractExportProvider"/>
-    </replace-with>
-</module>
+    <inherits name="com.bramosystems.oss.player.core.CorePlayerProvider" />
+    <inherits name="com.bramosystems.oss.player.script.Exporter" />
+ </module>
