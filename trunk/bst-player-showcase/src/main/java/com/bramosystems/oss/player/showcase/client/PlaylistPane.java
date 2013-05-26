@@ -43,15 +43,19 @@ import java.util.ArrayList;
 public class PlaylistPane extends Composite implements ValueChangeHandler<String> {
 
     public static PlaylistPane singleton = new PlaylistPane();
-    private ArrayList<MRL> entries, uTube;
-    private AppOptions option;
+    private ArrayList<MRL> entries;
 
     private PlaylistPane() {
         initWidget(bb.createAndBindUi(this));
     }
-    
-    private void loadList() {
-        String spf = GWT.getHostPageBaseURL() + "jspf-local.json";
+
+    private void loadList(String provider) {
+        String spf = GWT.getHostPageBaseURL() + "media/jspf-core.json";
+        if (provider.equals("bst.vimeo")) {
+            spf = GWT.getHostPageBaseURL() + "media/jspf-vimeo.json";
+        } else if (provider.equals("bst.youtube")) {
+            spf = GWT.getHostPageBaseURL() + "media/jspf-youtube.json";
+        }
 
         try {
             RequestBuilder rb = new RequestBuilder(RequestBuilder.GET, spf);
@@ -61,10 +65,6 @@ public class PlaylistPane extends Composite implements ValueChangeHandler<String
                     try {
                         SPFPlaylist spf = PlaylistFactory.parseJspfPlaylist(response.getText());
                         entries = spf.toPlaylist();
-
-                        uTube = new ArrayList<MRL>();
-                        uTube.add(new MRL("http://www.youtube.com/v/QbwZL-EK6CY"));
-                        //        uTube.add(new MRL("http://www.youtube.com/v/IqnWs_j5MbM"));
                         refreshView();
                     } catch (ParseException ex) {
                         GWT.log("Parse Exception", ex);
@@ -82,12 +82,7 @@ public class PlaylistPane extends Composite implements ValueChangeHandler<String
 
     @Override
     public void onValueChange(ValueChangeEvent<String> event) {
-        option = AppOptions.home;
-        try {
-            option = AppOptions.valueOf(event.getValue());
-        } catch (Exception e) {
-        }
-        loadList();;
+        loadList(event.getValue());
     }
 
     public void addChangeHandler(PlaylistChangeHandler handler) {
@@ -95,20 +90,14 @@ public class PlaylistPane extends Composite implements ValueChangeHandler<String
     }
 
     public final void addEntry(String... urls) {
-        switch (option) {
-//            case ytube:
-//                uTube.add(new MRL(urls));
-//                break;
-            default:
-                entries.add(new MRL(urls));
-        }
+        entries.add(new MRL(urls));
         if (isAttached()) {
             refreshView();
         }
     }
 
     public MRL removeEntry(int index) {
-        MRL m = /* option.equals(AppOptions.ytube) ? uTube.remove(index) : */ entries.remove(index);
+        MRL m = entries.remove(index);
         if (isAttached()) {
             refreshView();
         }
@@ -116,12 +105,12 @@ public class PlaylistPane extends Composite implements ValueChangeHandler<String
     }
 
     public ArrayList<MRL> getEntries() {
-        return /* option.equals(AppOptions.ytube) ? uTube : */ entries;
+        return entries;
     }
 
     private void refreshView() {
         list.clear();
-        ArrayList<MRL> es = /* option.equals(AppOptions.ytube) ? uTube : */ entries;
+        ArrayList<MRL> es = entries;
         for (MRL entry : es) {
             list.addItem(entry.toString());
         }
@@ -154,11 +143,11 @@ public class PlaylistPane extends Composite implements ValueChangeHandler<String
     public void onListChange(ChangeEvent event) {
         delButton.setEnabled(true);
     }
-    
     @UiField ListBox list;
     @UiField Button addButton, delButton;
 
     @UiTemplate("xml/PlaylistPane.ui.xml")
-    interface Binder extends UiBinder<Widget, PlaylistPane> {}
+    interface Binder extends UiBinder<Widget, PlaylistPane> {
+    }
     Binder bb = GWT.create(Binder.class);
 }

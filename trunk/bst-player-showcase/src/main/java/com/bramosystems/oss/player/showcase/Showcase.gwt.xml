@@ -23,7 +23,8 @@
     <inherits name="com.bramosystems.oss.player.playlist.Playlist" />
     <!--
     <inherits name="com.bramosystems.oss.player.capsule.Capsule"/>
-    <inherits name="com.bramosystems.oss.player.flat.FlatVideoPlayer"/>
+     <inherits name="com.bramosystems.oss.player.provider.vimeo.Vimeo"/>
+   <inherits name="com.bramosystems.oss.player.flat.FlatVideoPlayer"/>
     -->
     <inherits name="com.bramosystems.oss.player.youtube.YouTube"/>
 

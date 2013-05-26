@@ -28,7 +28,6 @@ public enum AppOptions {
 //    capsule("Custom Audio Player", "Custom audio player controls"),
 //    flat("Custom Video Player", "Custom video player control"),
     matrix("Matrix Transforms", "Transforming Videos with Matrices"),
-//    ytube("YouTube Videos", "Embedding YouTube videos"),
     notices("Notices", "Notices");
 
     private AppOptions(String title, String desc) {

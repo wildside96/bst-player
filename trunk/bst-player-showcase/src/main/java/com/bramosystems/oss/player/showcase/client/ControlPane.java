@@ -19,7 +19,6 @@ package com.bramosystems.oss.player.showcase.client;
 import com.google.gwt.animation.client.Animation;
 import com.google.gwt.event.logical.shared.BeforeSelectionEvent;
 import com.google.gwt.event.logical.shared.BeforeSelectionHandler;
-import com.google.gwt.user.client.History;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.TabPanel;
 
@@ -49,8 +48,6 @@ public class ControlPane extends Composite {
         playlistPane = PlaylistPane.singleton;
         playerLog = new PlayerLogPane();
 
-        History.addValueChangeHandler(playlistPane);
-
         tp = new TabPanel();
         tp.add(playlistPane, "Playlist");
         tp.add(playerLog, "Player Log");
@@ -71,8 +68,8 @@ public class ControlPane extends Composite {
         return playerLog;
     }
 
-    public void addChangeHandlers(StageController handler) {
-        playlistPane.addChangeHandler(handler);
+    public PlaylistPane getPlaylistPane() {
+        return playlistPane;
     }
 
     @Override

@@ -18,12 +18,8 @@ package com.bramosystems.oss.player.showcase.client;
 
 import com.bramosystems.oss.player.core.client.Plugin;
 import com.bramosystems.oss.player.core.client.PluginNotFoundException;
-import com.bramosystems.oss.player.core.client.MimePool;
 import com.bramosystems.oss.player.core.client.PlayerInfo;
 import com.bramosystems.oss.player.core.client.PlayerUtil;
-import com.bramosystems.oss.player.core.client.PluginInfo;
-import com.bramosystems.oss.player.core.client.PluginVersion;
-import com.bramosystems.oss.player.core.client.impl.plugin.PluginManager;
 import com.bramosystems.oss.player.showcase.client.res.Bundle;
 import com.bramosystems.oss.player.util.client.BrowserPlugin;
 import com.bramosystems.oss.player.util.client.MimeType;
@@ -33,10 +29,8 @@ import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiTemplate;
 import com.google.gwt.user.client.ui.*;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.Set;
 
 /**
  *

@@ -33,8 +33,8 @@ public class Showcase implements EntryPoint {
 
     public Showcase() {
         root = uiBinder.createAndBindUi(this);
-        controlPane.addChangeHandlers(stage);
-        stage.addDebugHandler(controlPane.getPlayerLogPane());
+        stage.playerStage.addDebugHandler(controlPane.getPlayerLogPane());
+        stage.playerStage.addValueChangeHandler(controlPane.getPlaylistPane());
     }
 
     @Override
