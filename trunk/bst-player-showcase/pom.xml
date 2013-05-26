@@ -56,6 +56,12 @@
             <version>${project.version}</version>
             <scope>provided</scope>
         </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <version>${project.version}</version>
+            <artifactId>vimeo-player-provider</artifactId>
+            <scope>provided</scope>
+        </dependency>
          <dependency>
             <groupId>${project.groupId}</groupId>
             <version>${project.version}</version>
@@ -65,13 +71,13 @@
         -->
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <version>${project.version}</version>
+            <version>[2.0, )</version>
             <artifactId>youtube-player-provider</artifactId>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <version>${project.version}</version>
+            <version>[2.0, )</version>
             <artifactId>core-player-provider</artifactId>
             <scope>provided</scope>
         </dependency>

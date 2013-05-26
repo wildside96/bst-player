@@ -12,4 +12,15 @@
             <activatedProfile>dev-mode</activatedProfile>
         </activatedProfiles>
     </action>
+    <action>
+        <actionName>CUSTOM-dev-mode-2</actionName>
+        <displayName>dev mode old</displayName>
+        <goals>
+            <goal>clean</goal>
+            <goal>gwt:run</goal>
+        </goals>
+        <activatedProfiles>
+            <activatedProfile>dev-mode</activatedProfile>
+        </activatedProfiles>
+    </action>
 </actions>
