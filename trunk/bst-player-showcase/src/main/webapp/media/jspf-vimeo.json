@@ -1,0 +1,22 @@
+{
+    "playlist": {
+        "title": "JSPF Vimeo Playlist example for BST Player Showcase",
+        "info": "http://oss.bramosystems.com/bst-player",
+        "location": "http://oss.bramosystems.com/bst-player/demo/showcase/",
+        "date": "2013-05-25T17:10:47+01:00",
+        "track": [
+            {
+                "location": ["34400428"],
+                "title": "Time is Nothing",
+                "trackNum": 1,
+                "duration": 289000
+            },
+            {
+                "location": ["7047863"],
+                "title": "Lights and Water",
+                "trackNum": 2,
+                "duration": 60000
+            }
+        ]
+    }
+}
