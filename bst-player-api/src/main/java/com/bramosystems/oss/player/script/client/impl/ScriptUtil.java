@@ -93,7 +93,7 @@ public class ScriptUtil {
                 RegExp.RegexResult rr = re.exec(name);
                 _provider = rr.getMatch(2);
                 if ((_provider == null) || (_provider.length() == 0)) {
-                    _provider = "core";
+                    _provider = "api";
                 }
                 _pName = rr.getMatch(3);
             } catch (RegexException ex) {

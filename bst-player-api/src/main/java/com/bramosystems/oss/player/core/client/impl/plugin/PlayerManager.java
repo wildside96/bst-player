@@ -160,7 +160,30 @@ public abstract class PlayerManager {
             return null;
         }
     }
-    
+
+    protected final PlayerInfo getApiPlayerInfoForPlugin(String playerName) {
+        PlayerInfo pi = null;
+        Plugin plug = Plugin.valueOf(playerName);
+        switch (plug) {
+            case Auto:
+            case PlaylistSupport:
+            case MatrixSupport:
+                pi = new PlayerInfo("api", plug.name(), PluginVersion.get(0, 0, 0), false, false);
+                break;
+            case DivXPlayer:
+            case FlashPlayer:
+            case Native:
+            case QuickTimePlayer:
+            case VLCPlayer:
+            case WinMediaPlayer:
+                pi = getPlayerInfo("core", playerName);
+                break;
+            default:
+                throw new IllegalArgumentException("Unknown player name - " + playerName);
+        }
+        return pi;
+    }
+
     public abstract Set<String> getPlayerNames(String providerName);
 
     public abstract Set<String> getProviders();

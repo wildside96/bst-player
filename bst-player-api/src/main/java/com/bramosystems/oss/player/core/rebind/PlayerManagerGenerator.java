@@ -197,10 +197,12 @@ public class PlayerManagerGenerator extends Generator {
         sourceWriter.println("@Override");
         sourceWriter.println("public PlayerInfo getPlayerInfo(String providerName, String playerName) {");
         sourceWriter.indent();
-        sourceWriter.println("if(!pInfos.containsKey(providerName))");
-        sourceWriter.println("throw new IllegalArgumentException(\"Unknown player provider - \" + providerName);");
-        sourceWriter.println("if(!pInfos.get(providerName).containsKey(playerName))");
-        sourceWriter.println("throw new IllegalArgumentException(\"Unknown player name - \" + playerName);");
+        sourceWriter.println("if(!pInfos.containsKey(providerName)) {");
+        sourceWriter.println("throw new IllegalArgumentException(\"Unknown player provider - \" + providerName);}");
+        sourceWriter.println("if(providerName.equals(\"api\")){");
+        sourceWriter.println("return getApiPlayerInfoForPlugin(playerName);}");
+        sourceWriter.println("else if(!pInfos.get(providerName).containsKey(playerName)){");
+        sourceWriter.println("throw new IllegalArgumentException(\"Unknown player name - \" + playerName);}");
         sourceWriter.println("return pInfos.get(providerName).get(playerName);");
         sourceWriter.outdent();
         sourceWriter.println("}");
