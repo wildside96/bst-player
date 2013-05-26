@@ -21,6 +21,7 @@ import com.bramosystems.oss.player.core.client.spi.PlayerElement;
 import com.bramosystems.oss.player.core.client.spi.PlayerProvider;
 import com.bramosystems.oss.player.core.client.spi.PlayerProviderFactory;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
@@ -38,12 +39,12 @@ public class APIWidgetProvider implements PlayerProviderFactory {
     @Override
     public AbstractMediaPlayer getPlayer(String playerName, String mediaURL, boolean autoplay, String height, String width)
             throws PluginNotFoundException, PluginVersionException {
-        throw new UnsupportedOperationException("Not supported yet.");
+        return PlayerUtil.getPlayer(Plugin.valueOf(playerName), mediaURL, autoplay, height, width);
     }
 
     @Override
     public AbstractMediaPlayer getPlayer(String playerName, String mediaURL, boolean autoplay) throws PluginNotFoundException, PluginVersionException {
-        throw new UnsupportedOperationException("Not supported yet.");
+        return PlayerUtil.getPlayer(Plugin.valueOf(playerName), mediaURL, autoplay);
     }
 
     @Override
@@ -82,6 +83,9 @@ public class APIWidgetProvider implements PlayerProviderFactory {
     public PluginVersion getDetectedPluginVersion(String playerName) throws PluginNotFoundException {
         if (playerName.equals("swf")) {
             return PlayerUtil.getFlashPlayerVersion();
+        } else if (playerName.equals(Plugin.Auto.name()) || playerName.equals(Plugin.MatrixSupport.name())
+                || playerName.equals(Plugin.PlaylistSupport.name())) {
+            return PluginVersion.get(0, 0, 0);
         } else {
             throw new IllegalArgumentException("Unknown player - '" + playerName + "'");
         }
@@ -89,18 +93,24 @@ public class APIWidgetProvider implements PlayerProviderFactory {
 
     @Override
     public Set<String> getPermittedMimeTypes(String playerName, PluginVersion version) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        return new HashSet<String>();
     }
 
     @Override
     public Set<String> getPermittedMediaProtocols(String playerName, PluginVersion version) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        return new HashSet<String>();
     }
 
     @Override
     public PluginInfo getDetectedPluginInfo(String playerName) throws PluginNotFoundException {
         if (playerName.equals("swf")) {
             return new PluginInfo(Plugin.FlashPlayer, PlayerUtil.getFlashPlayerVersion(), PluginInfo.PlayerPluginWrapperType.Native);
+        } else if (playerName.equals(Plugin.Auto.name())) {
+            return new PluginInfo(Plugin.Auto, PluginVersion.get(0, 0, 0), PluginInfo.PlayerPluginWrapperType.Native);
+        } else if (playerName.equals(Plugin.MatrixSupport.name())) {
+            return new PluginInfo(Plugin.MatrixSupport, PluginVersion.get(0, 0, 0), PluginInfo.PlayerPluginWrapperType.Native);
+        } else if (playerName.equals(Plugin.PlaylistSupport.name())) {
+            return new PluginInfo(Plugin.PlaylistSupport, PluginVersion.get(0, 0, 0), PluginInfo.PlayerPluginWrapperType.Native);
         } else {
             throw new IllegalArgumentException("Unknown player - '" + playerName + "'");
         }

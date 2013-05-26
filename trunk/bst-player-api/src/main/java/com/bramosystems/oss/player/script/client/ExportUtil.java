@@ -115,9 +115,6 @@ public class ExportUtil {
     this.setVolume = function(volume) {
     _player.@com.bramosystems.oss.player.script.client.impl.ScriptUtil.ScriptPlayer::setVolume(D)(volume);
     }
-    this.showLogger = function(show) {
-    _player.@com.bramosystems.oss.player.script.client.impl.ScriptUtil.ScriptPlayer::showLogger(Z)(show);
-    }
     this.setControllerVisible = function(show) {
     _player.@com.bramosystems.oss.player.script.client.impl.ScriptUtil.ScriptPlayer::setControllerVisible(Z)(show);
     }
