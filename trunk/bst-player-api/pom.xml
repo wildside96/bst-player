@@ -8,7 +8,7 @@
     </parent>
     <artifactId>bst-player-api</artifactId>
     <name>BST Player API</name>
-    <version>2.0.2-SNAPSHOT</version>
+    <version>2.0.2</version>
     <description>
         Provides a consistent API for embedding popular media player plugins in web applications.
     </description>
@@ -58,4 +58,10 @@
             </dependencies>
         </profile>
     </profiles>
+
+  <scm>
+    <connection>scm:svn:http://bst-player.googlecode.com/svn/tags/bst-player-api-2.0.2</connection>
+    <developerConnection>scm:svn:https://bst-player.googlecode.com/svn/tags/bst-player-api-2.0.2</developerConnection>
+    <url>http://code.google.com/p/bst-player/source/browse/tags/bst-player-api-2.0.2</url>
+  </scm>
 </project>
