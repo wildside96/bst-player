@@ -25,8 +25,34 @@ import com.bramosystems.oss.player.provider.vimeo.client.impl.VimeoPlayerProvide
 import com.google.gwt.user.client.DOM;
 
 /**
+ * Widget to embed Vimeo Universal Player.
  *
- * @author sbraheem
+ * <h3>Usage Example</h3>
+ *
+ * <p>
+ * <code><pre>
+ * SimplePanel panel = new SimplePanel();   // create panel to hold the player
+ * Widget player = null;
+ * try {
+ *      // create the player
+ *      player = new VimeoUniversalPlayer("video-id", false, "100%", "350px");
+ * } catch(PluginVersionException e) {
+ *      // catch plugin version exception and alert user to download plugin first.
+ *      // An option is to use the utility method in PlayerUtil class.
+ *      player = PlayerUtil.getMissingPluginNotice(e.getPlugin(), "Missing Plugin",
+ *              ".. some nice message telling the user to click and download plugin first ..",
+ *              false);
+ * } catch(PluginNotFoundException e) {
+ *      // catch PluginNotFoundException and tell user to download plugin, possibly providing
+ *      // a link to the plugin download page.
+ *      player = new HTML(".. another kind of message telling the user to download plugin..");
+ * }
+ *
+ * panel.setWidget(player); // add player to panel.
+ * </pre></code>
+ *
+ * @since 2.0
+ * @author Sikiru Braheem
  */
 @Player(name = VimeoPlayerProvider.UNIVERSAL_PLAYER, providerFactory = VimeoPlayerProvider.class, minPluginVersion = "5.0.0")
 public class VimeoUniversalPlayer extends AbstractMediaPlayer {
@@ -36,70 +62,109 @@ public class VimeoUniversalPlayer extends AbstractMediaPlayer {
     private VimeoPlayerIFImpl impl;
     private VimeoPlayerProvider provider;
     private RepeatMode repeatMode;
+    private double _duration, _playTime, _vol;
+    private int _vidWidth, _vidHeight;
 
-    private VimeoUniversalPlayer() {
+    private VimeoUniversalPlayer() throws PluginNotFoundException {
+        if (!PlayerUtil.isHTML5CompliantClient()) {
+            throw new PluginNotFoundException(Plugin.Native, "HTML5 Compliant browser not found !");
+        }
+
         playerId = DOM.createUniqueId().replace("-", "");
         repeatMode = RepeatMode.REPEAT_OFF;
 
         provider = ((VimeoPlayerProvider) getWidgetFactory(VimeoPlayerProvider.PROVIDER_NAME));
         provider.initHandlers(playerId, new VimeoPlayerProvider.EventHandler() {
-
             @Override
             public void onInit() {
+                fireDebug("Vimeo Universal Player");
                 impl = VimeoPlayerIFImpl.getPlayerImpl(playerId);
                 impl.registerHandlers(provider.getEvtFunctionBaseName(playerId));
                 firePlayerStateEvent(PlayerStateEvent.State.Ready);
+                impl.getVideoHeight();
+                impl.getVideoWidth();
+                impl.getVolume();
             }
 
             @Override
-            public void onLoadingPrgress(double progress) {
+            public void onLoadingProgress(double progress, double duration) {
+                _duration = duration * 1000;
                 fireLoadingProgress(progress);
             }
 
             @Override
-            public void onPlayingProgress() {
+            public void onPlayingProgress(double seconds) {
+                _playTime = seconds * 1000;
             }
 
             @Override
             public void onPlay() {
                 firePlayStateEvent(State.Started, 1);
+                fireDebug("Playback Started");
             }
 
             @Override
             public void onFinish() {
                 firePlayStateEvent(State.Finished, 1);
+                fireDebug("Playback Finished");
             }
 
             @Override
             public void onPause() {
                 firePlayStateEvent(State.Paused, 1);
+                fireDebug("Playback Paused");
             }
 
             @Override
-            public void onSeek() {
+            public void onSeek(double seconds) {
+                _playTime = seconds;
             }
 
             @Override
             public void onMsg(String msg) {
-                fireDebug(playerId + "- " + msg);
+                fireDebug("- " + msg);
+            }
+
+            @Override
+            public void onMethod(String method, String retVal) {
+                fireDebug("Method: " + method + ", Val: " + retVal);
+                if (method.equalsIgnoreCase("getvideowidth")) {
+                    _vidWidth = Integer.parseInt(retVal);
+                } else if (method.equalsIgnoreCase("getvideoheight")) {
+                    _vidHeight = Integer.parseInt(retVal);
+                } else if (method.equalsIgnoreCase("getvolume")) {
+                    _vol = Double.parseDouble(retVal);
+                }
             }
         });
     }
 
-    public VimeoUniversalPlayer(String clipId, boolean autoplay, String width, String height) throws PluginNotFoundException, PluginVersionException {
+    /**
+     * Creates a VimeoUniversalPlayer widget to playback the specified
+     * <code>videoId</code>.
+     *
+     * @param videoId the identifier of the video
+     * @param autoplay <code>true</code> to start playback
+     * automatically, <code>false</code> otherwise
+     * @param width the width of the player widget, in CSS units
+     * @param height the height of the player widget, in CSS units
+     * @throws PluginNotFoundException if the client browser is not HTML5 compliant
+     * @throws PluginVersionException not exactly thrown. Provided for Base API compatibility
+     */
+    public VimeoUniversalPlayer(String videoId, boolean autoplay, String width, String height) throws PluginNotFoundException, PluginVersionException {
         this();
-        upf = new PlayerWidget(VimeoPlayerProvider.PROVIDER_NAME, VimeoPlayerProvider.UNIVERSAL_PLAYER, playerId, clipId, autoplay);
+        upf = new PlayerWidget(VimeoPlayerProvider.PROVIDER_NAME, VimeoPlayerProvider.UNIVERSAL_PLAYER, playerId, videoId, autoplay);
         upf.addParam("autoplay", autoplay ? "1" : "0");
         upf.addParam("api", "1");
         upf.setSize(width, height);
         initWidget(upf);
     }
 
+    /**
+     * This implementation does nothing.  You will need to create another instance of the class to load a new media
+     */
     @Override
     public void loadMedia(String mediaURL) throws LoadException {
-        if (isPlayerOnPage(playerId)) {
-//            impl.
-        }
     }
 
     @Override
@@ -111,7 +176,8 @@ public class VimeoUniversalPlayer extends AbstractMediaPlayer {
     @Override
     public void stopMedia() {
         checkAvailable();
-        impl.stop();
+        impl.pause();
+        impl.seekTo(0);
     }
 
     @Override
@@ -123,25 +189,25 @@ public class VimeoUniversalPlayer extends AbstractMediaPlayer {
     @Override
     public long getMediaDuration() {
         checkAvailable();
-        return (long) impl.getDuration();
+        return (long) _duration;
     }
 
     @Override
     public double getPlayPosition() {
         checkAvailable();
-        return impl.getCurrentTime();
+        return _playTime;
     }
 
     @Override
     public void setPlayPosition(double position) {
         checkAvailable();
-        impl.seekTo(position);
+        impl.seekTo(position / 1000);
     }
 
     @Override
     public double getVolume() {
         checkAvailable();
-        return impl.getVolume();
+        return _vol;
     }
 
     @Override
@@ -179,22 +245,29 @@ public class VimeoUniversalPlayer extends AbstractMediaPlayer {
     @Override
     public int getVideoHeight() {
         checkAvailable();
-        return impl.getVideoHeight();
+        return _vidHeight;
     }
 
     @Override
     public int getVideoWidth() {
         checkAvailable();
-        return impl.getVideoWidth();
+        return _vidWidth;
     }
 
+    /**
+     * Returns the visibility state of the player controls.
+     * 
+     * <p>This implementation ALWAYS return <code>true</code>
+     * 
+     * @return <code>true</code>.  Controller is always visible
+     */
     @Override
     public boolean isControllerVisible() {
         return true;
     }
 
     @Override
-    public <T> void setConfigParameter(ConfigParameter param, T value) {
+    public <C extends ConfigParameter> void setConfigParameter(C param, Object value) {
         super.setConfigParameter(param, value);
         if (param instanceof VimeoConfigParameters) {
             switch (VimeoConfigParameters.valueOf(param.getName())) {
@@ -209,6 +282,9 @@ public class VimeoUniversalPlayer extends AbstractMediaPlayer {
                     break;
                 case EnableFullscreen:
                     upf.addParam("fullscreen", (Boolean) value ? "1" : "0");
+                    break;
+                case Color:
+                    upf.addParam("color", (String) value);
                     break;
             }
         }

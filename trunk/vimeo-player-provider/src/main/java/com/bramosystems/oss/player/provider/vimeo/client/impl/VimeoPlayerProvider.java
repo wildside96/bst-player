@@ -24,7 +24,9 @@ import com.bramosystems.oss.player.provider.vimeo.client.VimeoFlashPlayer;
 import com.bramosystems.oss.player.provider.vimeo.client.VimeoUniversalPlayer;
 import com.google.gwt.core.client.JavaScriptObject;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Set;
 
 /**
  *
@@ -42,55 +44,59 @@ public class VimeoPlayerProvider implements PlayerProviderFactory {
         this.context = context;
         initMessageHandlersImpl(context.getGlobalJSStack());
     }
-    
-    private native void initMessageHandlersImpl(JavaScriptObject vim) /*-{    
-    $wnd.addEventListener('message', function(evt){
-    if(evt.origin != 'http://player.vimeo.com') return;
-    var dt = JSON.parse(evt.data);
-    var pid = dt.player_id;
-    if(vim[pid] != null) {
-        if(dt.event) {
-           switch(dt.event) {
-            case "loadProgress":
-              vim[pid].onLoadProgress(dt.data);
-              break;
-            case "ready":
-              vim[pid].onInit(null);
-              break;
-            case "play":
-              vim[pid].onPlay(null);
-              break;
-            case "pause":
-              vim[pid].onPause(null);
-              break;
-            case "finish":
-              vim[pid].onFinish(null);
-              break;
-            case "seek":
-              vim[pid].onSeek(null);
-              break;
-           }
-        }
-    }
-    }, false);
-    }-*/;
 
+    private native void initMessageHandlersImpl(JavaScriptObject v) /*-{    
+     $wnd.addEventListener('message', function(evt){
+     if(evt.origin != 'http://player.vimeo.com') return;
+     var dt = JSON.parse(evt.data);
+     var p = dt.player_id;
+     if(v[p] != null) {
+     if(dt.event) {
+     switch(dt.event) {
+     case "ready":
+     v[p].onInit();
+     break;
+     case "loadProgress":
+     v[p].onLoadProgress(dt.data);
+     break;
+     case "playProgress":
+     v[p].onPlayProgress(dt.data);
+     break;
+     case "play":
+     v[p].onPlay();
+     break;
+     case "pause":
+     v[p].onPause();
+     break;
+     case "finish":
+     v[p].onFinish();
+     break;
+     case "seek":
+     v[p].onSeek(dt.data);
+     break;
+     }
+     } else {
+     v[p].onMth(dt);
+     }
+     }
+     }, false);
+     }-*/;
 
     @Override
-    public PlayerElement getPlayerElement(String playerName, String playerId, String mediaURL, boolean autoplay, HashMap<String, String> params) {
+    public PlayerElement getPlayerElement(String playerName, String playerId, String mediaId, boolean autoplay, HashMap<String, String> params) {
         if (playerName.equals(UNIVERSAL_PLAYER)) {
             params.put("player_id", playerId);
-            
+
             StringBuilder src = new StringBuilder("http://player.vimeo.com/video/");
-            src.append(mediaURL).append("?");
-            
+            src.append(mediaId).append("?");
+
             Iterator<String> it = params.keySet().iterator();
-            while(it.hasNext()) {
+            while (it.hasNext()) {
                 String ky = it.next();
                 src.append(ky).append("=").append(params.get(ky)).append("&");
             }
             src.deleteCharAt(src.lastIndexOf("&"));
-            
+
             PlayerElement pe = new PlayerElement(PlayerElement.Type.IFrameElement, playerId, "");
             pe.addParam("frameborder", "0");
             pe.addParam("src", src.toString());
@@ -117,7 +123,7 @@ public class VimeoPlayerProvider implements PlayerProviderFactory {
 
     @Override
     public AbstractMediaPlayer getPlayer(String playerName, String mediaURL, boolean autoplay, String height, String width)
-            throws LoadException, PluginNotFoundException, PluginVersionException {
+            throws PluginNotFoundException, PluginVersionException {
         if (playerName.equals(FLASH_PLAYER)) {
             return new VimeoFlashPlayer(mediaURL, autoplay, width, height);
         } else if (playerName.equals(UNIVERSAL_PLAYER)) {
@@ -129,17 +135,34 @@ public class VimeoPlayerProvider implements PlayerProviderFactory {
 
     @Override
     public AbstractMediaPlayer getPlayer(String playerName, String mediaURL, boolean autoplay)
-            throws LoadException, PluginNotFoundException, PluginVersionException {
+            throws PluginNotFoundException, PluginVersionException {
+        return getPlayer(playerName, mediaURL, autoplay, "400px", "300px");
+    }
+
+    @Override
+    public PluginInfo getDetectedPluginInfo(String playerName) throws PluginNotFoundException {
         if (playerName.equals(FLASH_PLAYER)) {
-            return new VimeoFlashPlayer(mediaURL, autoplay, "400px", "300px");
+            return PlayerUtil.getPluginInfo(Plugin.FlashPlayer);
         } else if (playerName.equals(UNIVERSAL_PLAYER)) {
-            return new VimeoUniversalPlayer(mediaURL, autoplay, "400px", "300px");
+            return PlayerUtil.getPluginInfo(Plugin.Native);
         } else {
             throw new IllegalArgumentException("Player '" + playerName + "' not known to this provider");
         }
     }
 
-    /************************* Native Utils ***************************************/
+    @Override
+    public Set<String> getPermittedMimeTypes(String playerName, PluginVersion version) {
+        return new HashSet<String>();
+    }
+
+    @Override
+    public Set<String> getPermittedMediaProtocols(String playerName, PluginVersion version) {
+        return new HashSet<String>();
+    }
+
+    /**
+     * *********************** Native Utils **************************************
+     */
     public void initHandlers(String playerId, EventHandler handler) {
         initHandlersImpl(playerId, context.getGlobalJSStack(), handler);
     }
@@ -156,45 +179,49 @@ public class VimeoPlayerProvider implements PlayerProviderFactory {
         return context.getGlobalJSStackName() + "." + playerId;
     }
 
-    private native void closeImpl(String playerId, JavaScriptObject vim) /*-{
-    delete vim[playerId];
-    }-*/;
+    private native void closeImpl(String p, JavaScriptObject v) /*-{
+     delete v[p];
+     }-*/;
 
-    private native void initHandlersImpl(String playerId, JavaScriptObject vim, EventHandler handler) /*-{
-    vim[playerId] = new Object();
-    vim[playerId].onInit = function(evt){
-    handler.@com.bramosystems.oss.player.provider.vimeo.client.impl.VimeoPlayerProvider.EventHandler::onInit()();
-    }
-    vim[playerId].onMsg = function(evt){
-    handler.@com.bramosystems.oss.player.provider.vimeo.client.impl.VimeoPlayerProvider.EventHandler::onMsg(Ljava/lang/String;)(evt);
-    }
-    vim[playerId].onLoadProgress = function(evt){
-    handler.@com.bramosystems.oss.player.provider.vimeo.client.impl.VimeoPlayerProvider.EventHandler::onLoadingPrgress(D)(parseFloat(evt.percent));
-    }
-    vim[playerId].onPlayProgress = function(evt){
-    }
-    vim[playerId].onPlay = function(evt){
-    handler.@com.bramosystems.oss.player.provider.vimeo.client.impl.VimeoPlayerProvider.EventHandler::onPlay()();
-    }
-    vim[playerId].onPause = function(evt){
-    handler.@com.bramosystems.oss.player.provider.vimeo.client.impl.VimeoPlayerProvider.EventHandler::onPause()();
-    }
-    vim[playerId].onFinish = function(evt){
-    handler.@com.bramosystems.oss.player.provider.vimeo.client.impl.VimeoPlayerProvider.EventHandler::onFinish()();
-    }
-    vim[playerId].onSeek = function(evt){
-    handler.@com.bramosystems.oss.player.provider.vimeo.client.impl.VimeoPlayerProvider.EventHandler::onSeek()();
-    }
-    }-*/;
+    private native void initHandlersImpl(String p, JavaScriptObject v, EventHandler h) /*-{
+     v[p] = new Object();
+     v[p].onInit = function(){
+     h.@com.bramosystems.oss.player.provider.vimeo.client.impl.VimeoPlayerProvider.EventHandler::onInit()();
+     }
+     v[p].onMth = function(evt){
+     h.@com.bramosystems.oss.player.provider.vimeo.client.impl.VimeoPlayerProvider.EventHandler::onMethod(Ljava/lang/String;Ljava/lang/String;)(evt.method,evt.value);
+     }
+     v[p].onMsg = function(evt){
+     h.@com.bramosystems.oss.player.provider.vimeo.client.impl.VimeoPlayerProvider.EventHandler::onMsg(Ljava/lang/String;)(evt);
+     }
+     v[p].onLoadProgress = function(evt){
+     h.@com.bramosystems.oss.player.provider.vimeo.client.impl.VimeoPlayerProvider.EventHandler::onLoadingProgress(DD)(parseFloat(evt.percent),parseFloat(evt.duration));
+     }
+     v[p].onPlayProgress = function(evt){
+     h.@com.bramosystems.oss.player.provider.vimeo.client.impl.VimeoPlayerProvider.EventHandler::onPlayingProgress(D)(parseFloat(evt.seconds));
+     }
+     v[p].onPlay = function(){
+     h.@com.bramosystems.oss.player.provider.vimeo.client.impl.VimeoPlayerProvider.EventHandler::onPlay()();
+     }
+     v[p].onPause = function(){
+     h.@com.bramosystems.oss.player.provider.vimeo.client.impl.VimeoPlayerProvider.EventHandler::onPause()();
+     }
+     v[p].onFinish = function(){
+     h.@com.bramosystems.oss.player.provider.vimeo.client.impl.VimeoPlayerProvider.EventHandler::onFinish()();
+     }
+     v[p].onSeek = function(evt){
+     h.@com.bramosystems.oss.player.provider.vimeo.client.impl.VimeoPlayerProvider.EventHandler::onSeek(D)(evt.seconds);
+     }
+     }-*/;
 
     /*************************** Event Handler Interface *********************************/
     public static interface EventHandler {
 
         public void onInit();
 
-        public void onLoadingPrgress(double progress);
+        public void onLoadingProgress(double progress,double duration);
 
-        public void onPlayingProgress();
+        public void onPlayingProgress(double seconds);
 
         public void onPlay();
 
@@ -202,8 +229,10 @@ public class VimeoPlayerProvider implements PlayerProviderFactory {
 
         public void onPause();
 
-        public void onSeek();
-        
+        public void onSeek(double seconds);
+
         public void onMsg(String msg);
+        
+        public void onMethod(String method, String retVal);
     }
-    }
+}

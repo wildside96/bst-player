@@ -22,7 +22,7 @@ import com.google.gwt.core.client.JavaScriptObject;
  * interact with this class directly.
  *
  * @author Sikirulai Braheem
- * @since 1.4
+ * @since 2.0
  */
 public class VimeoPlayerIFImpl extends JavaScriptObject {
 
@@ -30,18 +30,16 @@ public class VimeoPlayerIFImpl extends JavaScriptObject {
     }
 
     public static native VimeoPlayerIFImpl getPlayerImpl(String playerId)/*-{
-    return $doc.getElementById(playerId);
-    }-*/;
+     return $doc.getElementById(playerId);
+     }-*/;
 
-    public final native String getUrl() /*-{
-    var v = this.postMessage({'method':'getVideoUrl'});
-    return v['value'];
-    }-*/;
+    public final void getUrl() {
+        postMessage("getVideoUrl");
+    }
 
-    public final native String getEmbedCode() /*-{
-    var v = this.postMessage({'method':'getVideoEmbedCode'});
-    return v['value'];
-    }-*/;
+    public final void getEmbedCode() {
+        postMessage("getVideoEmbedCode");
+    }
 
     public final void play() {
         postMessage("play");
@@ -51,50 +49,33 @@ public class VimeoPlayerIFImpl extends JavaScriptObject {
         postMessage("pause");
     }
 
-    public final native void stop() /*-{
-    }-*/;
-
     public final void clear() {
         postMessage("unload");
     }
-
-    public final native double getCurrentTime() /*-{
-    var v = this.postMessage({'method':'getCurrentTime'});
-    return parseFloat(v['value']) * 1000;
-    }-*/;
 
     public final void seekTo(double seconds) {
         postMessage("seekTo", Double.toString(seconds));
     }
 
-    public final native double getDuration() /*-{
-    var v = this.postMessage({'method':'getDuration'});
-    return parseFloat(v['value']) * 1000;
-    }-*/;
-
-    public final native double getVolume() /*-{
-    var v = this.postMessage({'method':'getVolume'});
-    return parseFloat(v['value']);
-    }-*/;
+    public final void getVolume() {
+        postMessage("getVolume");
+    }
 
     public final void setVolume(double volume) {
         postMessage("setVolume", Double.toString(volume));
     }
 
-    public final native int getVideoHeight() /*-{
-    var v = this.postMessage({'method':'getVideoHeight'});
-    return parseInt(v['value']);
-    }-*/;
+    public final void getVideoHeight() {
+        postMessage("getVideoHeight");
+    }
 
-    public final native int getVideoWidth() /*-{
-    var v = this.postMessage({'method':'getVideoWidth'});
-    return parseInt(v['value']);
-    }-*/;
+    public final void getVideoWidth() {
+        postMessage("getVideoWidth");
+    }
 
-    public final native String getColor() /*-{
-    var v = this.postMessage({'method':'getColor'});
-    return v['value'];
-    }-*/;
+    public final void getColor() {
+        postMessage("getColor");
+    }
 
     public final void setColor(String color) {
         postMessage("setColor", color);
@@ -107,18 +88,17 @@ public class VimeoPlayerIFImpl extends JavaScriptObject {
         postMessage("addEventListener", "pause");
         postMessage("addEventListener", "finish");
         postMessage("addEventListener", "seek");
-
     }
 
     public final void setLoop(boolean loop) {
         postMessage("setLoop", Boolean.toString(loop));
     }
-    
-    private native void postMessage(String method, String value) /*-{
-    this.contentWindow.postMessage(JSON.stringify({"method": method, "value": value}), "http://player.vimeo.com");
-    }-*/;
-    
-    private native void postMessage(String method) /*-{
-    this.contentWindow.postMessage(JSON.stringify({"method": method}), "http://player.vimeo.com");
-    }-*/;
+
+    private native void postMessage(String m, String v) /*-{
+     this.contentWindow.postMessage({"method":m,"value":v},"http://player.vimeo.com");
+     }-*/;
+
+    private native void postMessage(String m) /*-{
+     this.contentWindow.postMessage({"method":m},"http://player.vimeo.com");
+     }-*/;
 }
