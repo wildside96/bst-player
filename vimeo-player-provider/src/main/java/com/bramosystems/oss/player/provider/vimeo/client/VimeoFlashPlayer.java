@@ -22,10 +22,37 @@ import com.bramosystems.oss.player.core.event.client.PlayStateEvent.State;
 import com.bramosystems.oss.player.core.event.client.PlayerStateEvent;
 import com.bramosystems.oss.player.provider.vimeo.client.impl.VimeoPlayerAFImpl;
 import com.bramosystems.oss.player.provider.vimeo.client.impl.VimeoPlayerProvider;
+import com.google.gwt.user.client.ui.SimplePanel;
 
 /**
+ * Widget to embed Vimeo Flash Player.
  *
- * @author sbraheem
+ * <h3>Usage Example</h3>
+ *
+ * <p>
+ * <code><pre>
+ * SimplePanel panel = new SimplePanel();   // create panel to hold the player
+ * Widget player = null;
+ * try {
+ *      // create the player
+ *      player = new VimeoFlashPlayer("video-id", false, "100%", "350px");
+ * } catch(PluginVersionException e) {
+ *      // catch plugin version exception and alert user to download plugin first.
+ *      // An option is to use the utility method in PlayerUtil class.
+ *      player = PlayerUtil.getMissingPluginNotice(e.getPlugin(), "Missing Plugin",
+ *              ".. some nice message telling the user to click and download plugin first ..",
+ *              false);
+ * } catch(PluginNotFoundException e) {
+ *      // catch PluginNotFoundException and tell user to download plugin, possibly providing
+ *      // a link to the plugin download page.
+ *      player = new HTML(".. another kind of message telling the user to download plugin..");
+ * }
+ *
+ * panel.setWidget(player); // add player to panel.
+ * </pre></code>
+ *
+ * @since 2.0
+ * @author Sikiru Braheem
  */
 @Player(name = "FlashPlayer", minPluginVersion = "10.0.0", providerFactory = VimeoPlayerProvider.class)
 public class VimeoFlashPlayer extends AbstractMediaPlayer {
@@ -34,73 +61,105 @@ public class VimeoFlashPlayer extends AbstractMediaPlayer {
     private VimeoPlayerAFImpl impl;
     private VimeoPlayerProvider provider;
     private RepeatMode repeatMode;
+    private String _width, _height;
 
-    private VimeoFlashPlayer() {
+    private VimeoFlashPlayer() throws PluginNotFoundException, PluginVersionException {
         provider = ((VimeoPlayerProvider) getWidgetFactory(VimeoPlayerProvider.PROVIDER_NAME));
+        PluginVersion pv = provider.getDetectedPluginVersion(VimeoPlayerProvider.FLASH_PLAYER);
+        if (pv.compareTo(PluginVersion.get(10, 0, 0)) < 0) {
+            throw new PluginVersionException(provider.getDetectedPluginInfo(
+                    VimeoPlayerProvider.FLASH_PLAYER).getPlugin(), "10.0.0", pv.toString());
+        }
         repeatMode = RepeatMode.REPEAT_OFF;
+        initWidget(new SimplePanel());
     }
 
-    public VimeoFlashPlayer(String clipId, boolean autoplay, String width, String height) throws PluginNotFoundException, PluginVersionException {
+    /**
+     * Creates a VimeoFlashPlayer widget to playback the specified
+     * <code>videoId</code>.
+     *
+     * @param videoId the identifier of the video
+     * @param autoplay <code>true</code> to start playback automatically, <code>false</code> otherwise
+     * @param width the width of the player widget, in CSS units
+     * @param height the height of the player widget, in CSS units
+     * @throws PluginNotFoundException if the required Adobe Flash player plugin in not installed on the browser
+     * @throws PluginVersionException if the required Adobe Flash player plugin version is not installed
+     */
+    public VimeoFlashPlayer(String videoId, boolean autoplay, String width, String height) throws PluginNotFoundException, PluginVersionException {
         this();
-        swf = new SWFWidget("http://vimeo.com/moogaloop.swf?server=vimeo.com&clip_id=" + clipId, width, height, PluginVersion.get(10, 0, 0));
+        _width = width;
+        _height = height;
+        swf = new SWFWidget("http://vimeo.com/moogaloop.swf?server=vimeo.com&clip_id=" + videoId, width, height, PluginVersion.get(10, 0, 0));
         swf.addProperty("allowScriptAccess", "always");
         swf.addProperty("allowFullScreen", "true");
         swf.setFlashVar("autoplay", autoplay ? 1 : 0);
         swf.setFlashVar("api", 1);
         swf.setFlashVar("player_id", swf.getId());
         swf.setFlashVar("api_ready", provider.getInitFunctionRef(swf.getId()));
-        swf.commitFlashVars();
-        initWidget(swf);
-        
+
         provider.initHandlers(swf.getId(), new VimeoPlayerProvider.EventHandler() {
+            @Override
+            public void onMethod(String method, String retVal) {
+            }
 
             @Override
             public void onMsg(String msg) {
-                throw new UnsupportedOperationException("Not supported yet.");
             }
 
             @Override
             public void onInit() {
+                fireDebug("Vimeo Flash Player");
                 impl = VimeoPlayerAFImpl.getPlayerImpl(swf.getId());
                 impl.registerHandlers(provider.getEvtFunctionBaseName(swf.getId()));
                 firePlayerStateEvent(PlayerStateEvent.State.Ready);
             }
 
             @Override
-            public void onLoadingPrgress(double progress) {
+            public void onLoadingProgress(double progress, double duration) {
                 fireLoadingProgress(progress);
             }
 
             @Override
-            public void onPlayingProgress() {
+            public void onPlayingProgress(double seconds) {
             }
 
             @Override
             public void onPlay() {
                 firePlayStateEvent(State.Started, 1);
+                fireDebug("Playback Started");
             }
 
             @Override
             public void onFinish() {
                 firePlayStateEvent(State.Finished, 1);
+                fireDebug("Playback Finished");
             }
 
             @Override
             public void onPause() {
                 firePlayStateEvent(State.Paused, 1);
+                fireDebug("Playback Paused");
             }
 
             @Override
-            public void onSeek() {
+            public void onSeek(double seconds) {
             }
         });
     }
 
     @Override
+    protected void onLoad() {
+        swf.commitFlashVars();
+        ((SimplePanel) getWidget()).setWidget(swf);
+        setSize(_width, _height);
+    }
+
+    /**
+     * This implementation does nothing. You will need to create another
+     * instance of the class to load a new media
+     */
+    @Override
     public void loadMedia(String mediaURL) throws LoadException {
-        if (isPlayerOnPage(swf.getId())) {
-//            impl.
-        }
     }
 
     @Override
@@ -112,7 +171,8 @@ public class VimeoFlashPlayer extends AbstractMediaPlayer {
     @Override
     public void stopMedia() {
         checkAvailable();
-        impl.stop();
+        impl.pause();
+        impl.seekTo(0);
     }
 
     @Override
@@ -195,7 +255,7 @@ public class VimeoFlashPlayer extends AbstractMediaPlayer {
     }
 
     @Override
-    public <T> void setConfigParameter(ConfigParameter param, T value) {
+    public <C extends ConfigParameter> void setConfigParameter(C param, Object value) {
         super.setConfigParameter(param, value);
         if (param instanceof DefaultConfigParameter) {
             switch (DefaultConfigParameter.valueOf(param.getName())) {
@@ -220,7 +280,6 @@ public class VimeoFlashPlayer extends AbstractMediaPlayer {
                     swf.setFlashVar("fullscreen", (Boolean) value ? 1 : 0);
                     break;
             }
-            swf.commitFlashVars();
         }
     }
 

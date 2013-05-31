@@ -22,7 +22,7 @@ import com.google.gwt.core.client.JavaScriptObject;
  * interact with this class directly.
  *
  * @author Sikirulai Braheem
- * @since 1.4
+ * @since 2.0
  */
 public class VimeoPlayerAFImpl extends JavaScriptObject {
 
@@ -49,9 +49,6 @@ public class VimeoPlayerAFImpl extends JavaScriptObject {
     this.api_pause();
     }-*/;
 
-    public final native void stop() /*-{
-    }-*/;
-
     public final native void clear() /*-{
     this.api_unload();
     }-*/;
@@ -61,7 +58,7 @@ public class VimeoPlayerAFImpl extends JavaScriptObject {
     }-*/;
 
     public final native void seekTo(double seconds) /*-{
-    this.api_seekTo(seconds);
+    this.api_seekTo(seconds / 1000);
     }-*/;
 
     public final native double getDuration() /*-{

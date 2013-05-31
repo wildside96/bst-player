@@ -5,10 +5,11 @@
     <parent>
         <artifactId>bst-player</artifactId>
         <groupId>com.bramosystems.oss.player</groupId>
-        <version>2.0-SNAPSHOT</version>
+        <version>2.0</version>
     </parent>
     <artifactId>vimeo-player-provider</artifactId>
     <name>Vimeo Player Provider</name>
+    <version>2.0-SNAPSHOT</version>
     
     <build>
         <resources>
@@ -22,51 +23,8 @@
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>bst-player-api</artifactId>
-            <version>${project.version}</version>
+            <version>[2.0.1, )</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>
-    <profiles>
-        <profile>
-            <id>dev-mode</id>
-            <build>
-                <resources>
-                    <resource>
-                        <directory>src/main/java</directory>
-                    </resource>
-                </resources>
-                <plugins>
-                    <plugin>
-                        <groupId>org.codehaus.mojo</groupId>
-                        <artifactId>gwt-maven-plugin</artifactId>
-                        <configuration>
-                            <module>com.bramosystems.oss.player.dev.Dev</module>
-                            <runTarget>dev/index.html</runTarget>
-                            <hostedWebapp>${project.build.directory}/${project.build.finalName}</hostedWebapp>
-                            <bindAddress>0.0.0.0</bindAddress>
-                        </configuration>
-                    </plugin>
-                    <plugin>
-                        <groupId>org.codehaus.mojo</groupId>
-                        <artifactId>build-helper-maven-plugin</artifactId>
-                        <version>1.7</version>
-                        <executions>
-                            <execution>
-                                <id>add-source</id>
-                                <phase>generate-sources</phase>
-                                <goals>
-                                    <goal>add-source</goal>
-                                </goals>
-                                <configuration>
-                                    <sources>
-                                        <source>${project.build.directory}/generated-sources/annotations</source>
-                                    </sources>
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-    </profiles>
 </project>
