@@ -1,5 +1,5 @@
 /*
- *  Copyright 2009 Sikirulai Braheem <sbraheem at bramosystems.com>.
+ *  Copyright 2010 Sikiru.
  * 
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -16,18 +16,6 @@
  */
 
 /**
- * Sample custom sound player implementation
- * 
- * <h3>Required Module</h3>
- * Modules that use the classes and interfaces in this package should inherit
- * the <code>com.bramosystems.oss.player.capsule.Capsule</code> module.
- * 
- * <p>
- * Sample custom video player implementation
- *
- * <h3>Required Module</h3>
- * Modules that use the classes and interfaces in this package should inherit
- * the <code>com.bramosystems.oss.player.flat.FlatVideoPlayer</code> module.
+ * Provides resource bundles for the Capsule widget
  */
-package com.bramosystems.oss.player.provider.samples.client;
-
+package com.bramosystems.oss.player.provider.sample.client.skin;

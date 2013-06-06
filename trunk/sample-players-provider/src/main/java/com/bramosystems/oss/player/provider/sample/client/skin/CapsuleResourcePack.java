@@ -1,7 +1,7 @@
-package com.bramosystems.oss.player.provider.samples.client.skin;
+package com.bramosystems.oss.player.provider.sample.client.skin;
 
-import com.bramosystems.oss.player.provider.samples.client.Capsule;
-import com.bramosystems.oss.player.provider.samples.client.Capsule.CapsuleUIResource;
+import com.bramosystems.oss.player.provider.sample.client.Capsule;
+import com.bramosystems.oss.player.provider.sample.client.Capsule.CapsuleUIResource;
 import com.google.gwt.resources.client.ClientBundle;
 import com.google.gwt.resources.client.ImageResource;
 
