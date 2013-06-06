@@ -8,7 +8,7 @@
     </parent>
     <artifactId>vimeo-player-provider</artifactId>
     <name>Vimeo Player Provider</name>
-    <version>2.0</version>
+    <version>2.0.1-SNAPSHOT</version>
     
     <build>
         <resources>
@@ -26,10 +26,4 @@
             <scope>provided</scope>
         </dependency>
     </dependencies>
-
-  <scm>
-    <connection>scm:svn:http://bst-player.googlecode.com/svn/tags/vimeo-player-provider-2.0</connection>
-    <developerConnection>scm:svn:https://bst-player.googlecode.com/svn/tags/vimeo-player-provider-2.0</developerConnection>
-    <url>http://code.google.com/p/bst-player/source/browse/tags/vimeo-player-provider-2.0</url>
-  </scm>
 </project>
