@@ -21,12 +21,9 @@
     <inherits name="com.bramosystems.oss.player.core.CorePlayerProviderLite" />
     <inherits name="com.bramosystems.oss.player.core.resources.Flash" />
     <inherits name="com.bramosystems.oss.player.playlist.Playlist" />
-    <!--
-    <inherits name="com.bramosystems.oss.player.capsule.Capsule"/>
-     <inherits name="com.bramosystems.oss.player.provider.vimeo.Vimeo"/>
-   <inherits name="com.bramosystems.oss.player.flat.FlatVideoPlayer"/>
-    -->
     <inherits name="com.bramosystems.oss.player.youtube.YouTube"/>
+    <inherits name="com.bramosystems.oss.player.provider.vimeo.VimeoPlayerProvider"/>
+    <!--inherits name="com.bramosystems.oss.player.provider.sample.SamplePlayersProvider"/-->
 
     <entry-point class="com.bramosystems.oss.player.showcase.client.Showcase" />
 </module>
