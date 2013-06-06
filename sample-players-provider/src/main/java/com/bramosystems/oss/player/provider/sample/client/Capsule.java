@@ -13,23 +13,14 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-package com.bramosystems.oss.player.provider.samples.client;
+package com.bramosystems.oss.player.provider.sample.client;
 
-import com.bramosystems.oss.player.provider.samples.client.impl.CapsulePlayerProvider;
-import com.bramosystems.oss.player.provider.samples.client.skin.CapsuleResourcePack;
 import com.bramosystems.oss.player.core.client.*;
 import com.bramosystems.oss.player.core.client.skin.*;
 import com.bramosystems.oss.player.core.client.spi.Player;
-import com.bramosystems.oss.player.core.event.client.LoadingProgressEvent;
-import com.bramosystems.oss.player.core.event.client.LoadingProgressHandler;
-import com.bramosystems.oss.player.core.event.client.PlayStateEvent;
-import com.bramosystems.oss.player.core.event.client.PlayStateHandler;
-import com.bramosystems.oss.player.core.event.client.PlayerStateEvent;
-import com.bramosystems.oss.player.core.event.client.PlayerStateHandler;
-import com.bramosystems.oss.player.core.event.client.SeekChangeEvent;
-import com.bramosystems.oss.player.core.event.client.SeekChangeHandler;
-import com.bramosystems.oss.player.core.event.client.VolumeChangeEvent;
-import com.bramosystems.oss.player.core.event.client.VolumeChangeHandler;
+import com.bramosystems.oss.player.core.event.client.*;
+import com.bramosystems.oss.player.provider.sample.client.impl.SamplePlayersProvider;
+import com.bramosystems.oss.player.provider.sample.client.skin.CapsuleResourcePack;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
@@ -65,7 +56,7 @@ import java.util.ArrayList;
  *
  * @author Sikirulai Braheem
  */
-@Player(name="Capsule", providerFactory=CapsulePlayerProvider.class, minPluginVersion="1.0.0")
+@Player(name="Capsule", providerFactory=SamplePlayersProvider.class, minPluginVersion="1.0.0")
 public class Capsule extends CustomAudioPlayer {
 
     private CapsuleUIResource uiRes;

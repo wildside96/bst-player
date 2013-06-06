@@ -13,14 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.bramosystems.oss.player.provider.samples.client.impl;
+package com.bramosystems.oss.player.provider.sample.client.impl;
 
-import com.bramosystems.oss.player.provider.samples.client.Capsule;
+import com.bramosystems.oss.player.provider.sample.client.Capsule;
 import com.bramosystems.oss.player.core.client.*;
 import com.bramosystems.oss.player.core.client.spi.ConfigurationContext;
 import com.bramosystems.oss.player.core.client.spi.PlayerElement;
 import com.bramosystems.oss.player.core.client.spi.PlayerProvider;
 import com.bramosystems.oss.player.core.client.spi.PlayerProviderFactory;
+import com.bramosystems.oss.player.provider.sample.client.FlatVideoPlayer;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
@@ -31,8 +32,8 @@ import java.util.logging.Logger;
  *
  * @author sbraheem
  */
-@PlayerProvider("bst.sample.capsule")
-public class CapsulePlayerProvider implements PlayerProviderFactory {
+@PlayerProvider("bst.sample")
+public class SamplePlayersProvider implements PlayerProviderFactory {
 
     @Override
     public void init(ConfigurationContext context) {
@@ -46,7 +47,7 @@ public class CapsulePlayerProvider implements PlayerProviderFactory {
 
     @Override
     public PluginVersion getDetectedPluginVersion(String playerName) throws PluginNotFoundException {
-        if (playerName.equals("Capsule")) {
+        if (playerName.equals("Capsule") || playerName.equals("FlatVideoPlayer")) {
             return PluginVersion.get(1, 0, 0);
         } else {
             throw new IllegalArgumentException("Unknown player - '" + playerName + "'");
@@ -62,6 +63,12 @@ public class CapsulePlayerProvider implements PlayerProviderFactory {
             } catch (LoadException ex) {
                 throw new IllegalStateException(ex);
             }
+        } else if (playerName.equals("FlatVideoPlayer")) {
+            try {
+                return new FlatVideoPlayer(mediaURL, autoplay, height, width);
+            } catch (LoadException ex) {
+                throw new IllegalStateException(ex);
+            }
         } else {
             throw new IllegalArgumentException("Unknown player - '" + playerName + "'");
         }
@@ -73,6 +80,12 @@ public class CapsulePlayerProvider implements PlayerProviderFactory {
         if (playerName.equals("Capsule")) {
             try {
                 return new Capsule(mediaURL, autoplay);
+            } catch (LoadException ex) {
+                throw new IllegalStateException(ex);
+            }
+        } else if (playerName.equals("FlatVideoPlayer")) {
+            try {
+                return new FlatVideoPlayer(mediaURL, autoplay, "300px", "100%");
             } catch (LoadException ex) {
                 throw new IllegalStateException(ex);
             }

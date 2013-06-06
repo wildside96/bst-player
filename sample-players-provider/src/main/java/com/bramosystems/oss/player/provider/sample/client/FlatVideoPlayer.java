@@ -13,13 +13,15 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-package com.bramosystems.oss.player.provider.samples.client;
+package com.bramosystems.oss.player.provider.sample.client;
 
-import com.bramosystems.oss.player.core.client.skin.*;
 import com.bramosystems.oss.player.core.client.*;
+import com.bramosystems.oss.player.core.client.skin.CustomPlayerControl;
+import com.bramosystems.oss.player.core.client.skin.CustomVideoPlayer;
 import com.bramosystems.oss.player.core.client.spi.Player;
-import com.bramosystems.oss.player.core.client.ui.*;
-import com.bramosystems.oss.player.provider.samples.client.impl.FlatPlayerProvider;
+import com.bramosystems.oss.player.core.client.ui.Logger;
+import com.bramosystems.oss.player.provider.sample.client.impl.SamplePlayersProvider;
+
 
 /**
  * Custom video player implementation using CustomPlayerControl
@@ -48,7 +50,7 @@ import com.bramosystems.oss.player.provider.samples.client.impl.FlatPlayerProvid
  *
  * @author Sikirulai Braheem
  */
-@Player(name="FlatVideoPlayer", providerFactory=FlatPlayerProvider.class, minPluginVersion="1.0.0")
+@Player(name="FlatVideoPlayer", providerFactory=SamplePlayersProvider.class, minPluginVersion="1.0.0")
 public class FlatVideoPlayer extends CustomVideoPlayer {
 
     private Logger logger;
