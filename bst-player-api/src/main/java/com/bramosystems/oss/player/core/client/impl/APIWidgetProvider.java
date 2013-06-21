@@ -20,6 +20,7 @@ import com.bramosystems.oss.player.core.client.spi.ConfigurationContext;
 import com.bramosystems.oss.player.core.client.spi.PlayerElement;
 import com.bramosystems.oss.player.core.client.spi.PlayerProvider;
 import com.bramosystems.oss.player.core.client.spi.PlayerProviderFactory;
+import com.bramosystems.oss.player.util.client.MimeType;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -31,6 +32,7 @@ import java.util.Set;
  */
 @PlayerProvider("api")
 public class APIWidgetProvider implements PlayerProviderFactory {
+    private String wmpFFMimeType = "application/x-ms-wmp", wmpAppMimeType = "application/x-mplayer2";
 
     @Override
     public void init(ConfigurationContext context) {
@@ -51,6 +53,8 @@ public class APIWidgetProvider implements PlayerProviderFactory {
     public PlayerElement getPlayerElement(String playerName, String playerId, String mediaURL, boolean autoplay, HashMap<String, String> params) {
         if (playerName.equals("swf")) {
             return getSWFElement(playerId, mediaURL, params);
+        } else if (playerName.equals(Plugin.WinMediaPlayer.name())) {
+            return getWMPElement(playerId, mediaURL, autoplay, params);
         } else {
             throw new IllegalArgumentException("Unknown player - '" + playerName + "'");
         }
@@ -79,6 +83,30 @@ public class APIWidgetProvider implements PlayerProviderFactory {
         return e;
     }
 
+   protected PlayerElement getWMPElement(String playerId, String mediaURL, boolean autoplay,
+            HashMap<String, String> params) {
+        PlayerElement e = new PlayerElement(PlayerElement.Type.EmbedElement, playerId, hasWMPFFPlugin() ? wmpFFMimeType : wmpAppMimeType);
+        e.addParam("autostart", hasWMPFFPlugin() ? Boolean.toString(autoplay) : (autoplay ? "1" : "0"));
+        //       e.addParam(hasWMPFFPlugin() ? "URL" : "SRC", mediaURL);
+
+        Iterator<String> keys = params.keySet().iterator();
+        while (keys.hasNext()) {
+            String name = keys.next();
+            e.addParam(name, params.get(name));
+        }
+        return e;
+    }
+   
+    private boolean hasWMPFFPlugin() {
+        // check for firefox plugin mime type...
+        MimeType mt = MimeType.getMimeType(wmpFFMimeType);
+        if (mt != null) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+ 
     @Override
     public PluginVersion getDetectedPluginVersion(String playerName) throws PluginNotFoundException {
         if (playerName.equals("swf")) {

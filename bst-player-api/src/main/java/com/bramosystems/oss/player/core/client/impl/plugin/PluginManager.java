@@ -158,7 +158,7 @@ public class PluginManager {
         private void updateWMPVersion(PluginVersion pi) {
             try {
                 String pid = "bstwmpdetectid";
-                PlayerWidget pw = new PlayerWidget("core", Plugin.WinMediaPlayer.name(), pid, "", false);
+                PlayerWidget pw = new PlayerWidget("api", Plugin.WinMediaPlayer.name(), pid, "", false);
                 pw.setHeight("100px");
                 pw.setWidth("100px");
                 RootPanel.get().add(pw);

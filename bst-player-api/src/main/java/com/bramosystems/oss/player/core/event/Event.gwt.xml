@@ -16,5 +16,5 @@
 <!--                                                                        -->
 
 <module>
-	<inherits name="com.google.gwt.core.Core" />
+    <inherits name="com.google.gwt.core.Core" />
 </module>
