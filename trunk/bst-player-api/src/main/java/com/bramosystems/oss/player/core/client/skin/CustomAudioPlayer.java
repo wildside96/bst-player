@@ -61,12 +61,11 @@ public abstract class CustomAudioPlayer extends AbstractMediaPlayer implements P
      *
      * @throws PluginVersionException if the required player plugin version is not installed on the client.
      * @throws PluginNotFoundException if the player plugin is not installed on the client.
-     *
      * @see Plugin
      */
     public CustomAudioPlayer(Plugin playerPlugin, String mediaURL, boolean autoplay,
             String height, String width) throws PluginNotFoundException,
-            PluginVersionException, LoadException {
+            PluginVersionException {
         engine = PlayerUtil.getPlayer(playerPlugin, mediaURL, autoplay, null, null);
         engine.addDebugHandler(new DebugHandler() {
 

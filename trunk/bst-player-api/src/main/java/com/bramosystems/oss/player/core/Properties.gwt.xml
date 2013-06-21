@@ -20,19 +20,8 @@
     <!-- define configuration properties -->
     <define-property name="bstplayer.enableLogger" values="true, false"/>
     <define-configuration-property name="bstplayer.media.mimeTypes" is-multi-valued="false" />
-    <define-property name="bstplayer.platform" values="win,mac,linux"/>
-    
-    <property-provider name="bstplayer.platform"><![CDATA[
-      var pt = navigator.platform.toLowerCase();
+    <define-property name="bstplayer.platform" values="win,mac,linux,other"/>
  
-      if (pt.indexOf("win") != -1) {
-        return "win";
-      } else if (ua.indexOf("mac") != -1) {
-        return "mac";
-      } else if (ua.indexOf("linux") != -1) {
-        return "linux";
-      }
-      return "other";
-  ]]>
-    </property-provider>
+    <property-provider name="bstplayer.platform" 
+                       generator="com.bramosystems.oss.player.core.rebind.PlatformPropertyGenerator" />
 </module>

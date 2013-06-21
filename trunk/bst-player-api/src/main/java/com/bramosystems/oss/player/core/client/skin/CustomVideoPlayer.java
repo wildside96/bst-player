@@ -59,7 +59,7 @@ public abstract class CustomVideoPlayer extends AbstractMediaPlayer implements P
      */
     public CustomVideoPlayer(Plugin playerPlugin, String mediaURL, boolean autoplay,
             String height, String width)
-            throws PluginNotFoundException, PluginVersionException, LoadException {
+            throws PluginNotFoundException, PluginVersionException {
         if (height == null) {
             throw new NullPointerException("height cannot be null");
         }
