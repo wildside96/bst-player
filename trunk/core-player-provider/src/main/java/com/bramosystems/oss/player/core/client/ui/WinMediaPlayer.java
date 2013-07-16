@@ -73,7 +73,7 @@ public class WinMediaPlayer extends AbstractMediaPlayer implements PlaylistSuppo
 
     final static String reqVer = "1.1.1";
     private static WMPStateManager stateManager;
-    private static String DEFAULT_HEIGHT = "50px";
+    private static String D__HEIGHT = "50px";
     private WMPStateManager.EventProcessor eventProcessor;
     private WinMediaPlayerImpl impl;
     private PlayerWidget playerWidget;
@@ -202,7 +202,8 @@ public class WinMediaPlayer extends AbstractMediaPlayer implements PlaylistSuppo
             _height = "1px";
             setConfigParameter(CoreConfigParameter.WMPUIMode, UIMode.INVISIBLE);
         }
-        setSize(_width, _height);
+        playerWidget.setSize("100%", _height);
+        setWidth(_width);
 
         playlistManager.addToPlaylist(mediaURL);
     }
@@ -246,7 +247,7 @@ public class WinMediaPlayer extends AbstractMediaPlayer implements PlaylistSuppo
      * @throws PluginNotFoundException if the Windows Media Player plugin is not installed on the client.
      */
     public WinMediaPlayer(String mediaURL) throws PluginNotFoundException, PluginVersionException {
-        this(mediaURL, true, DEFAULT_HEIGHT, "100%");
+        this(mediaURL, true, D__HEIGHT, "100%");
     }
 
     /**
@@ -264,7 +265,7 @@ public class WinMediaPlayer extends AbstractMediaPlayer implements PlaylistSuppo
      */
     public WinMediaPlayer(String mediaURL, boolean autoplay) throws 
             PluginNotFoundException, PluginVersionException {
-        this(mediaURL, autoplay, DEFAULT_HEIGHT, "100%");
+        this(mediaURL, autoplay, D__HEIGHT, "100%");
     }
 
     /**
@@ -470,7 +471,7 @@ public class WinMediaPlayer extends AbstractMediaPlayer implements PlaylistSuppo
                 _w = vidWidth + "px";
                 _h = vidHeight + "px";
             } else {
-                _h = DEFAULT_HEIGHT;
+                _h = D__HEIGHT;
             }
             fireDebug("Resizing Player : " + _w + " x " + _h);
         }
@@ -479,6 +480,7 @@ public class WinMediaPlayer extends AbstractMediaPlayer implements PlaylistSuppo
         if (stateManager.shouldRunResizeQuickFix()) {
             return;
         }
+            fireDebug("Player Sizing : " + _w + " x " + _h);
 
         playerWidget.setSize(_w, _h);
         setWidth(_w);

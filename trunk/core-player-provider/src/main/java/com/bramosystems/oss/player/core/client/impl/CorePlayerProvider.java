@@ -17,14 +17,12 @@ package com.bramosystems.oss.player.core.client.impl;
 
 import com.bramosystems.oss.player.core.client.*;
 import com.bramosystems.oss.player.core.client.impl.FMPStateManager.FMPStateCallback;
-import com.bramosystems.oss.player.core.client.impl.plugin.PlayerManager;
 import com.bramosystems.oss.player.core.client.spi.ConfigurationContext;
 import com.bramosystems.oss.player.core.client.spi.PlayerElement;
 import com.bramosystems.oss.player.core.client.spi.PlayerProvider;
 import com.bramosystems.oss.player.core.client.spi.PlayerProviderFactory;
 import com.bramosystems.oss.player.core.client.ui.*;
 import com.bramosystems.oss.player.util.client.MimeType;
-import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.JavaScriptObject;
 import java.util.*;
 
@@ -48,19 +46,19 @@ public class CorePlayerProvider implements PlayerProviderFactory {
             throws PluginNotFoundException, PluginVersionException {
         AbstractMediaPlayer player = null;
         if (playerName.equals(Plugin.DivXPlayer.name())) {
-            player = new DivXPlayer(mediaURL, autoplay, height, width);
+                player = new DivXPlayer(mediaURL, autoplay, height, width);
         } else if (playerName.equals(Plugin.FlashPlayer.name())) {
-            player = new FlashMediaPlayer(mediaURL, autoplay, height, width);
+                player = new FlashMediaPlayer(mediaURL, autoplay, height, width);
         } else if (playerName.equals(Plugin.Native.name())) {
-            player = new NativePlayer(mediaURL, autoplay, height, width);
+                player = new NativePlayer(mediaURL, autoplay, height, width);
         } else if (playerName.equals(Plugin.QuickTimePlayer.name())) {
-            player = new QuickTimePlayer(mediaURL, autoplay, height, width);
+                player = new QuickTimePlayer(mediaURL, autoplay, height, width);
         } else if (playerName.equals(Plugin.VLCPlayer.name())) {
-            player = new VLCPlayer(mediaURL, autoplay, height, width);
+                player = new VLCPlayer(mediaURL, autoplay, height, width);
         } else if (playerName.equals(Plugin.WinMediaPlayer.name())) {
-            player = new WinMediaPlayer(mediaURL, autoplay, height, width);
+                player = new WinMediaPlayer(mediaURL, autoplay, height, width);
         } else {
-            throw new IllegalArgumentException("Unknown player - '" + playerName + "'");
+                throw new IllegalArgumentException("Unknown player - '" + playerName + "'");
         }
         return player;
     }
@@ -69,19 +67,19 @@ public class CorePlayerProvider implements PlayerProviderFactory {
     public AbstractMediaPlayer getPlayer(String playerName, String mediaURL, boolean autoplay) throws PluginNotFoundException, PluginVersionException {
         AbstractMediaPlayer player = null;
         if (playerName.equals(Plugin.DivXPlayer.name())) {
-            player = new DivXPlayer(mediaURL, autoplay);
+                player = new DivXPlayer(mediaURL, autoplay);
         } else if (playerName.equals(Plugin.FlashPlayer.name())) {
-            player = new FlashMediaPlayer(mediaURL, autoplay);
+                player = new FlashMediaPlayer(mediaURL, autoplay);
         } else if (playerName.equals(Plugin.Native.name())) {
-            player = new NativePlayer(mediaURL, autoplay);
+                player = new NativePlayer(mediaURL, autoplay);
         } else if (playerName.equals(Plugin.QuickTimePlayer.name())) {
-            player = new QuickTimePlayer(mediaURL, autoplay);
+                player = new QuickTimePlayer(mediaURL, autoplay);
         } else if (playerName.equals(Plugin.VLCPlayer.name())) {
-            player = new VLCPlayer(mediaURL, autoplay);
+                player = new VLCPlayer(mediaURL, autoplay);
         } else if (playerName.equals(Plugin.WinMediaPlayer.name())) {
-            player = new WinMediaPlayer(mediaURL, autoplay);
+                player = new WinMediaPlayer(mediaURL, autoplay);
         } else {
-            throw new IllegalArgumentException("Unknown player - '" + playerName + "'");
+                throw new IllegalArgumentException("Unknown player - '" + playerName + "'");
         }
         return player;
     }
