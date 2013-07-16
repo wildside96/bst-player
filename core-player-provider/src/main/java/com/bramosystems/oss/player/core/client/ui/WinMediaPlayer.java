@@ -480,7 +480,6 @@ public class WinMediaPlayer extends AbstractMediaPlayer implements PlaylistSuppo
         if (stateManager.shouldRunResizeQuickFix()) {
             return;
         }
-            fireDebug("Player Sizing : " + _w + " x " + _h);
 
         playerWidget.setSize(_w, _h);
         setWidth(_w);
