@@ -52,7 +52,7 @@ public class WMPStateManager {
      * @return quick
      */
     public boolean shouldRunResizeQuickFix() {
-        return true;
+        return false;
     }
 
     public final boolean isPlayerStateManaged(String playerId) {
